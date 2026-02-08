@@ -18,7 +18,6 @@ from app.db.security import authenticate_user
 from app.crud.auth import create_user, create_verification_email
 
 
-
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
@@ -87,5 +86,5 @@ def confirm_email(token: str, db: Session = Depends(get_db)):
     user.is_verified = True
     db.delete(record)
     db.commit()
-    
+
     return Message(message="Email verified successfully")

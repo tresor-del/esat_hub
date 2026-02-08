@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.models import user, user_role, programme, role, domaine, application, academic_year, email_verification
+from app.models import user, email_verification
 from app.db.database import Base
 
 # this is the Alembic Config object, which provides

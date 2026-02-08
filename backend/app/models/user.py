@@ -12,6 +12,4 @@ class User(Base):
     role_id = Column(UUID(as_uuid=True), ForeignKey("roles.id"))
     is_verified = Column(Boolean, default=False)
     
-    role = relationship("Role", back_populates="users")
-    applications = relationship("Application", back_populates="student")
 
