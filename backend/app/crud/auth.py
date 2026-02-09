@@ -11,8 +11,8 @@ from app.models.email_verification import EmailVerificationToken
 def create_user(*, db: Session, username: str, password: str, is_verified: bool):
     user = User(
         email=username,
-        password=hash_password(password),
-        is_verified=False,
+        hashed_password=hash_password(password),
+        is_verified=is_verified,
     )
     db.add(user)
     db.commit()

@@ -18,7 +18,7 @@ def hash_password(password: str) -> str:
 
 def verify_password(password: str, hashed_password: str) -> str:
     try: 
-        ph.verify(password, hashed_password)
+        ph.verify(hashed_password, password)
         return True
     except:
         return False
@@ -33,20 +33,27 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
-def authenticate_user(db: Session, username: str, password: str) :
-    user = db.query(User).filter(
-        User.email == username
-    ).first()
+def authenticate_user(db: Session, username: str, password: str):
+    user = db.query(User).filter(User.email == username).first()
     
-    if not user or verify_password(password, user.hashed_password):
+    # Vérifier si l'utilisateur existe
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
         )
     
+    # Vérifier si le mot de passe est incorrect
+    if not verify_password(password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+        )
+    
+    # Vérifier si l'email est vérifié
     if not user.is_verified:
         raise HTTPException(
-            status_code=403,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Email not verified. Please check your inbox."
         )
     

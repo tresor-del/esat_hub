@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Enum
+from sqlalchemy import UUID, Column, Integer, String, Text, DateTime, Enum, ForeignKey
+from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
-
+import uuid
 from app.db.database import Base
 
 class PostType(str, enum.Enum):
@@ -18,8 +19,13 @@ class Post(Base):
     file_path = Column(String(500), nullable=False)
     file_name = Column(String(255), nullable=False)
     mime_type = Column(String(100), nullable=True)
+    
+    # Relation avec l'utilisateur
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user = relationship("User", back_populates="posts")
+    
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     def __repr__(self):
-        return f"<Post {self.id}: {self.title}>"
+        return f"<Post {self.id}: {self.title} by User {self.user_id}>"

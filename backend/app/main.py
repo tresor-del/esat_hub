@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.database import Base, engine
 from app.routers.auth import router as auth_router
-from app.routers.post import app as post_router
+from app.routers.post import router as post_router
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -18,7 +18,7 @@ app.mount("/static", StaticFiles(directory="app/templates/static"), name="static
 # Configuration CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En production, spécifiez les domaines autorisés
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

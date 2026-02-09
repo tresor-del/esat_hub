@@ -43,7 +43,8 @@ def register(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    if db.query(User).filter(User.email == user_in.email).first():
+
+    if db.query(User).filter(User.email == user_in.username).first():
         raise HTTPException(400, "Email already registered")
     
     # création de l'utilisateur
@@ -68,6 +69,7 @@ def register(
 
 @router.get("/confirm-email")
 def confirm_email(token: str, db: Session = Depends(get_db)):
+    
     record = db.query(EmailVerificationToken).filter(
         EmailVerificationToken.token == token
     ).first()
@@ -86,5 +88,6 @@ def confirm_email(token: str, db: Session = Depends(get_db)):
     user.is_verified = True
     db.delete(record)
     db.commit()
+    db.refresh(user)
 
     return Message(message="Email verified successfully")

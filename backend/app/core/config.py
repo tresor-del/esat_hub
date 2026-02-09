@@ -13,6 +13,6 @@ class Settings(BaseSettings):
     ALGORITHM: str = ""
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    SQLALCHEMY_DATABASE_URI: str = ""
+    SQLALCHEMY_DATABASE_URI: str = "postgresql://tresoresathub:tresoresathub16@localhost:5432/esathub"
     
 settings = Settings()
