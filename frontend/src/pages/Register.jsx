@@ -41,14 +41,14 @@ const Register = () => {
    */
   const validateForm = () => {
     // Vérifier que tous les champs sont remplis
-    if (!formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.username || !formData.password || !formData.confirmPassword) {
       setError('Veuillez remplir tous les champs');
       return false;
     }
 
     // Vérifier le format de l'email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
+    if (!emailRegex.test(formData.username)) {
       setError('Veuillez entrer un email valide');
       return false;
     }
@@ -122,7 +122,7 @@ const Register = () => {
           <div className="alert alert-success">
             <strong>Vérifiez votre email</strong>
             <p style={{ marginTop: '8px' }}>
-              Un email de vérification a été envoyé à <strong>{formData.email}</strong>.
+              Un email de vérification a été envoyé à <strong>{formData.username}</strong>.
               Cliquez sur le lien dans l'email pour activer votre compte.
             </p>
           </div>
@@ -163,11 +163,11 @@ const Register = () => {
             </label>
             <input
               type="email"
-              id="email"
-              name="email"
+              id="username"
+              name="username"
               className="form-input"
               placeholder="votre@email.com"
-              value={formData.email}
+              value={formData.username}
               onChange={handleChange}
               required
               disabled={loading}
