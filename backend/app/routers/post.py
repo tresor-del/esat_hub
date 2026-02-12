@@ -239,8 +239,7 @@ def delete_post(
 @router.get("/posts/{post_id}/file")
 def download_file(
     post_id: int, 
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     """
     Télécharger le fichier associé à un poste.

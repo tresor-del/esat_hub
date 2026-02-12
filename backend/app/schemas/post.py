@@ -1,7 +1,15 @@
+from uuid import UUID
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
 from enum import Enum
+
+class UserPublic(BaseModel):
+    id: UUID
+    email: str
+
+    class Config:
+        from_attributes = True
 
 class PostType(str, Enum):
     PHOTO = "photo"
@@ -26,12 +34,14 @@ class PostResponse(PostBase):
     mime_type: Optional[str]
     created_at: datetime
     updated_at: datetime
+    user: UserPublic
     
     class Config:
         from_attributes = True
         json_encoders = {
             datetime: lambda v: v.isoformat()
         }
+        
 
 class PostListResponse(BaseModel):
     total: int

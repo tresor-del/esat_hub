@@ -28,6 +28,9 @@ def login(
 ):
     user = authenticate_user(db=db, username=form_data.username, password=form_data.password)
     
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
+
     access_token_expires = timedelta(minutes=int(settings.ACCESS_TOKEN_EXPIRE_MINUTES))
 
     access_token = create_access_token(
@@ -50,7 +53,7 @@ def register(
     # création de l'utilisateur
     user = create_user(
         db=db, 
-        username=user_in.username, 
+        username=user_in.email, 
         password=user_in.password, 
         is_verified=False
     )

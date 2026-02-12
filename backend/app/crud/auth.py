@@ -19,7 +19,7 @@ def create_user(*, db: Session, username: str, password: str, is_verified: bool)
     db.refresh(user)
     return user
 
-def create_verification_email(*, db: Session, user_id: uuid):
+def create_verification_email(*, db: Session, user_id: uuid.UUID):
 
     token = secrets.token_urlsafe(32)
     
