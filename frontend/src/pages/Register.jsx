@@ -114,7 +114,7 @@ const Register = () => {
       <div className="auth-container">
         <div className="auth-card">
           <div className="auth-logo">
-            <div className="auth-logo-text">📱 Esat-Hub</div>
+            <div className="auth-logo-text">Esat-Hub</div>
           </div>
 
           <h2 className="auth-title">Inscription Réussie !</h2>

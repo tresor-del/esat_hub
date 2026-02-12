@@ -1,20 +1,20 @@
 /**
  * Composant Navbar - Barre de navigation
- * Affiche le logo, les liens de navigation et les informations utilisateur
- * Style inspiré de Reddit
  */
 
-import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
+import { FiUser, FiSun, FiMoon } from "react-icons/fi";
+import DropdownMenu from "./DropdownMenu";
+import SearchFilters from "./SearchFilters";
 
 const Navbar = () => {
   const { user, logout, isAuth } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
-  /**
-   * Gérer la déconnexion
-   */
   const handleLogout = () => {
-    if (window.confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+    if (window.confirm("Êtes-vous sûr de vouloir vous déconnecter ?")) {
       logout();
     }
   };
@@ -24,49 +24,72 @@ const Navbar = () => {
       <div className="navbar-container">
         {/* Logo et nom de l'application */}
         <Link to="/" className="navbar-logo">
-          <span>📱</span>
           <span>Esat-Hub</span>
         </Link>
+
+        {/* Barre de recherche compacte */}
+        <div className="navbar-filters-wrapper">
+          <SearchFilters compact={true} />
+        </div>
 
         {/* Menu de navigation */}
         <div className="navbar-menu">
           {isAuth() ? (
-            // Menu pour utilisateur connecté
             <>
-              {/* Lien vers l'accueil */}
-              <Link to="/" className="navbar-link">
-                Accueil
-              </Link>
-
-              {/* Lien pour créer un poste */}
               <Link to="/create" className="btn btn-primary">
                 + Créer un poste
               </Link>
 
-              {/* Informations utilisateur */}
-              <div className="navbar-user">
-                <span style={{ color: 'var(--text-secondary)' }}>
-                  {user?.username || 'Utilisateur'}
-                </span>
-              </div>
+              {/* Menu utilisateur */}
+              {user && (
+                <DropdownMenu
+                  trigger={
+                    <div className="navbar-user-trigger" aria-label="user menu">
+                      <div className="avatar">
+                        {(user.username || "U").charAt(0).toUpperCase()}
+                      </div>
+                      <span className="nav-username">
+                        {user.username || "Utilisateur"}
+                      </span>
+                    </div>
+                  }
+                  align="right"
+                >
+                  <div className="navbar-user">
+                    <span style={{ color: "var(--text-secondary)" }}>
+                      {user?.username || "Utilisateur"}
+                    </span>
+                  </div>
 
-              {/* Bouton de déconnexion */}
-              <button 
-                onClick={handleLogout}
-                className="navbar-link"
-                style={{ 
-                  border: 'none', 
-                  background: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--reddit-orange)',
-                  fontWeight: '600'
-                }}
-              >
-                Déconnexion
-              </button>
+                  {/* Theme toggle inside user menu for discoverability */}
+                  <button
+                    onClick={() => toggleTheme()}
+                    className="navbar-link"
+                    style={{ display: "flex", gap: 8, alignItems: "center" }}
+                  >
+                    {theme === "dark" ? <FiSun /> : <FiMoon />}
+                    <span>
+                      {theme === "dark" ? "Mode clair" : "Mode sombre"}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={handleLogout}
+                    className="navbar-link"
+                    style={{
+                      border: "none",
+                      background: "none",
+                      cursor: "pointer",
+                      color: "var(--reddit-orange)",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Déconnexion
+                  </button>
+                </DropdownMenu>
+              )}
             </>
           ) : (
-            // Menu pour utilisateur non connecté
             <>
               <Link to="/login" className="navbar-link">
                 Se connecter

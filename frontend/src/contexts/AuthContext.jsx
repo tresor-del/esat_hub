@@ -3,8 +3,13 @@
  * Gère l'état d'authentification global de l'application
  */
 
-import { createContext, useContext, useState, useEffect } from 'react';
-import { login as apiLogin, logout as apiLogout, isAuthenticated } from '../services/api';
+import { createContext, useContext, useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import {
+  login as apiLogin,
+  logout as apiLogout,
+  isAuthenticated,
+} from "../services/api";
 
 // Création du contexte
 const AuthContext = createContext(null);
@@ -22,16 +27,33 @@ export const AuthProvider = ({ children }) => {
   /**
    * Vérifier si un utilisateur est déjà connecté au chargement
    */
+
   useEffect(() => {
     const checkAuth = () => {
-      if (isAuthenticated()) {
-        // Si un token existe, on considère l'utilisateur comme connecté
-        // Note: Dans une vraie app, on devrait vérifier la validité du token
-        setUser({ authenticated: true });
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        const decoded = jwtDecode(token); // { sub: "user_id", exp: ... }
+        if (decoded.exp * 1000 < Date.now()) {
+          localStorage.removeItem("access_token");
+          setUser(null);
+        } else {
+          // Restore saved username (if any) so UI can show user email/name after reload
+          let storedUsername = null;
+          try {
+            storedUsername = localStorage.getItem("username");
+          } catch (e) {
+            storedUsername = null;
+          }
+
+          setUser({
+            authenticated: true,
+            id: decoded.sub,
+            username: storedUsername || null,
+          });
+        }
       }
       setLoading(false);
     };
-
     checkAuth();
   }, []);
 
@@ -44,25 +66,36 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       const data = await apiLogin(username, password);
-      
-      // Sauvegarder le token dans localStorage
-      localStorage.setItem('access_token', data.access_token);
-      
-      // Mettre à jour l'état de l'utilisateur
-      setUser({ authenticated: true, username });
-      
+      localStorage.setItem("access_token", data.access_token);
+
+      // Persist username so we can restore it after page reloads
+      try {
+        localStorage.setItem("username", username);
+      } catch (e) {
+        // ignore storage errors
+      }
+
+      const decoded = jwtDecode(data.access_token);
+      setUser({
+        authenticated: true,
+        id: decoded.sub,
+        username,
+      });
+
       return { success: true };
     } catch (error) {
-      console.error('Erreur de connexion:', error);
-      
+      console.error("Erreur de connexion:", error);
+
       // Gérer les différents types d'erreurs
       if (error.response?.status === 401) {
-        return { success: false, error: 'Email ou mot de passe incorrect' };
+        return { success: false, error: "Email ou mot de passe incorrect" };
       }
-      
-      return { 
-        success: false, 
-        error: error.response?.data?.detail || 'Erreur de connexion. Veuillez réessayer.' 
+
+      return {
+        success: false,
+        error:
+          error.response?.data?.detail ||
+          "Erreur de connexion. Veuillez réessayer.",
       };
     }
   };
@@ -73,18 +106,43 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     // Supprimer le token
     apiLogout();
-    
+
+    try {
+      localStorage.removeItem("username");
+    } catch (e) {
+      // ignore
+    }
+
     // Réinitialiser l'état de l'utilisateur
     setUser(null);
   };
+
+  // Écouter les événements de déconnexion globaux (ex: axios envoie 'app:logout')
+  // Permet à l'application de gérer la navigation/état depuis un point central
+  useEffect(() => {
+    const onAppLogout = (e) => {
+      try {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("username");
+      } catch (err) {
+        // ignore
+      }
+      setUser(null);
+      // Rediriger vers /login sauf si l'événement précise le contraire
+      if (e?.detail?.redirect !== false) {
+        window.location.href = "/login";
+      }
+    };
+
+    window.addEventListener("app:logout", onAppLogout);
+    return () => window.removeEventListener("app:logout", onAppLogout);
+  }, []);
 
   /**
    * Vérifier si l'utilisateur est authentifié
    * @returns {boolean} True si authentifié
    */
-  const isAuth = () => {
-    return !!user;
-  };
+  const isAuth = () => user?.authenticated === true;
 
   // Valeur fournie par le contexte
   const value = {
@@ -95,11 +153,7 @@ export const AuthProvider = ({ children }) => {
     loading,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 /**
@@ -108,10 +162,10 @@ export const AuthProvider = ({ children }) => {
  */
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  
+
   if (!context) {
-    throw new Error('useAuth doit être utilisé dans un AuthProvider');
+    throw new Error("useAuth doit être utilisé dans un AuthProvider");
   }
-  
+
   return context;
 };

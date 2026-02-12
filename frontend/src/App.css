@@ -1,3 +1,4 @@
+
 /* ============================================
    VARIABLES CSS - Thème Reddit simplifié
    ============================================ */
@@ -6,25 +7,25 @@
   --reddit-orange: #ff4500;
   --reddit-blue: #0079d3;
   --reddit-dark-blue: #0066b3;
-  
+
   /* Couleurs de fond */
   --bg-primary: #dae0e6;
   --bg-secondary: #ffffff;
   --bg-hover: #f6f7f8;
-  
+
   /* Couleurs de texte */
   --text-primary: #1c1c1c;
   --text-secondary: #7c7c7c;
   --text-light: #ffffff;
-  
+
   /* Bordures */
   --border-color: #ccc;
   --border-radius: 4px;
-  
+
   /* Ombres */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
-  
+
   /* Espacement */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -125,13 +126,199 @@ a:hover {
   border-radius: var(--border-radius);
 }
 
+/* Styled user trigger shown in the navbar */
+.navbar-user-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.02));
+  cursor: pointer;
+}
+
+.navbar-user-trigger:hover {
+  background-color: var(--bg-hover);
+}
+
+.navbar-user-trigger .avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--reddit-blue);
+  color: var(--text-light);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.navbar-user-trigger .nav-username {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-dropdown .navbar-user {
+  background: transparent;
+  padding: 0;
+}
+
+.menu-dropdown button.navbar-link {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+}
+
+/* Dropdown general styling */
+.menu-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  background: var(--bg-secondary, #fff);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  padding: 10px;
+  z-index: 999;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menu-dropdown.align-right {
+  right: 0;
+}
+
+.menu-dropdown.align-left {
+  left: 0;
+}
+
+.menu-dropdown .post-action-btn,
+.menu-dropdown button.post-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-primary);
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.menu-dropdown .post-action-btn:hover,
+.menu-dropdown button.post-action-btn:hover,
+.menu-dropdown button.navbar-link:hover {
+  background: var(--bg-hover);
+}
+
+.dropdown-menu-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* SearchFilters component styles */
+.search-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-filters.compact {
+  gap: 6px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 400px;
+}
+
+.search-input-wrapper .search-icon {
+  position: absolute;
+  
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+.search-input {
+  padding-left: 50px;
+  padding-right: 8px;
+  height: 34px;
+  font-size: 13px;
+  border-radius: 20px;
+  width: 100%;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.filter-btn {
+  background: transparent;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.filter-btn.active {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* Responsive: collapse search/filters on small screens */
+@media (max-width: 800px) {
+  .navbar-filters-wrapper {
+    display: none;
+  }
+
+  .nav-username {
+    display: none;
+  }
+
+  .navbar-logo span {
+    font-size: 18px;
+  }
+
+  .post-card {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-input {
+    height: 30px;
+    font-size: 12px;
+  }
+
+  .filter-btn {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}
+
 /* ============================================
    CONTENEUR PRINCIPAL
    ============================================ */
 .container {
-  max-width: 1280px;
+  max-width: 900px;
   margin: 0 auto;
   padding: var(--spacing-lg) var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .main-content {
@@ -168,6 +355,7 @@ a:hover {
 /* ============================================
    POST CARD - Style Reddit
    ============================================ */
+
 .post-card {
   display: flex;
   background-color: var(--bg-secondary);
@@ -176,13 +364,27 @@ a:hover {
   margin-bottom: var(--spacing-md);
   overflow: hidden;
   transition: box-shadow 0.2s;
+  align-items: flex-end;
+  width: 600px;
 }
 
 .post-card:hover {
   box-shadow: var(--shadow-md);
+  cursor: pointer;
+  background-color: var(--bg-hover);
 }
 
-/* Section de vote (gauche) */
+.img-container{
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bg-primary);
+  border-radius: 20px;
+}
+
+
 .post-vote {
   display: flex;
   flex-direction: column;
@@ -191,6 +393,7 @@ a:hover {
   padding: var(--spacing-sm);
   gap: var(--spacing-xs);
   min-width: 50px;
+  justify-content: flex-end;
 }
 
 .vote-button {
@@ -217,57 +420,96 @@ a:hover {
 .post-content {
   flex: 1;
   padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
 }
+
 
 .post-meta {
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
+  justify-content: space-between;
   color: var(--text-secondary);
   font-size: 12px;
   margin-bottom: var(--spacing-sm);
 }
 
-.post-badge {
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
+.post-meta .menu-button {
+  background-color: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
 }
 
-.badge-photo {
-  background-color: #e1f5fe;
-  color: #01579b;
-}
 
-.badge-document {
-  background-color: #fff3e0;
-  color: #e65100;
-}
 
 .post-title {
   font-size: 18px;
-  font-weight: 500;
+  font-weight: bold;
   margin-bottom: var(--spacing-sm);
   color: var(--text-primary);
-  cursor: pointer;
+
 }
 
-.post-title:hover {
-  color: var(--reddit-blue);
+.post-user-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
+
+.post-user {
+  font-size: 1.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  padding: 2px;
+}
+
+.post-user-info div {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 2px;
+}
+
 
 .post-description {
+  display: -webkit-box;
+  width: 100%;
+  max-width: 100%;
   color: var(--text-secondary);
   margin-bottom: var(--spacing-md);
   line-height: 1.5;
+
+
+  /* 🔑 CLAMP */
+  -webkit-line-clamp: 1;
+  /* nombre de lignes */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  /* 🔑 FIX mots longs */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.post-description.full {
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.post-description:hover {
+  cursor: pointer;
 }
 
 .post-actions {
+  margin-top: auto;
   display: flex;
   gap: var(--spacing-md);
+  align-items: center;
 }
+
 
 .post-action-btn {
   background: none;
@@ -286,6 +528,18 @@ a:hover {
 
 .post-action-btn:hover {
   background-color: var(--bg-hover);
+}
+
+.post-detail-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.post-detail-card{
+  width: 100%;
 }
 
 /* ============================================
@@ -513,6 +767,7 @@ a:hover {
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -697,4 +952,8 @@ a:hover {
   .filter-buttons {
     flex-wrap: wrap;
   }
+}
+
+.comments-card {
+  width: 100%;
 }

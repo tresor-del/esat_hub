@@ -72,7 +72,7 @@ const Login = () => {
       <div className="auth-card">
         {/* Logo */}
         <div className="auth-logo">
-          <div className="auth-logo-text">📱 Esat-Hub</div>
+          <div className="auth-logo-text">Esat-Hub</div>
         </div>
 
         {/* Titre */}

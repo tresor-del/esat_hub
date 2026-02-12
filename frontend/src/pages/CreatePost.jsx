@@ -128,8 +128,9 @@ const CreatePost = () => {
   };
 
   return (
+    
     <div className="container">
-      <div className="card" style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div className="card" style={{ minWidth: '800px', margin: '0 auto' }}>
         <div className="card-header">
           <h2 className="card-title">Créer un nouveau poste</h2>
         </div>

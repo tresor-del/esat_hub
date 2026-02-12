@@ -12,12 +12,12 @@ import api, { API_BASE_URL } from "../utils/axiosConfig";
 
 export const login = async (username, password) => {
   const formData = new URLSearchParams();
-  formData.append('username', username);
-  formData.append('password', password);
+  formData.append("username", username);
+  formData.append("password", password);
 
-  const response = await api.post('/auth/token', formData, {
+  const response = await api.post("/auth/token", formData, {
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      "Content-Type": "application/x-www-form-urlencoded",
     },
   });
   return response.data;
@@ -25,7 +25,7 @@ export const login = async (username, password) => {
 
 export const register = async (username, password) => {
   console.log("Données envoyées :", { username, password });
-  const response = await api.post('/auth/register', {
+  const response = await api.post("/auth/register", {
     username,
     password,
   });
@@ -49,11 +49,14 @@ export const getPosts = async (skip = 0, limit = 20, postType = null) => {
     url += `&post_type=${postType}`;
   }
   const response = await api.get(url);
+  // console.log(response.data);
   return response.data;
 };
 
 export const searchPosts = async (query, skip = 0, limit = 20) => {
-  const response = await api.get(`/posts/search/?q=${encodeURIComponent(query)}&skip=${skip}&limit=${limit}`);
+  const response = await api.get(
+    `/posts/search/?q=${encodeURIComponent(query)}&skip=${skip}&limit=${limit}`,
+  );
   return response.data;
 };
 
@@ -64,14 +67,14 @@ export const getPost = async (postId) => {
 
 export const createPost = async (postData) => {
   const formData = new FormData();
-  formData.append('title', postData.title);
-  formData.append('description', postData.description || '');
-  formData.append('post_type', postData.post_type);
-  formData.append('file', postData.file);
+  formData.append("title", postData.title);
+  formData.append("description", postData.description || "");
+  formData.append("post_type", postData.post_type);
+  formData.append("file", postData.file);
 
-  const response = await api.post('/posts/', formData, {
+  const response = await api.post("/posts/", formData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
   });
   return response.data;
@@ -92,18 +95,41 @@ export const getPostFileUrl = (postId) => {
 };
 
 export const downloadPostFile = async (postId, fileName) => {
-  const response = await api.get(`/posts/${postId}/file`, {
-    responseType: 'blob',
-  });
-  console.log(response.data);
-  
-  const url = window.URL.createObjectURL(new Blob([response.data]));
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', fileName);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+  try {
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+      // Pas de token -> déconnexion locale
+      logout();
+      throw new Error("Not authenticated");
+    }
+
+    // Certains navigateurs / configurations peuvent ne pas appliquer
+    // correctement l'intercepteur axios pour les requêtes avec
+    // responseType: 'blob'. On ajoute donc explicitement le header Authorization.
+    const response = await api.get(`/posts/${postId}/file`, {
+      responseType: "blob",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName || "file");
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (error) {
+    // Si l'API renvoie 401, forcer la déconnexion et redirection
+    if (error.response?.status === 401) {
+      logout();
+      // Optionnel: rediriger vers /login
+      window.location.href = "/login";
+    }
+    throw error;
+  }
 };
 
 /**
@@ -113,11 +139,11 @@ export const downloadPostFile = async (postId, fileName) => {
  */
 
 export const isAuthenticated = () => {
-  return !!localStorage.getItem('access_token');
+  return !!localStorage.getItem("access_token");
 };
 
 export const logout = () => {
-  localStorage.removeItem('access_token');
+  localStorage.removeItem("access_token");
 };
 
 export default api;
