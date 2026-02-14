@@ -1,18 +1,34 @@
+import logging
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
+from contextlib import asynccontextmanager
+from app.core.logging import setup_logging
+
+setup_logging()
+logger = logging.getLogger(__name__)
+
 from app.db.database import Base, engine
-from app.routers.auth import router as auth_router
-from app.routers.post import router as post_router
+from app.api.v1.auth import router as auth_router
+from app.api.v1.post import router as post_router
+from app.core.config import settings
+from app.initial_data import main as init_db
 
 templates = Jinja2Templates(directory="app/templates")
 
-Base.metadata.create_all(engine)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Connexion à l'api...")
+    yield
+    logger.info("Fermerture des connexions...")
+    engine.dispose()
+    
 
-app = FastAPI()
+app = FastAPI(title=settings.app_name)
+
 app.mount("/static", StaticFiles(directory="app/templates/static"), name="static")
 
 # Configuration CORS
@@ -26,7 +42,7 @@ app.add_middleware(
 
 @app.get("/", response_class=HTMLResponse)
 async def accueil(request: Request):
-        return templates.TemplateResponse("layout.html", {"request": request, "titre": "Enrollix"})
+    return templates.TemplateResponse("layout.html", {"request": request, "titre": "Esat-hub Admin Page"})
     
-app.include_router(auth_router)
-app.include_router(post_router)
+app.include_router(auth_router, prefix="/api/v1")
+app.include_router(post_router, prefix="/api/v1")

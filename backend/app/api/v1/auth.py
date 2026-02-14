@@ -1,3 +1,4 @@
+import logging
 import secrets
 from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordRequestForm
@@ -6,22 +7,22 @@ from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.dependencies import get_db
-from app.models.user import User
-from app.models.email_verification import EmailVerificationToken
-from app.schemas.token import Token
-from app.db.security import verify_password, create_access_token, hash_password
-from app.schemas.user import UserCreate
-from app.schemas.message import Message
-from app.services.email_service import send_verification_email
+from app.dependencies import get_db, get_auth_service, get_email_service
+from app.models.token import Token
+from app.db.security import create_access_token
+from app.models.user import UserCreate
+from app.models.message import Message
+from app.services.email_service import EmailService
 from app.db.security import authenticate_user
-from app.crud.auth import create_user, create_verification_email
+from app.db.database import SessionLocal
+from app.services.auth_service import AuthService
 
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/token")
+@router.post("/token", response_model=Token)
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
@@ -40,30 +41,30 @@ def login(
 
     return Token(access_token=access_token, token_type="bearer")
     
-@router.post("/register", status_code=status.HTTP_201_CREATED)
+@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=Message)
 def register(
     user_in: UserCreate,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db)
+    auth_service: AuthService = Depends(get_auth_service),
+    email_service: EmailService = Depends(get_email_service)
 ):
 
-    if db.query(User).filter(User.email == user_in.username).first():
+    if auth_service.check_duplicated_email(user_in.email):
         raise HTTPException(400, "Email already registered")
     
     # création de l'utilisateur
-    user = create_user(
-        db=db, 
+    user = auth_service.create_user(
         username=user_in.email, 
         password=user_in.password, 
         is_verified=False
     )
     
     # création de l'email de vérification
-    token = create_verification_email(db=db, user_id=user.id)
+    token = auth_service.create_verification_email(user_id=user.id)
     
     # Envoie d'email à l'utilisateur
     background_tasks.add_task(
-        send_verification_email,
+        email_service.send_verification_email(),
         user.email,
         token
     )
@@ -71,11 +72,13 @@ def register(
     return Message(message="Registration successful. Check your email.")
 
 @router.get("/confirm-email")
-def confirm_email(token: str, db: Session = Depends(get_db)):
+def confirm_email(
+    token: str, 
+    auth_service: AuthService = Depends(get_auth_service),
+    email_service: EmailService = Depends(get_email_service),
+    ):
     
-    record = db.query(EmailVerificationToken).filter(
-        EmailVerificationToken.token == token
-    ).first()
+    record = email_service.check_email_verification_token(token)
 
     if not record:
         raise HTTPException(400, "Invalid token")
@@ -83,14 +86,11 @@ def confirm_email(token: str, db: Session = Depends(get_db)):
     if record.expires_at < datetime.utcnow():
         raise HTTPException(400, "Token expired")
     
-    user = db.query(User).filter(User.id == record.user_id).first()
+    user = email_service.check_user_email_verification_token(record)
 
     if not user:
         raise HTTPException(404, "User not found")
     
-    user.is_verified = True
-    db.delete(record)
-    db.commit()
-    db.refresh(user)
+    auth_service.confirm_user(user, record)
 
     return Message(message="Email verified successfully")

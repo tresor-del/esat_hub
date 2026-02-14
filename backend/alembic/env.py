@@ -5,8 +5,9 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.models import user, email_verification
+from app.db.schemas import user
 from app.db.database import Base
+from app.db.schemas import email_verification
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

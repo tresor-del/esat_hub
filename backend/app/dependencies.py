@@ -7,9 +7,12 @@ from typing import Annotated
 from app.db.database import SessionLocal
 from app.db.security import oauth2_scheme
 from app.core.config import settings
-from app.models.user import User
-from app.schemas.token import TokenData
+from app.db.schemas.user import User
+from app.models.token import TokenData
 from app.enums.role_enum import RoleEnum
+from app.services.auth_service import AuthService
+from app.services.email_service import EmailService
+from app.services.post_service import PostService
 
 def get_db():
     db = SessionLocal()
@@ -53,3 +56,12 @@ def requires_roles(*role: RoleEnum):
             )
         return user
     return checker
+
+def get_auth_service(session = Depends(get_db)) -> AuthService:
+    return AuthService(session)
+
+def get_email_service(session = Depends(get_db)) -> EmailService:
+    return EmailService(session)
+
+def get_post_service(session = Depends(get_db)) -> PostService:
+    return PostService(session)

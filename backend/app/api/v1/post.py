@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, File, UploadFile, Form, Depends, HTTPException, status, Query
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
@@ -5,11 +6,14 @@ from typing import Optional, List
 import os
 from pathlib import Path
 
-from app.dependencies import get_db, get_current_user
-from app.schemas.post import PostResponse, PostUpdate, PostListResponse, PostType
-from app.crud import post as crud
+from app.dependencies import get_db, get_current_user, get_post_service
+from app.models.post import PostResponse, PostUpdate, PostListResponse, PostType
 from app.utils.files import save_upload_file
-from app.models.user import User
+from app.db.schemas.user import User
+from app.services.post_service import PostService
+from app.models.message import Message
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["posts"])
 
@@ -29,7 +33,8 @@ async def create_post(
     post_type: PostType = Form(...),
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)  # Utilisateur connecté
+    current_user: User = Depends(get_current_user),
+    service: PostService = Depends(get_post_service)
 ):
     """
     Créer un nouveau poste avec une photo ou un document.
@@ -51,8 +56,7 @@ async def create_post(
         )
         
         # Créer le poste dans la base de données avec l'ID de l'utilisateur
-        db_post = crud.create_post(
-            db=db,
+        db_post = service.create_post(
             title=title,
             description=description,
             post_type=post_type.value,
@@ -78,7 +82,8 @@ def read_posts(
     post_type: Optional[PostType] = None,
     my_posts: bool = Query(False, description="Afficher uniquement mes posts"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    service: PostService = Depends(get_post_service)
 ):
     """
     Récupérer la liste des postes avec pagination.
@@ -91,7 +96,7 @@ def read_posts(
     """
     user_id = current_user.id if my_posts else None
     
-    posts, total = crud.get_posts(
+    posts, total = service.get_posts(
         db,
         skip=skip,
         limit=limit,
@@ -109,7 +114,8 @@ def search_posts(
     limit: int = Query(100, ge=1, le=100),
     my_posts: bool = Query(False, description="Rechercher uniquement dans mes posts"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    service: PostService = Depends(get_post_service)
 ):
     """
     Rechercher des postes par titre ou description.
@@ -122,7 +128,7 @@ def search_posts(
     """
     user_id = current_user.id if my_posts else None
     
-    posts, total = crud.search_posts(
+    posts, total = service.search_posts(
         db, 
         query=q, 
         skip=skip, 
@@ -137,7 +143,8 @@ def search_posts(
 def read_post(
     post_id: int, 
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    service: PostService = Depends(get_post_service)
 ):
     """
     Récupérer un poste spécifique par ID.
@@ -145,7 +152,7 @@ def read_post(
     
     - **post_id**: ID du poste
     """
-    db_post = crud.get_post(db, post_id=post_id)
+    db_post = service.get_post(post_id=post_id)
     
     if db_post is None:
         raise HTTPException(
@@ -161,7 +168,8 @@ def update_post(
     post_id: int,
     post_update: PostUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    service: PostService = Depends(get_post_service)
 ):
     """
     Mettre à jour un poste existant.
@@ -171,7 +179,7 @@ def update_post(
     - **post_update**: Données à mettre à jour
     """
     # Vérifier que le post existe et appartient à l'utilisateur
-    db_post = crud.get_post(db, post_id=post_id)
+    db_post = service.get_post(post_id=post_id)
     
     if db_post is None:
         raise HTTPException(
@@ -185,7 +193,7 @@ def update_post(
             detail="Vous n'avez pas la permission de modifier ce poste"
         )
     
-    db_post = crud.update_post(db, post_id=post_id, post_update=post_update)
+    db_post = service.update_post(post_id=post_id, post_update=post_update)
     
     return db_post
 
@@ -194,7 +202,8 @@ def update_post(
 def delete_post(
     post_id: int, 
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    service: PostService = Depends(get_post_service)
 ):
     """
     Supprimer un poste.
@@ -203,7 +212,7 @@ def delete_post(
     - **post_id**: ID du poste à supprimer
     """
     # Récupérer le poste pour vérifier la propriété et supprimer le fichier
-    db_post = crud.get_post(db, post_id=post_id)
+    db_post = service.get_post(post_id=post_id)
     
     if db_post is None:
         raise HTTPException(
@@ -225,7 +234,7 @@ def delete_post(
         print(f"Erreur lors de la suppression du fichier: {e}")
     
     # Supprimer de la base de données
-    success = crud.delete_post(db, post_id=post_id)
+    success = service.delete_post(post_id=post_id)
     
     if not success:
         raise HTTPException(
@@ -233,13 +242,14 @@ def delete_post(
             detail="Poste non trouvé"
         )
     
-    return None
+    return Message(message="Poste supprimé avec succès")
 
 
 @router.get("/posts/{post_id}/file")
 def download_file(
     post_id: int, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    service: PostService = Depends(get_post_service)
 ):
     """
     Télécharger le fichier associé à un poste.
@@ -247,7 +257,7 @@ def download_file(
     
     - **post_id**: ID du poste
     """
-    db_post = crud.get_post(db, post_id=post_id)
+    db_post = service.get_post(post_id=post_id)
     
     if db_post is None:
         raise HTTPException(

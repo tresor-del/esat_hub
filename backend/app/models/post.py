@@ -1,31 +1,48 @@
-from sqlalchemy import UUID, Column, Integer, String, Text, DateTime, Enum, ForeignKey
-from sqlalchemy.orm import relationship
+from uuid import UUID
+from pydantic import BaseModel, Field
 from datetime import datetime
-import enum
-import uuid
-from app.db.database import Base
+from typing import Optional
+from enum import Enum
 
-class PostType(str, enum.Enum):
+class UserPublic(BaseModel):
+    id: UUID
+    email: str
+
+    class Config:
+        from_attributes = True
+
+class PostType(str, Enum):
     PHOTO = "photo"
     DOCUMENT = "document"
 
-class Post(Base):
-    __tablename__ = "posts"
+class PostBase(BaseModel):
+    title: str = Field(..., min_length=1, max_length=255)
+    description: Optional[str] = None
+    post_type: PostType
+
+class PostCreate(PostBase):
+    pass
+
+class PostUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=1, max_length=255)
+    description: Optional[str] = None
+
+class PostResponse(PostBase):
+    id: int
+    file_path: str
+    file_name: str
+    mime_type: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+    user: UserPublic
     
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(255), nullable=False)
-    description = Column(Text, nullable=True)
-    post_type = Column(Enum(PostType), nullable=False)
-    file_path = Column(String(500), nullable=False)
-    file_name = Column(String(255), nullable=False)
-    mime_type = Column(String(100), nullable=True)
-    
-    # Relation avec l'utilisateur
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    user = relationship("User", back_populates="posts")
-    
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    def __repr__(self):
-        return f"<Post {self.id}: {self.title} by User {self.user_id}>"
+    class Config:
+        from_attributes = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
+        
+
+class PostListResponse(BaseModel):
+    total: int
+    posts: list[PostResponse]

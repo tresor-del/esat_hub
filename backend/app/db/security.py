@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.models.user import User
+from app.db.schemas.user import User
 
 ph = PasswordHasher()
 

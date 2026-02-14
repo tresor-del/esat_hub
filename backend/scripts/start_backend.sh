@@ -3,13 +3,6 @@ set -e
 
 echo "Starting Enrollix backend..."
 
-# Charger les variables d'environnement
-if [ -f .env ]; then
-  export $(grep -v '^#' .env | xargs)
-else
-  echo "No .env file found"
-fi
-
 # Lancer les migrations
 echo "Running database migrations..."
 poetry run alembic upgrade head
