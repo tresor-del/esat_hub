@@ -396,25 +396,7 @@ a:hover {
   justify-content: flex-end;
 }
 
-.vote-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: var(--spacing-xs);
-  color: var(--text-secondary);
-  font-size: 20px;
-  transition: color 0.2s;
-}
 
-.vote-button:hover {
-  color: var(--reddit-orange);
-}
-
-.vote-count {
-  font-weight: bold;
-  font-size: 14px;
-  color: var(--text-primary);
-}
 
 /* Contenu du post */
 .post-content {
@@ -431,7 +413,6 @@ a:hover {
   align-items: center;
   justify-content: space-between;
   color: var(--text-secondary);
-  font-size: 12px;
   margin-bottom: var(--spacing-sm);
 }
 
@@ -454,17 +435,18 @@ a:hover {
 
 .post-user-info {
   display: flex;
-  align-items: center;
+  align-items: start;
   justify-content: center;
-  gap: 5px;
+  gap: 8px;
 }
 
 .post-user {
-  font-size: 1.5rem;
   border-radius: 50%;
   border: 1px solid var(--border-color);
   padding: 2px;
+  font-size: 2rem;
 }
+
 
 .post-user-info div {
   display: flex;
@@ -504,12 +486,12 @@ a:hover {
 }
 
 .post-actions {
-  margin-top: auto;
+  margin-top: 1rem;
   display: flex;
   gap: var(--spacing-md);
   align-items: center;
+  justify-content: space-evenly;
 }
-
 
 .post-action-btn {
   background: none;
@@ -518,16 +500,25 @@ a:hover {
   padding: var(--spacing-xs) var(--spacing-sm);
   color: var(--text-secondary);
   font-weight: 600;
-  font-size: 13px;
+  font-size: 1rem;
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-sm);
   border-radius: var(--border-radius);
   transition: background-color 0.2s;
+  border-radius: 50px;
+}
+
+.post-action-btn .pab-i{
+  font-size: 1.2rem;
+}
+
+.post-for-home {
+  margin-top: auto !important;
 }
 
 .post-action-btn:hover {
-  background-color: var(--bg-hover);
+  background-color: var(--bg-primary);
 }
 
 .post-detail-container {
@@ -540,6 +531,15 @@ a:hover {
 
 .post-detail-card{
   width: 100%;
+}
+
+.return-to-post-btn{
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 
 /* ============================================
@@ -952,8 +952,4 @@ a:hover {
   .filter-buttons {
     flex-wrap: wrap;
   }
-}
-
-.comments-card {
-  width: 100%;
 }

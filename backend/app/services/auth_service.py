@@ -15,7 +15,9 @@ class AuthService:
         
     def check_user_email_verification_token(self, record: EmailVerificationToken) -> bool:
         user = self._db.query(User).filter(User.id == record.user_id).first()
-        return True if user else False
+        if user:
+            return user
+        return None
     
     def check_verification_token(self, token: str) -> bool:
         record = self._db.query(EmailVerificationToken).filter(
@@ -44,7 +46,7 @@ class AuthService:
         self._db.refresh(user)
         return user
     
-    def create_verification_email(self, db: Session, user_id: uuid.UUID) -> str:
+    def create_verification_email(self, user_id: uuid.UUID) -> str:
 
         token = secrets.token_urlsafe(32)
         

@@ -1,5 +1,5 @@
 /**
- * Page d'Accueil - Home
+ * Page d'Accueil - Home (AVEC GESTION DES LIKES)
  * Affiche la liste de tous les postes avec filtres et recherche
  */
 
@@ -33,7 +33,7 @@ const Home = () => {
     loadPosts();
   }, [filterType]);
 
-  // Écouter les recherches provenant de la navbar (SearchFilters envoie 'app:search')
+  // Écouter les recherches provenant de la navbar
   useEffect(() => {
     const onAppSearch = (e) => {
       const detail = e?.detail || {};
@@ -42,7 +42,6 @@ const Home = () => {
       setSearchQuery(q);
       setFilterType(t);
       setPage(0);
-      // Charger avec override pour éviter l'ancien état
       loadPosts(false, q, t);
     };
 
@@ -95,6 +94,15 @@ const Home = () => {
   };
 
   /**
+   * 🔧 NOUVEAU : Mettre à jour un post dans la liste après un like
+   */
+  const handlePostUpdate = (updatedPost) => {
+    setPosts(posts.map(post => 
+      post.id === updatedPost.id ? updatedPost : post
+    ));
+  };
+
+  /**
    * Gérer la recherche
    */
   const handleSearch = (e) => {
@@ -109,7 +117,7 @@ const Home = () => {
   const handleFilterChange = (type) => {
     setFilterType(type);
     setPage(0);
-    setSearchQuery(""); // Réinitialiser la recherche
+    setSearchQuery("");
   };
 
   /**
@@ -138,11 +146,7 @@ const Home = () => {
 
     try {
       await deletePost(post.id);
-
-      // Retirer le poste de la liste
       setPosts(posts.filter((p) => p.id !== post.id));
-
-      // Message de succès (vous pouvez ajouter un toast ici)
       alert("Poste supprimé avec succès");
     } catch (err) {
       console.error("Erreur lors de la suppression:", err);
@@ -160,7 +164,6 @@ const Home = () => {
   return (
     <div className="container">
       <div className="main-content">
-        {/* Recherche et filtres déplacés dans la navbar */}
         <div style={{ marginBottom: "12px" }} />
 
         {/* Message d'erreur */}
@@ -206,6 +209,7 @@ const Home = () => {
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onView={handleView}
+                onPostUpdate={handlePostUpdate} 
               />
             ))}
 

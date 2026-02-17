@@ -17,4 +17,4 @@ class EmailService:
         record = self._db.query(EmailVerificationToken).filter(
             EmailVerificationToken.token == token
         ).first()
-        return record is not None # Plus pythonique que "True if record else False"
+        return record # Plus pythonique que "True if record else False"

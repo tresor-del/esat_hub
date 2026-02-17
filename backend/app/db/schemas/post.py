@@ -1,3 +1,4 @@
+# app/db/schemas/post.py (VERSION MISE À JOUR)
 from sqlalchemy import UUID, Column, Integer, String, Text, DateTime, Enum, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -5,9 +6,11 @@ import enum
 import uuid
 from app.db.database import Base
 
+
 class PostType(str, enum.Enum):
     PHOTO = "photo"
     DOCUMENT = "document"
+
 
 class Post(Base):
     __tablename__ = "posts"
@@ -23,6 +26,10 @@ class Post(Base):
     # Relation avec l'utilisateur
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="posts")
+    
+    # Nouvelles relations
+    likes = relationship("Like", back_populates="post", cascade="all, delete-orphan")
+    comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

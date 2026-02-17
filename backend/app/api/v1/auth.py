@@ -64,7 +64,7 @@ def register(
     
     # Envoie d'email à l'utilisateur
     background_tasks.add_task(
-        email_service.send_verification_email(),
+        email_service.send_verification_email,
         user.email,
         token
     )
@@ -78,7 +78,7 @@ def confirm_email(
     email_service: EmailService = Depends(get_email_service),
     ):
     
-    record = email_service.check_email_verification_token(token)
+    record = email_service.check_user_email_verification_token(token)
 
     if not record:
         raise HTTPException(400, "Invalid token")
@@ -86,7 +86,7 @@ def confirm_email(
     if record.expires_at < datetime.utcnow():
         raise HTTPException(400, "Token expired")
     
-    user = email_service.check_user_email_verification_token(record)
+    user = auth_service.check_user_email_verification_token(record)
 
     if not user:
         raise HTTPException(404, "User not found")

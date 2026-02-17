@@ -13,7 +13,7 @@ const Register = () => {
 
   // États du formulaire
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
     confirmPassword: '',
   });
@@ -41,14 +41,14 @@ const Register = () => {
    */
   const validateForm = () => {
     // Vérifier que tous les champs sont remplis
-    if (!formData.username || !formData.password || !formData.confirmPassword) {
+    if (!formData.email || !formData.password || !formData.confirmPassword) {
       setError('Veuillez remplir tous les champs');
       return false;
     }
 
     // Vérifier le format de l'email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.username)) {
+    if (!emailRegex.test(formData.email)) {
       setError('Veuillez entrer un email valide');
       return false;
     }
@@ -84,7 +84,7 @@ const Register = () => {
 
     try {
       // Tentative d'inscription
-      const result = await register(formData.username, formData.password);
+      const result = await register(formData.email, formData.password);
 
       // Inscription réussie
       setSuccess(true);
@@ -122,7 +122,7 @@ const Register = () => {
           <div className="alert alert-success">
             <strong>Vérifiez votre email</strong>
             <p style={{ marginTop: '8px' }}>
-              Un email de vérification a été envoyé à <strong>{formData.username}</strong>.
+              Un email de vérification a été envoyé à <strong>{formData.email}</strong>.
               Cliquez sur le lien dans l'email pour activer votre compte.
             </p>
           </div>
@@ -141,7 +141,7 @@ const Register = () => {
       <div className="auth-card">
         {/* Logo */}
         <div className="auth-logo">
-          <div className="auth-logo-text">📱 Esat-Hub</div>
+          <div className="auth-logo-text">Esat-Hub</div>
         </div>
 
         {/* Titre */}
@@ -163,11 +163,11 @@ const Register = () => {
             </label>
             <input
               type="email"
-              id="username"
-              name="username"
+              id="email"
+              name="email"
               className="form-input"
               placeholder="votre@email.com"
-              value={formData.username}
+              value={formData.email}
               onChange={handleChange}
               required
               disabled={loading}

@@ -1,0 +1,167 @@
+/**
+ * Styles pour le visualiseur PDF en slides
+ * Navigation page par page avec animations fluides
+ */
+
+/* Container principal du visualiseur */
+.pdf-viewer-container {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.pdf-viewer-container:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Boutons de navigation (précédent/suivant) */
+.pdf-nav-button {
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.pdf-nav-button:hover:not(:disabled) {
+  transform: translateY(-50%) scale(1.1);
+  background-color: rgba(0, 0, 0, 0.85);
+}
+
+.pdf-nav-button:active:not(:disabled) {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* Animation de transition entre les pages */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.pdf-viewer-container iframe {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Barre de miniatures */
+.pdf-thumbnails-bar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+}
+
+.pdf-thumbnails-bar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.pdf-thumbnails-bar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pdf-thumbnails-bar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.pdf-thumbnails-bar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Bouton de miniature */
+.pdf-thumbnail-button {
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.pdf-thumbnail-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.pdf-thumbnail-button:active {
+  transform: translateY(0);
+}
+
+/* Indicateur de progression */
+.pdf-progress-indicator {
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Bouton plein écran */
+.pdf-fullscreen-button {
+  transition: all 0.2s ease;
+}
+
+.pdf-fullscreen-button:hover {
+  transform: scale(1.1);
+  color: var(--reddit-blue);
+}
+
+.pdf-fullscreen-button:active {
+  transform: scale(0.95);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pdf-nav-button {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .pdf-thumbnails-bar {
+    padding: 8px !important;
+  }
+
+  .pdf-thumbnail-button {
+    min-width: 50px !important;
+    height: 35px !important;
+    font-size: 11px !important;
+  }
+
+  .pdf-progress-indicator {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* Animation de chargement */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pdf-loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Effet de survol sur le conteneur */
+.pdf-viewer-container:hover .pdf-nav-button:not(:disabled) {
+  opacity: 1;
+}
+
+/* État désactivé des boutons */
+button:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.3 !important;
+}
+
+/* Transition fluide pour le mode plein écran */
+.pdf-viewer-container iframe {
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

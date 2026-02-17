@@ -62,7 +62,7 @@ const Navbar = () => {
                   </div>
 
                   {/* Theme toggle inside user menu for discoverability */}
-                  <button
+                  {/* <button
                     onClick={() => toggleTheme()}
                     className="navbar-link"
                     style={{ display: "flex", gap: 8, alignItems: "center" }}
@@ -70,8 +70,8 @@ const Navbar = () => {
                     {theme === "dark" ? <FiSun /> : <FiMoon />}
                     <span>
                       {theme === "dark" ? "Mode clair" : "Mode sombre"}
-                    </span>
-                  </button>
+                    </span> */}
+                  {/* </button> */}
 
                   <button
                     onClick={handleLogout}

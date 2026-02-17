@@ -4,6 +4,47 @@
 
 import api, { API_BASE_URL } from "../utils/axiosConfig";
 
+
+// ==================== USER PROFILE ====================
+
+/**
+ * Obtenir le profil d'un utilisateur
+ */
+export const getUserProfile = async (userId) => {
+  const response = await api.get(`/users/${userId}`);
+  return response.data;
+};
+
+/**
+ * Mettre à jour son profil
+ */
+export const updateProfile = async (data) => {
+  const response = await api.put('/users/me', data);
+  return response.data;
+};
+
+/**
+ * Upload photo de profil
+ */
+export const uploadAvatar = async (file) => {
+  const formData = new FormData();
+  formData.append('avatar', file);
+  const response = await api.post('/users/me/avatar', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+/**
+ * Obtenir l'URL de l'avatar
+ */
+export const getAvatarUrl = (userId) => {
+  if (!userId) return null;
+  return `${api.defaults.baseURL}/users/${userId}/avatar`;
+};
+
 /**
  * =========================================
  * AUTHENTICATION API
@@ -23,10 +64,10 @@ export const login = async (username, password) => {
   return response.data;
 };
 
-export const register = async (username, password) => {
-  console.log("Données envoyées :", { username, password });
+export const register = async (email, password) => {
+  console.log("Données envoyées :", { email, password });
   const response = await api.post("/auth/register", {
-    username,
+    email,
     password,
   });
   return response.data;
@@ -43,15 +84,16 @@ export const confirmEmail = async (token) => {
  * =========================================
  */
 
-export const getPosts = async (skip = 0, limit = 20, postType = null) => {
-  let url = `/posts/?skip=${skip}&limit=${limit}`;
-  if (postType) {
-    url += `&post_type=${postType}`;
-  }
-  const response = await api.get(url);
-  // console.log(response.data);
+export const getPosts = async ({ skip = 0, limit = 20, postType = null, myPost = false, id = null } = {}) => {
+  const params = new URLSearchParams({ skip, limit, my_post: myPost });
+  
+  if (id) params.append("id", id);
+  if (postType) params.append("post_type", postType);
+
+  const response = await api.get(`/posts/?${params}`);
   return response.data;
 };
+
 
 export const searchPosts = async (query, skip = 0, limit = 20) => {
   const response = await api.get(
@@ -62,8 +104,10 @@ export const searchPosts = async (query, skip = 0, limit = 20) => {
 
 export const getPost = async (postId) => {
   const response = await api.get(`/posts/${postId}`);
+  console.log(response.data);
   return response.data;
 };
+
 
 export const createPost = async (postData) => {
   const formData = new FormData();

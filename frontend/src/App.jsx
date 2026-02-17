@@ -12,6 +12,9 @@ import {
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+
+import "./styles/PostPdfViewer.css"
+import "./styles/UserProfile.css"
 // Layouts
 import MainLayout from "./layouts/MainLayout";
 import EmptyLayout from "./layouts/EmptyLayout";
@@ -24,9 +27,10 @@ import Home from "./pages/Home";
 import CreatePost from "./pages/CreatePost";
 import PostDetail from "./pages/postDetail";
 import PostEdit from "./pages/PostEdit";
+import UserProfil from "./pages/UserProfil"
 
-// Styles
-import "./App.css";
+// Styles (split into ./styles/*.css)
+import "./App.css"
 
 /**
  * Routes de l'application
@@ -77,6 +81,7 @@ const AppRoutes = () => {
         <Route path="/create" element={<CreatePost />} />
         <Route path="/edit/:id" element={<PostEdit />} />
         <Route path="/post/:id" element={<PostDetail />} />
+        <Route path="/profile/:id" element={<UserProfil />} />
       </Route>
 
       {/* ===================== */}

@@ -1,0 +1,506 @@
+/**
+ * Styles pour la page PostEdit
+ * Design cohérent avec les autres composants
+ */
+
+/* Container principal */
+.post-edit-container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* En-tête */
+.post-edit-header {
+  margin-bottom: 32px;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: none;
+  border: 1px solid var(--border-color, #edeff1);
+  border-radius: 6px;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 16px;
+}
+
+.back-button:hover {
+  background-color: #f6f7f8;
+  border-color: #d7dadc;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1c1c1c;
+  margin: 0;
+}
+
+/* Alertes */
+.alert {
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.alert-error {
+  background-color: #fee;
+  color: #d32f2f;
+  border: 1px solid #ffcdd2;
+}
+
+.alert-success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+/* Formulaire */
+.post-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-card {
+  background: white;
+  border: 1px solid var(--border-color, #edeff1);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Groupes de formulaire */
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1c1c1c;
+  margin-bottom: 8px;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  border: 1px solid var(--border-color, #edeff1);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--reddit-blue, #0079d3);
+  box-shadow: 0 0 0 3px rgba(0, 121, 211, 0.1);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: #999;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Sélecteur de type de post */
+.post-type-selector {
+  display: flex;
+  gap: 12px;
+}
+
+.type-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: white;
+  border: 2px solid var(--border-color, #edeff1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+}
+
+.type-option:hover {
+  border-color: #d7dadc;
+  background-color: #f9fafa;
+}
+
+.type-option.active {
+  border-color: var(--reddit-blue, #0079d3);
+  background-color: #e8f4fd;
+  color: var(--reddit-blue, #0079d3);
+}
+
+.type-option svg {
+  transition: transform 0.2s ease;
+}
+
+.type-option:hover svg {
+  transform: scale(1.1);
+}
+
+/* Zone d'upload de fichier */
+.file-upload-area {
+  position: relative;
+}
+
+.file-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.file-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  border: 2px dashed var(--border-color, #edeff1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #fafafa;
+}
+
+.file-upload-label:hover {
+  border-color: var(--reddit-blue, #0079d3);
+  background-color: #f0f8ff;
+}
+
+.upload-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1c1c1c;
+}
+
+.upload-hint {
+  font-size: 12px;
+  color: #999;
+}
+
+/* Aperçu du fichier */
+.file-preview-box {
+  border: 1px solid var(--border-color, #edeff1);
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #fafafa;
+}
+
+.file-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.file-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1c1c1c;
+}
+
+.remove-file-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #edeff1;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #d32f2f;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.remove-file-btn:hover {
+  background-color: #fee;
+  border-color: #ffcdd2;
+}
+
+.file-preview-image {
+  margin-top: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  max-height: 300px;
+  display: flex;
+  justify-content: center;
+  background-color: #f5f5f5;
+}
+
+.file-preview-image img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Fichier existant */
+.existing-file-preview {
+  border: 1px solid var(--border-color, #edeff1);
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #f9fafa;
+}
+
+.existing-file-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.existing-file-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+}
+
+.file-preview-document {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background-color: white;
+  border: 1px solid var(--border-color, #edeff1);
+  border-radius: 6px;
+  margin-top: 12px;
+}
+
+.document-icon {
+  font-size: 32px;
+}
+
+.document-info {
+  flex: 1;
+}
+
+.document-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1c1c1c;
+  margin-bottom: 4px;
+}
+
+.document-link {
+  font-size: 13px;
+  color: var(--reddit-blue, #0079d3);
+  text-decoration: none;
+}
+
+.document-link:hover {
+  text-decoration: underline;
+}
+
+.restore-file-btn {
+  width: 100%;
+  padding: 10px;
+  background: white;
+  border: 1px solid var(--reddit-blue, #0079d3);
+  border-radius: 6px;
+  color: var(--reddit-blue, #0079d3);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+}
+
+.restore-file-btn:hover {
+  background-color: #e8f4fd;
+}
+
+/* Aperçu du post */
+.post-preview {
+  border: 1px solid var(--border-color, #edeff1);
+  border-radius: 8px;
+  padding: 16px;
+  background-color: white;
+}
+
+.preview-header {
+  margin-bottom: 12px;
+}
+
+.preview-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #f6f7f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.preview-email {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1c1c1c;
+}
+
+.preview-time {
+  font-size: 12px;
+  color: #999;
+}
+
+.preview-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1c1c1c;
+  margin: 0 0 12px 0;
+}
+
+.preview-description {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+}
+
+.preview-image {
+  border-radius: 6px;
+  overflow: hidden;
+  max-height: 300px;
+}
+
+.preview-image img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.preview-document {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: #f6f7f8;
+  border: 1px solid var(--border-color, #edeff1);
+  border-radius: 6px;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Boutons d'action */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+}
+
+.btn {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-secondary {
+  background-color: white;
+  color: #666;
+  border: 1px solid var(--border-color, #edeff1);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #f6f7f8;
+  border-color: #d7dadc;
+}
+
+.btn-primary {
+  background-color: var(--reddit-blue, #0079d3);
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #0066b3;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading */
+.loading {
+  font-size: 16px;
+  color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .post-edit-container {
+    padding: 16px 12px;
+  }
+
+  .form-card {
+    padding: 16px;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .post-type-selector {
+    flex-direction: column;
+  }
+
+  .type-option {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+/* Variables CSS (à ajouter dans votre fichier global si pas déjà fait) */
+:root {
+  --reddit-blue: #0079d3;
+  --border-color: #edeff1;
+  --bg-secondary: #f6f7f8;
+}

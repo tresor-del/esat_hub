@@ -101,7 +101,6 @@ const Login = () => {
               placeholder="votre@email.com"
               value={formData.email}
               onChange={handleChange}
-              required
               disabled={loading}
             />
           </div>
