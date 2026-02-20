@@ -65,6 +65,10 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
+        <Route path="/create" element={<CreatePost />} />
+        <Route path="/edit/:id" element={<PostEdit />} />
+        <Route path="/post/:id" element={<PostDetail />} />
+        <Route path="/profile/:id" element={<UserProfil />} />
         <Route path="/" element={<Home />} />
       </Route>
 
@@ -78,10 +82,7 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        <Route path="/create" element={<CreatePost />} />
-        <Route path="/edit/:id" element={<PostEdit />} />
-        <Route path="/post/:id" element={<PostDetail />} />
-        <Route path="/profile/:id" element={<UserProfil />} />
+        
       </Route>
 
       {/* ===================== */}

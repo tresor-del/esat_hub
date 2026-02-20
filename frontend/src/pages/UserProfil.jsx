@@ -1,7 +1,7 @@
 // pages/UserProfile.jsx
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { FiEdit2, FiMail, FiCalendar, FiFileText, FiHeart, FiArrowLeft } from "react-icons/fi";
+import { FiEdit2, FiMail, FiCalendar, FiArrowLeft } from "react-icons/fi";
 import { getUserProfile, getPosts, uploadAvatar } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import Avatar from "../components/Avatar";
@@ -25,6 +25,7 @@ const UserProfile = () => {
     loadProfile();
     loadUserPosts();
   }, [id]);
+
 
   const loadProfile = async () => {
     try {
@@ -148,6 +149,7 @@ const UserProfile = () => {
 
           {/* Informations */}
           <div className="profile-info">
+            
             <h1 className="profile-name">{profile.username}</h1>
             
             <div className="profile-meta">
@@ -197,6 +199,7 @@ const UserProfile = () => {
       </div>
           </div>
         </div>
+        
       </div>
 
       

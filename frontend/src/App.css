@@ -374,16 +374,6 @@ a:hover {
   background-color: var(--bg-hover);
 }
 
-.img-container{
-  width: 100%;
-  height: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--bg-primary);
-  border-radius: 20px;
-}
-
 
 .post-vote {
   display: flex;

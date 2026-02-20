@@ -94,32 +94,40 @@ const PostMedia = ({ post, variant = "preview" }) => {
   };
 
   // Images
-  if (post.post_type === "photo") {
-    return (
-      <div
-        className="img-container"
+if (post.post_type === "photo") {
+  return (
+    <div
+      className="img-container"
+      style={{
+        marginTop: "12px",
+        marginBottom: "12px",
+        width: "100%",
+        maxWidth: "100%",
+        // height: "100%",
+        borderRadius: "4px",
+        overflow: "hidden",
+        backgroundColor: "#a7a0a0ff",
+        // border: "1px solid #666"
+      }}
+    >
+      <img
+        src={getPostFileUrl(post.id)}
+        alt={post.title}
         style={{
-          marginTop: "12px",
-          marginBottom: "12px",
           width: "100%",
+          height: "auto",
+          maxHeight: variant === "preview" ? "500px" : "500px",
+          objectFit: "contain",
+          borderRadius: "4px",
+          display: "block",
         }}
-      >
-        <img
-          src={getPostFileUrl(post.id)}
-          alt={post.title}
-          style={{
-            maxWidth: "100%",
-            maxHeight: variant === "preview" ? "auto" : "none",
-            borderRadius: "4px",
-            objectFit: "cover",
-          }}
-          onError={(e) => {
-            e.target.style.display = "none";
-          }}
-        />
-      </div>
-    );
-  }
+        onError={(e) => {
+          e.target.style.display = "none";
+        }}
+      />
+    </div>
+  );
+}
 
   // Documents
   if (post.post_type === "document") {
@@ -569,9 +577,7 @@ const PostMedia = ({ post, variant = "preview" }) => {
         }}
       >
         <div style={{ fontSize: "48px", marginBottom: "12px" }}>📄</div>
-        <div style={{ fontWeight: "600", marginBottom: "8px" }}>{post.title}</div>
         <div style={{ fontSize: "13px", color: "#666" }}>
-          Document {fileUrl.split(".").pop().toUpperCase()}
         </div>
       </div>
     );
