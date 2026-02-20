@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
+    REFRESH_SECRET_KEY: int = secrets.token_urlsafe(32)
+    REFRESH_ALGORITHM: str = "HS256"
+    
     app_name: str ="esat-hub"
 
     SQLALCHEMY_DATABASE_URI: str = "postgresql://tresoresathub:tresoresathub16@localhost:5432/esathub"
