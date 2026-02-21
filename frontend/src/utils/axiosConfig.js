@@ -12,6 +12,23 @@ const api = axios.create({
   },
 });
 
+const isRefreshing = false;
+let failedQueue = [];
+
+// fonction qui gère toutes les requêtes stockée dans la file d'attente
+const processQueue = (error, token = null) => {
+
+  failedQueue.forEach((prom) => {
+    if (error){
+      prom.reject(error)
+    } else  {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+
+}
+
 // Intercepteur pour ajouter le token d'authentification à chaque requête
 api.interceptors.request.use(
   (config) => {
@@ -21,24 +38,75 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  },
+  (error) => Promise.reject(error)
 );
 
-// Intercepteur pour gérer les erreurs de réponse
+// Intercepteur pour récupérer un nouveau token après expiration du nouveau
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Token expiré ou invalide - supprimer le token et notifier l'application
-      // Au lieu de forcer une navigation ici, on déclenche un événement custom
-      // que l'application React peut écouter pour effectuer une déconnexion SPA.
-      try {
-        localStorage.removeItem("access_token");
-      } catch (e) {
-        // ignore
+  async (error) => {
+    const request = error.config;
+
+    if (error.response?.status === 401 &&
+        !request._retry && 
+        localStorage.getItem("refresh_token")
+    ) {
+
+      request._retry = true;
+
+      // stocker la requête si la recup du nouveau token est déjà en cours
+      // et la traiter que si le token est récupéré
+      if(isRefreshing){
+        // stocker cette requête dans la file d'attente
+        return new Promise(function (resolve, reject) {
+          failedQueue.push({resolve, reject});
+        }) 
+        .then((token) => {
+          request.headers.Authorization = "Bearer " + token;
+          return api(request);
+        })
+        .catch((err) => Promise.reject(err));
       }
+
+      // mécanisme pour récupérer le token si aucun processus de récupération n'est en cours
+      isRefreshing = true;
+      const refreshToken = localStorage.getItem("refresh_token")
+      
+      try {
+        // essayer de récuperer un nouveau token par axios
+        const res = await axios.post(
+          `${API_BASE_URL}/auth/refresh`,
+          {refresh_token: refreshToken}
+        );
+
+        // Mise à jour du stockage et des headers par défaut
+        const newAccessToken = res.data.access_token;
+        localStorage.setItem("access_token", newAccessToken);
+        api.defaults.headers.Authorization = "Bearer " + newAccessToken;
+
+        // on peut alors continuer les requêtes dans la queue
+        processQueue(null, newAccessToken);
+
+        // processus terminé donc:
+        isRefreshing = false;
+
+        // on relance la requête
+        request.headers.Authorization = "Bearer " + newAccessToken;
+        return api(request)
+
+      } catch (refreshError) {
+
+        // si le refresh est expiré aussi
+        processQueue(refreshError, null);
+        isRefreshing = false;
+
+        // nettoyage complet
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+
+      }
+
+      // notification globale pour rédiriger les requêtes vers le login
       window.dispatchEvent(
         new CustomEvent("app:logout", { detail: { reason: "unauthorized" } }),
       );

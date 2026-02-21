@@ -8,6 +8,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useNavigate,
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -31,18 +32,40 @@ import UserProfil from "./pages/UserProfil"
 
 // Styles (split into ./styles/*.css)
 import "./App.css"
+import { useEffect } from "react";
 
 /**
  * Routes de l'application
  */
+
 const AppRoutes = () => {
-  const { isAuth } = useAuth();
+  const { isAuth, logout } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+
+    // fonction pour se déconnecter si la session de l'utilisateur à expiré
+    const handleLogout = (event) => {
+      console.warn("Session expiré");
+      logout();
+      navigate()
+    };
+
+    // déconnecté le client après le signal d'axios
+    window.addEventListener("app:logout", handleLogout)
+
+    return () => {
+      // Nettoyage pour éviter les bugs si le composant est rechargé
+      window.removeEventListener("app:logout", handleLogout);
+    };
+
+  }, [logout, navigate])
 
   return (
     <Routes>
-      {/* ===================== */}
+
       {/* Routes publiques */}
-      {/* ===================== */}
+
       <Route element={<EmptyLayout />}>
         <Route
           path="/login"
@@ -55,9 +78,8 @@ const AppRoutes = () => {
         <Route path="/confirm-email" element={<ConfirmEmail />} />
       </Route>
 
-      {/* ===================== */}
+
       {/* Routes protégées AVEC navbar */}
-      {/* ===================== */}
       <Route
         element={
           <ProtectedRoute>
@@ -72,9 +94,8 @@ const AppRoutes = () => {
         <Route path="/" element={<Home />} />
       </Route>
 
-      {/* ===================== */}
+
       {/* Routes protégées SANS navbar */}
-      {/* Ici : create / edit / post detail ohne navbar */}
       <Route
         element={
           <ProtectedRoute>
@@ -85,9 +106,9 @@ const AppRoutes = () => {
         
       </Route>
 
-      {/* ===================== */}
+
       {/* Fallback */}
-      {/* ===================== */}
+
       <Route
         path="*"
         element={<Navigate to={isAuth() ? "/" : "/login"} replace />}

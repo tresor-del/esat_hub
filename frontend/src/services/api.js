@@ -61,6 +61,10 @@ export const login = async (username, password) => {
       "Content-Type": "application/x-www-form-urlencoded",
     },
   });
+
+  const data = response.data
+  localStorage.setItem("access_token", data.access_token);
+  localStorage.setItem("refresh_token", data.refresh_token);
   return response.data;
 };
 

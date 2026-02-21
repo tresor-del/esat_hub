@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
-    REFRESH_SECRET_KEY: int = secrets.token_urlsafe(32)
+    REFRESH_SECRET_KEY: str = secrets.token_urlsafe(32)
     REFRESH_ALGORITHM: str = "HS256"
     
     app_name: str ="esat-hub"
