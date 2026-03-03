@@ -2,7 +2,8 @@
 import axios from "axios";
 
 // URL de base de l'API
-const API_BASE_URL = "http://localhost:8000/api/v1";
+const API_BASE_URL_ORIGINAL = "http://localhost:8000/api/v1";
+const API_BASE_URL = "https://symmetrical-adventure-4jgg5rprr9x63qvvp-8000.app.github.dev/"
 
 // Instance Axios avec configuration par défaut
 const api = axios.create({
@@ -12,7 +13,7 @@ const api = axios.create({
   },
 });
 
-const isRefreshing = false;
+let isRefreshing = false;
 let failedQueue = [];
 
 // fonction qui gère toutes les requêtes stockée dans la file d'attente
