@@ -6,7 +6,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { FiUpload, FiX } from "react-icons/fi";
-import { getPost, getPostFileUrl } from "../services/api";
+import { getPost, getPostFileUrl, updatePost} from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 
 const PostEdit = () => {
@@ -18,8 +18,8 @@ const PostEdit = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    post_type: "photo",
-    file: null,
+    // post_type: "photo",
+    // // file: null,
   });
 
   // États de l'interface
@@ -51,8 +51,8 @@ const PostEdit = () => {
       setFormData({
         title: result.title,
         description: result.description || "",
-        post_type: result.post_type || "photo",
-        file: null,
+        // post_type: result.post_type || "photo",
+        // // file: null,
       });
 
       // Afficher l'aperçu du fichier existant
