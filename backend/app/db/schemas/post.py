@@ -18,9 +18,9 @@ class Post(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    post_type = Column(Enum(PostType), nullable=False)
-    file_path = Column(String(500), nullable=False)
-    file_name = Column(String(255), nullable=False)
+    post_type = Column(Enum(PostType), nullable=True)
+    file_path = Column(String(500), nullable=True)
+    file_name = Column(String(255), nullable=True)
     mime_type = Column(String(100), nullable=True)
     
     # Relation avec l'utilisateur
