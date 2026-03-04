@@ -15,13 +15,19 @@ from app.db.database import Base, engine
 from app.api.v1.auth import router as auth_router
 from app.api.v1.post import router as post_router
 from app.core.config import settings
-from app.initial_data import main as init_db
+from app.initial_data import init_db
 
 templates = Jinja2Templates(directory="app/templates")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Connexion à l'api...")
+    try:
+        init_db() 
+        logger.info("Base de données initialisée (Super Admin vérifié).")
+    except Exception as e:
+        logger.error(f"Erreur lors de l'initialisation de la DB : {e}")
+
     yield
     logger.info("Fermerture des connexions...")
     engine.dispose()

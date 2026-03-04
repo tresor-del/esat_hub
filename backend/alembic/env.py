@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.db.schemas import user
+from app.db.schemas import user, email_verification, post, comment, like
 from app.db.database import Base
 from app.db.schemas import email_verification
 

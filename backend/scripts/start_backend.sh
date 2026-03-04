@@ -7,10 +7,6 @@ echo "Starting Enrollix backend..."
 echo "Running database migrations..."
 poetry run alembic upgrade head
 
-# Créer les données intiales
-echo "Creating initial data..."
-poetry run python -m app.initial_data
-
 # 4. Démarrer l'API FastAPI
 echo "Launching FastAPI..."
 poetry run uvicorn app.main:app \
