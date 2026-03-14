@@ -18,8 +18,8 @@ const PostEdit = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    // post_type: "photo",
-    // // file: null,
+    post_type: "photo",
+    file: null,
   });
 
   // États de l'interface
@@ -48,11 +48,12 @@ const PostEdit = () => {
       }
 
       setPost(result);
+      console.log("Post chargé:", result);
       setFormData({
         title: result.title,
         description: result.description || "",
-        // post_type: result.post_type || "photo",
-        // // file: null,
+        post_type: result.post_type || "photo",
+        file: null,
       });
 
       // Afficher l'aperçu du fichier existant
@@ -94,6 +95,7 @@ const PostEdit = () => {
       "image/gif",
       "image/webp",
     ];
+
     const allowedDocTypes = [
       "application/pdf",
       "application/msword",
@@ -197,6 +199,7 @@ const PostEdit = () => {
 
     try {
       const data = new FormData();
+      console.log("Titre avant append: ", formData.title);
       data.append("title", formData.title);
       data.append("description", formData.description);
       data.append("post_type", formData.post_type);
@@ -211,6 +214,9 @@ const PostEdit = () => {
         data.append("remove_file", "true");
       }
 
+      // print(data.description)
+      console.log("Id du poste modifié: ", id);
+      console.log("Données du poste modifié: ", data.get("title"));
       await updatePost(id, data);
 
       // Rediriger vers la page du post

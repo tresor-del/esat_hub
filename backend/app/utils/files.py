@@ -29,7 +29,7 @@ def save_upload_file(
     
     # Générer un nom de fichier unique
     unique_filename = f"{uuid.uuid4()}{file_ext}"
-    file_path = UPLOAD_DIR / post_type / unique_filename
+    file_path = Path(UPLOAD_DIR) / post_type / unique_filename
     
     # Créer le sous-dossier si nécessaire
     file_path.parent.mkdir(exist_ok=True)

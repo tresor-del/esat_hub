@@ -122,20 +122,15 @@ async def update_post(
     post_id: int,
     title: Optional[str] = Form(None),
     description: Optional[str] = Form(None),
-    # post_type: Optional[PostType] = Form(None),
-    # file: Optional[UploadFile] = File(None),
-    # remove_file: bool = Form(False),
+    post_type: Optional[PostType] = Form(None),
+    file: Optional[UploadFile] = File(None),
+    remove_file: bool = Form(False),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
     service: PostService = Depends(get_post_service)
 ):
-    """
-    Mettre à jour un post existant avec possibilité de changer le fichier.
-    
-    - Si `file` est fourni : remplace le fichier existant
-    - Si `remove_file` est True : supprime le fichier (doit re-upload)
-    - Sinon : conserve le fichier existant
-    """
+
+
     # Vérifier que le post existe et appartient à l'utilisateur
     db_post = service.get_post(post_id=post_id)
     
@@ -153,43 +148,43 @@ async def update_post(
     
     try:
         # Gérer le fichier
-        # new_file_path = None
-        # new_file_name = None
-        # new_mime_type = None
+        new_file_path = None
+        new_file_name = None
+        new_mime_type = None
         
-        # if file:
-        #     # Nouveau fichier uploadé
-        #     # Supprimer l'ancien fichier
-        #     if os.path.exists(db_post.get("file_path")):
-        #         os.remove(db_post.get("file_path"))
+        if file:
+            # Nouveau fichier uploadé
+            # Supprimer l'ancien fichier
+            if os.path.exists(db_post.get("file_path")):
+                 os.remove(db_post.get("file_path"))
             
-        #     # Sauvegarder le nouveau fichier
-        #     file_type = post_type.value if post_type else db_post.get("post_type")
-        #     new_file_path, new_file_name = save_upload_file(
-        #         file,
-        #         file_type,
-        #         ALLOWED_DOCUMENT_EXTENSIONS,
-        #         ALLOWED_PHOTO_EXTENSIONS,
-        #         UPLOAD_DIR
-        #     )
-        #     new_mime_type = file.content_type
+              #Sauvegarder le nouveau fichier
+            file_type = post_type.value if post_type else db_post.get("post_type")
+            new_file_path, new_file_name = save_upload_file(
+                 file,
+                 file_type,
+                 ALLOWED_DOCUMENT_EXTENSIONS,
+                 ALLOWED_PHOTO_EXTENSIONS,
+                 UPLOAD_DIR
+             )
+            new_mime_type = file.content_type
         
-        # elif remove_file:
-        #     # Supprimer le fichier existant
-        #     if os.path.exists(db_post.get("file_path")):
-        #         os.remove(db_post.get("file_path"))
-        #     # Note: Dans ce cas, il faudrait peut-être exiger un nouveau fichier
-        #     # ou changer le type de post en "text"
+        elif remove_file:
+             # Supprimer le fichier existant
+             if os.path.exists(db_post.get("file_path")):
+                 os.remove(db_post.get("file_path"))
+              # Note: Dans ce cas, il faudrait peut-être exiger un nouveau fichier
+              # ou changer le type de post en "text"
         
         # Mettre à jour le post
         db_post = service.update_post(
             post_id=post_id,
             title=title,
-            description=description
-            # post_type=post_type.value if post_type else None,
-            # file_path=new_file_path,
-            # file_name=new_file_name,
-            # mime_type=new_mime_type
+            description=description,
+             post_type=post_type.value if post_type else None,
+             file_path=new_file_path,
+             file_name=new_file_name,
+             mime_type=new_mime_type
         )
         
         return db_post

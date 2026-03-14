@@ -129,6 +129,7 @@ export const createPost = async (postData) => {
 };
 
 export const updatePost = async (postId, updateData) => {
+  console.log("Juste avant l'envoie vers le serveur: ", updateData.get("title"));
   const response = await api.put(`/posts/${postId}`, updateData);
   return response.data;
 };

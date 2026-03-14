@@ -142,10 +142,10 @@ class PostService:
         post_id: int,
         title: Optional[str] = None,
         description: Optional[str] = None,
-        # post_type: Optional[str] = None,
-        # file_path: Optional[str] = None,
-        # file_name: Optional[str] = None,
-        # mime_type: Optional[str] = None
+         post_type: Optional[str] = None,
+         file_path: Optional[str] = None,
+         file_name: Optional[str] = None,
+         mime_type: Optional[str] = None
     ) -> Optional[Post]:
         db_post = self._db.query(Post).filter(Post.id == post_id).first()
         
@@ -157,14 +157,14 @@ class PostService:
             db_post.title = title
         if description is not None:
             db_post.description = description
-        # if post_type is not None:
-        #     db_post.post_type = post_type
-        # if file_path is not None:
-        #     db_post.file_path = file_path
-        # if file_name is not None:
-        #     db_post.file_name = file_name
-        # if mime_type is not None:
-        #     db_post.mime_type = mime_type
+        if post_type is not None:
+             db_post.post_type = post_type
+        if file_path is not None:
+             db_post.file_path = file_path
+        if file_name is not None:
+             db_post.file_name = file_name
+        if mime_type is not None:
+             db_post.mime_type = mime_type
         
         self._db.commit()
         self._db.refresh(db_post)

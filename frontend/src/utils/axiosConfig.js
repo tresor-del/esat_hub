@@ -9,7 +9,7 @@ const API_BASE_URL = "https://symmetrical-adventure-4jgg5rprr9x63qvvp-8000.app.g
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
