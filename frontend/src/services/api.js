@@ -40,9 +40,11 @@ export const uploadAvatar = async (file) => {
 /**
  * Obtenir l'URL de l'avatar
  */
-export const getAvatarUrl = (userId) => {
+export const getAvatarUrl = (userId, bust = null) => {
   if (!userId) return null;
-  return `${api.defaults.baseURL}/users/${userId}/avatar`;
+  const base = `${api.defaults.baseURL}/users/${userId}/avatar`;
+  return bust ? `${base}?v=${bust}` : base;
+
 };
 
 /**

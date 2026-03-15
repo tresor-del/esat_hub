@@ -26,7 +26,6 @@ const UserProfile = () => {
     loadUserPosts();
   }, [id]);
 
-
   const loadProfile = async () => {
     try {
       setLoading(true);
@@ -35,7 +34,7 @@ const UserProfile = () => {
       if (isOwnProfile) {
         setProfile(currentUser);
       } else {
-        const result = await getUserProfile({userId: id});
+        const result = await getUserProfile({id});
         setProfile(result);
         // setProfile({ id: id, email: "user@example.com" });
       }
@@ -81,6 +80,7 @@ const UserProfile = () => {
     try {
       setUploadingAvatar(true);
       await uploadAvatar(file);
+      localStorage.setItem(`avatar_bust_${currentUser.id}`, Date.now());
       // Recharger le profil
       await loadProfile();
     } catch (err) {
