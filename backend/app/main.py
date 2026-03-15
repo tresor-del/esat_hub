@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 from app.db.database import Base, engine
 from app.api.v1.auth import router as auth_router
 from app.api.v1.post import router as post_router
+from app.api.v1.users import router as users_router
 from app.core.config import settings
 from app.initial_data import init_db
 
@@ -52,3 +53,4 @@ async def accueil(request: Request):
     
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(post_router, prefix="/api/v1")
+app.include_router(users_router, prefix="/api/v1")
