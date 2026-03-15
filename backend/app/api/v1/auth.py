@@ -17,11 +17,11 @@ from app.services.email_service import EmailService
 from app.db.security import authenticate_user
 from app.db.database import SessionLocal
 from app.services.auth_service import AuthService
+from app.models.token import RefreshToken
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-
 
 
 @router.post("/token", response_model=Token)
@@ -49,11 +49,11 @@ def login_for_access_token(
 
 
 @router.post("/refresh")
-def refresh_token(refresh_token: str):
+def refresh_token(body: RefreshToken):
     
     try:
         payload = jwt.decode(
-            token=refresh_token,
+            token=body.refresh_token,
             key=settings.REFRESH_SECRET_KEY,
             algorithms=[settings.REFRESH_ALGORITHM],
         )
@@ -66,6 +66,7 @@ def refresh_token(refresh_token: str):
         return {"access_token": access_token}
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
+
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=Message)
 def register(
