@@ -9,12 +9,12 @@ class Settings(BaseSettings):
         extra="ignore",
     )
     
-    SECRET_KEY: str = secrets.token_urlsafe(32)
+    SECRET_KEY: str = "_zVgUKk973F8jF_UFSQojePb8oHQxiYIQEshaE--xZE"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1
     
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
-    REFRESH_SECRET_KEY: str = secrets.token_urlsafe(32)
+    REFRESH_SECRET_KEY: str = "oUgu8uvFixfhx_RcupLcuNK7FCpoxLFOTsCIixZ_16Y"
     REFRESH_ALGORITHM: str = "HS256"
     
     app_name: str ="esat-hub"

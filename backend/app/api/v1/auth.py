@@ -50,6 +50,9 @@ def login_for_access_token(
 
 @router.post("/refresh")
 def refresh_token(body: RefreshToken):
+
+    print(f">>> Body reçu: {body}")
+    print(f">>> Refresh token: {body.refresh_token[:20]}...")
     
     try:
         payload = jwt.decode(
@@ -64,7 +67,8 @@ def refresh_token(body: RefreshToken):
             data={"sub": user_id}
         )
         return {"access_token": access_token}
-    except JWTError:
+    except JWTError as e:
+        print(f">>> JWTError: {e}") 
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
 
