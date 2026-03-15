@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import PostAuthorInfo from "./PostAuthorInfo";
 import PostActionsMenu from "./PostActionsMenu";
 import PostMedia from "./PostMedia";
+import { useLocation } from "react-router-dom";
 
 const PostCard = ({
   post,
@@ -10,7 +11,7 @@ const PostCard = ({
   onDelete,
   onView,
   // onPostUpdate, // ← NOUVEAU : callback pour notifier Home
-  variant = "list",
+  variant = "list"
 }) => {
 
   // // Hook pour gérer les likes
@@ -76,7 +77,7 @@ const PostCard = ({
         )}
 
         {/* Médias */}
-        <PostMedia post={post} />
+        <PostMedia post={post} variant="detail"  />
 
         {/* Actions avec vrais likes */}
         {/* <PostActions

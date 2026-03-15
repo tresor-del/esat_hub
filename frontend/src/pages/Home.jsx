@@ -73,7 +73,7 @@ const Home = () => {
       } else {
         // Sinon, charger avec filtre de type
         const type = t === "all" ? null : t;
-        result = await getPosts(skip, postsPerPage, type);
+        result = await getPosts({ skip, limit: postsPerPage, postType: type });
       }
 
       // Mettre à jour les postes

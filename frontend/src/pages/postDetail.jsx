@@ -1,5 +1,5 @@
 // pages/PostDetail.jsx (VERSION MISE À JOUR)
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { FiArrowLeft } from "react-icons/fi";
 import { getPost, deletePost } from "../services/api";
@@ -17,11 +17,13 @@ const PostDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const location = useLocation();
+
   // Hook pour gérer les likes
 
   useEffect(() => {
     loadPost();
-  }, [id]);
+  }, [id, location.state?.updatedAt]);
 
   const loadPost = async () => {
     try {
@@ -53,7 +55,7 @@ const PostDetail = () => {
   };
 
   const goHome = () => {
-    navigate(-1);
+    navigate("/");
   };
 
   if (loading) return <div className="loading">Chargement…</div>;
@@ -97,7 +99,7 @@ const PostDetail = () => {
           )}
 
           {/* Médias (photo ou document) */}
-          <PostMedia post={post} variant="detail" />
+          <PostMedia post={post} variant="detail" bust={location.state?.updatedAt} />
 
           {/* Actions avec vrais likes */}
           {/* <PostActions 

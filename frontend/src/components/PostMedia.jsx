@@ -13,7 +13,7 @@ import { Document, Page, pdfjs } from "react-pdf";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 
-const PostMedia = ({ post, variant = "preview" }) => {
+const PostMedia = ({ post, variant = "preview", bust}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pdfError, setPdfError] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -30,6 +30,8 @@ const PostMedia = ({ post, variant = "preview" }) => {
   const goToPrevPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
   };
+
+  const effectiveBust = bust || localStorage.getItem(`post_bust_${post.id}`);
 
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -55,6 +57,7 @@ const PostMedia = ({ post, variant = "preview" }) => {
       try {
         const resp = await api.get(`/posts/${post.id}/file`, {
           responseType: "blob",
+          params: effectiveBust ? { v: effectiveBust } : {},
         });
 
         const mime = resp.headers["content-type"] || resp.data.type || "application/pdf";
@@ -79,7 +82,7 @@ const PostMedia = ({ post, variant = "preview" }) => {
         } catch (e) {}
       }
     };
-  }, [post.id]);
+  }, [post.id, effectiveBust]);
 
   // Callback quand le PDF est chargé
   const onDocumentLoadSuccess = ({ numPages: n }) => {
@@ -94,44 +97,44 @@ const PostMedia = ({ post, variant = "preview" }) => {
   };
 
   // Images
-if (post.post_type === "photo") {
-  return (
-    <div
-      className="img-container"
-      style={{
-        marginTop: "12px",
-        marginBottom: "12px",
-        width: "100%",
-        maxWidth: "100%",
-        // height: "100%",
-        borderRadius: "4px",
-        overflow: "hidden",
-        backgroundColor: "#a7a0a0ff",
-        // border: "1px solid #666"
-      }}
-    >
-      <img
-        src={getPostFileUrl(post.id)}
-        alt={post.title}
+  if (post.post_type === "photo") {
+    return (
+      <div
+        className="img-container"
         style={{
+          marginTop: "12px",
+          marginBottom: "12px",
           width: "100%",
-          height: "auto",
-          maxHeight: variant === "preview" ? "500px" : "500px",
-          objectFit: "contain",
+          maxWidth: "100%",
+          // height: "100%",
           borderRadius: "4px",
-          display: "block",
+          overflow: "hidden",
+          backgroundColor: "#a7a0a0ff",
+          // border: "1px solid #666"
         }}
-        onError={(e) => {
-          e.target.style.display = "none";
-        }}
-      />
-    </div>
-  );
-}
+      >
+        <img
+          src={getPostFileUrl(post.id, effectiveBust)}
+          alt={post.title}
+          style={{
+            width: "100%",
+            height: "auto",
+            maxHeight: variant === "preview" ? "500px" : "500px",
+            objectFit: "contain",
+            borderRadius: "4px",
+            display: "block",
+          }}
+          onError={(e) => {
+            e.target.style.display = "none";
+          }}
+        />
+      </div>
+    );
+  }
 
   // Documents
   if (post.post_type === "document") {
-    const fileUrl = getPostFileUrl(post.id);
+    const fileUrl = getPostFileUrl(post.id, effectiveBust);
     const isPDF = fileUrl.toLowerCase().endsWith(".pdf");
 
     // MODE DETAIL - Navigation complète

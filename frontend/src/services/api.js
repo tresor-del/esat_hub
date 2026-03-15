@@ -139,8 +139,9 @@ export const deletePost = async (postId) => {
   return response.data;
 };
 
-export const getPostFileUrl = (postId) => {
-  return `${API_BASE_URL}/posts/${postId}/file`;
+export const getPostFileUrl = (postId, bust = null) => {
+  const base = `${API_BASE_URL}/posts/${postId}/file`;
+  return bust ? `${base}?v=${bust}` : base;
 };
 
 export const downloadPostFile = async (postId, fileName) => {
