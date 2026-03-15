@@ -2,4 +2,6 @@
 # Ignore Python byte-compiled files and bytecode cache directories
 __pycache__/
 *.py[cod]
-*$py.class
+*$py.classuploads/
+
+uploads/
