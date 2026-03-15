@@ -142,10 +142,10 @@ class PostService:
         post_id: int,
         title: Optional[str] = None,
         description: Optional[str] = None,
-         post_type: Optional[str] = None,
-         file_path: Optional[str] = None,
-         file_name: Optional[str] = None,
-         mime_type: Optional[str] = None
+        post_type: Optional[str] = None,
+        file_path: Optional[str] = None,
+        file_name: Optional[str] = None,
+        mime_type: Optional[str] = None
     ) -> Optional[Post]:
         db_post = self._db.query(Post).filter(Post.id == post_id).first()
         

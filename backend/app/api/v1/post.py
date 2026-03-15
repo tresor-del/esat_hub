@@ -133,6 +133,8 @@ async def update_post(
 
     # Vérifier que le post existe et appartient à l'utilisateur
     db_post = service.get_post(post_id=post_id)
+
+    print("Ancien fichier: ", db_post.get("file_path"))
     
     if db_post is None:
         raise HTTPException(
@@ -158,7 +160,9 @@ async def update_post(
             if os.path.exists(db_post.get("file_path")):
                  os.remove(db_post.get("file_path"))
             
-              #Sauvegarder le nouveau fichier
+            print("Le fichier est éffacé: ", db_post.get("file_path"))
+            
+            #Sauvegarder le nouveau fichier
             file_type = post_type.value if post_type else db_post.get("post_type")
             new_file_path, new_file_name = save_upload_file(
                  file,
@@ -167,6 +171,8 @@ async def update_post(
                  ALLOWED_PHOTO_EXTENSIONS,
                  UPLOAD_DIR
              )
+            
+            print("Le nouveau path du fichier: ", new_file_path)
             new_mime_type = file.content_type
         
         elif remove_file:
