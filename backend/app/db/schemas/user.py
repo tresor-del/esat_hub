@@ -11,6 +11,7 @@ class User(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
     email = Column(String, unique=True, index=True, nullable=False)
+    avatar_path = Column(String, nullable=True)
     hashed_password = Column(String, nullable=False)
     is_verified = Column(Boolean, default=False)
 
