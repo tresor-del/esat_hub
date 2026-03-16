@@ -3,11 +3,13 @@
  */
 
 import { Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth} from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
-import { FiUser, FiSun, FiMoon } from "react-icons/fi";
-import DropdownMenu from "./DropdownMenu";
 import SearchFilters from "./SearchFilters";
+import { IoIosNotificationsOutline } from "react-icons/io";
+import { FiMessageSquare } from "react-icons/fi";
+import Avatar from "./Avatar";
 
 const Navbar = () => {
   const { user, logout, isAuth } = useAuth();
@@ -16,6 +18,16 @@ const Navbar = () => {
   const handleLogout = () => {
     if (window.confirm("Êtes-vous sûr de vouloir vous déconnecter ?")) {
       logout();
+    }
+  };
+
+  const navigate = useNavigate();
+
+  const handleUserClick = (e) => {
+    e.stopPropagation();
+    if (user?.id) {
+      console.log(user.id)
+      navigate(`/profile/${user.id}`);
     }
   };
 
@@ -36,58 +48,20 @@ const Navbar = () => {
         <div className="navbar-menu">
           {isAuth() ? (
             <>
+            <FiMessageSquare style={{"fontSize": "1.5rem"}}/>
+            
               <Link to="/create" className="btn btn-primary">
-                + Créer un poste
+                + Créer
               </Link>
 
-              {/* Menu utilisateur */}
+              <IoIosNotificationsOutline style={{"fontSize": "2rem"}}/>
+
+
               {user && (
-                <DropdownMenu
-                  trigger={
-                    <div className="navbar-user-trigger" aria-label="user menu">
-                      <div className="avatar">
-                        {(user.username || "U").charAt(0).toUpperCase()}
-                      </div>
-                      <span className="nav-username">
-                        {user.username || "Utilisateur"}
-                      </span>
-                    </div>
-                  }
-                  align="right"
-                >
-                  <div className="navbar-user">
-                    <span style={{ color: "var(--text-secondary)" }}>
-                      {user?.username || "Utilisateur"}
-                    </span>
-                  </div>
-
-                  {/* Theme toggle inside user menu for discoverability */}
-                  {/* <button
-                    onClick={() => toggleTheme()}
-                    className="navbar-link"
-                    style={{ display: "flex", gap: 8, alignItems: "center" }}
-                  >
-                    {theme === "dark" ? <FiSun /> : <FiMoon />}
-                    <span>
-                      {theme === "dark" ? "Mode clair" : "Mode sombre"}
-                    </span> */}
-                  {/* </button> */}
-
-                  <button
-                    onClick={handleLogout}
-                    className="navbar-link"
-                    style={{
-                      border: "none",
-                      background: "none",
-                      cursor: "pointer",
-                      color: "var(--reddit-orange)",
-                      fontWeight: "600",
-                    }}
-                  >
-                    Déconnexion
-                  </button>
-                </DropdownMenu>
+                <Avatar user={user} onClick={handleUserClick}/>
               )}
+
+
             </>
           ) : (
             <>
