@@ -28,13 +28,19 @@ class User(Base):
         cascade="all, delete-orphan"
     )
 
-    likes = relationship(
-        "Like",
-        back_populates="user",
+    email_verification_tokens = relationship(
+        "EmailVerificationToken",
         cascade="all, delete-orphan"
     )
 
-    email_verification_tokens = relationship(
-        "EmailVerificationToken",
+    sender_message = relationship(
+        "Message",
+        back_populates="user_sender",
+        cascade="all, delete-orphan"
+    )
+
+    receiver_message = relationship(
+        "Message",
+        back_populates="user_receiver",
         cascade="all, delete-orphan"
     )
