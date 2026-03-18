@@ -45,7 +45,7 @@ def create_refresh_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 def authenticate_user(db: Session, username: str, password: str):
-    user = db.query(User).filter(User.email == username).first()
+    user = db.query(User).filter(User.username == username).first()
     
     # Vérifier si l'utilisateur existe
     if not user:
@@ -69,3 +69,4 @@ def authenticate_user(db: Session, username: str, password: str):
         )
     
     return user
+

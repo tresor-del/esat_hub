@@ -2,7 +2,7 @@ from datetime import datetime
 import uuid
 from sqlalchemy import UUID, Column, ForeignKey, Text, TIMESTAMP
 from sqlalchemy.orm import relationship
-from db.database import Base
+from app.db.database import Base
 
 class Message(Base):
 
