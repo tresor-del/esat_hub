@@ -10,8 +10,8 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.dependencies import get_db, get_auth_service, get_email_service
 from app.models.token import Token
-from app.db.security import create_access_token, create_refresh_token
-from app.models.user import UserCreate
+from app.db.security import create_access_token, create_refresh_token, hash_password
+from app.models.user import UserCreate, UserInDatabase
 from app.models.message import Message
 from app.services.email_service import EmailService
 from app.db.security import authenticate_user
@@ -34,8 +34,6 @@ def login_for_access_token(
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
 
-    # access_token_expires = timedelta(minutes=int(settings.ACCESS_TOKEN_EXPIRE_MINUTES))
-
     access_token = create_access_token(
         data={"sub": str(user.id)},
     )
@@ -45,14 +43,9 @@ def login_for_access_token(
     )
 
     return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
-    
-
 
 @router.post("/refresh")
 def refresh_token(body: RefreshToken):
-
-    print(f">>> Body reçu: {body}")
-    print(f">>> Refresh token: {body.refresh_token[:20]}...")
     
     try:
         payload = jwt.decode(
@@ -60,15 +53,28 @@ def refresh_token(body: RefreshToken):
             key=settings.REFRESH_SECRET_KEY,
             algorithms=[settings.REFRESH_ALGORITHM],
         )
+
+        
         user_id = payload.get("sub")
+
+        # vérifier que c'est bien un access_token
+        if not payload.get("type") == "refresh":
+            raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+        # vérifier qu'un utilisateur est associé au token
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid refresh token")
-        access_token = create_access_token(
+
+        new_access_token = create_access_token(
             data={"sub": user_id}
         )
-        return {"access_token": access_token}
+        new_refresh_token = create_refresh_token(
+            data={"sub": str(user_id)},
+        )
+
+        return Token(access_token=new_access_token, refresh_token=new_refresh_token, token_type="bearer")
+
     except JWTError as e:
-        print(f">>> JWTError: {e}") 
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
 
@@ -83,12 +89,24 @@ def register(
     if auth_service.check_duplicated_email(user_in.email):
         raise HTTPException(400, "Email already registered")
     
+    if auth_service.check_duplicated_profil_name(user_in.profil_name):
+        raise HTTPException(400, "User with this profil name already exists")
+    
     # création de l'utilisateur
-    user = auth_service.create_user(
-        username=user_in.email, 
-        password=user_in.password, 
-        is_verified=False
+    username = auth_service.get_username(user_in.profil_name, user_in.school_name)
+    user_data = UserInDatabase(
+        first_name=user_in.first_name,
+        last_name=user_in.last_name,
+        username=username,
+        profil_name=user_in.profil_name,
+        email=user_in.email,
+        school_name=user_in.school_name,
+        domain=user_in.domain,
+        level=user_in.level,
+        is_verified=False,
+        hashed_password=hash_password(user_in.password)
     )
+    user = auth_service.create_user(user_data=user_data)
     
     # création de l'email de vérification
     token = auth_service.create_verification_email(user_id=user.id)
@@ -109,7 +127,7 @@ def confirm_email(
     email_service: EmailService = Depends(get_email_service),
     ):
     
-    record = email_service.check_user_email_verification_token(token)
+    record = email_service.check_verification_token(token)
 
     if not record:
         raise HTTPException(400, "Invalid token")
@@ -117,7 +135,7 @@ def confirm_email(
     if record.expires_at < datetime.utcnow():
         raise HTTPException(400, "Token expired")
     
-    user = auth_service.check_user_email_verification_token(record)
+    user = email_service.validate_user(record)
 
     if not user:
         raise HTTPException(404, "User not found")

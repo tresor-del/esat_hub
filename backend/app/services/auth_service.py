@@ -1,11 +1,12 @@
-from datetime import datetime, timedelta
-import secrets
+import re
 import uuid
+import secrets
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-
+from fastapi import HTTPException, status
 from app.db.schemas.user import User
-from app.db.security import hash_password
 from app.db.schemas.email_verification import EmailVerificationToken
+from app.models.user import UserCreate, UserInDatabase
 
 
 class AuthService:
@@ -13,17 +14,17 @@ class AuthService:
     def __init__(self, session: Session):
         self._db = session
         
-    def check_user_email_verification_token(self, record: EmailVerificationToken) -> bool:
-        user = self._db.query(User).filter(User.id == record.user_id).first()
-        if user:
-            return user
-        return None
-    
-    def check_verification_token(self, token: str) -> bool:
-        record = self._db.query(EmailVerificationToken).filter(
-            EmailVerificationToken.token == token
-        ).first()
-        return True if record else False
+
+    def get_username(self, profil_name: str, school_name: str) -> str|None:
+        validated_profil_name = profil_name.strip().lower()
+        if re.match("^[a-z0-9_]+$", validated_profil_name):
+            validated_school_name = school_name.strip().lower()
+            username = f"{validated_profil_name}@{validated_school_name}"
+            return username
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Le nom de profil n'est pas valide"
+        )
 
     def confirm_user(self, user: User, record: EmailVerificationToken):
         user.is_verified = True
@@ -34,31 +35,19 @@ class AuthService:
     def check_duplicated_email(self, user_email: str) -> bool:
         result = self._db.query(User).filter(User.email == user_email).first()
         return True if result else False
+    
+    def check_duplicated_profil_name(self, profil_name: str) -> bool:
+        result = self._db.query(User).filter(User.profil_name == profil_name).first()
+        return True if result else False
         
-    def create_user(self, username: str, password: str, is_verified: bool) -> User:
-        user = User(
-            email=username,
-            hashed_password=hash_password(password),
-            is_verified=is_verified,
-        )
+    def create_user(self, user_data: UserInDatabase) -> User:
+        validated_data = user_data.model_dump()
+        user = User(**validated_data)
+
         self._db.add(user)
         self._db.commit()
         self._db.refresh(user)
         return user
     
-    def create_verification_email(self, user_id: uuid.UUID) -> str:
-
-        token = secrets.token_urlsafe(32)
-        
-        verification = EmailVerificationToken(
-            user_id=user_id,
-            token=token,
-            expires_at=datetime.utcnow() + timedelta(hours=24),
-        )
-        
-        self._db.add(verification)
-        self._db.commit()
-        
-        return verification.token
     
     

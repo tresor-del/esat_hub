@@ -1,3 +1,7 @@
+from datetime import datetime, timedelta
+import secrets
+import uuid
+
 from sqlalchemy.orm import Session
 from app.db.schemas.user import User
 from app.db.schemas.email_verification import EmailVerificationToken
@@ -12,9 +16,30 @@ class EmailService:
         verification_link = f"http://localhost:3000/confirm-email?token={token}"
         print(f"[EMAIL] To: {email} | Link: {verification_link}")
         
-    def check_user_email_verification_token(self, token: str) -> bool:
+    def check_verification_token(self, token: str) -> EmailVerificationToken | None:
         # self._db est maintenant bien défini via le __init__
         record = self._db.query(EmailVerificationToken).filter(
             EmailVerificationToken.token == token
         ).first()
         return record # Plus pythonique que "True if record else False"
+    
+    def validate_user(self, record: EmailVerificationToken) -> User | None:
+        user = self._db.query(User).filter(User.id == record.user_id).first()
+        if user:
+            return user
+        return None
+
+    def create_verification_email(self, user_id: uuid.UUID) -> str:
+
+        token = secrets.token_urlsafe(32)
+        
+        verification = EmailVerificationToken(
+            user_id=user_id,
+            token=token,
+            expires_at=datetime.utcnow() + timedelta(hours=24),
+        )
+        
+        self._db.add(verification)
+        self._db.commit()
+        
+        return verification.token
