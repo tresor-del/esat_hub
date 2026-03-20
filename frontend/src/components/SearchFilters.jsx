@@ -1,11 +1,6 @@
 import React, { useState } from "react";
 import { FiSearch, FiFilter } from "react-icons/fi";
 
-/**
- * SearchFilters
- * Emits a custom event 'app:search' with detail { query, filterType }
- * so pages (Home) can listen and update results.
- */
 const SearchFilters = ({
   initialQuery = "",
   initialFilter = "all",

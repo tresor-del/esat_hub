@@ -10,13 +10,10 @@ from app.db.schemas.user import User
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_current_user, get_db
+from app.core.config import settings
 
 
-AVATAR_DIR = "uploads/avatars"
-os.makedirs(AVATAR_DIR, exist_ok=True)
-
-ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp"}
-MAX_SIZE = 5 * 1024 * 1024 
+os.makedirs(settings.AVATAR_DIR, exist_ok=True)
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -31,7 +28,6 @@ def get_user_profil(
 
     return user
 
-
 @router.post("/me/avatar")
 async def upload_avatar(
     avatar: UploadFile = File(...),
@@ -42,14 +38,14 @@ async def upload_avatar(
 
     # Vérifier le type
 
-    if avatar.content_type not in ALLOWED_TYPES:
+    if avatar.content_type not in settings.ALLOWED_TYPES:
         raise HTTPException(400, "Type de fichier non autorisé")
     
     # Lire le contenu
     content = await avatar.read()
     
     # Vérifier la taille
-    if len(content) > MAX_SIZE:
+    if len(content) > settings.MAX_SIZE:
         raise HTTPException(400, "Fichier trop volumineux (max 2MB)")
     
     # Redimensionner avec Pillow
@@ -63,7 +59,7 @@ async def upload_avatar(
     
     # Sauvegarder avec un nom unique
     filename = f"{uuid.uuid4()}.jpg"
-    filepath = os.path.join(AVATAR_DIR, filename)
+    filepath = os.path.join(settings.AVATAR_DIR, filename)
     image.save(filepath, "JPEG", quality=85)
     
     # Mettre à jour en base
@@ -71,7 +67,6 @@ async def upload_avatar(
     db.commit()
     
     return {"message": "Avatar mis à jour", "avatar_path": filepath}
-
 
 @router.get("/{user_id}/avatar")
 async def get_avatar(user_id: uuid.UUID, db: Session = Depends(get_db)):

@@ -3,10 +3,6 @@
   import { FiUser } from "react-icons/fi";
   import { getAvatarUrl } from "../services/api";
 
-  /**
-   * Composant Avatar
-   * Affiche la photo de profil ou un placeholder
-   */
   const Avatar = ({ 
     user, 
     size = "medium", // "small" | "medium" | "large"

@@ -1,8 +1,3 @@
-/**
- * Composant PostActionsMenu
- * Menu dropdown pour modifier/supprimer un post (visible seulement pour l'auteur)
- */
-
 import { FiEdit, FiTrash2, FiMoreHorizontal } from "react-icons/fi";
 import { useAuth } from "../contexts/AuthContext";
 import DropdownMenu from "./DropdownMenu";

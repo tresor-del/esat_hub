@@ -1,7 +1,3 @@
-/**
- * Composant Navbar - Barre de navigation
- */
-
 import { Link } from "react-router-dom";
 import { useAuth} from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -48,16 +44,14 @@ const Navbar = () => {
         <div className="navbar-menu">
           {isAuth() ? (
             <>
-            
+  
               <Link to="/create" className="btn btn-primary">
                 + Créer
               </Link>
 
-
               {user && (
                 <Avatar user={user} onClick={handleUserClick}/>
               )}
-
 
             </>
           ) : (

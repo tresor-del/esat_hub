@@ -1,4 +1,3 @@
-// pages/PostDetail.jsx (VERSION MISE À JOUR)
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { FiArrowLeft } from "react-icons/fi";

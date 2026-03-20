@@ -1,4 +1,3 @@
-// components/PostAuthorInfo.jsx (VERSION MISE À JOUR)
 import { useNavigate } from "react-router-dom";
 import Avatar from "./Avatar";
 

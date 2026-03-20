@@ -1,8 +1,3 @@
-/**
- * Page de Connexion
- * Permet à l'utilisateur de se connecter avec son email et mot de passe
- */
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';

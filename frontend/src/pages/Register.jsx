@@ -1,9 +1,3 @@
-/**
- * Page d'Inscription
- * Permet à un nouvel utilisateur de créer un compte
- * Envoie un email de vérification après l'inscription
- */
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../services/api';

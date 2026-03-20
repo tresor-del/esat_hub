@@ -21,7 +21,7 @@ class EmailService:
         record = self._db.query(EmailVerificationToken).filter(
             EmailVerificationToken.token == token
         ).first()
-        return record # Plus pythonique que "True if record else False"
+        return record 
     
     def validate_user(self, record: EmailVerificationToken) -> User | None:
         user = self._db.query(User).filter(User.id == record.user_id).first()

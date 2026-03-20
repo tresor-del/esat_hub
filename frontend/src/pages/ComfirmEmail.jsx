@@ -1,8 +1,3 @@
-/**
- * Page de Confirmation d'Email
- * Gère la vérification de l'email via le token reçu par email
- */
-
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { confirmEmail } from '../services/api';

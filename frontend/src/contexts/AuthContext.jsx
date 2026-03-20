@@ -1,8 +1,3 @@
-/**
- * Contexte d'Authentification
- * Gère l'état d'authentification global de l'application
- */
-
 import { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -59,7 +54,7 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Fonction de connexion
-   * @param {string} username - Nom d'utilisateur (email)
+   * @param {string} username - Nom d'utilisateur 
    * @param {string} password - Mot de passe
    * @returns {Promise} Résultat de la connexion
    */

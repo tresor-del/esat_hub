@@ -1,8 +1,3 @@
-/**
- * PostMedia - VERSION DESIGN ÉPURÉ
- * Sans la barre d'outils PDF.js
- */
-
 import { useState, useEffect } from "react";
 import { getPostFileUrl } from "../services/api";
 import api from "../utils/axiosConfig";

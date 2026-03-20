@@ -1,24 +1,26 @@
 from uuid import UUID
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from typing import Optional
 from enum import Enum
-
-class UserPublic(BaseModel):
-    id: UUID
-    username: str
-
-    class Config:
-        from_attributes = True
 
 class PostType(str, Enum):
     PHOTO = "photo"
     DOCUMENT = "document"
 
+class UserPublic(BaseModel):
+    id: UUID
+    username: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class PostBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = None
     post_type: PostType
+
+    model_config = ConfigDict(from_attributes=True)
 
 class PostCreate(PostBase):
     pass
@@ -26,6 +28,8 @@ class PostCreate(PostBase):
 class PostUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
 
 class PostResponse(PostBase):
     id: int
@@ -35,13 +39,8 @@ class PostResponse(PostBase):
     created_at: datetime
     updated_at: datetime
     user: UserPublic
-    
-    class Config:
-        from_attributes = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
-        }
-        
+
+    model_config = ConfigDict(from_attributes=True, json_encoders={datetime: lambda v: v.isoformat()})
 
 class PostListResponse(BaseModel):
     total: int

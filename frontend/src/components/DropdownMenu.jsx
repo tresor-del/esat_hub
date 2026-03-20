@@ -1,13 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 
-/**
- * DropdownMenu
- * Props:
- * - trigger: React node to render as the button (icon, text...)
- * - children: content of the dropdown
- * - align: 'left' | 'right' (default 'left')
- * - className: optional className for outer wrapper
- */
 const DropdownMenu = ({
   trigger,
   children,

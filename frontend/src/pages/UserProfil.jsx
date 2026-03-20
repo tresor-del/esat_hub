@@ -33,16 +33,9 @@ const UserProfile = () => {
   const loadProfile = async () => {
     try {
       setLoading(true);
-      // Pour l'instant, utiliser les infos du currentUser si c'est son profil
-      // Plus tard, vous ajouterez l'endpoint getUserProfile
-      // if (isOwnProfile) {
-      //   setProfile(currentUser);
-      // } else {
         const result = await getUserProfile(id);
         console.log("resdkddlk", result)
         setProfile(result);
-        // setProfile({ id: id, email: "user@example.com" });
-      // }
     } catch (err) {
       console.error(err);
       setError("Impossible de charger le profil");

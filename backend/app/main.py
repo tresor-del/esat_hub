@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
     logger.info("Connexion à l'api...")
     try:
         init_db() 
-        logger.info("Base de données initialisée (Super Admin vérifié).")
+        logger.info("Base de données initialisée .")
     except Exception as e:
         logger.error(f"Erreur lors de l'initialisation de la DB : {e}")
 
@@ -36,8 +36,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=settings.app_name)
 
-app.mount("/static", StaticFiles(directory="app/templates/static"), name="static")
-
 # Configuration CORS
 app.add_middleware(
     CORSMiddleware,
@@ -47,10 +45,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/")
 async def accueil(request: Request):
-    return templates.TemplateResponse("layout.html", {"request": request, "titre": "Esat-hub Admin Page"})
-    
+    return {"Hello"}
+
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(post_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")

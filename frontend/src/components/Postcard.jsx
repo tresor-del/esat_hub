@@ -10,42 +10,9 @@ const PostCard = ({
   onEdit,
   onDelete,
   onView,
-  // onPostUpdate, // ← NOUVEAU : callback pour notifier Home
   variant = "list"
 }) => {
 
-  console.log(post)
-
-  // // Hook pour gérer les likes
-  // const { likesCount, isLiked, handleToggleLike } = usePostLike(
-  //   post.likes_count || 0,
-  //   post.is_liked_by_current_user || false,
-  //   post.id,
-  // );
-
-  /**
-   * 🔧 NOUVEAU : Notifier le parent quand les likes changent
-   */
-  // useEffect(() => {
-
-  //   if (
-  //     onPostUpdate &&
-  //     (likesCount !== post.likes_count ||
-  //       isLiked !== post.is_liked_by_current_user)
-  //   ) {
-  //     // Créer un objet post mis à jour
-  //     const updatedPost = {
-  //       ...post,
-  //       likes_count: likesCount,
-  //       is_liked_by_current_user: isLiked,
-  //     };
-  //     onPostUpdate(updatedPost);
-  //   }
-  // }, [likesCount, isLiked]);
-
-  /**
-   * Gérer le clic sur la carte
-   */
 
   const handleCardClick = (e) => {
     if (variant === "detail") return;
@@ -80,16 +47,6 @@ const PostCard = ({
 
         {/* Médias */}
         <PostMedia post={post} variant="detail"  />
-
-        {/* Actions avec vrais likes */}
-        {/* <PostActions
-          voteCount={likesCount}
-          commentCount={post.comments_count || 0}
-          downloadCount={0}
-          isLiked={isLiked}
-          onUpvote={handleToggleLike}
-          variant="default"
-        /> */}
 
       </div>
     </div>

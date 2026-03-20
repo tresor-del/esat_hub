@@ -1,8 +1,3 @@
-/**
- * Page de Création de Poste
- * Permet de créer un nouveau poste avec upload de fichier
- */
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiUpload } from 'react-icons/fi';

@@ -1,9 +1,3 @@
-/**
- * Composant ProtectedRoute
- * Protège les routes qui nécessitent une authentification
- * Redirige vers la page de connexion si l'utilisateur n'est pas authentifié
- */
-
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 

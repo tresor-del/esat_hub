@@ -77,7 +77,6 @@ def refresh_token(body: RefreshToken):
     except JWTError as e:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
-
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=Message)
 def register(
     user_in: UserCreate,

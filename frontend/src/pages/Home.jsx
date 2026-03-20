@@ -1,8 +1,3 @@
-/**
- * Page d'Accueil - Home (AVEC GESTION DES LIKES)
- * Affiche la liste de tous les postes avec filtres et recherche
- */
-
 import { useState, useEffect } from "react";
 import { FiSearch, FiFilter } from "react-icons/fi";
 import PostCard from "../components/Postcard";

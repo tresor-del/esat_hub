@@ -4,8 +4,6 @@ from uuid import UUID
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from app.db.schemas.post import Post
-from app.db.schemas.like import Like
-from app.db.schemas.comment import Comment
 from app.db.schemas.user import User
 
 
@@ -50,10 +48,8 @@ class PostService:
         Récupère les posts avec compteurs de likes et comments
         """
         query = self._db.query(
-            Post,
-            func.count(Like.id).label("likes_count"),
-            func.count(Comment.id).label("comments_count")
-        ).outerjoin(Like).outerjoin(Comment).group_by(Post.id)
+            Post
+        ).group_by(Post.id)
 
         # Filtres
         if post_type:
@@ -92,9 +88,7 @@ class PostService:
             posts_with_info.append(post_dict)
         
         return posts_with_info, total
-    
-    
-    
+     
     def get_post(
         self, 
         post_id: int, 
@@ -104,11 +98,8 @@ class PostService:
         Récupère un post avec ses compteurs
         """
         result = self._db.query(
-            Post,
-            func.count(Like.id).label('likes_count'),
-            func.count(Comment.id).label('comments_count'),
-            func.bool_or(Like.user_id == current_user_id).label('is_liked')
-        ).outerjoin(Like).outerjoin(Comment).filter(
+            Post
+        ).filter(
             Post.id == post_id
         ).group_by(Post.id).first()
         
@@ -191,12 +182,6 @@ class PostService:
         """Recherche dans les posts"""
         db_query = self._db.query(
             Post,
-            func.count(Like.id).label('likes_count'),
-            func.count(Comment.id).label('comments_count'),
-            func.bool_or(Like.user_id == current_user_id).label('is_liked')
-        ).outerjoin(Like).outerjoin(Comment).filter(
-            (Post.title.ilike(f"%{query}%")) | 
-            (Post.description.ilike(f"%{query}%"))
         ).group_by(Post.id)
         
         if user_id:
@@ -221,7 +206,7 @@ class PostService:
                 "user_id": post.user_id,
                 "created_at": post.created_at,
                 "updated_at": post.updated_at,
-                "user": {"id": user.id, "email": user.email} if user else None,
+                "user": {"id": user.id, "username": user.username} if user else None,
                 "likes_count": likes_count or 0,
                 "comments_count": comments_count or 0,
                 "is_liked_by_current_user": bool(is_liked) if is_liked is not None else False
@@ -229,108 +214,4 @@ class PostService:
             posts_with_info.append(post_dict)
         
         return posts_with_info, total
-    
-    # ==================== LIKES ====================
-    
-    def create_like(self, post_id: int, user_id: UUID) -> Like:
-        """Créer un like"""
-        # Vérifier si l'utilisateur a déjà liké
-        existing_like = self._db.query(Like).filter(
-            Like.post_id == post_id,
-            Like.user_id == user_id
-        ).first()
-        
-        if existing_like:
-            raise ValueError("Vous avez déjà liké ce post")
-        
-        like = Like(post_id=post_id, user_id=user_id)
-        self._db.add(like)
-        self._db.commit()
-        self._db.refresh(like)
-        return like
-    
-    def delete_like(self, post_id: int, user_id: UUID) -> bool:
-        """Supprimer un like"""
-        like = self._db.query(Like).filter(
-            Like.post_id == post_id,
-            Like.user_id == user_id
-        ).first()
-        
-        if not like:
-            return False
-        
-        self._db.delete(like)
-        self._db.commit()
-        return True
-    
-    def get_likes_count(self, post_id: int) -> int:
-        """Obtenir le nombre de likes d'un post"""
-        return self._db.query(Like).filter(Like.post_id == post_id).count()
-    
-    def is_liked_by_user(self, post_id: int, user_id: UUID) -> bool:
-        """Vérifier si un utilisateur a liké un post"""
-        return self._db.query(Like).filter(
-            Like.post_id == post_id,
-            Like.user_id == user_id
-        ).first() is not None
-    
-    # ==================== COMMENTS ====================
-    
-    def create_comment(self, post_id: int, user_id: UUID, content: str) -> Comment:
-        """Créer un commentaire"""
-        comment = Comment(
-            post_id=post_id,
-            user_id=user_id,
-            content=content
-        )
-        self._db.add(comment)
-        self._db.commit()
-        self._db.refresh(comment)
-        return comment
-    
-    def get_comments(
-        self,
-        post_id: int,
-        skip: int = 0,
-        limit: int = 100
-    ) -> Tuple[List[Comment], int]:
-        """Obtenir les commentaires d'un post"""
-        query = self._db.query(Comment).filter(Comment.post_id == post_id)
-        
-        total = query.count()
-        comments = query.order_by(Comment.created_at.desc()).offset(skip).limit(limit).all()
-        
-        # Ajouter les infos utilisateur
-        for comment in comments:
-            user = self._db.query(User).filter(User.id == comment.user_id).first()
-            if user:
-                comment.user_email = user.email
-        
-        return comments, total
-    
-    def get_comment(self, comment_id: int) -> Optional[Comment]:
-        """Obtenir un commentaire spécifique"""
-        return self._db.query(Comment).filter(Comment.id == comment_id).first()
-    
-    def update_comment(self, comment_id: int, content: str) -> Optional[Comment]:
-        """Mettre à jour un commentaire"""
-        comment = self._db.query(Comment).filter(Comment.id == comment_id).first()
-        
-        if not comment:
-            return None
-        
-        comment.content = content
-        self._db.commit()
-        self._db.refresh(comment)
-        return comment
-    
-    def delete_comment(self, comment_id: int) -> bool:
-        """Supprimer un commentaire"""
-        comment = self._db.query(Comment).filter(Comment.id == comment_id).first()
-        
-        if not comment:
-            return False
-        
-        self._db.delete(comment)
-        self._db.commit()
-        return True
+  
