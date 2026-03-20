@@ -84,7 +84,7 @@ class PostService:
                 "user_id": post.user_id,
                 "created_at": post.created_at,
                 "updated_at": post.updated_at,
-                "user": {"id": user.id, "email": user.email} if user else None,
+                "user": {"id": user.id, "username": user.username} if user else None,
                 "likes_count": likes_count or 0,
                 "comments_count": comments_count or 0,
                 "is_liked_by_current_user": False
@@ -131,7 +131,7 @@ class PostService:
             "user_id": post.user_id,
             "created_at": post.created_at,
             "updated_at": post.updated_at,
-            "user": {"id": user.id, "email": user.email} if user else None,
+            "user": {"id": user.id, "username": user.username} if user else None,
             "likes_count": likes_count or 0,
             "comments_count": comments_count or 0,
             "is_liked_by_current_user": bool(is_liked) if is_liked is not None else False

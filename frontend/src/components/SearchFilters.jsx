@@ -32,7 +32,7 @@ const SearchFilters = ({
           <input
             type="text"
             className="form-input search-input"
-            placeholder="Rechercher un poste par titre..."
+            placeholder="Rechercher quelque chose"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />

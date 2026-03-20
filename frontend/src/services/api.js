@@ -70,12 +70,9 @@ export const login = async (username, password) => {
   return response.data;
 };
 
-export const register = async (email, password) => {
-  console.log("Données envoyées :", { email, password });
-  const response = await api.post("/auth/register", {
-    email,
-    password,
-  });
+export const register = async (data) => {
+  console.log("Données envoyées :", data);
+  const response = await api.post("/auth/register", data);
   return response.data;
 };
 

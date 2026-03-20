@@ -42,6 +42,8 @@ const PostAuthorInfo = ({
     }
   };
 
+  console.log("post.user:", user);
+
   return (
     <div className="post-user-info">
       
@@ -61,7 +63,7 @@ const PostAuthorInfo = ({
         }}
         onClick={handleUserClick}
       >
-        {user?.email || "Utilisateur inconnu"}
+        {user?.username || "Utilisateur inconnu"}
       </span>
       
       <span>·</span>

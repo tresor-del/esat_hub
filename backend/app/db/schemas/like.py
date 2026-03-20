@@ -15,7 +15,7 @@ class Like(Base):
     
     # Relations
     post = relationship("Post", back_populates="likes")
-    user = relationship("User", back_populates="likes")
+    # user = relationship("User", back_populates="likes")
     
     # Contrainte : un utilisateur ne peut liker qu'une seule fois un post
     __table_args__ = (

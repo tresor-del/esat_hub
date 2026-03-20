@@ -1,14 +1,15 @@
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from typing import Optional
+
 
 class UserBase(BaseModel):
-    first_name: str
-    last_name: str
-    profil_name: str
-    school_name: str
-    domain: str
-    level: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    profil_name: Optional[str] = None
+    school_name: Optional[str] = None
+    domain: Optional[str] = None
+    level: Optional[str] = None
     email: EmailStr
-    is_verified: bool
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -18,6 +19,8 @@ class UserCreate(UserBase):
 class UserInDatabase(UserBase):
     hashed_password: str
     username: str
+    is_verified: bool
 
 class UserResponse(UserBase):
     id: str
+    is_verified: Optional[bool] = False

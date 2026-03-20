@@ -15,5 +15,5 @@ class Message(Base):
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
     update_at = Column(TIMESTAMP, default=datetime.utcnow)
 
-    user_sender = relationship("User",foreign_keys=[sender], back_populates="sender_message")
-    user_receiver = relationship("User", foreign_keys=[receiver], back_populates="receiver_message")
+    # user_sender = relationship("User",foreign_keys=[sender], back_populates="sender_message")
+    # user_receiver = relationship("User", foreign_keys=[receiver], back_populates="receiver_message")

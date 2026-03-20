@@ -9,7 +9,7 @@ from app.db.security import oauth2_scheme
 from app.core.config import settings
 from app.db.schemas.user import User
 from app.models.token import TokenData
-from app.enums.role_enum import RoleEnum
+# from app.enums.role_enum import RoleEnum
 from app.services.auth_service import AuthService
 from app.services.email_service import EmailService
 from app.services.post_service import PostService
@@ -45,7 +45,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
         raise credentials_exception
     return user
 
-def requires_roles(*role: RoleEnum):
+def requires_roles(*role):
     def checker(user: User = Depends(get_current_user)):
         user_role = {role.name for role in user.role}
         

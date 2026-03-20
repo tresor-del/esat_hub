@@ -48,13 +48,10 @@ const Navbar = () => {
         <div className="navbar-menu">
           {isAuth() ? (
             <>
-            <FiMessageSquare style={{"fontSize": "1.5rem"}}/>
             
               <Link to="/create" className="btn btn-primary">
                 + Créer
               </Link>
-
-              <IoIosNotificationsOutline style={{"fontSize": "2rem"}}/>
 
 
               {user && (

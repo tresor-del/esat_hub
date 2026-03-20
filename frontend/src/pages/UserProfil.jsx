@@ -2,10 +2,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FiEdit2, FiMail, FiCalendar, FiArrowLeft } from "react-icons/fi";
+import { TbSchool } from "react-icons/tb";
+import { RiSchoolLine } from "react-icons/ri";
+import { MdOutlineDomainVerification } from "react-icons/md";
 import { getUserProfile, getPosts, uploadAvatar } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import Avatar from "../components/Avatar";
 import PostCard from "../components/Postcard";
+import { jsx } from "react/jsx-runtime";
 
 const UserProfile = () => {
   const { id } = useParams();
@@ -31,13 +35,14 @@ const UserProfile = () => {
       setLoading(true);
       // Pour l'instant, utiliser les infos du currentUser si c'est son profil
       // Plus tard, vous ajouterez l'endpoint getUserProfile
-      if (isOwnProfile) {
-        setProfile(currentUser);
-      } else {
-        const result = await getUserProfile({id});
+      // if (isOwnProfile) {
+      //   setProfile(currentUser);
+      // } else {
+        const result = await getUserProfile(id);
+        console.log("resdkddlk", result)
         setProfile(result);
         // setProfile({ id: id, email: "user@example.com" });
-      }
+      // }
     } catch (err) {
       console.error(err);
       setError("Impossible de charger le profil");
@@ -145,17 +150,34 @@ const UserProfile = () => {
                 />
               </label>
             )}
+            
           </div>
 
           {/* Informations */}
           <div className="profile-info">
             
-            <h1 className="profile-name">{profile.username}</h1>
+            <h1 className="profile-name">{profile.profil_name}</h1>
             
             <div className="profile-meta">
+
+              {/* <div className="profile-meta-item">
+                <FiMail size={16} />  
+                <span>{profile.email}</span>
+              </div> */}
+
               <div className="profile-meta-item">
-                <FiMail size={16} />
-                <span>{profile.username}</span>
+                <RiSchoolLine size={16} />
+                <span>{profile.school_name}</span>
+              </div>
+
+              <div className="profile-meta-item">
+                <MdOutlineDomainVerification size={16} />
+                <span>{profile.domain}</span>
+              </div>
+
+              <div className="profile-meta-item">
+                <TbSchool size={16} />
+                <span>{profile.level}</span>
               </div>
               
               {profile.created_at && (

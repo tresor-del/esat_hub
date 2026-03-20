@@ -13,7 +13,7 @@ const Login = () => {
 
   // États du formulaire
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: '',
   });
 
@@ -42,7 +42,7 @@ const Login = () => {
     setLoading(true);
 
     // Validation basique
-    if (!formData.email || !formData.password) {
+    if (!formData.username || !formData.password) {
       setError('Veuillez remplir tous les champs');
       setLoading(false);
       return;
@@ -50,7 +50,7 @@ const Login = () => {
 
     try {
       // Tentative de connexion
-      const result = await login(formData.email, formData.password);
+      const result = await login(formData.username, formData.password);
 
       if (result.success) {
         // Connexion réussie - rediriger vers la page d'accueil
@@ -90,16 +90,16 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="form">
           {/* Champ Email */}
           <div className="form-group">
-            <label htmlFor="email" className="form-label">
-              Email
+            <label htmlFor="username" className="form-label">
+              Username
             </label>
             <input
-              type="email"
-              id="email"
-              name="email"
+              type="text"
+              id="username"
+              name="username"
               className="form-input"
-              placeholder="votre@email.com"
-              value={formData.email}
+              placeholder="profil_name@schoolname"
+              value={formData.username}
               onChange={handleChange}
               disabled={loading}
             />

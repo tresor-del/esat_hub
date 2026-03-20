@@ -20,6 +20,18 @@ MAX_SIZE = 5 * 1024 * 1024
 
 router = APIRouter(prefix="/users", tags=["users"])
 
+@router.get("/{user_id}")
+def get_user_profil(
+    user_id: uuid.UUID,  
+     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    
+    user = db.query(User).filter(User.id == user_id).first()
+
+    return user
+
+
 @router.post("/me/avatar")
 async def upload_avatar(
     avatar: UploadFile = File(...),

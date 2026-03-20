@@ -13,7 +13,13 @@ const Register = () => {
 
   // États du formulaire
   const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    profilName: '',
     email: '',
+    schoolName: '',
+    domain: '',
+    level: '',
     password: '',
     confirmPassword: '',
   });
@@ -41,17 +47,25 @@ const Register = () => {
    */
   const validateForm = () => {
     // Vérifier que tous les champs sont remplis
-    if (!formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.profilName || 
+      !formData.password || 
+      !formData.confirmPassword ||
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.profilName ||
+      !formData.schoolName ||
+      !formData.domain ||
+      !formData.level ) {
       setError('Veuillez remplir tous les champs');
       return false;
     }
 
     // Vérifier le format de l'email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Veuillez entrer un email valide');
-      return false;
-    }
+    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // if (!emailRegex.test(formData.email)) {
+    //   setError('Veuillez entrer un email valide');
+    //   return false;
+    // }
 
     // Vérifier la longueur du mot de passe
     if (formData.password.length < 6) {
@@ -84,7 +98,21 @@ const Register = () => {
 
     try {
       // Tentative d'inscription
-      const result = await register(formData.email, formData.password);
+
+      const {confirmPassword, ...rest} = formData
+
+      const dataToSend = {
+        first_name: rest.firstName,
+        last_name: rest.lastName,
+        profil_name: rest.profilName,
+        email: rest.email,
+        school_name: rest.schoolName,
+        domain: rest.domain,
+        level: rest.level,
+        password: rest.password
+      }
+
+      const result = await register(dataToSend);
 
       // Inscription réussie
       setSuccess(true);
@@ -156,7 +184,42 @@ const Register = () => {
 
         {/* Formulaire d'inscription */}
         <form onSubmit={handleSubmit} className="form">
-          {/* Champ Email */}
+          {/* Champ First Name */}
+          <div className="form-group">
+            <label htmlFor="firstName" className="form-label">
+              First Name
+            </label>
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              className="form-input"
+              placeholder="profil_name@school_name"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            />
+          </div>
+
+          {/* Last Name */}
+          <div className="form-group">
+            <label htmlFor="lastName" className="form-label">
+              Last Name
+            </label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              className="form-input"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            />
+          </div>
+
+          {/* Email  */}
           <div className="form-group">
             <label htmlFor="email" className="form-label">
               Email
@@ -166,12 +229,52 @@ const Register = () => {
               id="email"
               name="email"
               className="form-input"
-              placeholder="votre@email.com"
+              placeholder="your@email.com"
               value={formData.email}
               onChange={handleChange}
               required
               disabled={loading}
             />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="profilName" className="form-label">
+              Profil Name
+            </label>
+            <input
+              type="text"
+              id="profilName"
+              name="profilName"
+              className="form-input"
+              placeholder="profil_name@school_name"
+              value={formData.profilName}
+              onChange={handleChange}
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <div className="form-group">
+            <select name="schoolName" value={formData.schoolName} onChange={handleChange}>
+              <option value="">Choisir...</option>
+              <option value="ESAT_TOGO">ESAT-TOGO</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <select name="domain" value={formData.domain} onChange={handleChange}>
+              <option value="">Choisir...</option>
+              <option value="INFORMATIQUE">Informatique</option>
+              <option value="AERONAUTIQUE">Aéronautique</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <select name="level" value={formData.level} onChange={handleChange}>
+              <option value="">Choisir...</option>
+              <option value="PREPA">Cycle Préparatoire</option>
+              <option value="INGE">Cycle Ingénieur</option>
+            </select>
           </div>
 
           {/* Champ Mot de passe */}

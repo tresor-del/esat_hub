@@ -109,7 +109,7 @@ def register(
     user = auth_service.create_user(user_data=user_data)
     
     # création de l'email de vérification
-    token = auth_service.create_verification_email(user_id=user.id)
+    token = email_service.create_verification_email(user_id=user.id)
     
     # Envoie d'email à l'utilisateur
     background_tasks.add_task(

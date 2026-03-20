@@ -4,6 +4,7 @@ from sqlalchemy import Boolean, Column, String, Enum, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.db.database import Base
+from app.db.schemas.message import Message
 
 class Schools(str, enum.Enum):
     ESAT_TOGO = "ESAT_TOGO"
@@ -71,14 +72,15 @@ class User(Base):
         cascade="all, delete-orphan"
     )
 
-    sender_message = relationship(
-        "Message",
-        back_populates="user_sender",
-        cascade="all, delete-orphan"
-    )
+    # sender_message = relationship(
+    #     "Message",
+    #     back_populates="user_sender",
+    #     cascade="all, delete-orphan",
+    #     foreign_keys=[]
+    # )
 
-    receiver_message = relationship(
-        "Message",
-        back_populates="user_receiver",
-        cascade="all, delete-orphan"
-    )
+    # receiver_message = relationship(
+    #     "Message",
+    #     back_populates="user_receiver",
+    #     cascade="all, delete-orphan"
+    # )

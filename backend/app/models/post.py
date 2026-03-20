@@ -6,7 +6,7 @@ from enum import Enum
 
 class UserPublic(BaseModel):
     id: UUID
-    email: str
+    username: str
 
     class Config:
         from_attributes = True

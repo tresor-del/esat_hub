@@ -14,6 +14,8 @@ const PostCard = ({
   variant = "list"
 }) => {
 
+  console.log(post)
+
   // // Hook pour gérer les likes
   // const { likesCount, isLiked, handleToggleLike } = usePostLike(
   //   post.likes_count || 0,
