@@ -1,5 +1,5 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiArrowLeft } from "react-icons/fi";
 import { getPost, deletePost } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";

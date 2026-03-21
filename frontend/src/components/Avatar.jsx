@@ -2,6 +2,7 @@
   import { useState } from "react";
   import { FiUser } from "react-icons/fi";
   import { getAvatarUrl } from "../services/api";
+  import React from "react";
 
   const Avatar = ({ 
     user, 

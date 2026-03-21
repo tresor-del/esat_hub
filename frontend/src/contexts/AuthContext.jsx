@@ -5,6 +5,7 @@ import {
   logout as apiLogout,
   isAuthenticated,
 } from "../services/api";
+import React from "react";
 
 // Création du contexte
 const AuthContext = createContext(null);

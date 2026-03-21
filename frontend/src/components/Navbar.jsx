@@ -1,15 +1,14 @@
 import { Link } from "react-router-dom";
 import { useAuth} from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../contexts/ThemeContext";
 import SearchFilters from "./SearchFilters";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { FiMessageSquare } from "react-icons/fi";
 import Avatar from "./Avatar";
+import React from "react";
 
 const Navbar = () => {
   const { user, logout, isAuth } = useAuth();
-  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = () => {
     if (window.confirm("Êtes-vous sûr de vouloir vous déconnecter ?")) {

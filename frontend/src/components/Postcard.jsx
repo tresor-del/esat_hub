@@ -1,4 +1,4 @@
-// components/PostCard.jsx (VERSION FINALE AVEC CALLBACK)
+import React from "react";
 import { useEffect } from "react";
 import PostAuthorInfo from "./PostAuthorInfo";
 import PostActionsMenu from "./PostActionsMenu";
