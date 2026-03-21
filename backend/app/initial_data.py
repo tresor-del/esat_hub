@@ -6,7 +6,8 @@ from app.db.database import engine
 from app.db.schemas.user import User
 from app.services.auth_service import AuthService
 from app.db.database import SessionLocal
-
+from app.models.user import UserInDatabase
+from app.db.security import hash_password
 
 
 logger = logging.getLogger(__name__)
@@ -18,14 +19,23 @@ def init_db() -> None:
         auth_service = AuthService(session)
 
         # creation du super_admin
-        super_admin_user = session.query(User).filter(User.email == "tresor@esathub.com").first()
+        super_admin_user = session.query(User).filter(User.username == "admin@admin_s").first()
 
         if not super_admin_user:
-            auth_service.create_user(
-                username="tresor@esathub.com",
-                password="tresor",
+            admin_password = hash_password("admin_s")
+            super_admin_data = UserInDatabase(
+                first_name="Admin",
+                last_name="Super",
+                username="admin@admin_school",
+                profil_name="admin",
+                email="admin@gmail.com",
+                school_name="ESAT_TOGO",
+                domain="INFORMATIQUE",
+                level="PREPA",
+                hashed_password=admin_password,
                 is_verified=True
             )
+            auth_service.create_user(user_data=super_admin_data)
             
     finally:
         session.close()

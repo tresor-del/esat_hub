@@ -1,4 +1,3 @@
-# app/api/v1/post.py (VERSION COMPLÈTE)
 import logging
 from uuid import UUID
 from fastapi import APIRouter, File, UploadFile, Form, Depends, HTTPException, status, Query
@@ -220,3 +219,32 @@ def delete_post(
     
     # Supprimer de la BDD
     service.delete_post(post_id=post_id)
+
+
+@router.get("/posts/{post_id}/file")
+def download_file(
+    post_id: int, 
+    db: Session = Depends(get_db),
+    service: PostService = Depends(get_post_service)
+):
+    """Télécharger le fichier d'un post"""
+    db_post = service.get_post(post_id=post_id)
+    
+    if db_post is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post non trouvé"
+        )
+    
+    if not os.path.exists(db_post.get("file_path")):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Fichier non trouvé"
+        )
+    
+    return FileResponse(
+        path=db_post.get("file_path"),
+        filename=db_post.get("file_name"),
+        media_type=db_post.get("mime_type")
+    )
+

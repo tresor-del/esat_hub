@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     
     model_config = SettingsConfigDict(
-        env_file="../.env",
+        env_file=".env",
         env_ignore_empty=True,
         extra="ignore",
     )
@@ -21,15 +21,15 @@ class Settings(BaseSettings):
 
     SQLALCHEMY_DATABASE_URI: str 
 
-    AVATAR_DIR = "uploads/avatars"
-    ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp"}
-    MAX_SIZE = 5 * 1024 * 1024 
+    AVATAR_DIR: str = "uploads/avatars"
+    ALLOWED_TYPES: set = {"image/jpeg", "image/png", "image/webp"}
+    MAX_SIZE: int = 5 * 1024 * 1024 
 
-    UPLOAD_DIR = Path("uploads")
+    UPLOAD_DIR: Path = Path("uploads")
 
     # Extensions de fichiers autorisées
-    ALLOWED_PHOTO_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
-    ALLOWED_DOCUMENT_EXTENSIONS = {".pdf", ".doc", ".docx", ".txt", ".xlsx", ".xls", ".ppt", ".pptx"}
+    ALLOWED_PHOTO_EXTENSIONS: set = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+    ALLOWED_DOCUMENT_EXTENSIONS: set = {".pdf", ".doc", ".docx", ".txt", ".xlsx", ".xls", ".ppt", ".pptx"}
 
 
     
