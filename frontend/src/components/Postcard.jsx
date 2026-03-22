@@ -46,7 +46,7 @@ const PostCard = ({
         )}
 
         {/* Médias */}
-        <PostMedia post={post} variant="detail"  />
+        <PostMedia post={post} variant="detail"/>
 
       </div>
     </div>

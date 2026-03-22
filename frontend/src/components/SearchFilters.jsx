@@ -9,6 +9,7 @@ const SearchFilters = ({
   const [query, setQuery] = useState(initialQuery);
   const [filterType, setFilterType] = useState(initialFilter);
 
+  // Event Bus: Déclenché l'event qui sera écouté par le home lors des recherches
   const submit = (e) => {
     if (e) e.preventDefault();
     window.dispatchEvent(
@@ -16,7 +17,7 @@ const SearchFilters = ({
         detail: { query: query.trim(), filterType },
       }),
     );
-  };
+  };  
 
   return (
 

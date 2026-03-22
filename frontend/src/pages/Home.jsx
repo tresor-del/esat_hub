@@ -14,7 +14,6 @@ const Home = () => {
 
   // États pour les filtres
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState("all"); // 'all', 'photo', 'document'
 
   // États pour la pagination
   const [page, setPage] = useState(0);
@@ -22,22 +21,21 @@ const Home = () => {
   const postsPerPage = 10;
 
   /**
-   * Charger les postes au montage et quand les filtres changent
+   * Charger les postes au montage et quand on fait des recherches
    */
   useEffect(() => {
     loadPosts();
-  }, [filterType]);
+  }, []);
 
   // Écouter les recherches provenant de la navbar
   useEffect(() => {
+
     const onAppSearch = (e) => {
       const detail = e?.detail || {};
       const q = detail.query ?? "";
-      const t = detail.filterType ?? "all";
       setSearchQuery(q);
-      setFilterType(t);
       setPage(0);
-      loadPosts(false, q, t);
+      loadPosts(false, q);
     };
 
     window.addEventListener("app:search", onAppSearch);
@@ -49,8 +47,7 @@ const Home = () => {
    */
   const loadPosts = async (
     isLoadMore = false,
-    overrideQuery = null,
-    overrideType = null,
+    overrideQuery = null
   ) => {
     try {
       setLoading(true);
@@ -60,59 +57,45 @@ const Home = () => {
       let result;
 
       const q = overrideQuery !== null ? overrideQuery : searchQuery;
-      const t = overrideType !== null ? overrideType : filterType;
 
       // Si recherche active
       if (q.trim()) {
         result = await searchPosts(q, skip, postsPerPage);
+        console.log("Search Results: ", result)
       } else {
         // Sinon, charger avec filtre de type
-        const type = t === "all" ? null : t;
-        result = await getPosts({ skip, limit: postsPerPage, postType: type });
+        // const type = t === "all" ? null : t;
+        result = await getPosts({ skip, limit: postsPerPage });
       }
 
       // Mettre à jour les postes
-      if (isLoadMore) {
-        setPosts([...posts, ...result.posts]);
+      if (q.trim()) {
+        if (isLoadMore) {
+          setPosts([...posts, ...result.posts_list.posts]);
+        } else {
+          setPosts(result.posts_list.posts);
+        }
       } else {
-        setPosts(result.posts);
+        if (isLoadMore) {
+          setPosts([...posts, ...result.posts]);
+        } else {
+          setPosts(result.posts);
+        }
       }
+      
 
       // Vérifier s'il y a plus de postes
-      setHasMore(result.posts.length === postsPerPage);
+      if (q.trim()) {
+        setHasMore(result.posts_list.length === postsPerPage);
+      } else {
+        setHasMore(result.posts.length === postsPerPage);
+      }
     } catch (err) {
       console.error("Erreur lors du chargement des postes:", err);
       setError("Erreur lors du chargement des postes");
     } finally {
       setLoading(false);
     }
-  };
-
-  /**
-   * 🔧 NOUVEAU : Mettre à jour un post dans la liste après un like
-   */
-  const handlePostUpdate = (updatedPost) => {
-    setPosts(posts.map(post => 
-      post.id === updatedPost.id ? updatedPost : post
-    ));
-  };
-
-  /**
-   * Gérer la recherche
-   */
-  const handleSearch = (e) => {
-    e.preventDefault();
-    setPage(0);
-    loadPosts();
-  };
-
-  /**
-   * Gérer le changement de filtre
-   */
-  const handleFilterChange = (type) => {
-    setFilterType(type);
-    setPage(0);
-    setSearchQuery("");
   };
 
   /**
@@ -203,8 +186,7 @@ const Home = () => {
                 post={post}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
-                onView={handleView}
-                onPostUpdate={handlePostUpdate} 
+                onView={handleView} 
               />
             ))}
 
