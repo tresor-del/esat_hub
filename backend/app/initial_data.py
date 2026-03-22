@@ -19,7 +19,7 @@ def init_db() -> None:
         auth_service = AuthService(session)
 
         # creation du super_admin
-        super_admin_user = session.query(User).filter(User.username == "admin@admin_s").first()
+        super_admin_user = session.query(User).filter(User.username == "admin@admin_school").first()
 
         if not super_admin_user:
             admin_password = hash_password("admin_s")

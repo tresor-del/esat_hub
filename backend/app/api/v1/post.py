@@ -220,7 +220,6 @@ def delete_post(
     # Supprimer de la BDD
     service.delete_post(post_id=post_id)
 
-
 @router.get("/posts/{post_id}/file")
 def download_file(
     post_id: int, 

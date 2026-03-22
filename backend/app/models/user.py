@@ -1,3 +1,5 @@
+import uuid
+
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from typing import Optional
 
@@ -22,5 +24,11 @@ class UserInDatabase(UserBase):
     is_verified: bool
 
 class UserResponse(UserBase):
-    id: str
+    id: uuid.UUID
     is_verified: Optional[bool] = False
+
+class UserListResponse(BaseModel):
+    total: int
+    users: list[UserResponse]
+
+    model_config = ConfigDict(from_attributes=True)
