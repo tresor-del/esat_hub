@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.dependencies import get_current_user, get_db
 from app.engine.search_engine import SearchEngine
+from app.db.schemas.user import User
+
 
 router = APIRouter(prefix="/search", tags=["search"])
 
@@ -17,4 +19,3 @@ def general_search(
     search_engine = SearchEngine(db, current_user)
     return search_engine.general_search(q, skip, limit)
 
-    
