@@ -1,12 +1,10 @@
 import re
 import uuid
-import secrets
-from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.db.schemas.user import User
 from app.db.schemas.email_verification import EmailVerificationToken
-from app.models.user import UserCreate, UserInDatabase
+from app.models.user import  UserInDatabase
 
 
 class AuthService:
@@ -48,6 +46,9 @@ class AuthService:
         self._db.commit()
         self._db.refresh(user)
         return user
+
+    def get_user(self, user_id: uuid.UUID) -> User | None:
+        return self._db.query(User).filter(User.id == user_id).first()
     
     
     

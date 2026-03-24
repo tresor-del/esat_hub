@@ -10,9 +10,10 @@ from app.core.config import settings
 from app.db.schemas.user import User
 from app.models.token import TokenData
 # from app.enums.role_enum import RoleEnum
-from app.services.auth_service import AuthService
-from app.services.email_service import EmailService
-from app.services.post_service import PostService
+from app.services.users import AuthService
+from app.services.email import EmailService
+from app.services.posts import PostService
+from app.services.files import FileService
 
 def get_db():
     db = SessionLocal()
@@ -65,3 +66,6 @@ def get_email_service(session = Depends(get_db)) -> EmailService:
 
 def get_post_service(session = Depends(get_db)) -> PostService:
     return PostService(session)
+
+def get_file_service() -> FileService:
+    return FileService()

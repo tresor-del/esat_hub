@@ -1,17 +1,14 @@
 import logging
 from uuid import UUID
 from fastapi import APIRouter, File, UploadFile, Form, Depends, HTTPException, status, Query
-from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-from typing import Optional, List
-import os
-from pathlib import Path
+from typing import Optional
 
-from app.dependencies import get_db, get_current_user, get_post_service
-from app.models.post import PostResponse, PostUpdate, PostListResponse, PostType
-from app.utils.files import save_upload_file
+from app.dependencies import get_db, get_current_user, get_file_service, get_post_service
+from app.models.post import PostResponse, PostListResponse, PostType
+from app.services.files import FileService  
 from app.db.schemas.user import User
-from app.services.post_service import PostService
+from app.services.posts import PostService
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -28,19 +25,23 @@ async def create_post(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    service: PostService = Depends(get_post_service)
+    post_service: PostService = Depends(get_post_service),
+    file_service: FileService = Depends(get_file_service)
 ):
     """Créer un nouveau post avec fichier"""
     try:
-        file_path, original_filename = save_upload_file(
-            file, 
-            post_type.value,
-            settings.ALLOWED_DOCUMENT_EXTENSIONS,
-            settings.ALLOWED_PHOTO_EXTENSIONS, 
-            settings.UPLOAD_DIR
+        file_path, original_filename = file_service.save_upload_file(
+            upload_file=file,
+            post_type=post_type.value
         )
+
+        if not file_path and not original_filename:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Fichier non supporté pour le type de post"
+            )
         
-        db_post = service.create_post(
+        db_post = post_service.create_post(
             title=title,
             description=description,
             post_type=post_type.value,
@@ -67,7 +68,7 @@ def read_posts(
     id: Optional[UUID] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    service: PostService = Depends(get_post_service)
+    post_service: PostService = Depends(get_post_service)
 ):
     """Récupérer la liste des posts"""
     target_user_id = None
@@ -77,7 +78,7 @@ def read_posts(
     elif id:
         target_user_id = id
         
-    posts, total = service.get_posts(
+    posts, total = post_service.get_posts(
         skip=skip,
         limit=limit,
         post_type=post_type.value if post_type else None,
@@ -91,10 +92,10 @@ def read_post(
     post_id: int, 
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    service: PostService = Depends(get_post_service)
+    post_service: PostService = Depends(get_post_service)
 ):
     """Récupérer un post spécifique"""
-    db_post = service.get_post(post_id=post_id, current_user_id=current_user.id)
+    db_post = post_service.get_post(post_id=post_id, current_user_id=current_user.id)
     
     if db_post is None:
         raise HTTPException(
@@ -114,14 +115,14 @@ async def update_post(
     remove_file: bool = Form(False),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    service: PostService = Depends(get_post_service)
+    post_service: PostService = Depends(get_post_service),
+    file_service: FileService = Depends(get_file_service)
 ):
 
 
     # Vérifier que le post existe et appartient à l'utilisateur
-    db_post = service.get_post(post_id=post_id)
+    db_post = post_service.get_post(post_id=post_id)
 
-    print("Ancien fichier: ", db_post.get("file_path"))
     
     if db_post is None:
         raise HTTPException(
@@ -144,40 +145,31 @@ async def update_post(
         if file:
             # Nouveau fichier uploadé
             # Supprimer l'ancien fichier
-            if os.path.exists(db_post.get("file_path")):
-                 os.remove(db_post.get("file_path"))
             
-            print("Le fichier est éffacé: ", db_post.get("file_path"))
-            
+            file_service.delete_file_path(db_post.get("file_path"))
+
             #Sauvegarder le nouveau fichier
             file_type = post_type.value if post_type else db_post.get("post_type")
-            new_file_path, new_file_name = save_upload_file(
-                 file,
-                 file_type,
-                 settings.ALLOWED_DOCUMENT_EXTENSIONS,
-                 settings.ALLOWED_PHOTO_EXTENSIONS,
-                 settings.UPLOAD_DIR
+            new_file_path, new_file_name = file_service.save_upload_file(
+                 upload_file=file,
+                 post_type=file_type
              )
             
-            print("Le nouveau path du fichier: ", new_file_path)
             new_mime_type = file.content_type
         
         elif remove_file:
              # Supprimer le fichier existant
-             if os.path.exists(db_post.get("file_path")):
-                 os.remove(db_post.get("file_path"))
-              # Note: Dans ce cas, il faudrait peut-être exiger un nouveau fichier
-              # ou changer le type de post en "text"
-        
+             file_service.delete_file_path(db_post.get("file_path"))
+    
         # Mettre à jour le post
-        db_post = service.update_post(
+        db_post = post_service.update_post(
             post_id=post_id,
             title=title,
             description=description,
-             post_type=post_type.value if post_type else None,
-             file_path=new_file_path,
-             file_name=new_file_name,
-             mime_type=new_mime_type
+            post_type=post_type.value if post_type else None,
+            file_path=new_file_path,
+            file_name=new_file_name,
+            mime_type=new_mime_type
         )
         
         return db_post
@@ -188,15 +180,17 @@ async def update_post(
             detail=f"Erreur lors de la modification: {str(e)}"
         )
 
+    
 @router.delete("/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(
     post_id: int, 
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-    service: PostService = Depends(get_post_service)
+    post_service: PostService = Depends(get_post_service),
+    file_service: FileService = Depends(get_file_service)
 ):
     """Supprimer un post"""
-    db_post = service.get_post(post_id=post_id)
+    db_post = post_service.get_post(post_id=post_id)
     
     if db_post is None:
         raise HTTPException(
@@ -212,38 +206,9 @@ def delete_post(
     
     # Supprimer le fichier
     try:
-        if os.path.exists(db_post.get("file_path")):
-            os.remove(db_post.get("file_path"))
+        file_service.delete_file_path(db_post.get("file_path"))
     except Exception as e:
         logger.error(f"Erreur lors de la suppression du fichier: {e}")
     
     # Supprimer de la BDD
-    service.delete_post(post_id=post_id)
-
-@router.get("/posts/{post_id}/file")
-def download_file(
-    post_id: int, 
-    db: Session = Depends(get_db),
-    service: PostService = Depends(get_post_service)
-):
-    """Télécharger le fichier d'un post"""
-    db_post = service.get_post(post_id=post_id)
-    
-    if db_post is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Post non trouvé"
-        )
-    
-    if not os.path.exists(db_post.get("file_path")):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Fichier non trouvé"
-        )
-    
-    return FileResponse(
-        path=db_post.get("file_path"),
-        filename=db_post.get("file_name"),
-        media_type=db_post.get("mime_type")
-    )
-
+    post_service.delete_post(post_id=post_id)

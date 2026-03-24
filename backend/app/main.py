@@ -1,7 +1,4 @@
 import logging
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -16,10 +13,10 @@ from app.api.v1.auth import router as auth_router
 from app.api.v1.post import router as post_router
 from app.api.v1.users import router as users_router
 from app.api.v1.search import router as search_router
+from app.api.v1.files import router as files_router
 from app.core.config import settings
 from app.initial_data import init_db
 
-templates = Jinja2Templates(directory="app/templates")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -54,3 +51,4 @@ app.include_router(auth_router, prefix="/api/v1")
 app.include_router(post_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
 app.include_router(search_router, prefix="/api/v1")
+app.include_router(files_router, prefix="/api/v1")

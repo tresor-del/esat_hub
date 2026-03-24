@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.db.database import engine
 from app.db.schemas.user import User
-from app.services.auth_service import AuthService
+from app.services.users import AuthService
 from app.db.database import SessionLocal
 from app.models.user import UserInDatabase
 from app.db.security import hash_password

@@ -2,8 +2,6 @@ import os
 import uuid
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from fastapi.responses import FileResponse
-from PIL import Image
-import io
 
 from app.db.schemas.user import User
 
@@ -11,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.dependencies import get_current_user, get_db
 from app.core.config import settings
+from app.dependencies import get_auth_service
 
 
 os.makedirs(settings.AVATAR_DIR, exist_ok=True)
@@ -21,18 +20,21 @@ router = APIRouter(prefix="/users", tags=["users"])
 def get_user_profil(
     user_id: uuid.UUID,  
      db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    user_service = Depends(get_auth_service)
 ):
     
-    user = db.query(User).filter(User.id == user_id).first()
+    user = user_service.get_user(user_id)
 
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
     return user
 
 @router.post("/me/avatar")
 async def upload_avatar(
     avatar: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
 
 
@@ -78,3 +80,4 @@ async def get_avatar(user_id: uuid.UUID, db: Session = Depends(get_db)):
         return FileResponse("static/default_avatar.png")
     
     return FileResponse(user.avatar_path)
+

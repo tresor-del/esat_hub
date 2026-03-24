@@ -29,7 +29,7 @@ export const updateProfile = async (data) => {
 export const uploadAvatar = async (file) => {
   const formData = new FormData();
   formData.append('avatar', file);
-  const response = await api.post('/users/me/avatar', formData, {
+  const response = await api.post('/files/users/me/avatar', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -42,7 +42,7 @@ export const uploadAvatar = async (file) => {
  */
 export const getAvatarUrl = (userId, bust = null) => {
   if (!userId) return null;
-  const base = `${api.defaults.baseURL}/users/${userId}/avatar`;
+  const base = `${api.defaults.baseURL}/files/users/${userId}/avatar`;
   return bust ? `${base}?v=${bust}` : base;
 
 };
@@ -139,7 +139,7 @@ export const deletePost = async (postId) => {
 };
 
 export const getPostFileUrl = (postId, bust = null) => {
-  const base = `${API_BASE_URL}/posts/${postId}/file`;
+  const base = `${API_BASE_URL}/files/posts/${postId}`;
   return bust ? `${base}?v=${bust}` : base;
 };
 
@@ -156,7 +156,7 @@ export const downloadPostFile = async (postId, fileName) => {
     // Certains navigateurs / configurations peuvent ne pas appliquer
     // correctement l'intercepteur axios pour les requêtes avec
     // responseType: 'blob'. On ajoute donc explicitement le header Authorization.
-    const response = await api.get(`/posts/${postId}/file`, {
+    const response = await api.get(`/files/posts/${postId}/file`, {
       responseType: "blob",
       headers: {
         Authorization: `Bearer ${token}`,

@@ -13,10 +13,10 @@ from app.models.token import Token
 from app.db.security import create_access_token, create_refresh_token, hash_password
 from app.models.user import UserCreate, UserInDatabase
 from app.models.message import Message
-from app.services.email_service import EmailService
+from app.services.email import EmailService
 from app.db.security import authenticate_user
 from app.db.database import SessionLocal
-from app.services.auth_service import AuthService
+from app.services.users import AuthService
 from app.models.token import RefreshToken
 
 logger = logging.getLogger(__name__)
