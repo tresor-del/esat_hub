@@ -2,8 +2,7 @@
 import axios from "axios";
 
 // URL de base de l'API
-const API_BASE_URL= "http://localhost:8000/api/v1";
-const _API_BASE_URL= "https://symmetrical-adventure-4jgg5rprr9x63qvvp-8000.app.github.dev/api/v1";
+const API_BASE_URL= import.meta.env.VITE_API_BASE_URL ;
 
 // Instance Axios avec configuration par défaut
 const api = axios.create({
