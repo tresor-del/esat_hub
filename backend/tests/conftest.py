@@ -1,10 +1,14 @@
 import pytest 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.db.database import Base, engine
 from fastapi.testclient import TestClient
+
+from tests.utils import random_user_in_db
+from app.db.database import Base, engine
 from app.main import app
 from app.dependencies import get_db
+from app.db.security import create_access_token
+from app.dependencies import get_auth_service
 
 
 # Base de donnée sqlite en memmoire pour les tests
@@ -45,15 +49,33 @@ def db(setup_database):
         connection.close()
 
 @pytest.fixture(scope="function")
-def get_test_db(db):
-    try:
-        yield db
-    finally:
-        db.close()
+def client(db):
 
-@pytest.fixture(scope="function")
-def client(get_test_db):
+    def get_test_db():
+        try:
+            yield db
+        finally:
+            db.close()
+
+    # override de la dépendance get_db pour utiliser la session de test au lieu de la session de production
     app.dependency_overrides[get_db] = get_test_db
 
     with TestClient(app) as c:
         yield c
+
+@pytest.fixture(scope="function")
+def test_user(db):
+    test_user_data = random_user_in_db().model_dump()
+    
+    auth_service = get_auth_service(db)
+    username = auth_service.get_username(test_user_data["profil_name"], test_user_data["school_name"])
+    test_user_data["username"] = username
+    db.add(**test_user_data)
+    db.commit()
+    db.refresh(test_user_data)
+    return test_user_data
+
+@pytest.fixture(scope="function")
+def auth_headers(test_user):
+    access_token = create_access_token(data={"sub": str(test_user.id)})
+    return {"Authorization": f"Bearer {access_token}"}

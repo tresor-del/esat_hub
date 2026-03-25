@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+import datetime
 import secrets
 import uuid
 
@@ -36,7 +36,7 @@ class EmailService:
         verification = EmailVerificationToken(
             user_id=user_id,
             token=token,
-            expires_at=datetime.utcnow() + timedelta(hours=24),
+            expires_at=datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=24),
         )
         
         self._db.add(verification)

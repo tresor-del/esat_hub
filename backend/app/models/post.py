@@ -40,7 +40,7 @@ class PostResponse(PostBase):
     updated_at: datetime
     user: UserPublic
 
-    model_config = ConfigDict(from_attributes=True, json_encoders={datetime: lambda v: v.isoformat()})
+    model_config = ConfigDict(from_attributes=True)
 
 class PostListResponse(BaseModel):
     total: int

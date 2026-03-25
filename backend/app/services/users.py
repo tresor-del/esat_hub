@@ -50,5 +50,10 @@ class AuthService:
     def get_user(self, user_id: uuid.UUID) -> User | None:
         return self._db.query(User).filter(User.id == user_id).first()
     
+    def delete_user(self, user_id: uuid.UUID) -> None:
+        user = self.get_user(user_id)
+        if user:
+            self._db.delete(user)
+            self._db.commit()
     
     

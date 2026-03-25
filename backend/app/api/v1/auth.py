@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+import datetime
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 
@@ -130,8 +130,15 @@ def confirm_email(
 
     if not record:
         raise HTTPException(400, "Invalid token")
+    
 
-    if record.expires_at < datetime.utcnow():
+    if record.expires_at < datetime.datetime.now():
+
+        # supprimer l'utilisateur associé au token expiré
+        user = email_service.validate_user(record)
+        if user:
+            auth_service.delete_user(user.id)
+
         raise HTTPException(400, "Token expired")
     
     user = email_service.validate_user(record)
