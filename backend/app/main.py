@@ -21,14 +21,11 @@ from app.initial_data import init_db
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Connexion à l'api...")
-    try:
-        init_db() 
-        logger.info("Base de données initialisée .")
-    except Exception as e:
-        logger.error(f"Erreur lors de l'initialisation de la DB : {e}")
-
     yield
     logger.info("Fermerture des connexions...")
+    # à la création de engine, l'app crée une pool pour et stock des tuyaux ouverts vers la base de données. 
+    # ça permet de réutiliser ces tuyaux pour les requêtes suivantes sans devoir se reconnecter à chaque fois, ce qui améliore les performances.
+    # Quand l'app se ferme, il faut fermer ces tuyaux pour libérer les ressources
     engine.dispose()
     
 
