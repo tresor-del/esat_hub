@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 
+from app.db.schemas.user import User
 from tests.utils import random_user_in_db
 from app.db.database import Base, engine
 from app.main import app
@@ -65,15 +66,17 @@ def client(db):
 
 @pytest.fixture(scope="function")
 def test_user(db):
-    test_user_data = random_user_in_db().model_dump()
+    test_user_data = random_user_in_db()[0].model_dump()
     
     auth_service = get_auth_service(db)
     username = auth_service.get_username(test_user_data["profil_name"], test_user_data["school_name"])
     test_user_data["username"] = username
-    db.add(**test_user_data)
+    test_user = User(**test_user_data)
+    db.add(test_user)
     db.commit()
-    db.refresh(test_user_data)
-    return test_user_data
+    db.refresh(test_user)
+
+    return test_user
 
 @pytest.fixture(scope="function")
 def auth_headers(test_user):

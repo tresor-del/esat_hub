@@ -30,22 +30,23 @@ def random_user_data() -> UserCreate:
 
     return user_data
 
-def random_user_in_db() -> UserInDatabase:
-
+def random_user_in_db() -> tuple[UserInDatabase, str]:
+    test_user_password = random_string()
+    print(test_user_password)
     user_data = UserInDatabase(
         first_name=random_string(),
         last_name=random_string(),
         profil_name=random_string(),
         username=random_string(),
         email=random_email(),
-        hashed_password=hash_password(random_string()),
+        hashed_password=hash_password(test_user_password),
         school_name=random_enum(Schools),
         domain=random_enum(Domains),
         level=random_enum(Levels),
         is_verified=True
     )
 
-    return user_data
+    return user_data, test_user_password
 
 def make_db_request(db, model, **kwargs):
     statement = select(model).where(model.__table__.c.get(kwargs["field"]) == kwargs["value"])

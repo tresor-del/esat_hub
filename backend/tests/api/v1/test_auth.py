@@ -8,7 +8,7 @@ from app.db.schemas.user import User
 from app.db.schemas.email_verification import EmailVerificationToken
 from app.core.config import settings
 from tests.utils import random_user_data, make_db_request
-from app.dependencies import get_auth_service
+from tests.utils import random_user_in_db
 
 
 ### Registration tests ###
@@ -119,12 +119,14 @@ def test_confirm_email_with_expired_token(client: TestClient, db: Session):
 
 ### login tests ###
 
-def test_login_user_with_valid_credentials(client: TestClient, test_user: User, auth_headers: dict):
+def test_login_user_with_valid_credentials(client: TestClient, test_user: User):
+    password = random_user_in_db()[1]
+    print(password)
     data = {
         "username": test_user.username,
-        "password": test_user.password
+        "password": password
     }
-    r = client.post(f"{settings.API_V1_STR}/auth/login", data=data, headers=auth_headers)
+    r = client.post(f"{settings.API_V1_STR}/auth/token", data=data)
     assert r.status_code == 200
     data = r.json()
     assert "access_token" in data, "refresh_token" in data
