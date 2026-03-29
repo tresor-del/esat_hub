@@ -8,7 +8,7 @@ from tests.utils import random_user_in_db
 from app.db.database import Base, engine
 from app.main import app
 from app.dependencies import get_db
-from app.db.security import create_access_token
+from app.db.security import create_access_token, create_refresh_token
 from app.dependencies import get_auth_service
 
 
@@ -65,20 +65,27 @@ def client(db):
         yield c
 
 @pytest.fixture(scope="function")
-def test_user(db):
-    test_user_data = random_user_in_db()[0].model_dump()
-    
+def test_user_with_password(db):
+    user_data, password = random_user_in_db()
+    user_dict = user_data.model_dump()
     auth_service = get_auth_service(db)
-    username = auth_service.get_username(test_user_data["profil_name"], test_user_data["school_name"])
-    test_user_data["username"] = username
-    test_user = User(**test_user_data)
+    username = auth_service.get_username(user_dict["profil_name"], user_dict["school_name"])
+    user_dict["username"] = username
+    test_user = User(**user_dict)
     db.add(test_user)
     db.commit()
     db.refresh(test_user)
-
-    return test_user
+    return test_user, password
 
 @pytest.fixture(scope="function")
 def auth_headers(test_user):
     access_token = create_access_token(data={"sub": str(test_user.id)})
     return {"Authorization": f"Bearer {access_token}"}
+
+@pytest.fixture(scope="function")
+def refresh_token_for_test_user(test_user_with_password):
+    return create_refresh_token(data={"sub": str(test_user_with_password[0].id)})
+
+@pytest.fixture(scope="function")
+def access_token_for_test_user(test_user_with_password):
+    return create_access_token(data={"sub": str(test_user_with_password[0].id)})

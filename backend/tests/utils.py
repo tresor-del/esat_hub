@@ -32,7 +32,7 @@ def random_user_data() -> UserCreate:
 
 def random_user_in_db() -> tuple[UserInDatabase, str]:
     test_user_password = random_string()
-    print(test_user_password)
+    print("original pwd :", test_user_password)
     user_data = UserInDatabase(
         first_name=random_string(),
         last_name=random_string(),

@@ -119,9 +119,8 @@ def test_confirm_email_with_expired_token(client: TestClient, db: Session):
 
 ### login tests ###
 
-def test_login_user_with_valid_credentials(client: TestClient, test_user: User):
-    password = random_user_in_db()[1]
-    print(password)
+def test_login_user_with_valid_credentials(client: TestClient, test_user_with_password):
+    test_user, password = test_user_with_password
     data = {
         "username": test_user.username,
         "password": password
@@ -131,3 +130,48 @@ def test_login_user_with_valid_credentials(client: TestClient, test_user: User):
     data = r.json()
     assert "access_token" in data, "refresh_token" in data
     assert data["token_type"] == "bearer"
+
+def test_login_user_with_invalid_password(client: TestClient, test_user_with_password):
+    test_user, _ = test_user_with_password
+    password = "fakepassword"
+    data = {
+        "username": test_user.username,
+        "password": password
+    }
+    r = client.post(f"{settings.API_V1_STR}/auth/token", data=data)
+    assert r.status_code == 401
+
+def test_login_with_invalid_username(client: TestClient, test_user_with_password):
+    _, password = test_user_with_password
+    password = "fakepassword"
+    data = {
+        "username": "test_user.username",
+        "password": password
+    }
+    r = client.post(f"{settings.API_V1_STR}/auth/token", data=data)
+    assert r.status_code == 401
+
+### refresh token tests ###
+
+def test_refresh_token_success(client: TestClient, refresh_token_for_test_user):
+    data = {"refresh_token": refresh_token_for_test_user}
+    r = client.post(f"{settings.API_V1_STR}/auth/refresh", json=data)
+    assert r.status_code == 200
+    data = r.json()
+    assert "access_token" in data
+    assert "refresh_token" in data
+    assert data["token_type"] == "bearer"
+
+def test_refresh_token_invalid(client: TestClient):
+    data = {"refresh_token": "invalid_token"}
+    r = client.post(f"{settings.API_V1_STR}/auth/refresh", json=data)
+    assert r.status_code == 401
+    data = r.json()
+    assert data["detail"] == "Invalid refresh token"
+
+def test_refresh_token_wrong_type(client: TestClient, access_token_for_test_user):
+    data = {"refresh_token": access_token_for_test_user}
+    r = client.post(f"{settings.API_V1_STR}/auth/refresh", json=data)
+    assert r.status_code == 401
+    data = r.json()
+    assert data["detail"] == "Invalid refresh token"
