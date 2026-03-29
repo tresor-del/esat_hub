@@ -78,7 +78,10 @@ api.interceptors.response.use(
 
         // Mise à jour du stockage et des headers par défaut
         const newAccessToken = res.data.access_token;
+        const newRefreshToken = res.data.refresh_token
         localStorage.setItem("access_token", newAccessToken);
+        localStorage.removeItem("refresh_token");
+        localStorage.setItem("refresh_token", newRefreshToken)
         api.defaults.headers.Authorization = "Bearer " + newAccessToken;
 
         // on peut alors continuer les requêtes dans la queue

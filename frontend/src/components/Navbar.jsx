@@ -2,8 +2,6 @@ import { Link } from "react-router-dom";
 import { useAuth} from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import SearchFilters from "./SearchFilters";
-import { IoIosNotificationsOutline } from "react-icons/io";
-import { FiMessageSquare } from "react-icons/fi";
 import Avatar from "./Avatar";
 import React from "react";
 

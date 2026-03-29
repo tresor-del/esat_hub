@@ -2,33 +2,9 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "./Avatar";
 
-/**
- * Formater la date de création
- */
-const formatDate = (dateString, variant = "relative") => {
-  const date = new Date(dateString);
-  
-  if (variant === "absolute") {
-    return date.toLocaleDateString("fr-FR");
-  }
-
-  // Format relatif par défaut
-  const now = new Date();
-  const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
-  
-  if (diffInHours < 1) return "Il y a quelques minutes";
-  if (diffInHours < 24) return `Il y a ${diffInHours}h`;
-  if (diffInHours < 48) return "Hier";
-  
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 7) return `Il y a ${diffInDays} jours`;
-  
-  return date.toLocaleDateString("fr-FR");
-};
 
 const PostAuthorInfo = ({ 
-  user, 
-  createdAt, 
+  user,
   dateVariant = "relative",
   showAvatar = true 
 }) => {
@@ -68,7 +44,6 @@ const PostAuthorInfo = ({
       
       <span>·</span>
       
-      <span style={{ fontSize: "0.9rem"}}>{formatDate(createdAt, dateVariant)}</span>
     </div>
   );
 };

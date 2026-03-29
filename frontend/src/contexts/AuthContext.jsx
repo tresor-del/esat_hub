@@ -63,6 +63,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const data = await apiLogin(username, password);
       localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("refresh_token", data.refresh_token)
 
       // Persist username so we can restore it after page reloads
       try {

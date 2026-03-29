@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useEffect } from "react";
 import PostAuthorInfo from "./PostAuthorInfo";
 import PostActionsMenu from "./PostActionsMenu";
 import PostMedia from "./PostMedia";
 import { useLocation } from "react-router-dom";
+import { getComments } from "../services/api";
 
 const PostCard = ({
   post,
@@ -13,6 +14,21 @@ const PostCard = ({
   variant = "list"
 }) => {
 
+  const [commentsLength, setCommentLength] = useState(0)
+
+  useEffect( () => {
+    fetchCount()
+  }, [])
+
+  const fetchCount = async () => {
+        try {
+            const result = await getComments(post.id)
+            setCommentLength(result.total)
+        } catch (error) {
+            setCommentLength(0)
+        }
+    }
+
 
   const handleCardClick = (e) => {
     if (variant === "detail") return;
@@ -20,6 +36,24 @@ const PostCard = ({
     if (onView) {
       onView(post);
     }
+  };
+
+  /**
+   * Formater la date de création
+   */
+  const formatDate = (dateString) => {
+    const date = new Date(dateString)
+    const day = date.getDate().toString().padStart("2", "0")
+    const month = (date.getMonth() + 1).toString().padStart("2", "0")
+    const year = date.getFullYear().toString()
+    const min = date.getMinutes().toString().padStart("2", "0")
+    const hour = date.getHours().toString().padStart("2", "0")
+    
+    const valideDate = `${day}-${month}-${year} at ${hour}:${min}`
+    console.log(valideDate)
+    return valideDate
+
+
   };
 
   return (
@@ -47,6 +81,11 @@ const PostCard = ({
 
         {/* Médias */}
         <PostMedia post={post} variant="detail"/>
+        <div style={{display: "flex", justifyContent: "space-between"}}>
+
+        <span style={{ fontSize: "0.9rem"}}>Created: {formatDate(post.created_at)}</span>
+        <span>{commentsLength} commentaires</span>
+        </div>
 
       </div>
     </div>

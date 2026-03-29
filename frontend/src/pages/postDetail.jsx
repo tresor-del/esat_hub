@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import PostAuthorInfo from "../components/PostAuthorInfo";
 import PostActionsMenu from "../components/PostActionsMenu";
 import PostMedia from "../components/PostMedia";
+import CommentSection from "../components/CommentSection";
 
 const PostDetail = () => {
   const { id } = useParams();
@@ -15,6 +16,7 @@ const PostDetail = () => {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [commentCount, setCommentCount] = useState(0)
 
   const location = useLocation();
 
@@ -56,6 +58,10 @@ const PostDetail = () => {
   const goHome = () => {
     navigate("/");
   };
+
+  const handleCommentAdded = (count) => {
+    setCommentCount(count)
+  }
 
   if (loading) return <div className="loading">Chargement…</div>;
   if (error) return <p className="alert alert-error">{error}</p>;
@@ -113,19 +119,20 @@ const PostDetail = () => {
       </div>
 
       {/* Section commentaires */}
-      {/* <div className="card comments-card" style={{ width: "100%" }}>
+      <div className="card comments-card" style={{ width: "100%" }}>
         <div className="card-header">
           <h3 className="card-title">
-            Commentaires ({commentsCount})
+            Commentaires ({commentCount})
           </h3>
         </div>
         <div className="card-body">
           <CommentSection 
             postId={id} 
+            user={user}
             onCommentAdded={handleCommentAdded}
           />
         </div>
-      </div> */}
+      </div>
     </div>
   );
 };

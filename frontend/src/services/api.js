@@ -181,6 +181,18 @@ export const downloadPostFile = async (postId, fileName) => {
   }
 };
 
+/* Commentaires */
+
+export const getComments = async (postId) => {
+  const response = await api.get(`${API_BASE_URL}/comments/posts/${postId}/comments`)
+  return response.data
+}
+
+export const addComment = async (data) => {
+  const response = await api.post(`${API_BASE_URL}/comments/create`, data);
+  return response.data
+}
+
 /**
  * =========================================
  * UTILITAIRES

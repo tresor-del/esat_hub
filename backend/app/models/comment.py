@@ -8,7 +8,7 @@ from app.models.user import UserResponse
 class CommentCreate(BaseModel):
     content: str
     user_id: uuid.UUID
-    post_id: uuid.UUID
+    post_id: int
 
 class CommentResponse(BaseModel):
     id: uuid.UUID
