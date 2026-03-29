@@ -14,6 +14,7 @@ from app.services.users import AuthService
 from app.services.email import EmailService
 from app.services.posts import PostService
 from app.services.files import FileService
+from app.services.comment import CommentService
 
 def get_db():
     db = SessionLocal()
@@ -58,3 +59,6 @@ def get_post_service(session = Depends(get_db)) -> PostService:
 
 def get_file_service() -> FileService:
     return FileService()
+
+def get_comment_service(session = Depends(get_db)):
+    return CommentService(session)

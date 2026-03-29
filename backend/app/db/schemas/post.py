@@ -27,9 +27,10 @@ class Post(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="posts")
     
-    
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<Post {self.id}: {self.title} by User {self.user_id}>"
