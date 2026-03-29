@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import HTTPException, status
 from jose import jwt
 from datetime import datetime, timedelta, timezone
@@ -40,7 +42,7 @@ def create_refresh_token(data: dict, expires_delta: timedelta | None = None):
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire, "type": "refresh"})
+    to_encode.update({"exp": expire, "type": "refresh", "jti": str(uuid.uuid4())})
     encoded_jwt = jwt.encode(to_encode, settings.REFRESH_SECRET_KEY, algorithm=settings.REFRESH_ALGORITHM)
     return encoded_jwt
 

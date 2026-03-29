@@ -8,7 +8,6 @@ from app.db.schemas.user import User
 from app.db.schemas.email_verification import EmailVerificationToken
 from app.core.config import settings
 from tests.utils import random_user_data, make_db_request
-from tests.utils import random_user_in_db
 
 
 ### Registration tests ###
@@ -161,6 +160,11 @@ def test_refresh_token_success(client: TestClient, refresh_token_for_test_user):
     assert "access_token" in data
     assert "refresh_token" in data
     assert data["token_type"] == "bearer"
+
+    # vérifier qu'on ne peut plus utilisé l'ancien refresh token
+    data = {"refresh_token": refresh_token_for_test_user}
+    r = client.post(f"{settings.API_V1_STR}/auth/refresh", json=data)
+    assert r.status_code == 401
 
 def test_refresh_token_invalid(client: TestClient):
     data = {"refresh_token": "invalid_token"}

@@ -46,17 +46,6 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
         raise credentials_exception
     return user
 
-def requires_roles(*role):
-    def checker(user: User = Depends(get_current_user)):
-        user_role = {role.name for role in user.role}
-        
-        if not user_role.intersection(role):
-            raise HTTPException(
-                status_code=403,
-                detail="Permission denied"
-            )
-        return user
-    return checker
 
 def get_auth_service(session = Depends(get_db)) -> AuthService:
     return AuthService(session)

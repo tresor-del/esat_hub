@@ -18,6 +18,7 @@ from app.db.security import authenticate_user
 from app.db.database import SessionLocal
 from app.services.users import AuthService
 from app.models.token import RefreshToken
+from app.db.schemas.revoked_token import RevokedToken
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/token", response_model=Token)
-def login_for_access_token(
+def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
@@ -44,8 +45,34 @@ def login_for_access_token(
 
     return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
 
+@router.post("/logout")
+def logout(body: RefreshToken, db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(
+            token=body.refresh_token,
+            key=settings.REFRESH_SECRET_KEY,
+            algorithms=[settings.REFRESH_ALGORITHM],
+        )
+        jti = payload.get("jti")
+
+        if jti is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        # Vérifier s'il est déjà révoqué
+        already_revoked = db.query(RevokedToken).filter(RevokedToken.jti == jti).first()
+        if already_revoked:
+            raise HTTPException(status_code=401, detail="Token already revoked")
+
+        db.add(RevokedToken(jti=jti))
+        db.commit()
+
+        return Message(message="Logout out successfully")
+
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
 @router.post("/refresh")
-def refresh_token(body: RefreshToken):
+def refresh_token(body: RefreshToken, db: Session = Depends(get_db)):
     
     try:
         payload = jwt.decode(
@@ -53,17 +80,24 @@ def refresh_token(body: RefreshToken):
             key=settings.REFRESH_SECRET_KEY,
             algorithms=[settings.REFRESH_ALGORITHM],
         )
-
-        
         user_id = payload.get("sub")
+        jti = payload.get("jti")
 
         # vérifier que c'est bien un access_token
         if not payload.get("type") == "refresh":
             raise HTTPException(status_code=401, detail="Invalid refresh token")
 
         # vérifier qu'un utilisateur est associé au token
-        if user_id is None:
+        if user_id is None or jti is None:
             raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+        # vérifier que le token à été déjà utilisé
+        already_used = db.query(RevokedToken).where(RevokedToken.jti == jti).first()
+        if already_used:
+            raise HTTPException(status_code=401, detail="Invalid refresh token")
+        
+        db.add(RevokedToken(jti=jti))
+        db.commit()
 
         new_access_token = create_access_token(
             data={"sub": user_id}
