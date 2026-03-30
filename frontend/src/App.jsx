@@ -11,6 +11,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { WebSocketProvider } from "./contexts/WebSocketContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 
@@ -29,6 +30,7 @@ import CreatePost from "./pages/CreatePost";
 import PostDetail from "./pages/postDetail";
 import PostEdit from "./pages/PostEdit";
 import UserProfil from "./pages/UserProfil"
+import Notifications from "./pages/Notifications"
 
 // Styles (split into ./styles/*.css)
 import "./App.css"
@@ -91,6 +93,7 @@ const AppRoutes = () => {
         <Route path="/edit/:id" element={<PostEdit />} />
         <Route path="/post/:id" element={<PostDetail />} />
         <Route path="/profile/:id" element={<UserProfil />} />
+        <Route path="/notifications" element={<Notifications />} />
         <Route path="/" element={<Home />} />
       </Route>
 
@@ -124,7 +127,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppRoutes />
+        <WebSocketProvider>
+          <AppRoutes />
+        </WebSocketProvider>
       </AuthProvider>
     </Router>
   );

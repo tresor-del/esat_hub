@@ -7,8 +7,9 @@ from app.db.schemas.user import User
 from app.services.comment import CommentService
 from app.models.comment import CommentCreate
 from app.services.posts import PostService
-from app.services.users import AuthService
 from app.models.message import Message
+from app.models.notifications import NotificationPayload
+from app.api.v1.ws import manager
 
 router = APIRouter(prefix="/comments", tags=["comments"])
 
@@ -29,7 +30,7 @@ def get_comment(
     return comment
 
 @router.post("/create")
-def create_comment(
+async def create_comment(
     data: CommentCreate,
     current_user: User = Depends(get_current_user),
     comment_service: CommentService = Depends(get_comment_service),
@@ -47,6 +48,22 @@ def create_comment(
     data.user_id = current_user.id
 
     result = comment_service.create_comment(data=data)
+
+    # Envoyer une notification au propriétaire du post
+    # if post.user_id != data.user_id:
+    await manager.send_personal_notification(
+            user_id = post.user_id,
+            message=  NotificationPayload(
+                type ="new_comment",
+                message=f"{current_user.username} commented on your post: {data.content[:50]}",
+                post_id=data.post_id,
+                author=current_user.username,
+                comment_id=result.id,
+                content=data.content,
+                created_at=result.created_at
+            )
+        )
+
     return result
 
 @router.put("/update/{comment_id}")

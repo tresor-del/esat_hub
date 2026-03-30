@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth} from "../contexts/AuthContext";
+import { useWebSocket } from "../contexts/WebSocketContext";
 import { useNavigate } from "react-router-dom";
 import SearchFilters from "./SearchFilters";
 import Avatar from "./Avatar";
@@ -7,6 +8,7 @@ import React from "react";
 
 const Navbar = () => {
   const { user, logout, isAuth } = useAuth();
+  const { unreadCount } = useWebSocket();
 
   const handleLogout = () => {
     if (window.confirm("Êtes-vous sûr de vouloir vous déconnecter ?")) {
@@ -41,9 +43,12 @@ const Navbar = () => {
         <div className="navbar-menu">
           {isAuth() ? (
             <>
-  
               <Link to="/create" className="btn btn-primary">
                 + Créer
+              </Link>
+
+              <Link to="/notifications" className="navbar-link notifications-link">
+                🔔 Notifications {unreadCount > 0 && <span className="unread-badge">{unreadCount}</span>}
               </Link>
 
               {user && (
