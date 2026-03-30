@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Avatar from "./Avatar";
 import { useNavigate } from "react-router-dom";
 import { addComment, getComments } from "../services/api";
+import "../styles/CommentSection.css";
+import PostAuthorInfo from "./PostAuthorInfo";
 
 
 const CommentSection = ({postId, user, onCommentAdded}) => {
@@ -23,8 +25,6 @@ const CommentSection = ({postId, user, onCommentAdded}) => {
             setLoading(true);
             const result = await getComments(postId);
             setComments(result.comments)
-            setCommentCount(result.total)
-            console.log("comments", result)
         } catch (error) {
             setError("Erreur lors du chargement des commentaires")
         } finally {
@@ -60,28 +60,28 @@ const CommentSection = ({postId, user, onCommentAdded}) => {
     return (
 
         <div>
+            
+            {/* envoie de commentaires */}
+            <div className="submitForm">
+                <input placeholder="Ecrivez votre commentaire ici..." className="input" type="text" value={content} onChange={(e) => {setContent(e.target.value)}} />
+                <button className="submitButton" onClick={handleSubmit}>Submit</button>
+            </div>
             {/* list des commentaires */}
-            <div style={{display: "flex", flexDirection: "column", gap: "1rem"}}>
+            <div className="commentBox">
                 {comments.map((comment) =>(
-                <div key={comment.id} className="commentCard" style={{display: "flex", gap: "5px"}}>
-                    <Avatar 
-                        user={comment.user}
-                        size="small"
-                        onClick={handleClick}
-                    />
+                <div key={comment.id} className="commentCard">
+                    <PostAuthorInfo user={comment.user} onClick={handleClick} />
                     <div className="content">
                         {comment.content}
+                    </div>
+                    <div className="comment-footer">
+                        <span className="comment-date">{new Date(comment.created_at).toLocaleString()}</span>
                     </div>
                 </div>
             ))}
 
             </div>
             
-            {/* envoie de commentaires */}
-            <div>
-                <input type="text" value={content} onChange={(e) => {setContent(e.target.value)}} />
-                <button onClick={handleSubmit}>Submit</button>
-            </div>
         </div>
 
         

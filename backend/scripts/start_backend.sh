@@ -3,12 +3,12 @@ set -e
 
 echo "Starting Enrollix backend..."
 
-echo "Initialisation de la base de données..."
-poetry run python -c "from app.initial_data import init_db; init_db()"
-
 # Lancer les migrations
 echo "Running database migrations..."
 poetry run alembic upgrade head
+
+echo "Initialisation de la base de données..."
+poetry run python -c "from app.initial_data import init_db; init_db()"
 
 # 4. Démarrer l'API FastAPI
 echo "Launching FastAPI..."

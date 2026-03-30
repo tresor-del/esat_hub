@@ -26,6 +26,7 @@ class UserInDatabase(UserBase):
 class UserResponse(UserBase):
     id: uuid.UUID
     is_verified: Optional[bool] = False
+    username: Optional[str] = None
 
 class UserListResponse(BaseModel):
     total: int

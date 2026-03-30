@@ -425,7 +425,6 @@ a:hover {
 .post-user-info {
   display: flex;
   align-items: start;
-  justify-content: center;
   gap: 8px;
 }
 
