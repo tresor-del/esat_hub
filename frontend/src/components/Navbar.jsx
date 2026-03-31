@@ -4,6 +4,7 @@ import { useWebSocket } from "../contexts/WebSocketContext";
 import { useNavigate } from "react-router-dom";
 import SearchFilters from "./SearchFilters";
 import Avatar from "./Avatar";
+import { HiOutlineBell } from "react-icons/hi";
 import React from "react";
 
 const Navbar = () => {
@@ -48,7 +49,7 @@ const Navbar = () => {
               </Link>
 
               <Link to="/notifications" className="navbar-link notifications-link">
-                🔔 Notifications {unreadCount > 0 && <span className="unread-badge">{unreadCount}</span>}
+                <HiOutlineBell className="notification-icon"/> {unreadCount > 0 && <span className="unread-badge">{unreadCount}</span>}
               </Link>
 
               {user && (

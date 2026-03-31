@@ -1,45 +1,49 @@
 import asyncio
 from uuid import UUID
+from jose import jwt, JWTError
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from app.models.notifications import NotificationPayload
+from app.core.config import settings
+from app.services.ws_manager import ws_manager
 
-router = APIRouter(prefix="/ws", tags=["websocket"])
+router = APIRouter(tags=["websocket"])
 
-class ConnexionManager:
 
-    def __init__(self):
-        self.active_connections: dict[UUID, WebSocket] = {}
-    
-    async def connect(self,user_id: UUID, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections[user_id] = websocket
-    
-    def disconnect(self, user_id: UUID):
-        self.active_connections.pop(user_id, None)
-
-    async def send_personal_notification(self, user_id: UUID, message: NotificationPayload):
-        websocket = self.active_connections.get(user_id)
-        if websocket:
-            await websocket.send_json(message.model_dump())
-
-manager = ConnexionManager()
-
-@router.websocket("/")
+@router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    user_id_str = websocket.query_params.get("user_id")
-    if not user_id_str:
-        await websocket.close(code=1008, reason="user_id query parameter is required")
-        return
-    try:
-        user_id = UUID(user_id_str)
-    except ValueError:
-        await websocket.close(code=1008, reason="Invalid user_id format")
+    token = websocket.query_params.get("token")
+
+    if not token:
+        await websocket.close(code=1008, reason="token query parameter is required")
         return
     
-    await manager.connect(user_id, websocket)
+    try:
+        payload = jwt.decode(
+            token=token,
+            key=settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM]
+        )
+        user_id = payload.get("sub")
+        if not user_id:
+            await websocket.close(code=1008, reason="Invalid token")
+            return
+        
+    except JWTError:
+        await websocket.close(code=1008, reason="Invalid token")
+        return
+    
+    await ws_manager.connect(user_id, websocket)
     try:
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
-        manager.disconnect(user_id)
+        ws_manager.disconnect(user_id)
+
+
+# # Dans ton fichier ws.py
+# @router.websocket("/ws")  # ou "" selon ta config
+# async def websocket_endpoint(websocket: WebSocket):
+#     await websocket.accept() # On accepte direct sans vérifier le token
+#     await websocket.send_json({"msg": "Connecté !"})
+#     await websocket.close()

@@ -123,16 +123,19 @@ a:hover {
 
 .unread-badge {
   position: absolute;
-  top: -8px;
-  right: -8px;
+  top: 3px;
+  right: 15px;
   background: #ff4444;
   color: white;
   border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 0.8em;
+  font-size: 0.7em;
   font-weight: bold;
   min-width: 18px;
   text-align: center;
+}
+
+.notification-icon{
+  font-size: 2rem;
 }
 
 .navbar-user {
@@ -329,6 +332,7 @@ a:hover {
 /* ============================================
    CONTENEUR PRINCIPAL
    ============================================ */
+
 .container {
   max-width: 900px;
   margin: 0 auto;
@@ -471,13 +475,13 @@ a:hover {
   line-height: 1.5;
 
 
-  /* 🔑 CLAMP */
+  /* CLAMP */
   -webkit-line-clamp: 1;
   /* nombre de lignes */
   -webkit-box-orient: vertical;
   overflow: hidden;
 
-  /* 🔑 FIX mots longs */
+  /* FIX mots longs */
   word-break: break-word;
   overflow-wrap: anywhere;
 }

@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from app.dependencies import get_current_user, get_db
 from app.db.schemas.user import User
 from app.db.schemas.post import Post

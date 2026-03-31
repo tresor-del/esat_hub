@@ -17,7 +17,6 @@ from app.api.v1.files import router as files_router
 from app.api.v1.comment import router as comment_router
 from app.api.v1.ws import router as ws_router
 from app.core.config import settings
-from app.initial_data import init_db
 
 
 @asynccontextmanager

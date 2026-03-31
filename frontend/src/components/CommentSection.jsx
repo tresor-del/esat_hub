@@ -17,14 +17,21 @@ const CommentSection = ({postId, user, onCommentAdded}) => {
 
     useEffect(() => {
         loadComments();
-        onCommentAdded(comments.length)
-    }, [comments])
+    }, [postId])
+
+    useEffect(() =>{
+        if (onCommentAdded) {
+            onCommentAdded(comments.length);
+        }
+    }, [comments, onCommentAdded])
 
     const loadComments = async () => {
         try {
             setLoading(true);
             const result = await getComments(postId);
-            setComments(result.comments)
+            if (result.comments) {
+                setComments(result.comments);
+            }
         } catch (error) {
             setError("Erreur lors du chargement des commentaires")
         } finally {

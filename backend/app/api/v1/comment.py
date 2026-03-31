@@ -9,7 +9,7 @@ from app.models.comment import CommentCreate
 from app.services.posts import PostService
 from app.models.message import Message
 from app.models.notifications import NotificationPayload
-from app.api.v1.ws import manager
+from app.api.v1.ws import ws_manager
 
 router = APIRouter(prefix="/comments", tags=["comments"])
 
@@ -51,9 +51,11 @@ async def create_comment(
 
     # Envoyer une notification au propriétaire du post
     # if post.user_id != data.user_id:
-    await manager.send_personal_notification(
-            user_id = post.user_id,
-            message=  NotificationPayload(
+    # Envoyer une notification au propriétaire du post
+    try: 
+        await ws_manager.send_personal_notification(
+            user_id = str(post.get("user_id")),
+            message = NotificationPayload(
                 type ="new_comment",
                 message=f"{current_user.username} commented on your post: {data.content[:50]}",
                 post_id=data.post_id,
@@ -63,6 +65,11 @@ async def create_comment(
                 created_at=result.created_at
             )
         )
+    except Exception as e:
+        # On log l'erreur mais on ne bloque pas la réponse API
+        # Le commentaire est déjà créé en base, c'est le plus important.
+        print(f"Échec de l'envoi de la notification : {e}")
+
 
     return result
 
