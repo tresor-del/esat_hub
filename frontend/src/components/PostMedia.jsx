@@ -140,8 +140,8 @@ const PostMedia = ({ post, variant = "preview", bust}) => {
           <div
             className="pdf-viewer-container"
             style={{
-              marginTop: 16,
-              marginBottom: 16,
+              marginTop: "12px",
+              marginBottom: "12px",
               border: "1px solid var(--border-color, #edeff1)",
               borderRadius: "8px",
               overflow: "hidden",
@@ -209,6 +209,8 @@ const PostMedia = ({ post, variant = "preview", bust}) => {
             {/* Zone de rendu PDF */}
             <div
               style={{
+                marginTop: "12px",
+                marginBottom: "12px",
                 position: "relative",
                 width: "100%",
                 minHeight: isFullscreen ? "80vh" : "600px",

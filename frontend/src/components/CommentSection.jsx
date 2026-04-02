@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { addComment, getComments } from "../services/api";
 import "../styles/CommentSection.css";
 import PostAuthorInfo from "./PostAuthorInfo";
+import { formatRelativeDate } from "../utils/dateFormatter";
 
 
 const CommentSection = ({postId, user, onCommentAdded}) => {
@@ -77,13 +78,19 @@ const CommentSection = ({postId, user, onCommentAdded}) => {
             <div className="commentBox">
                 {comments.map((comment) =>(
                 <div key={comment.id} className="commentCard">
-                    <PostAuthorInfo user={comment.user} onClick={handleClick} />
-                    <div className="content">
-                        {comment.content}
+                    <div className="comment-info">
+                        <PostAuthorInfo user={comment.user} onClick={handleClick} />
+                        <span className="comment-date">{formatRelativeDate(comment.created_at)}</span>
                     </div>
-                    <div className="comment-footer">
-                        <span className="comment-date">{new Date(comment.created_at).toLocaleString()}</span>
+                    <div className="comment-body">
+                        <div className="content">
+                            {comment.content}
+                        </div>
+                        <div className="comment-footer">
+                            <button className="comment-response-button">Répondre</button>
+                        </div>
                     </div>
+                    
                 </div>
             ))}
 

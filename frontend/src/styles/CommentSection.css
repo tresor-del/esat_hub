@@ -9,6 +9,8 @@
 .content {
     font-size: 14px;
     color: #333;
+    width: 100%;
+    display: flex;
 }
 
 .submitForm {
@@ -36,4 +38,32 @@
 .comment-date {
     font-size: 12px;
     color: #777;
+    margin-top: 5px;
+}
+
+.comment-info{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.comment-response-button {
+    background-color: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 10px;
+}
+
+.comment-response-button:hover{
+    background-color: #ddd;
+}
+
+.comment-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-left: 2.5rem;
 }

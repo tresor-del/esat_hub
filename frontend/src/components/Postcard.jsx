@@ -5,6 +5,7 @@ import PostActionsMenu from "./PostActionsMenu";
 import PostMedia from "./PostMedia";
 import { useLocation } from "react-router-dom";
 import { getComments } from "../services/api";
+import { formatRelativeDate } from "../utils/dateFormatter";
 
 const PostCard = ({
   post,
@@ -82,9 +83,8 @@ const PostCard = ({
         {/* Médias */}
         <PostMedia post={post} variant="detail"/>
         <div style={{display: "flex", justifyContent: "space-between"}}>
-
-        <span style={{ fontSize: "0.9rem"}}>Created: {formatDate(post.created_at)}</span>
-        <span>{commentsLength} commentaires</span>
+          <span>{commentsLength} commentaires</span>
+          <span style={{ fontSize: "0.9rem"}}>{formatRelativeDate(post.created_at)}</span>
         </div>
 
       </div>

@@ -55,3 +55,16 @@
 .notification-content strong {
   color: #007bff;
 }
+
+.notification-button {
+    background-color: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 10px;
+}
+
+.notification-button:hover{
+    background-color: #ddd;
+}

@@ -193,6 +193,18 @@ export const addComment = async (data) => {
   return response.data
 }
 
+/* Notification */
+
+export const getNotifications = async () => {
+  const response = await api.get(`${API_BASE_URL}/notifications/me/all`)
+  return response.data
+} 
+
+export const markNotificationsAsRead = async () => {
+  const response = await api.put(`${API_BASE_URL}/notifications/me/all`)
+  return response.data
+}
+
 /**
  * =========================================
  * UTILITAIRES

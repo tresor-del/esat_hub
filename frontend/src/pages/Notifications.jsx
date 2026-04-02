@@ -1,13 +1,17 @@
 import React, { useEffect } from 'react';
-import { useWebSocket } from '../contexts/WebSocketContext';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Notifications.css';
+import { useNotification } from '../hooks/useNotification';
+import { formatRelativeDate } from '../utils/dateFormatter';
 
 const Notifications = () => {
-  const { notifications, markAsRead } = useWebSocket();
+  const { notifications, markAsRead } = useNotification();
 
   useEffect(() => {
     markAsRead();
-  }, [markAsRead]);
+  }, [])
+
+  const navigate = useNavigate();
 
   return (
     <div className="notifications-page">
@@ -20,13 +24,14 @@ const Notifications = () => {
             <div key={index} className="notification-item">
               <div className="notification-header">
                 <span className="notification-type">{notif.type === 'new_comment' ? 'Nouveau commentaire' : notif.type}</span>
-                <span className="notification-time">{new Date(notif.created_at).toLocaleString()}</span>
+                <span className="notification-time">{formatRelativeDate(notif.created_at)}</span>
               </div>
               <div className="notification-content">
-                {notif.type === 'new_comment' ? (
-                  <p><strong>{notif.author}</strong> a commenté votre post : "{notif.content}"</p>
-                ) : (
-                  <p>{notif.message}</p>
+                <p>{notif.content}"</p>
+                {notif.post_id && (
+                  <button className='notification-button' onClick={() => navigate(`/post/${notif.post_id}`)}>
+                    Voir le post
+                  </button>
                 )}
               </div>
             </div>

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.dependencies import get_current_user, get_notification_service
 from app.db.schemas.user import User
 from app.services.notification import NotificationService
-from backend.app.models.message import Message
+from app.models.message import Message
 
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
@@ -45,6 +45,14 @@ def delete_all_notifications(
     notif_service.delete_all_notification(current_user.id)
     return Message(message="Notifications éffacés avec succès")
 
+@router.put("/me/all")
+def mark_all_notifications_as_read(
+    current_user: User = Depends(get_current_user),
+    notif_service: NotificationService = Depends(get_notification_service)  
+):
+    notif_service.mark_all_notifications_as_read(current_user.id)
+    return Message(message="Notifications marqués comme lus avec succès")
+
 @router.put("/me/{notif_id}")
 def mark_notification_as_read(
     notif_id: UUID,
@@ -62,11 +70,3 @@ def mark_notification_as_read(
 
     notif_service.mark_notification_as_read(notif_id=notif_id)
     return Message(message="Notification marqué comme lu avec succès")
-
-@router.put("/me/all")
-def mark_all_notifications_as_read(
-    current_user: User = Depends(get_current_user),
-    notif_service: NotificationService = Depends(get_notification_service)  
-):
-    notif_service.mark_all_notifications_as_read(current_user.id)
-    return Message(message="Notifications marqués comme lus avec succès")

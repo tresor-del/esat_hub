@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from './AuthContext';
+import { getNotifications, markNotificationsAsRead } from '../services/api';
 
 const wsUrl = import.meta.env.VITE_WS_BASE_URL;
 
@@ -9,36 +10,56 @@ export const useWebSocket = () => useContext(WebSocketContext);
 
 export const WebSocketProvider = ({ children }) => {
   const { user } = useAuth();
-  const wsRef = useRef(null);
   const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const wsRef = useRef(null);
 
+  // 1. Calcul du compteur (Badge)
+  const unreadCount = notifications.filter(n => n.is_read === false).length;
+
+  // 2. Fonction pour charger l'historique depuis la DB
+  const loadNotifications = async () => {
+    try {
+      const result = await getNotifications();
+      if (result?.notifications) {
+        setNotifications(prev => {
+          const existingIds = new Set(prev.map(n => n.id));
+          const uniqueFromDb = result.notifications.filter(n => !existingIds.has(n.id));
+          return [...prev, ...uniqueFromDb];
+        });
+      }
+    } catch (error) {
+      console.error("Erreur chargement notifications:", error);
+    }
+  };
+
+  // 3. Gestion du WebSocket et du chargement initial
   useEffect(() => {
-    const token = localStorage.getItem("access_token")
+    const token = localStorage.getItem("access_token");
     if (!token) return;
+
+    // On charge la DB dès qu'on a le token
+    loadNotifications();
 
     const ws = new WebSocket(`${wsUrl}?token=${token}`);
     wsRef.current = ws;
 
-    ws.onopen = () => alert('WebSocket connecté');
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log('Notification reçue:', data);
-      setNotifications(prev => [data, ...prev]);
-      setUnreadCount(prev => prev + 1);
+      // On s'assure que le message temps réel est marqué non lu
+      setNotifications(prev => [{ ...data, is_read: false }, ...prev]);
     };
-    ws.onclose = () => console.log('WebSocket déconnecté');
-    ws.onerror = (error) => console.error('Erreur WebSocket:', error);
 
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close()
-      }
-    };
-  }, []);
+    return () => wsRef.current?.close();
+  }, [user]); // Se relance à la connexion/déconnexion
 
-  const markAsRead = () => {
-    setUnreadCount(0);
+  const markAsRead = async () => {
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    try {
+      const result = await markNotificationsAsRead()
+      console.log(result)
+    } catch (error) {
+      console.log("Erreur: ", error)
+    }
   };
 
   return (
