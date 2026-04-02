@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.db.schemas import user, email_verification, post, comments
+from app.db.schemas import user, email_verification, post, comments, notification
 from app.db.database import Base
 
 # this is the Alembic Config object, which provides

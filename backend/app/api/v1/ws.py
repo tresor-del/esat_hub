@@ -1,9 +1,8 @@
-import asyncio
 from uuid import UUID
+
 from jose import jwt, JWTError
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from app.models.notifications import NotificationPayload
 from app.core.config import settings
 from app.services.ws_manager import ws_manager
 
@@ -24,7 +23,7 @@ async def websocket_endpoint(websocket: WebSocket):
             key=settings.SECRET_KEY,
             algorithms=[settings.ALGORITHM]
         )
-        user_id = payload.get("sub")
+        user_id = UUID(payload.get("sub"))
         if not user_id:
             await websocket.close(code=1008, reason="Invalid token")
             return
@@ -32,7 +31,7 @@ async def websocket_endpoint(websocket: WebSocket):
     except JWTError:
         await websocket.close(code=1008, reason="Invalid token")
         return
-    
+    print("id avant connection: ", user_id)
     await ws_manager.connect(user_id, websocket)
     try:
         while True:

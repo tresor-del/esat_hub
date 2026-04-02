@@ -2,14 +2,17 @@ import uuid
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, status, HTTPException, Depends
 
-from app.dependencies import get_current_user, get_comment_service, get_post_service
+from app.dependencies import get_current_user, get_comment_service, get_post_service, get_notification_service, get_auth_service
 from app.db.schemas.user import User
 from app.services.comment import CommentService
 from app.models.comment import CommentCreate
 from app.services.posts import PostService
 from app.models.message import Message
-from app.models.notifications import NotificationPayload
+from app.models.user import UserResponse
+from app.models.notifications import NotificationResponse
 from app.api.v1.ws import ws_manager
+from app.services.notification import NotificationService
+from app.services.users import AuthService
 
 router = APIRouter(prefix="/comments", tags=["comments"])
 
@@ -34,7 +37,9 @@ async def create_comment(
     data: CommentCreate,
     current_user: User = Depends(get_current_user),
     comment_service: CommentService = Depends(get_comment_service),
-    post_service: PostService = Depends(get_post_service)
+    post_service: PostService = Depends(get_post_service),
+    notif_service: NotificationService = Depends(get_notification_service),
+    auth_service: AuthService = Depends(get_auth_service),
 ):
     
     post = post_service.get_post(post_id=data.post_id)
@@ -51,25 +56,20 @@ async def create_comment(
 
     # Envoyer une notification au propriétaire du post
     # if post.user_id != data.user_id:
-    # Envoyer une notification au propriétaire du post
-    try: 
-        await ws_manager.send_personal_notification(
-            user_id = str(post.get("user_id")),
-            message = NotificationPayload(
-                type ="new_comment",
-                message=f"{current_user.username} commented on your post: {data.content[:50]}",
-                post_id=data.post_id,
-                author=current_user.username,
-                comment_id=result.id,
-                content=data.content,
-                created_at=result.created_at
-            )
-        )
-    except Exception as e:
-        # On log l'erreur mais on ne bloque pas la réponse API
-        # Le commentaire est déjà créé en base, c'est le plus important.
-        print(f"Échec de l'envoi de la notification : {e}")
+    recipient = auth_service.get_user(post.get("user_id"))
+    sender = auth_service.get_user(current_user.id)
 
+    notification_data = NotificationResponse(
+        type="new_comment",
+        content=f"{current_user.username} commented on your post: {data.content[:50]}",
+        is_read=False,
+        recipient=UserResponse.model_validate(recipient),
+        sender=UserResponse.model_validate(sender),
+        post_id=data.post_id,
+        comment_id=result.id
+    )
+
+    await notif_service.send_notification(data=notification_data)
 
     return result
 
