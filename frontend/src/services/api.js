@@ -156,7 +156,7 @@ export const downloadPostFile = async (postId, fileName) => {
     // Certains navigateurs / configurations peuvent ne pas appliquer
     // correctement l'intercepteur axios pour les requêtes avec
     // responseType: 'blob'. On ajoute donc explicitement le header Authorization.
-    const response = await api.get(`/files/posts/${postId}/file`, {
+    const response = await api.get(`/files/posts/${postId}`, {
       responseType: "blob",
       headers: {
         Authorization: `Bearer ${token}`,

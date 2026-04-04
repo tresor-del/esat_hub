@@ -15,7 +15,6 @@ import { WebSocketProvider } from "./contexts/WebSocketContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 
-import "./styles/PostPdfViewer.css"
 import "./styles/UserProfile.css"
 // Layouts
 import MainLayout from "./layouts/MainLayout";

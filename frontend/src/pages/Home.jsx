@@ -24,6 +24,7 @@ const Home = () => {
    * Charger les postes au montage et quand on fait des recherches
    */
   useEffect(() => {
+    
     loadPosts();
   }, []);
 

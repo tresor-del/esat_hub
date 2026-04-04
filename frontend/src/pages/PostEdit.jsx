@@ -211,9 +211,6 @@ const PostEdit = () => {
         data.append("remove_file", "true");
       }
 
-      // print(data.description)
-      console.log("Id du poste modifié: ", id);
-      console.log("Données du poste modifié: ", data.get("title"));
       await updatePost(id, data);
 
       // Rediriger vers la page du post

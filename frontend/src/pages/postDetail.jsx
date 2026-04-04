@@ -104,7 +104,7 @@ const PostDetail = () => {
           )}
 
           {/* Médias (photo ou document) */}
-          <PostMedia post={post} variant="detail" bust={location.state?.updatedAt} />
+          <PostMedia post={post} size="normal" bust={location.state?.updatedAt} />
 
           {/* Actions avec vrais likes */}
           {/* <PostActions 

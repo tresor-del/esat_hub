@@ -18,6 +18,7 @@ const PostCard = ({
   const [commentsLength, setCommentLength] = useState(0)
 
   useEffect( () => {
+    
     fetchCount()
   }, [])
 
@@ -39,23 +40,6 @@ const PostCard = ({
     }
   };
 
-  /**
-   * Formater la date de création
-   */
-  const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    const day = date.getDate().toString().padStart("2", "0")
-    const month = (date.getMonth() + 1).toString().padStart("2", "0")
-    const year = date.getFullYear().toString()
-    const min = date.getMinutes().toString().padStart("2", "0")
-    const hour = date.getHours().toString().padStart("2", "0")
-    
-    const valideDate = `${day}-${month}-${year} at ${hour}:${min}`
-    console.log(valideDate)
-    return valideDate
-
-
-  };
 
   return (
     <div className="post-card" onClick={handleCardClick}>
@@ -81,7 +65,7 @@ const PostCard = ({
         )}
 
         {/* Médias */}
-        <PostMedia post={post} variant="detail"/>
+        <PostMedia post={post}/>
         <div style={{display: "flex", justifyContent: "space-between"}}>
           <span>{commentsLength} commentaires</span>
           <span style={{ fontSize: "0.9rem"}}>{formatRelativeDate(post.created_at)}</span>

@@ -1,0 +1,322 @@
+/* PostMedia.css */
+
+/* ==================== PHOTOS ==================== */
+.post-media.photo {
+  margin: 12px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #f0f0f0;
+}
+
+/* Wrapper pour contrôler l'affichage */
+.photo-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f5f5f5;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Image - SANS DÉFORMATION */
+.photo-image {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;  /* Garde les proportions */
+  object-position: center;
+  border-radius: 4px;
+}
+
+/* Taille small pour les photos */
+.post-media.photo.small{
+  max-width: 100%;
+}
+
+.post-media.photo.small .photo-image {
+  max-height: 400px;
+}
+
+/* Taille normal pour les photos */
+.post-media.photo.normal .photo-image {
+  max-height: 500px;
+  width: auto;
+}
+
+/* Taille large pour les photos */
+.post-media.photo.large .photo-image {
+  max-height: 700px;
+  width: auto;
+}
+
+/* Message d'erreur photo */
+.photo-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.photo-error span {
+  font-size: 48px;
+  opacity: 0.5;
+}
+
+.photo-error p {
+  margin-top: 8px;
+  color: #999;
+  font-size: 14px;
+}
+
+/* ==================== PDF VIEWER ==================== */
+.pdf-viewer {
+  margin: 12px 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fafafa;
+  position: relative;
+  width: 100%;
+}
+
+/* Version small */
+.pdf-viewer.small {
+  margin: 8px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Version normal */
+.pdf-viewer.normal {
+}
+
+/* Version large */
+.pdf-viewer.large {
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Toolbar PDF */
+.pdf-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 13px;
+}
+
+.pdf-title {
+  font-weight: 500;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60%;
+}
+
+.pdf-toolbar-info {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  color: #666;
+}
+
+.pdf-download {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.pdf-download:hover {
+  text-decoration: underline;
+}
+
+/* Conteneur PDF - CENTRÉ */
+.pdf-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  overflow-x: auto;
+}
+
+
+
+/* Badge pour version small */
+.pdf-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  z-index: 10;
+}
+
+/* ==================== FALLBACK & LOADING ==================== */
+.pdf-fallback {
+  text-align: center;
+  padding: 30px;
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.pdf-fallback.small {
+  width: 300px;
+  padding: 20px;
+}
+
+.pdf-fallback-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.pdf-fallback p {
+  color: #666;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.pdf-fallback-link {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+
+.pdf-fallback-link:hover {
+  background: #0056b3;
+}
+
+/* Loading */
+.pdf-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.pdf-loading.small {
+  width: 300px;
+  padding: 30px;
+}
+
+.pdf-loading p {
+  margin-top: 12px;
+  color: #666;
+  font-size: 13px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .post-media.photo.normal .photo-image {
+    max-height: 400px;
+  }
+  
+  .pdf-viewer.normal {
+    max-width: 100%;
+  }
+  
+  .pdf-container {
+    padding: 10px;
+  }
+  
+  .pdf-toolbar {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  
+  .pdf-title {
+    max-width: 100%;
+    white-space: normal;
+  }
+}
+
+
+/* Toolbar avec navigation */
+.pdf-toolbar-center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pdf-nav-btn {
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.pdf-nav-btn:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.pdf-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pdf-page-selector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f5f5f5;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.pdf-page-input {
+  width: 50px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  padding: 4px;
+  font-size: 13px;
+}
+
+.pdf-page-separator {
+  color: #999;
+}
+
+.pdf-page-total {
+  color: #666;
+  font-weight: 500;
+}
