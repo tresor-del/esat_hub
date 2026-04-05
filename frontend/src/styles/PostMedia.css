@@ -93,10 +93,6 @@
   position: relative;
 }
 
-/* Version normal */
-.pdf-viewer.normal {
-}
-
 /* Version large */
 .pdf-viewer.large {
   width: 100%;

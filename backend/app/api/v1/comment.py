@@ -56,20 +56,38 @@ async def create_comment(
 
     # Envoyer une notification au propriétaire du post
     # if post.user_id != data.user_id:
-    recipient = auth_service.get_user(post.get("user_id"))
-    sender = auth_service.get_user(current_user.id)
+
     post = post_service.get_post(data.post_id)
 
-    notification_data = NotificationResponse(
-        type="new_comment",
-        content=f"{current_user.username} a commenté votre post ({post.get("title")}): {data.content[:50]}",
-        is_read=False,
-        recipient=UserResponse.model_validate(recipient),
-        sender=UserResponse.model_validate(sender),
-        post_id=data.post_id,
-        comment_id=result.id
-    )
+    if data.parent_id is None: 
+        recipient = auth_service.get_user(post.get("user_id"))
+        sender = auth_service.get_user(current_user.id)
 
+        notification_data = NotificationResponse(
+            type="new_comment",
+            content=f"{current_user.username} a commenté votre post ({post.get("title")}): {data.content[:50]}",
+            is_read=False,
+            recipient=UserResponse.model_validate(recipient),
+            sender=UserResponse.model_validate(sender),
+            post_id=data.post_id,
+            comment_id=result.id
+        )
+
+    else:
+        parent_comment = comment_service.get_comment(result.parent_id)
+        recipient = parent_comment.user
+        sender = auth_service.get_user(current_user.id)
+        
+        notification_data = NotificationResponse(
+            type="new_comment",
+            content=f"{current_user.username} a répondu a votre commentaire: {parent_comment.content[:50]}",
+            is_read=False,
+            recipient=recipient,
+            sender=UserResponse.model_validate(sender),
+            post_id=data.post_id,
+            comment_id=result.id
+        )
+    
     await notif_service.send_notification(data=notification_data)
 
     return result

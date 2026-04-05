@@ -1,7 +1,7 @@
 import datetime
 import uuid
 from pydantic import BaseModel, ConfigDict
-from typing import List
+from typing import List, Optional
 from app.models.post import PostResponse
 from app.models.user import UserResponse
 
@@ -9,6 +9,7 @@ class CommentCreate(BaseModel):
     content: str
     user_id: uuid.UUID
     post_id: int
+    parent_id: Optional[uuid.UUID] = None
 
 class CommentResponse(BaseModel):
     id: uuid.UUID
@@ -18,8 +19,13 @@ class CommentResponse(BaseModel):
     user: UserResponse
     post: PostResponse
     model_config = ConfigDict(from_attributes=True)
+    parent_id: Optional[uuid.UUID] = None
+    replies: List["CommentResponse"] = []
+
+CommentResponse.model_rebuild()
 
 class CommentListResponse(BaseModel):
     total: int
     comments: List[CommentResponse]
+
 

@@ -17,3 +17,9 @@ class Comment(Base):
 
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="comments")
+
+    parent_id = Column(UUID(as_uuid=True), ForeignKey("comments.id", ondelete="CASCADE"), nullable=True)
+    # un commentaire peut répondre à un autre commentaire
+    parent = relationship("Comment", back_populates="replies", remote_side=[id])
+    # un commentaire peut avoir plusieurs réponses
+    replies = relationship("Comment", back_populates="parent")
