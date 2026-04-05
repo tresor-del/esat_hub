@@ -7,6 +7,7 @@ import PostAuthorInfo from "../components/PostAuthorInfo";
 import PostActionsMenu from "../components/PostActionsMenu";
 import PostMedia from "../components/PostMedia";
 import CommentSection from "../components/CommentSection";
+import "../styles/CommentSection.css"
 
 const PostDetail = () => {
   const { id } = useParams();
@@ -17,14 +18,41 @@ const PostDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [commentCount, setCommentCount] = useState(0)
+  const [commentsLoaded, setCommentsLoaded] = useState(false);
 
   const location = useLocation();
 
-  // Hook pour gérer les likes
+  const scrollToComment = async () => {
+    const params = new URLSearchParams(location.search)
+    const commentId = params.get("commentId")
+
+    if (commentId) {
+      setTimeout(() => {
+        const element = document.getElementById(`comment-${commentId}`);
+        if (element) {
+          element.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          })
+
+          element.classList.add("highlight-comment");
+          setTimeout(() => element.classList.remove("highlight-comment"), 2000)
+        }
+      }, 300);
+    }
+  }
+
 
   useEffect(() => {
     loadPost();
+
   }, [id, location.state?.updatedAt]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      scrollToComment();
+    }, 100);
+  }, [])
 
   const loadPost = async () => {
     try {
@@ -61,6 +89,9 @@ const PostDetail = () => {
 
   const handleCommentAdded = (count) => {
     setCommentCount(count)
+    if (count > 0) {
+      setCommentsLoaded(true);
+    }
   }
 
   if (loading) return <div className="loading">Chargement…</div>;
@@ -79,13 +110,13 @@ const PostDetail = () => {
 
           {/* Métadonnées avec avatar */}
           <div className="post-meta">
-            <PostAuthorInfo 
-              user={post.user} 
+            <PostAuthorInfo
+              user={post.user}
               createdAt={post.created_at}
               showAvatar={true}
             />
 
-            <PostActionsMenu 
+            <PostActionsMenu
               post={post}
               onEdit={handleEdit}
               onDelete={handleDelete}
@@ -126,8 +157,8 @@ const PostDetail = () => {
           </h3>
         </div>
         <div className="card-body">
-          <CommentSection 
-            postId={id} 
+          <CommentSection
+            postId={id}
             user={user}
             onCommentAdded={handleCommentAdded}
           />

@@ -25,7 +25,7 @@ const PostAuthorInfo = ({
       {showAvatar && (
         <Avatar 
           user={user} 
-          size="small" 
+          size="medium" 
           onClick={handleUserClick}
         />
       )}

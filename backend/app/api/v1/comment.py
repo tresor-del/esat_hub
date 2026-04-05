@@ -58,10 +58,11 @@ async def create_comment(
     # if post.user_id != data.user_id:
 
     post = post_service.get_post(data.post_id)
+    sender = auth_service.get_user(current_user.id)
 
+    # Notification pour les commentaires parents
     if data.parent_id is None: 
         recipient = auth_service.get_user(post.get("user_id"))
-        sender = auth_service.get_user(current_user.id)
 
         notification_data = NotificationResponse(
             type="new_comment",
@@ -73,10 +74,10 @@ async def create_comment(
             comment_id=result.id
         )
 
+    # Notification pour les réponses aux commentaires
     else:
         parent_comment = comment_service.get_comment(result.parent_id)
         recipient = parent_comment.user
-        sender = auth_service.get_user(current_user.id)
         
         notification_data = NotificationResponse(
             type="new_comment",

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { addComment, getComments } from "../services/api"; // Assure-toi que l'import est bon
+import { useLocation } from "react-router-dom";
 import CommentCard from "./CommentCard";
 import "../styles/CommentSection.css";
 
@@ -8,6 +9,7 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
     const [content, setContent] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const location = useLocation();
 
     // Charger les commentaires
     const loadComments = async () => {
@@ -24,6 +26,7 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
             setLoading(false);
         }
     };
+
 
     useEffect(() => {
         loadComments();

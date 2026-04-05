@@ -75,3 +75,34 @@
     background-color: #f0f2f5;
     outline: none;
 }
+
+.submitForm {
+    width: 100%;
+    display: flex;
+    gap: 1rem;
+}
+
+.submitForm .input {
+    width: 90%;
+    padding: 4px 8px ;
+    border-radius: 5px;
+    border: 1px solid #65676b;
+}
+
+.submitForm .submitButton {
+    padding: 4px 8px;
+    background-color: #1877f2;
+    color: #ddd;
+    border: none;
+    border-radius: 5px;
+}
+
+@keyframes highlight {
+    0% { background-color: #e7f3ff; }
+    100% { background-color: #1877f2; }
+}
+
+.highlight-comment {
+    animation: highlight 2s ease-in-out;
+    border-radius: 8px;
+}

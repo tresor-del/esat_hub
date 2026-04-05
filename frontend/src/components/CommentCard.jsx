@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 import PostAuthorInfo from "./PostAuthorInfo";
 import { formatRelativeDate } from "../utils/dateFormatter";
+import { useLocation } from "react-router-dom";
+import "../styles/CommentSection.css"
 
 const CommentCard = ({ comment, user, onReplySubmit, loading }) => {
     const [isReplying, setIsReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
-    const [showReplies, setShowReplies] = useState(false); // État pour cacher/afficher
+
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const commentId = params.get("commentId");
+    const isCommentInReplies = comment.replies?.some(r => r.id == commentId)
+    const [showReplies, setShowReplies] = useState(isCommentInReplies); // État pour cacher/afficher
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -19,7 +26,7 @@ const CommentCard = ({ comment, user, onReplySubmit, loading }) => {
     const hasReplies = comment.replies && comment.replies.length > 0;
 
     return (
-        <div className="comment-item">
+        <div className="comment-item" id={`comment-${comment.id}`}>
             <div className="comment-info">
                 <PostAuthorInfo user={comment.user} />
                 <span className="comment-date">{formatRelativeDate(comment.created_at)}</span>

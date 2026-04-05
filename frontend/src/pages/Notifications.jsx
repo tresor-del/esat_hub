@@ -29,8 +29,8 @@ const Notifications = () => {
               <div className="notification-content">
                 <p>{notif.content}"</p>
                 {notif.post_id && (
-                  <button className='notification-button' onClick={() => navigate(`/post/${notif.post_id}`)}>
-                    Voir le post
+                  <button className='notification-button' onClick={() => navigate(`/post/${notif.post_id}?commentId=${notif.comment_id}`)}>
+                    Voir
                   </button>
                 )}
               </div>
