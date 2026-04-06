@@ -15,26 +15,32 @@ const PostCard = ({
   variant = "list"
 }) => {
 
-  const [commentsLength, setCommentLength] = useState(0)
+  const [commentsLength, setCommentLength] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const isLongDescription = post.description.length > 50;
 
-  useEffect( () => {
-    
+  useEffect(() => {
     fetchCount()
   }, [])
 
   const fetchCount = async () => {
-        try {
-            const result = await getComments(post.id)
-            setCommentLength(result.total)
-        } catch (error) {
-            setCommentLength(0)
-        }
+    try {
+      const result = await getComments(post.id)
+      setCommentLength(result.total)
+    } catch (error) {
+      setCommentLength(0)
     }
+  }
+
+  const toggleReadMore = (e) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  }
 
 
   const handleCardClick = (e) => {
     if (variant === "detail") return;
-    if (e.target.closest("button")) return;
+    if (e.target.closest("button") || e.target.closest(".read-more-btn")) return;
     if (onView) {
       onView(post);
     }
@@ -42,7 +48,7 @@ const PostCard = ({
 
 
   return (
-    <div className="post-card" onClick={handleCardClick}>
+    <div className="post-card">
       <div className="post-content">
         {/* Métadonnées avec avatar */}
         <div className="post-meta">
@@ -61,14 +67,24 @@ const PostCard = ({
 
         {/* Description */}
         {post.description && (
-          <p className="post-description">{post.description}</p>
+          <div>
+            <p className={`post-description ${isExpanded ? 'expanded' : 'clamped'}`}>
+              {post.description}
+            </p>
+            {isLongDescription && (
+              <span className="read-more-btn" onClick={toggleReadMore}>
+                {isExpanded ? " Voir moins" : "Voir plus"}
+              </span>
+            )}
+          </div>
         )}
 
         {/* Médias */}
-        <PostMedia post={post}/>
-        <div style={{display: "flex", justifyContent: "space-between"}}>
-          <span>{commentsLength} commentaires</span>
-          <span style={{ fontSize: "0.9rem"}}>{formatRelativeDate(post.created_at)}</span>
+        <PostMedia post={post} />
+
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span onClick={handleCardClick}>{commentsLength} commentaires</span>
+          <span style={{ fontSize: "0.9rem" }}>{formatRelativeDate(post.created_at)}</span>
         </div>
 
       </div>

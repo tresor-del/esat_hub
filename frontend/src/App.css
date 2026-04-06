@@ -467,24 +467,41 @@ a:hover {
 
 
 .post-description {
-  display: -webkit-box;
   width: 100%;
   max-width: 100%;
   color: var(--text-secondary);
   margin-bottom: var(--spacing-md);
   line-height: 1.5;
-
-
-  /* CLAMP */
-  -webkit-line-clamp: 1;
-  /* nombre de lignes */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-
-  /* FIX mots longs */
   word-break: break-word;
   overflow-wrap: anywhere;
 }
+
+/* État coupé (1 seule ligne) */
+.post-description.clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* État déplié */
+.post-description.expanded {
+  display: block; /* On enlève le flex-box pour voir tout le texte */
+}
+
+/* Le bouton "Voir plus" */
+.read-more-btn {
+  color: var(--primary-color, #007bff); /* Ta couleur principale */
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 5px;
+  display: inline-block;
+}
+
+.read-more-btn:hover {
+  text-decoration: underline;
+}
+
 
 .post-description.full {
   -webkit-line-clamp: unset;
