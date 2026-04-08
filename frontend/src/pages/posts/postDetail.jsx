@@ -3,11 +3,11 @@ import React, { useEffect, useState } from "react";
 import { FiArrowLeft } from "react-icons/fi";
 import { getPost, deletePost } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
-import PostAuthorInfo from "../components/PostAuthorInfo";
-import PostActionsMenu from "../components/PostActionsMenu";
-import PostMedia from "../components/PostMedia";
-import CommentSection from "../components/CommentSection";
-import "../styles/CommentSection.css"
+import PostAuthorInfo from "../../components/posts/PostAuthorInfo"
+import PostActionsMenu from "../../components//posts/PostActionsMenu";
+import PostMedia from "../../components/posts/PostMedia";
+import CommentSection from "../../components/comments/CommentSection";
+import "../../styles/CommentSection.css"
 
 const PostDetail = () => {
   const { id } = useParams();

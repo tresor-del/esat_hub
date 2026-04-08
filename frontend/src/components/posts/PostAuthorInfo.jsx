@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Avatar from "./Avatar";
+import Avatar from "../ui/Avatar";
 
 
 const PostAuthorInfo = ({ 

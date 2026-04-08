@@ -12,7 +12,7 @@ import {
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 
 import "./styles/UserProfile.css"
@@ -21,15 +21,15 @@ import MainLayout from "./layouts/MainLayout";
 import EmptyLayout from "./layouts/EmptyLayout";
 
 // Pages
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ConfirmEmail from "./pages/ComfirmEmail";
-import Home from "./pages/Home";
-import CreatePost from "./pages/CreatePost";
-import PostDetail from "./pages/postDetail";
-import PostEdit from "./pages/PostEdit";
-import UserProfil from "./pages/UserProfil"
-import Notifications from "./pages/Notifications"
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ConfirmEmail from "./pages/auth/ComfirmEmail";
+import Home from "./pages/posts/Home";
+import CreatePost from "./pages/posts/CreatePost";
+import PostDetail from "./pages/posts/postDetail";
+import PostEdit from "./pages/posts/PostEdit";
+import UserProfil from "./pages/profile/UserProfil"
+import Notifications from "./pages/notifications/Notifications"
 
 // Styles (split into ./styles/*.css)
 import "./App.css"

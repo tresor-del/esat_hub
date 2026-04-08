@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { getPostFileUrl } from "../../services/api";
 import api from "../../utils/axiosConfig";
 import { Document, Page, pdfjs } from "react-pdf";
-import "../styles/PostMedia.css";
+import "../../styles/PostMedia.css";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 

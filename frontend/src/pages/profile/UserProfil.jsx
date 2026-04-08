@@ -7,8 +7,8 @@ import { RiSchoolLine } from "react-icons/ri";
 import { MdOutlineDomainVerification } from "react-icons/md";
 import { getUserProfile, getPosts, uploadAvatar } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
-import Avatar from "../components/Avatar";
-import PostCard from "../components/Postcard";
+import Avatar from "../../components/ui/Avatar";
+import PostCard from "../../components/posts/Postcard";
 import { jsx } from "react/jsx-runtime";
 
 const UserProfile = () => {

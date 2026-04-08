@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/Notifications.css';
+import '../../styles/Notifications.css';
 import { useNotification } from '../../hooks/useNotification';
 import { formatRelativeDate } from '../../utils/dateFormatter';
 
@@ -11,6 +11,12 @@ const Notifications = () => {
     markAsRead();
   }, [])
 
+  const sortedNotifications = useMemo(() => {
+    return [...notifications].sort((a, b) =>
+      new Date(b.created_at) - new Date(a.created_at)
+    );
+  }, [notifications])
+
   const navigate = useNavigate();
 
   return (
@@ -20,8 +26,8 @@ const Notifications = () => {
         <p className="no-notifications">Aucune notification pour le moment.</p>
       ) : (
         <div className="notifications-list">
-          {notifications.map((notif, index) => (
-            <div key={index} className="notification-item">
+          {sortedNotifications.map((notif) => (
+            <div key={notif.id} className="notification-item">
               <div className="notification-header">
                 <span className="notification-type">{notif.type === 'new_comment' ? 'Nouveau commentaire' : notif.type}</span>
                 <span className="notification-time">{formatRelativeDate(notif.created_at)}</span>
