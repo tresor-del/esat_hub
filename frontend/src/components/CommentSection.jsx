@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { addComment, getComments } from "../services/api"; // Assure-toi que l'import est bon
+import { addComment, getComments, deleteComment, updateComment } from "../services/api"; // Assure-toi que l'import est bon
 import { useLocation } from "react-router-dom";
 import CommentCard from "./CommentCard";
 import "../styles/CommentSection.css";
@@ -71,7 +71,7 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                 parent_id: parentId
             };
             await addComment(responseData);
-            loadComments(); 
+            loadComments();
         } catch (err) {
             setError("Erreur lors de l'envoi de la réponse");
         } finally {
@@ -79,16 +79,44 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
         }
     };
 
+    const handleDeleteComment = async (commentId) => {
+        if (window.confirm("Voulez-vous vraiment supprimé ce commentaire ?")) {
+            try {
+                const result = await deleteComment(commentId);
+                if (result) {
+                    alert("Commentaire supprimé");
+                    loadComments();
+                }
+            } catch (error) {
+                console.log("Erreur lors de la suppression: ", error);
+                alert("Erreur lors de la suppression, réessayez plus tard");
+            }
+        }
+    }
+
+    const handleUpdateComment = async (commentId, new_content) => {
+        try {
+            const result = await updateComment(commentId, new_content);
+            if (result) {
+                alert("Commentaire modifié avec succès");
+                loadComments();
+            }
+        } catch (error) {
+            console.log("Erreur lors de la mise à jour: ", error);
+            alert("Erreur lors de la mise à jour du commentaire")
+        }
+    }
+
     return (
         <div className="comment-section-container">
             {error && <p className="error-message">{error}</p>}
 
             <div className="submitForm">
-                <input 
+                <input
                     placeholder="Écrivez un commentaire..."
                     className="input"
-                    value={content} 
-                    onChange={(e) => setContent(e.target.value)} 
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
                 />
                 <button className="submitButton" onClick={handleSubmit} disabled={loading || !content.trim()}>
                     {loading ? "..." : "Publier"}
@@ -99,14 +127,16 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                 {comments
                     .filter(c => c.parent_id === null) // N'affiche que les commentaires de premier niveau
                     .map((comment) => (
-                        <CommentCard 
-                            key={comment.id} 
-                            comment={comment} 
-                            user={user} 
+                        <CommentCard
+                            key={comment.id}
+                            comment={comment}
+                            user={user}
                             onReplySubmit={handleReply}
                             loading={loading}
+                            onEdit={handleUpdateComment}
+                            onDelete={handleDeleteComment}
                         />
-                ))}
+                    ))}
             </div>
         </div>
     );

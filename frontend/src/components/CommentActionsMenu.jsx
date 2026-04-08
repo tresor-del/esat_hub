@@ -1,0 +1,58 @@
+import React from "react";
+import { FiEdit, FiTrash2, FiMoreVertical } from "react-icons/fi";
+import { useAuth } from "../contexts/AuthContext";
+import DropdownMenu from "./DropdownMenu";
+
+const CommentActionsMenu = ({ comment, onEdit, onDelete }) => {
+  const { user } = useAuth();
+  const isAuthor = user?.id && comment.user?.id && user.id === comment.user.id;
+
+  // Si l'utilisateur n'est pas l'auteur, ne rien afficher
+  if (!isAuthor) return null;
+
+
+  return (
+    <DropdownMenu trigger={<FiMoreVertical />} align="right">
+      {onEdit && (
+        <button
+          className="post-action-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit();
+          }}
+          style={{
+            color: "var(--reddit-blue)",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <FiEdit />
+          <span>Modifier</span>
+        </button>
+      )}
+
+      {onDelete && (
+        <button
+          className="post-action-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(comment);
+          }}
+          style={{
+            color: "#d32f2f",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            marginTop: 6,
+          }}
+        >
+          <FiTrash2 />
+          <span>Supprimer</span>
+        </button>
+      )}
+    </DropdownMenu>
+  );
+};
+
+export default CommentActionsMenu;

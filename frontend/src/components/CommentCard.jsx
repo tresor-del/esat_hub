@@ -2,9 +2,12 @@ import React, { useState } from "react";
 import PostAuthorInfo from "./PostAuthorInfo";
 import { formatRelativeDate } from "../utils/dateFormatter";
 import { useLocation } from "react-router-dom";
+import { FiEdit, FiTrash2, FiMoreVertical } from "react-icons/fi";
+import CommentActionsMenu from "./CommentActionsMenu";
 import "../styles/CommentSection.css"
+import { useAuth } from "../contexts/AuthContext";
 
-const CommentCard = ({ comment, user, onReplySubmit, loading }) => {
+const CommentCard = ({ comment, user, onReplySubmit, loading, onEdit, onDelete }) => {
     const [isReplying, setIsReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
 
@@ -12,7 +15,12 @@ const CommentCard = ({ comment, user, onReplySubmit, loading }) => {
     const params = new URLSearchParams(location.search);
     const commentId = params.get("commentId");
     const isCommentInReplies = comment.replies?.some(r => r.id == commentId)
-    const [showReplies, setShowReplies] = useState(isCommentInReplies); // État pour cacher/afficher
+    const [showReplies, setShowReplies] = useState(isCommentInReplies);
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [editText, setEditText] = useState(comment.content)
+
+    const isOwner = user && user.id === comment.user.id
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -25,63 +33,118 @@ const CommentCard = ({ comment, user, onReplySubmit, loading }) => {
 
     const hasReplies = comment.replies && comment.replies.length > 0;
 
+    const cancelEdit = () => {
+        setIsEditing(false);
+        setEditText(comment.content)
+    }
+
+    const openEditMode = () => {
+    setIsEditing(true);
+};
+
+const handleDelete = async () => {
+       await onDelete(comment.id);
+};
+
+    const handleEdit = async () => {
+        if (!editText.trim()) return;
+        try {
+            await onEdit(comment.id, editText)
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setIsEditing(false);
+        }
+        
+    }
+
+
     return (
         <div className="comment-item" id={`comment-${comment.id}`}>
-            <div className="comment-info">
-                <PostAuthorInfo user={comment.user} />
-                <span className="comment-date">{formatRelativeDate(comment.created_at)}</span>
-            </div>
-            
-            <div className="comment-body">
-                <div className="content">{comment.content}</div>
-
-                <div className="comment-actions">
-                    <button onClick={() => setIsReplying(!isReplying)} className="comment-action-btn">
-                        Répondre
-                    </button>
-
-                    {hasReplies && (
-                        <button 
-                            onClick={() => setShowReplies(!showReplies)} 
-                            className="comment-action-btn toggle-replies"
-                        >
-                            {showReplies ? "Cacher les réponses" : `Afficher les réponses (${comment.replies.length})`}
-                        </button>
-                    )}
+            <div>
+                <div className="comment-info">
+                    <PostAuthorInfo user={comment.user} />
+                    <span className="comment-date">{formatRelativeDate(comment.created_at)}</span>
                 </div>
 
-                {isReplying && (
-                    <form onSubmit={handleSubmit} className="response-form">
-                        <input 
-                            type="text" 
-                            className="input-response"
-                            value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
-                            placeholder="Écrivez votre réponse..."
-                            autoFocus
-                        />
-                        <div className="response-buttons">
-                            <button type="submit" disabled={loading}>Envoyer</button>
-                            <button type="button" onClick={() => setIsReplying(false)}>Annuler</button>
-                        </div>
-                    </form>
-                )}
-
-                {/* Affichage conditionnel des réponses */}
-                {hasReplies && showReplies && (
-                    <div className="replies-container">
-                        {comment.replies.map((reply) => (
-                            <CommentCard 
-                                key={reply.id} 
-                                comment={reply} 
-                                user={user} 
-                                onReplySubmit={onReplySubmit}
-                                loading={loading}
+                <div className="comment-body">
+                    {isEditing ? (
+                        <div className="edit-comment-form">
+                            <input
+                                className="input-response"
+                                value={editText}
+                                onChange={(e) => setEditText(e.target.value)}
+                                autoFocus
                             />
-                        ))}
-                    </div>
-                )}
+                            <div className="response-buttons">
+                                <button onClick={handleEdit} disabled={loading}>Sauvegarder</button>
+                                <button onClick={cancelEdit}>Annuler</button>
+                            </div>
+                        </div>
+                    ): (
+                        <div className="content">{comment.content}</div>
+                    )}
+
+                    {!isEditing && (
+                        <div className="comment-actions">
+                            <button onClick={() => setIsReplying(!isReplying)} className="comment-action-btn">
+                                Répondre
+                            </button>
+
+                            {hasReplies && (
+                                <button
+                                    onClick={() => setShowReplies(!showReplies)}
+                                    className="comment-action-btn toggle-replies"
+                                >
+                                    {showReplies ? "Cacher les réponses" : `Afficher les réponses (${comment.replies.length})`}
+                                </button>
+                            )}
+                        </div>
+                    )}
+
+
+                    {isReplying && (
+                        <form onSubmit={handleSubmit} className="response-form">
+                            <input
+                                type="text"
+                                className="input-response"
+                                value={replyText}
+                                onChange={(e) => setReplyText(e.target.value)}
+                                placeholder="Écrivez votre réponse..."
+                                autoFocus
+                            />
+                            <div className="response-buttons">
+                                <button type="submit" disabled={loading}>Envoyer</button>
+                                <button type="button" onClick={() => setIsReplying(false)}>Annuler</button>
+                            </div>
+                        </form>
+                    )}
+
+                    {/* Affichage conditionnel des réponses */}
+                    {hasReplies && showReplies && (
+                        <div className="replies-container">
+                            {comment.replies.map((reply) => (
+                                <CommentCard
+                                    key={reply.id}
+                                    comment={reply}
+                                    user={user}
+                                    onReplySubmit={onReplySubmit}
+                                    loading={loading}
+                                    onEdit={onEdit}
+                                    onDelete={onDelete}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
+            {isOwner && !isEditing &&(
+                <div className="comment-options">
+                    <CommentActionsMenu comment={comment} onEdit={openEditMode} onDelete={handleDelete} />
+                </div>
+            )}
+
+
         </div>
     );
 };

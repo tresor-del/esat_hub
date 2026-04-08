@@ -193,6 +193,16 @@ export const addComment = async (data) => {
   return response.data
 }
 
+export const deleteComment = async (commentId) => {
+  const response = await api.delete(`${API_BASE_URL}/comments/delete/${commentId}`)
+  return response.data
+}
+
+export const updateComment = async (commentId, new_content) => {
+  const response = await api.put(`${API_BASE_URL}/comments/update/${commentId}?new_content=${new_content}`)
+  return response.data
+}
+
 /* Notification */
 
 export const getNotifications = async () => {

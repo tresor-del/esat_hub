@@ -22,4 +22,4 @@ class Notification(Base):
     sender = relationship("User", foreign_keys=[sender_id])
 
     post_id = Column(Integer, ForeignKey("posts.id"), index=True,  nullable=True)
-    comment_id = Column(UUID(as_uuid=True), ForeignKey("comments.id"), index=True, nullable=True)
+    comment_id = Column(UUID(as_uuid=True), ForeignKey("comments.id", ondelete="CASCADE"), index=True, nullable=True)

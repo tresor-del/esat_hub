@@ -107,7 +107,7 @@ def update_comment(
             detail="Comment not found"
         )
     
-    if comment.user_id != current_user.id:
+    if comment.user.id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not allowed"
@@ -128,7 +128,7 @@ def delete_comment(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Comment not found"
         )
-    if comment.user_id != current_user.id:
+    if comment.user.id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not allowed"
