@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FiSearch, FiFilter } from "react-icons/fi";
 import PostCard from "../components/Postcard";
-import { getPosts, searchPosts, deletePost } from "../services/api";
+import { getPosts, searchPosts, deletePost } from "../../services/api";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {

@@ -1,24 +1,25 @@
 import React from "react";
-import { FiEdit, FiTrash2, FiMoreVertical } from "react-icons/fi";
-import { useAuth } from "../contexts/AuthContext";
-import DropdownMenu from "./DropdownMenu";
+import { FiEdit, FiTrash2, FiMoreHorizontal } from "react-icons/fi";
+import { useAuth } from "../../contexts/AuthContext";
+import DropdownMenu from "../ui/DropdownMenu";
 
-const CommentActionsMenu = ({ comment, onEdit, onDelete }) => {
+const PostActionsMenu = ({ post, onEdit, onDelete, icon = "dots" }) => {
   const { user } = useAuth();
-  const isAuthor = user?.id && comment.user?.id && user.id === comment.user.id;
+  const isAuthor = user?.id && post.user?.id && user.id === post.user.id;
 
   // Si l'utilisateur n'est pas l'auteur, ne rien afficher
   if (!isAuthor) return null;
 
+  const TriggerIcon = icon === "dots" ? FiMoreHorizontal : FiMoreHorizontal;
 
   return (
-    <DropdownMenu trigger={<FiMoreVertical />} align="right">
+    <DropdownMenu trigger={<TriggerIcon />} align="right">
       {onEdit && (
         <button
           className="post-action-btn"
           onClick={(e) => {
             e.stopPropagation();
-            onEdit();
+            onEdit(post);
           }}
           style={{
             color: "var(--reddit-blue)",
@@ -37,7 +38,7 @@ const CommentActionsMenu = ({ comment, onEdit, onDelete }) => {
           className="post-action-btn"
           onClick={(e) => {
             e.stopPropagation();
-            onDelete(comment);
+            onDelete(post);
           }}
           style={{
             color: "#d32f2f",
@@ -55,4 +56,4 @@ const CommentActionsMenu = ({ comment, onEdit, onDelete }) => {
   );
 };
 
-export default CommentActionsMenu;
+export default PostActionsMenu;

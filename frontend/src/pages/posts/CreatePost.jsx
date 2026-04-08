@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiUpload } from 'react-icons/fi';
-import { createPost } from '../services/api';
+import { createPost } from '../../services/api';
 
 const CreatePost = () => {
   const navigate = useNavigate();

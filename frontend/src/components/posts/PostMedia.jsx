@@ -1,7 +1,7 @@
 // PostMedia.js
 import React, { useState, useEffect } from "react";
-import { getPostFileUrl } from "../services/api";
-import api from "../utils/axiosConfig";
+import { getPostFileUrl } from "../../services/api";
+import api from "../../utils/axiosConfig";
 import { Document, Page, pdfjs } from "react-pdf";
 import "../styles/PostMedia.css";
 

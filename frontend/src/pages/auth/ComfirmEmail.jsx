@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { confirmEmail } from '../services/api';
+import { confirmEmail } from '../../services/api';
 
 const ConfirmEmail = () => {
   const [searchParams] = useSearchParams();

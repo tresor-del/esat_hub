@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
-import PostAuthorInfo from "./PostAuthorInfo";
-import PostActionsMenu from "./PostActionsMenu";
-import PostMedia from "./PostMedia";
+import PostAuthorInfo from "../PostAuthorInfo";
+import PostActionsMenu from "../PostActionsMenu";
+import PostMedia from "../PostMedia";
 import { useLocation } from "react-router-dom";
-import { getComments } from "../services/api";
-import { formatRelativeDate } from "../utils/dateFormatter";
+import { getComments } from "../../services/api";
+import { formatRelativeDate } from "../../utils/dateFormatter";
 
 const PostCard = ({
   post,

@@ -1,8 +1,8 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { FiArrowLeft } from "react-icons/fi";
-import { getPost, deletePost } from "../services/api";
-import { useAuth } from "../contexts/AuthContext";
+import { getPost, deletePost } from "../../services/api";
+import { useAuth } from "../../contexts/AuthContext";
 import PostAuthorInfo from "../components/PostAuthorInfo";
 import PostActionsMenu from "../components/PostActionsMenu";
 import PostMedia from "../components/PostMedia";

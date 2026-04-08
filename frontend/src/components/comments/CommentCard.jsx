@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import PostAuthorInfo from "./PostAuthorInfo";
-import { formatRelativeDate } from "../utils/dateFormatter";
+import PostAuthorInfo from "../PostAuthorInfo";
+import { formatRelativeDate } from "../../utils/dateFormatter";
 import { useLocation } from "react-router-dom";
 import { FiEdit, FiTrash2, FiMoreVertical } from "react-icons/fi";
 import CommentActionsMenu from "./CommentActionsMenu";
 import "../styles/CommentSection.css"
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 const CommentCard = ({ comment, user, onReplySubmit, loading, onEdit, onDelete }) => {
     const [isReplying, setIsReplying] = useState(false);

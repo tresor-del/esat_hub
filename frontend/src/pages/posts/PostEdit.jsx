@@ -1,8 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { FiUpload, FiX } from "react-icons/fi";
-import { getPost, getPostFileUrl, updatePost } from "../services/api";
-import { useAuth } from "../contexts/AuthContext";
+import { getPost, getPostFileUrl, updatePost } from "../../services/api";
+import { useAuth } from "../../contexts/AuthContext";
 
 const PostEdit = () => {
   const { id } = useParams();

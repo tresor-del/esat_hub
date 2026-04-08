@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { addComment, getComments, deleteComment, updateComment } from "../services/api"; // Assure-toi que l'import est bon
+import { addComment, getComments, deleteComment, updateComment } from "../../services/api"; // Assure-toi que l'import est bon
 import { useLocation } from "react-router-dom";
-import CommentCard from "./CommentCard";
+import CommentCard from "../CommentCard";
 import "../styles/CommentSection.css";
 
 const CommentSection = ({ postId, user, onCommentAdded }) => {

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { useAuth} from "../contexts/AuthContext";
-import { useWebSocket } from "../contexts/WebSocketContext";
+import { useAuth} from "../../contexts/AuthContext";
+import { useWebSocket } from "../../contexts/WebSocketContext";
 import { useNavigate } from "react-router-dom";
 import SearchFilters from "./SearchFilters";
 import Avatar from "./Avatar";

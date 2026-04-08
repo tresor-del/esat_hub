@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Notifications.css';
-import { useNotification } from '../hooks/useNotification';
-import { formatRelativeDate } from '../utils/dateFormatter';
+import { useNotification } from '../../hooks/useNotification';
+import { formatRelativeDate } from '../../utils/dateFormatter';
 
 const Notifications = () => {
   const { notifications, markAsRead } = useNotification();
