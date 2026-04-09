@@ -8,7 +8,6 @@
   background-color: #f0f0f0;
 }
 
-/* Wrapper pour contrôler l'affichage */
 .photo-wrapper {
   display: flex;
   justify-content: center;
@@ -17,18 +16,32 @@
   width: 100%;
   border-radius: 8px;
   overflow: hidden;
+  position: relative;
 }
 
-/* Image - SANS DÉFORMATION */
+.photo-wrapper.has-blur-bg {
+  background-size: cover;
+  background-position: center;
+}
+
+.photo-wrapper.has-blur-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  filter: blur(15px) brightness(0.9);
+  z-index: 1;
+}
+
 .photo-image {
   display: block;
-  width: auto;
-  height: auto;
   max-width: 100%;
-  object-fit: contain;  /* Garde les proportions */
-  object-position: center;
-  border-radius: 4px;
+  height: auto; 
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
 }
+
 
 /* Taille small pour les photos */
 .post-media.photo.small{

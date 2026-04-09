@@ -395,20 +395,6 @@ a:hover {
   background-color: var(--bg-hover);
 }
 
-
-.post-vote {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: var(--bg-hover);
-  padding: var(--spacing-sm);
-  gap: var(--spacing-xs);
-  min-width: 50px;
-  justify-content: flex-end;
-}
-
-
-
 /* Contenu du post */
 .post-content {
   flex: 1;
@@ -474,6 +460,7 @@ a:hover {
   line-height: 1.5;
   word-break: break-word;
   overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 /* État coupé (1 seule ligne) */
@@ -512,12 +499,11 @@ a:hover {
   cursor: pointer;
 }
 
-.post-actions {
+.post-action {
   margin-top: 1rem;
   display: flex;
   gap: var(--spacing-md);
-  align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-between;
 }
 
 .post-action-btn {
@@ -549,9 +535,8 @@ a:hover {
 }
 
 .post-detail-container {
-  width: 100%;
+  width:800px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
 }

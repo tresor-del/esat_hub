@@ -82,8 +82,8 @@ const PostCard = ({
         {/* Médias */}
         <PostMedia post={post} />
 
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span onClick={handleCardClick}>{commentsLength} commentaires</span>
+        <div className="post-action" >
+          <span className="post-action-btn" onClick={handleCardClick}>{commentsLength} commentaires</span>
           <span style={{ fontSize: "0.9rem" }}>{formatRelativeDate(post.created_at)}</span>
         </div>
 

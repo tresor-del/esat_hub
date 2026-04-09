@@ -181,6 +181,7 @@ const Home = () => {
         ) : (
           // Liste des postes
           <>
+          <div>
             {posts.map((post) => (
               <PostCard
                 key={post.id}
@@ -190,6 +191,8 @@ const Home = () => {
                 onView={handleView} 
               />
             ))}
+          </div>
+            
 
             {/* Bouton charger plus */}
             {hasMore && (

@@ -17,9 +17,10 @@ class ConnexionManager:
     def disconnect(self, user_id: UUID):
         self.active_connections.pop(user_id, None)
 
-    async def send_personal_notification(self, data: Notification):
-        print("id: ", data.recipient_id)
-        websocket = self.active_connections.get(data.recipient_id)
+    async def send_personal_notification(self, data):
+        recipient_id = data.get("recipient").get("id")
+        print(recipient_id)
+        websocket = self.active_connections.get(UUID(recipient_id))
         print("ws: ", websocket)
         if websocket:
             print("envoyé")

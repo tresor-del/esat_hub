@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.db.schemas.notification import Notification
-from app.models.notifications import NotificationResponse, NotificationListResponse
+from app.models.notifications import NotificationResponse, NotificationListResponse, NotificationResponseUser
 from app.services.ws_manager import ws_manager
 
 
@@ -16,17 +16,19 @@ class NotificationService:
         try:
             
             d_data = data.model_copy()
-            validate_data = d_data.model_dump()
-            validate_data.pop("sender")
-            validate_data.pop("recipient")
-            validate_data.update({"recipient_id": data.recipient.id})
-            validate_data.update({"sender_id": data.sender.id if data.sender else None})
+            validate_data = d_data.model_dump(exclude={"sender", "recipient"})
+            validate_data.update({
+                "recipient_id": d_data.recipient.id,
+                "sender_id": d_data.sender.id if d_data.sender else None
+            })
             data_in_db = Notification(**validate_data)
-            await ws_manager.send_personal_notification(data_in_db)
-            print("notification envoyyé au manager")
             self._db.add(data_in_db)
             self._db.commit()
             self._db.refresh(data_in_db)
+            notif_data = NotificationResponseUser.model_validate(data_in_db).model_dump(mode="json")
+            await ws_manager.send_personal_notification(notif_data)
+            print("notification envoyyé au manager")
+            
 
         except Exception as e:
             # On log l'erreur mais on ne bloque pas la réponse API

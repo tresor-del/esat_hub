@@ -46,6 +46,7 @@ export const WebSocketProvider = ({ children }) => {
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       // On s'assure que le message temps réel est marqué non lu
+      console.log("message du ws: ", data)
       setNotifications(prev => [{ ...data, is_read: false }, ...prev]);
     };
 
