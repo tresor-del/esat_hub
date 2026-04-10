@@ -1,9 +1,9 @@
 /* pages/UserProfile.css */
 
 .profile-container {
-  max-width: 1200px;
+  width: 100% !important;
   margin: 0 auto;
-  padding: 24px 20px;
+  padding: 20px;
 }
 
 .back-button {
@@ -29,7 +29,6 @@
 
 /* Carte de profil */
 .profile-card {
-  width: 100%;
   padding: 32px;
   margin-bottom: 32px;
 }

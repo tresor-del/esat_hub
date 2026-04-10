@@ -1,6 +1,4 @@
-/* PostMedia.css */
 
-/* ==================== PHOTOS ==================== */
 .post-media.photo {
   margin: 12px 0;
   border-radius: 8px;
@@ -250,33 +248,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* ==================== RESPONSIVE ==================== */
-@media (max-width: 768px) {
-  .post-media.photo.normal .photo-image {
-    max-height: 400px;
-  }
-  
-  .pdf-viewer.normal {
-    max-width: 100%;
-  }
-  
-  .pdf-container {
-    padding: 10px;
-  }
-  
-  .pdf-toolbar {
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-start;
-  }
-  
-  .pdf-title {
-    max-width: 100%;
-    white-space: normal;
-  }
-}
-
-
 /* Toolbar avec navigation */
 .pdf-toolbar-center {
   display: flex;
@@ -328,4 +299,32 @@
 .pdf-page-total {
   color: #666;
   font-weight: 500;
+}
+
+/* Upload de fichiers */
+
+.file-upload {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.file-upload:hover {
+  border-color: var(--reddit-blue);
+}
+
+.file-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--text-secondary);
+}
+
+.file-upload-icon {
+  font-size: 48px;
+  color: var(--reddit-blue);
 }

@@ -1,0 +1,183 @@
+.navbar {
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-sm) 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--reddit-orange);
+}
+
+.navbar-logo:hover {
+  text-decoration: none;
+}
+
+.navbar-menu {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.navbar-link {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.navbar-link:hover {
+  background-color: var(--bg-hover);
+  text-decoration: none;
+}
+
+.notifications-link {
+  position: relative;
+}
+
+.unread-badge {
+  position: absolute;
+  top: 3px;
+  right: 15px;
+  background: #ff4444;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.7em;
+  font-weight: bold;
+  min-width: 18px;
+  text-align: center;
+}
+
+.notification-icon{
+  font-size: 2rem;
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--bg-hover);
+}
+
+/* Styled user trigger shown in the navbar */
+.navbar-user-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.02));
+  cursor: pointer;
+}
+
+.navbar-user-trigger:hover {
+  background-color: var(--bg-hover);
+}
+
+.navbar-user-trigger .avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--reddit-blue);
+  color: var(--text-light);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.navbar-user-trigger .nav-username {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar-user {
+  background: transparent;
+  padding: 0;
+}
+
+
+/* SearchFilters component styles */
+.search-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-filters.compact {
+  gap: 6px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 400px;
+}
+
+.search-input-wrapper .search-icon {
+  position: absolute;
+  
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+.search-input {
+  padding-left: 50px;
+  padding-right: 8px;
+  height: 34px;
+  font-size: 13px;
+  border-radius: 20px;
+  width: 100%;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.filter-btn {
+  background: transparent;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.filter-btn.active {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.user-menu-btn {
+  background-color: transparent !important;
+  border: none;
+}

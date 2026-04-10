@@ -1,0 +1,33 @@
+.dropdown-menu-wrapper {
+  position: relative; /* Indispensable pour l'ancrage */
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%); /* Pour l'alignement center */
+  background: white;
+  z-index: 1000;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.results-list {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+}
+
+.result-item {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.result-item:hover, .result-item:focus {
+    background-color: #f0f2f5;
+    outline: none;
+}

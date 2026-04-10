@@ -114,7 +114,7 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="profile-container container">
+    <div className="profile-container">
       
 
       {/* Carte de profil */}
@@ -170,7 +170,7 @@ const UserProfile = () => {
 
               <div className="profile-meta-item">
                 <TbSchool size={16} />
-                <span>{profile.level}</span>
+                <span>{profile.level}-2eme Année</span>
               </div>
               
               {profile.created_at && (

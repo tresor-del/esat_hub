@@ -8,6 +8,8 @@ import PostActionsMenu from "../../components//posts/PostActionsMenu";
 import PostMedia from "../../components/posts/PostMedia";
 import CommentSection from "../../components/comments/CommentSection";
 import "../../styles/CommentSection.css"
+import "../../styles/PostDetail.css"
+import "../../styles/PostMedia.css"
 
 const PostDetail = () => {
   const { id } = useParams();
@@ -98,6 +100,7 @@ const PostDetail = () => {
   if (error) return <p className="alert alert-error">{error}</p>;
   if (!post) return null;
 
+
   return (
     <div className="post-detail-container container">
       {/* Carte du post */}
@@ -114,6 +117,7 @@ const PostDetail = () => {
               user={post.user}
               createdAt={post.created_at}
               showAvatar={true}
+              openModal={true}
             />
 
             <PostActionsMenu

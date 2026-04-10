@@ -6,7 +6,8 @@ import Avatar from "../ui/Avatar";
 const PostAuthorInfo = ({ 
   user,
   dateVariant = "relative",
-  showAvatar = true 
+  showAvatar = true, 
+  openModal = true
 }) => {
   const navigate = useNavigate();
 
@@ -18,6 +19,8 @@ const PostAuthorInfo = ({
     }
   };
 
+  console.log(openModal)
+
 
   return (
     <div className="post-user-info">
@@ -27,6 +30,7 @@ const PostAuthorInfo = ({
           user={user} 
           size="medium" 
           onClick={handleUserClick}
+          openModal={openModal}
         />
       )}
       

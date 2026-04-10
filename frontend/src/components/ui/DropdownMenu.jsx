@@ -1,12 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
+import "../../styles/DropdownMenu.css"
 
 const DropdownMenu = ({
   trigger,
   children,
   align = "left",
   className = "",
+  forcedOpen = null,
 }) => {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  // On utilise forcedOpen s'il est fourni, sinon le state interne
+  const open = forcedOpen !== null ? forcedOpen : internalOpen;
   const ref = useRef(null);
   const triggerRef = useRef(null);
   const menuRef = useRef(null);
@@ -25,7 +29,7 @@ const DropdownMenu = ({
     const onDocClick = (e) => {
       if (!ref.current) return;
       if (!ref.current.contains(e.target)) {
-        setOpen(false);
+        setInternalOpen(false);
       }
     };
 
@@ -97,7 +101,7 @@ const DropdownMenu = ({
         className="menu-button"
         onClick={(e) => {
           e.stopPropagation();
-          setOpen((v) => !v);
+          setInternalOpen((v) => !v);
         }}
         aria-haspopup="true"
         aria-expanded={open}

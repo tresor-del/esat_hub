@@ -1,0 +1,19 @@
+.post-detail-container {
+  width:800px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.post-detail-card{
+  width: 100%;
+}
+
+.return-to-post-btn{
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+}

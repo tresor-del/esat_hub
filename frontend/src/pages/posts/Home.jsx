@@ -188,7 +188,7 @@ const Home = () => {
                 post={post}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
-                onView={handleView} 
+                onView={handleView}
               />
             ))}
           </div>

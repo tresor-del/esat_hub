@@ -5,27 +5,19 @@ import { useNavigate } from "react-router-dom";
 import SearchFilters from "../ui/SearchFilters";
 import Avatar from "../ui/Avatar";
 import { HiOutlineBell } from "react-icons/hi";
+import UserMenu from "../user/UserMenu";
 import React from "react";
+import "../../styles/Navbar.css"
+import NotificationDropdown from "../notifications/NofitificationDropdown";
+import SearchDropdown from "../search/SearchDropdown";
 
 const Navbar = () => {
   const { user, logout, isAuth } = useAuth();
   const { unreadCount } = useWebSocket();
 
-  const handleLogout = () => {
-    if (window.confirm("Êtes-vous sûr de vouloir vous déconnecter ?")) {
-      logout();
-    }
-  };
 
   const navigate = useNavigate();
 
-  const handleUserClick = (e) => {
-    e.stopPropagation();
-    if (user?.id) {
-      console.log(user.id)
-      navigate(`/profile/${user.id}`);
-    }
-  };
 
   return (
     <nav className="navbar">
@@ -37,7 +29,7 @@ const Navbar = () => {
 
         {/* Barre de recherche compacte */}
         <div className="navbar-filters-wrapper">
-          <SearchFilters compact={true} />
+          <SearchDropdown />
         </div>
 
         {/* Menu de navigation */}
@@ -48,12 +40,10 @@ const Navbar = () => {
                 + Créer
               </Link>
 
-              <Link to="/notifications" className="navbar-link notifications-link">
-                <HiOutlineBell className="notification-icon"/> {unreadCount > 0 && <span className="unread-badge">{unreadCount}</span>}
-              </Link>
+              <NotificationDropdown unreadCount={unreadCount} />
 
               {user && (
-                <Avatar user={user} onClick={handleUserClick}/>
+                <UserMenu className="user-menu-btn" />
               )}
 
             </>

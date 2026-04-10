@@ -6,6 +6,7 @@ import PostMedia from "./PostMedia";
 import { useLocation } from "react-router-dom";
 import { getComments } from "../../services/api";
 import { formatRelativeDate } from "../../utils/dateFormatter";
+import "../../styles/PostCard.css"
 
 const PostCard = ({
   post,
@@ -57,6 +58,7 @@ const PostCard = ({
             createdAt={post.created_at}
             dateVariant="relative"
             showAvatar={true}
+            openModal={false}
           />
 
           <PostActionsMenu post={post} onEdit={onEdit} onDelete={onDelete} />

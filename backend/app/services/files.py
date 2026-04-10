@@ -74,7 +74,7 @@ class FileService:
         if Path(file_path).exists():
             Path(file_path).unlink()
     
-    def resize_image(self, content: bytes, max_size: tuple[int, int] = (200, 200)) -> bytes:
+    def resize_image(self, content: bytes, max_size: tuple[int, int] = (800, 800)) -> bytes:
 
         # créer un fichier virtuel en mémoire à partir du contenu binaire
         image = Image.open(io.BytesIO(content))

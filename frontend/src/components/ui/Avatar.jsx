@@ -2,21 +2,24 @@
   import { useState } from "react";
   import { FiUser } from "react-icons/fi";
   import { getAvatarUrl } from "../../services/api";
+  import ImageModal from "./ImageModal";
   import React from "react";
 
   const Avatar = ({ 
     user, 
     size = "medium", // "small" | "medium" | "large"
     onClick,
-    className = ""
+    className = "",
+    openModal = true
   }) => {
     const [imageError, setImageError] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const sizes = {
       small: 32,
       medium: 40,
       large: 80,
-      xlarge: 120
+      xlarge: 200
     };
 
     const avatarBust = user?.id 
@@ -63,6 +66,7 @@
       return name.substring(0, 2).toUpperCase();
     };
 
+
     return (
       <div 
         style={styles.container} 
@@ -76,12 +80,20 @@
             alt={user?.email || "Avatar"}
             style={styles.image}
             onError={() => setImageError(true)}
+            onClick={() => setIsModalOpen(openModal)}
           />
         ) : (
           <div style={styles.placeholder}>
             {user?.email ? getInitials() : <FiUser />}
           </div>
         )}
+
+        {isModalOpen && (
+                  <ImageModal
+                    src={avatarUrl}
+                    onClose={() => setIsModalOpen(false)}
+                  />
+                )}
       </div>
     );
   };
