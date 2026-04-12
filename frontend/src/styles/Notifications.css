@@ -132,3 +132,22 @@
 .notif-menu .notif-delete-btn {
     color: rgb(202, 21, 21)
 }
+
+.notification-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ff4d4d;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 5px;
+  border-radius: 10px;
+  border: 2px solid white;
+}

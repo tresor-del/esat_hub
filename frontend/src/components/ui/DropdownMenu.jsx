@@ -10,7 +10,7 @@ const DropdownMenu = ({
 }) => {
   const [internalOpen, setInternalOpen] = useState(false);
   // On utilise forcedOpen s'il est fourni, sinon le state interne
-  const open = forcedOpen !== null ? forcedOpen : internalOpen;
+  const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const triggerRef = useRef(null);
   const menuRef = useRef(null);
@@ -29,13 +29,15 @@ const DropdownMenu = ({
     const onDocClick = (e) => {
       if (!ref.current) return;
       if (!ref.current.contains(e.target)) {
-        setInternalOpen(false);
+        setOpen(false);
       }
     };
 
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
+
+  const handleClose = () => setOpen(false);
 
   // Keyboard handling: Esc to close, trap focus when open
   useEffect(() => {
@@ -101,7 +103,7 @@ const DropdownMenu = ({
         className="menu-button"
         onClick={(e) => {
           e.stopPropagation();
-          setInternalOpen((v) => !v);
+          setOpen(!open)
         }}
         aria-haspopup="true"
         aria-expanded={open}
@@ -119,6 +121,8 @@ const DropdownMenu = ({
           {children}
         </div>
       )}
+
+      
     </div>
   );
 };

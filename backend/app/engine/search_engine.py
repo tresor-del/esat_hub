@@ -15,7 +15,13 @@ class SearchEngine:
         self.current_user = current_user
 
     def general_search(self, q: str, skip: int = 0, limit: int = 10) -> SearchResult:
-        queries = q.split(" ")
+        queries = [word for word in q.split() if word.strip()]
+
+        if not queries:
+            return SearchResult(
+                posts_list=PostListResponse(total=0, posts=[]),
+                users_list=UserListResponse(total=0, users=[])
+            )
 
         users = []
         posts = []
@@ -24,8 +30,7 @@ class SearchEngine:
 
             posts_results = self.db.query(Post).filter(
                 or_(
-                    Post.title.like(f"%{query}%"),
-                    Post.description.like(f"%{query}%")
+                    Post.title.like(f"%{query}%")
                 )
             ).offset(skip).limit(limit).all()
 

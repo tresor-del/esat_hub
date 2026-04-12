@@ -100,7 +100,7 @@ export const getPosts = async ({ skip = 0, limit = 20, postType = null, myPost =
 
 export const searchPosts = async (query, skip = 0, limit = 20) => {
   const response = await api.get(
-    `/search/general/?q=${encodeURIComponent(query)}&skip=${skip}&limit=${limit}`,
+    `/search/general?q=${encodeURIComponent(query)}&skip=${skip}&limit=${limit}`,
   );
   return response.data;
 };

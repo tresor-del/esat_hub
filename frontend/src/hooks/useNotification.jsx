@@ -3,11 +3,12 @@ import { useWebSocket } from "../contexts/WebSocketContext";
 
 
 export const useNotification = () => {
-  const { notifications, unreadCount, markAsRead } = useWebSocket();
+  const { notifications, unreadCount, markAsRead, removeNotifications} = useWebSocket();
   
   return {
     notifications,
     unreadCount,
-    markAsRead
+    markAsRead,
+    removeNotifications
   };
 };

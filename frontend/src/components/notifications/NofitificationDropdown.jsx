@@ -9,13 +9,14 @@ import DropdownMenu from '../ui/DropdownMenu';
 import { HiOutlineBell } from 'react-icons/hi';
 import NotificationActionsMenu from './NotificationActionsMenu';
 
-const NotificationDropdown = (unreadCount) => {
+const NotificationDropdown = ({ unreadCount }) => {
 
-    const { notifications, markAsRead } = useNotification();
+  const { notifications, markAsRead, removeNotifications } = useNotification();
+  const navigate = useNavigate();
 
   useEffect(() => {
     markAsRead();
-  }, [])
+  }, [unreadCount])
 
   const sortedNotifications = useMemo(() => {
     const groups = {};
@@ -47,13 +48,12 @@ const NotificationDropdown = (unreadCount) => {
     );
   }, [notifications])
 
-  const navigate = useNavigate();
 
   const handleDeleteNotif = async (notifIds) => {
     if (window.confirm("voulez vous supprimer cette notification ?")) {
       try {
         await Promise.all(notifIds.map(id => deleteNotif(id)))
-        alert("Notification éffacer")
+        removeNotifications(notifIds);
       } catch (error) {
         console.log(error)
       }
@@ -62,9 +62,15 @@ const NotificationDropdown = (unreadCount) => {
   }
 
   return (
-    <DropdownMenu trigger={<HiOutlineBell className="notification-icon"/> } align="right">
-        <h4>Notifications</h4>
-        <hr />
+    <DropdownMenu trigger={
+      <div className="notification-trigger">
+        <HiOutlineBell className="notification-icon" />
+        {/* 4. Affichage du badge si > 0 */}
+        {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+      </div>
+    } align="right">
+      <h4>Notifications</h4>
+      <hr />
       {notifications.length === 0 ? (
         <p className="no-notifications">Aucune notification pour le moment.</p>
       ) : (
@@ -90,8 +96,10 @@ const NotificationDropdown = (unreadCount) => {
                     && `${notif.latest_author} et ${notif.count - 1} personnes ont commenté votre post `}
                 </p>
 
+              </div >
+              <div onClick={(e) => e.stopPropagation()}>
+                <NotificationActionsMenu notifIds={notif.ids} onDelete={handleDeleteNotif} />
               </div>
-              <NotificationActionsMenu notifIds={notif.ids} onDelete={handleDeleteNotif} />
               {/* <div className="btns">
                 <button className='notification-button-delete' onClick={() => handleDeleteNotif(notif.ids)}>
                   Supprimer
@@ -100,7 +108,7 @@ const NotificationDropdown = (unreadCount) => {
             </div>
           ))}
         </div>
-      )}    
+      )}
     </DropdownMenu>
   );
 };

@@ -6,7 +6,7 @@ import DropdownMenu from "../ui/DropdownMenu";
 import Avatar from "../ui/Avatar";
 import "../../styles/UserMenu.css"
 
-const UserMenu = () => {
+const UserMenu = (closeMenu) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -19,6 +19,7 @@ const UserMenu = () => {
           onClick={(e) => {
             e.stopPropagation();
             navigate(`/profile/${user.id}`);
+            if (closeMenu) closeMenu();
           }}
         >
             <FiUser />

@@ -63,8 +63,12 @@ export const WebSocketProvider = ({ children }) => {
     }
   };
 
+  const removeNotifications = (idsToDelete) => {
+    setNotifications(prev => prev.filter(n => !idsToDelete.includes(n.id)));
+  };
+
   return (
-    <WebSocketContext.Provider value={{ notifications, unreadCount, markAsRead }}>
+    <WebSocketContext.Provider value={{ notifications, unreadCount, markAsRead, removeNotifications }}>
       {children}
     </WebSocketContext.Provider>
   );

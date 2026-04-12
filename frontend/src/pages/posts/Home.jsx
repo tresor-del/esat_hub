@@ -28,20 +28,20 @@ const Home = () => {
     loadPosts();
   }, []);
 
-  // Écouter les recherches provenant de la navbar
-  useEffect(() => {
+  // // Écouter les recherches provenant de la navbar
+  // useEffect(() => {
 
-    const onAppSearch = (e) => {
-      const detail = e?.detail || {};
-      const q = detail.query ?? "";
-      setSearchQuery(q);
-      setPage(0);
-      loadPosts(false, q);
-    };
+  //   const onAppSearch = (e) => {
+  //     const detail = e?.detail || {};
+  //     const q = detail.query ?? "";
+  //     setSearchQuery(q);
+  //     setPage(0);
+  //     loadPosts(false, q);
+  //   };
 
-    window.addEventListener("app:search", onAppSearch);
-    return () => window.removeEventListener("app:search", onAppSearch);
-  }, []);
+  //   window.addEventListener("app:search", onAppSearch);
+  //   return () => window.removeEventListener("app:search", onAppSearch);
+  // }, []);
 
   /**
    * Charger les postes depuis l'API
