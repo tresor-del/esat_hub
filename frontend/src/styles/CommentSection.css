@@ -12,6 +12,7 @@
     color: #333;
     width: 100%;
     display: flex;
+    white-space: pre-wrap; 
 }
 
 .comment-item {
@@ -100,24 +101,42 @@
 }
 
 .submitForm {
-    width: 100%;
     display: flex;
-    gap: 1rem;
+    align-items: flex-end; /* Aligne le bouton en bas si le texte est long */
+    gap: 10px;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
 }
 
-.submitForm .input {
-    width: 90%;
-    padding: 4px 8px ;
-    border-radius: 5px;
-    border: 1px solid #65676b;
-}
-
-.submitForm .submitButton {
-    padding: 4px 8px;
-    background-color: #1877f2;
-    color: #ddd;
+.comment-textarea {
+    flex: 1;
     border: none;
-    border-radius: 5px;
+    background: transparent;
+    resize: none; /* Désactive le redimensionnement manuel par l'utilisateur */
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    max-height: 150px; /* Optionnel : limite la hauteur max avant scroll */
+    outline: none;
+    overflow-y: hidden; /* Cache la barre de défilement pendant l'auto-resize */
+}
+
+.submitButton {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.submitButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
 @keyframes highlight {

@@ -151,3 +151,28 @@
   border-radius: 10px;
   border: 2px solid white;
 }
+
+/* Style de base pour chaque item */
+.notification-item {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.3s;
+  cursor: pointer;
+}
+
+/* Style spécifique pour les NON LUES */
+.notification-item.unread {
+  background-color: #f0f7ff; /* Un bleu très léger */
+  border-left: 4px solid #007bff; /* Une barre bleue sur le côté */
+}
+
+/* Optionnel : mettre le texte en gras pour les non lues */
+.notification-item.unread p {
+  font-weight: 600;
+  color: #000;
+}
+
+/* Au survol */
+.notification-item:hover {
+  background-color: #f9f9f9;
+}

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/Notifications.css';
 import { useNotification } from '../../hooks/useNotification';
@@ -12,11 +12,9 @@ import NotificationActionsMenu from './NotificationActionsMenu';
 const NotificationDropdown = ({ unreadCount }) => {
 
   const { notifications, markAsRead, removeNotifications } = useNotification();
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    markAsRead();
-  }, [unreadCount])
 
   const sortedNotifications = useMemo(() => {
     const groups = {};
@@ -42,12 +40,18 @@ const NotificationDropdown = ({ unreadCount }) => {
           groups[key].latest_sender = notif.sender;
         }
       }
+
     })
     return Object.values(groups).sort((a, b) =>
       new Date(b.latest_date) - new Date(a.latest_date)
     );
   }, [notifications])
 
+  const badgeCount = useMemo(() => {
+    return sortedNotifications.filter(group =>
+      notifications.some(n => group.ids.includes(n.id) && !n.is_read)
+    ).length;
+  }, [sortedNotifications, notifications])
 
   const handleDeleteNotif = async (notifIds) => {
     if (window.confirm("voulez vous supprimer cette notification ?")) {
@@ -63,10 +67,14 @@ const NotificationDropdown = ({ unreadCount }) => {
 
   return (
     <DropdownMenu trigger={
-      <div className="notification-trigger">
+      <div className="notification-trigger"
+        onClick={() => {
+          if (badgeCount > 0) markAsRead(); // On ne l'appelle que s'il y a du contenu non lu
+        }}
+      >
         <HiOutlineBell className="notification-icon" />
         {/* 4. Affichage du badge si > 0 */}
-        {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+        {badgeCount > 0 && <span className="notification-badge">{badgeCount}</span>}
       </div>
     } align="right">
       <h4>Notifications</h4>
@@ -75,8 +83,11 @@ const NotificationDropdown = ({ unreadCount }) => {
         <p className="no-notifications">Aucune notification pour le moment.</p>
       ) : (
         <div className="notifications-list">
-          {sortedNotifications.map((notif) => (
-            <div key={notif.id} className="notification-item" onClick={() => navigate(`/post/${notif.post_id}?commentId=${notif.comment_id}`)}>
+          {sortedNotifications.map((notif) => {
+            const isGroupUnread = notifications.some(n => notif.ids.includes(n.id) && !n.is_read);
+            return (
+
+            <div key={notif.id} className={`notification-item ${isGroupUnread ? 'unread' : ''}`} onClick={() => navigate(`/post/${notif.post_id}?commentId=${notif.comment_id}`)}>
               {/* <div className="notification-header"> 
                 <span className="notification-time">{formatRelativeDate(notif.latest_date)}</span>
               </div> */}
@@ -106,7 +117,8 @@ const NotificationDropdown = ({ unreadCount }) => {
                 </button>
               </div> */}
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </DropdownMenu>

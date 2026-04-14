@@ -1,6 +1,6 @@
 import enum 
 import uuid
-from sqlalchemy import Boolean, Column, String, Enum, text 
+from sqlalchemy import Boolean, Column, Date, Integer, String, Enum, text 
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.db.database import Base
@@ -16,6 +16,15 @@ class Levels(str, enum.Enum):
     PREPA = "PREPA"
     INGE = "INGE"
 
+class Types(str, enum.Enum):
+    DELEGUE = "DELEGUE"
+    SIMPLE = "SIMPLE"
+
+class Years(str, enum.Enum):
+    PREMIERE_ANNEE = "1_ERE_ANNEE"
+    DEUXIEME_ANNEE = "2_EME_ANNEE"
+    TROISIEME_ANNEE = "3_EME_ANNEE"
+
 class User(Base):
     __tablename__ = "users"
 
@@ -27,28 +36,35 @@ class User(Base):
     profil_name = Column(String, unique=True, index=True, nullable=False)
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
+    phone_number = Column(String, unique=True, index=True, nullable=True)
+    birthday = Column(Date, nullable=True, index=True)
+    card_number = Column(Integer, unique=True, nullable=True, index=True)
+
+    type = Column(Enum(Types, name="types"), nullable=True, index=True, server_default=Years.PREMIERE_ANNEE.value)
+    year = Column(Enum(Years, name="years"), nullable=True, index=True, server_default=Years.DEUXIEME_ANNEE.value)
 
     # Utilisation de server_default pour la cohérence avec la DB
     school_name = Column(
         Enum(Schools, name="schools"), 
         index=True, 
         nullable=False, 
-        server_default="ESAT_TOGO"
+        server_default=Schools.ESAT_TOGO.value
     )
     domain = Column(
         Enum(Domains, name="domains"), 
         index=True, 
         nullable=False, 
-        server_default="INFORMATIQUE"
+        server_default=Domains.INFORMATIQUE.value
     )
     level = Column(
         Enum(Levels, name="levels"), 
         index=True, 
         nullable=False, 
-        server_default="PREPA"
+        server_default=Levels.PREPA.value
     )
     
     avatar_path = Column(String, nullable=True)
+    qr_path = Column(String, nullable=True)
     hashed_password = Column(String, nullable=False)
     is_verified = Column(Boolean, server_default=text("false"), default=False)
 

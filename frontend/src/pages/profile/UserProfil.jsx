@@ -18,7 +18,7 @@ const UserProfile = () => {
 
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
-  const [stats, setStats] = useState({ postsCount: 0,});
+  const [stats, setStats] = useState({ postsCount: 0, });
   const [loading, setLoading] = useState(true);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [error, setError] = useState("");
@@ -33,9 +33,9 @@ const UserProfile = () => {
   const loadProfile = async () => {
     try {
       setLoading(true);
-        const result = await getUserProfile(id);
-        console.log("resdkddlk", result)
-        setProfile(result);
+      const result = await getUserProfile(id);
+      console.log("resdkddlk", result)
+      setProfile(result);
     } catch (err) {
       console.error(err);
       setError("Impossible de charger le profil");
@@ -46,10 +46,10 @@ const UserProfile = () => {
 
   const loadUserPosts = async () => {
     try {
-      const result = await getPosts({ id: id});
+      const result = await getPosts({ id: id });
       console.log(result.posts)
       setPosts(result.posts || []);
-      
+
       // Calculer les stats
       setStats({
         postsCount: result.total || 0,
@@ -91,9 +91,9 @@ const UserProfile = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("fr-FR", { 
-      year: "numeric", 
-      month: "long" 
+    return date.toLocaleDateString("fr-FR", {
+      year: "numeric",
+      month: "long"
     });
   };
 
@@ -115,22 +115,30 @@ const UserProfile = () => {
 
   return (
     <div className="profile-container">
-      
+
 
       {/* Carte de profil */}
       <div className="profile-card card">
 
         {/* Bouton retour */}
-      <button className="back-button" onClick={() => navigate(-1)}>
-        <FiArrowLeft size={18} />
-        Retour
-      </button>
+        <div style={{display: "flex", justifyContent: "space-between"}}>
+          <button className="back-button" onClick={() => navigate(-1)}>
+            <FiArrowLeft size={18} />
+            Retour
+          </button>
+          <div>
+            {profile.card_name ? ({card_name}) : ("ESAT/2026/001")}
+        </div>
+        </div>
+
+
+        
 
         <div className="profile-header">
           {/* Avatar */}
           <div className="profile-avatar-container">
             <Avatar user={profile} size="xlarge" />
-            
+
             {isOwnProfile && (
               <label className="avatar-upload-btn">
                 <FiEdit2 size={16} />
@@ -143,14 +151,14 @@ const UserProfile = () => {
                 />
               </label>
             )}
-            
+
           </div>
 
           {/* Informations */}
           <div className="profile-info">
-            
+
             <h1 className="profile-name">{profile.profil_name}</h1>
-            
+
             <div className="profile-meta">
 
               {/* <div className="profile-meta-item">
@@ -172,7 +180,7 @@ const UserProfile = () => {
                 <TbSchool size={16} />
                 <span>{profile.level}-2eme Année</span>
               </div>
-              
+
               {profile.created_at && (
                 <div className="profile-meta-item">
                   <FiCalendar size={16} />
@@ -184,40 +192,40 @@ const UserProfile = () => {
             {/* Statistiques */}
             <div className="profile-stats">
               <div className="profile-stat">
-                
+
               </div>
             </div>
 
             {/* Liste des posts */}
-      <div className="profile-posts">
+            <div className="profile-posts">
 
-        {/* <h2 className="section-title">
+              {/* <h2 className="section-title">
           {isOwnProfile ? "Mes posts" : "Posts de l'utilisateur"}
         </h2> */}
 
-        {posts.length === 0 ? (
-          <div className="empty-state card">
-            <p>Aucun post pour l'instant.</p>
-          </div>
-        ) : (
-          <div className="posts-grid">
-            {posts.map((post) => (
-              <PostCard 
-                key={post.id} 
-                post={post}
-                onView={(p) => navigate(`/post/${p.id}`)}
-                variant="list"
-              />
-            ))}
-          </div>
-        )}
-      </div>
+              {posts.length === 0 ? (
+                <div className="empty-state card">
+                  <p>Aucun post pour l'instant.</p>
+                </div>
+              ) : (
+                <div className="posts-grid">
+                  {posts.map((post) => (
+                    <PostCard
+                      key={post.id}
+                      post={post}
+                      onView={(p) => navigate(`/post/${p.id}`)}
+                      variant="list"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        
+
       </div>
 
-      
+
     </div>
   );
 };

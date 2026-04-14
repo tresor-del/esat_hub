@@ -107,16 +107,26 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
         }
     }
 
+     const handleTextareaChange = (e) => {
+        const element = e.target;
+        setContent(element.value);
+        
+        // Ajustement automatique de la hauteur
+        element.style.height = "auto"; // Réinitialise pour recalculer
+        element.style.height = `${element.scrollHeight}px`; // Applique la hauteur du contenu
+    };
+
     return (
         <div className="comment-section-container">
             {error && <p className="error-message">{error}</p>}
 
             <div className="submitForm">
-                <input
+                <textarea
                     placeholder="Écrivez un commentaire..."
-                    className="input"
+                    className="comment-textarea"
                     value={content}
-                    onChange={(e) => setContent(e.target.value)}
+                    onChange={handleTextareaChange}
+                    rows="1" // Commence sur une seule ligne
                 />
                 <button className="submitButton" onClick={handleSubmit} disabled={loading || !content.trim()}>
                     {loading ? "..." : "Publier"}
@@ -125,7 +135,9 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
 
             <div className="commentBox">
                 {comments
-                    .filter(c => c.parent_id === null) // N'affiche que les commentaires de premier niveau
+                    .filter(c => c.parent_id === null).sort((a, b) => {
+                        return new Date(b.created_at) - new Date(a.created_at)
+                    }) 
                     .map((comment) => (
                         <CommentCard
                             key={comment.id}
