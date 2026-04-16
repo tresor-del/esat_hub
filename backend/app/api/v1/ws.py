@@ -13,6 +13,7 @@ router = APIRouter(tags=["websocket"])
 async def websocket_endpoint(websocket: WebSocket):
     token = websocket.query_params.get("token")
 
+
     if not token:
         await websocket.close(code=1008, reason="token query parameter is required")
         return
@@ -40,9 +41,3 @@ async def websocket_endpoint(websocket: WebSocket):
         ws_manager.disconnect(user_id)
 
 
-# # Dans ton fichier ws.py
-# @router.websocket("/ws")  # ou "" selon ta config
-# async def websocket_endpoint(websocket: WebSocket):
-#     await websocket.accept() # On accepte direct sans vérifier le token
-#     await websocket.send_json({"msg": "Connecté !"})
-#     await websocket.close()

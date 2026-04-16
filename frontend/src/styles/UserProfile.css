@@ -33,15 +33,23 @@
   margin-bottom: 32px;
 }
 
+
 .profile-header {
   display: flex;
   gap: 32px;
   align-items: flex-start;
 }
 
+.profile-side {
+display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
 .profile-avatar-container {
   position: relative;
   flex-shrink: 0;
+  
 }
 
 .avatar-upload-btn {
@@ -85,6 +93,13 @@
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 24px;
+
+}
+
+.profile-meta .info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .profile-meta-item {
@@ -159,6 +174,10 @@
   text-align: center;
   padding: 48px 24px;
   color: #666;
+}
+
+.profile-info {
+  width: 100%;
 }
 
 /* Responsive */

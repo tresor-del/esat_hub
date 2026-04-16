@@ -4,11 +4,14 @@ from fastapi import APIRouter, File, UploadFile, Form, Depends, HTTPException, s
 from sqlalchemy.orm import Session
 from typing import Optional
 
-from app.dependencies import get_db, get_current_user, get_file_service, get_post_service
+from app.dependencies import get_db, get_current_user, get_file_service, get_post_service, get_notification_service, get_auth_service
 from app.models.post import PostResponse, PostListResponse, PostType
 from app.services.files import FileService  
 from app.db.schemas.user import User
 from app.services.posts import PostService
+from app.services.notification import NotificationService
+from app.services.users import AuthService
+from app.models.user import UserResponse
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -22,11 +25,14 @@ async def create_post(
     title: str = Form(...),
     description: Optional[str] = Form(None),
     post_type: PostType = Form(...),
+    room_id: Optional[UUID] = Form(None),
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
     post_service: PostService = Depends(get_post_service),
-    file_service: FileService = Depends(get_file_service)
+    file_service: FileService = Depends(get_file_service),
+    notification_service: NotificationService = Depends(get_notification_service),
+    auth_service: AuthService = Depends(get_auth_service)
 ):
     """Créer un nouveau post avec fichier"""
     try:
@@ -41,6 +47,14 @@ async def create_post(
                 detail="Fichier non supporté pour le type de post"
             )
         
+        # Validation de room_id
+        if room_id is not None:
+            if current_user.user_room_id != room_id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Vous n'avez pas le droit de poster dans cette salle"
+                )
+        
         db_post = post_service.create_post(
             title=title,
             description=description,
@@ -48,7 +62,32 @@ async def create_post(
             file_path=file_path,
             file_name=original_filename,
             mime_type=file.content_type,
-            user_id=current_user.id
+            user_id=current_user.id,
+            room_id=room_id
+        )
+
+        # Préparer l'expéditeur de notification
+        sender = UserResponse.model_validate(current_user)
+
+        # Préparer le contenu selon si le post est général ou de classe
+        if room_id is None:
+            recipients = auth_service.get_all_users()
+            notification_content = f"Nouveau post général : {title}"
+            notification_type = "post.general"
+            print(f"🌍 Post général créé, envoi à {len(recipients)} utilisateurs")
+        else:
+            recipients = auth_service.get_users_by_room_id(room_id)
+            notification_content = f"Nouveau post pour la classe : {title}"
+            notification_type = "post.class"
+            print(f"🏫 Post de classe créé, envoi à {len(recipients)} membres de la salle")
+
+        # Envoi de notifications à tous les destinataires concernés
+        await notification_service.send_bulk_notifications(
+            notification_type=notification_type,
+            content=notification_content,
+            recipients=recipients,
+            sender=sender,
+            post_id=db_post.id,
         )
         
         return db_post
@@ -66,6 +105,7 @@ def read_posts(
     post_type: Optional[PostType] = None,
     my_posts: bool = Query(False),
     id: Optional[UUID] = None,
+    room_id: Optional[UUID] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
     post_service: PostService = Depends(get_post_service)
@@ -82,7 +122,8 @@ def read_posts(
         skip=skip,
         limit=limit,
         post_type=post_type.value if post_type else None,
-        user_id=target_user_id
+        user_id=target_user_id,
+        room_id=room_id
     )
     
     return PostListResponse(total=total, posts=posts)

@@ -1,18 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiUpload } from 'react-icons/fi';
 import { createPost } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 const CreatePost = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // États du formulaire
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     post_type: 'photo',
+    post_scope: 'general',
+    room_id: null,
     file: null,
   });
+
+  // Mettre à jour room_id selon le scope
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      room_id: prev.post_scope === 'private' ? user?.user_room_id || null : null
+    }));
+  }, [formData.post_scope, user]);
 
   // États de l'interface
   const [error, setError] = useState('');
@@ -155,6 +167,24 @@ const CreatePost = () => {
               >
                 <option value="photo">📷 Photo</option>
                 <option value="document">📄 Document</option>
+              </select>
+            </div>
+
+            {/* Scope du poste */}
+            <div className="form-group">
+              <label htmlFor="post_scope" className="form-label">
+                Visibilité du poste *
+              </label>
+              <select
+                id="post_scope"
+                name="post_scope"
+                className="form-select"
+                value={formData.post_scope}
+                onChange={handleChange}
+                disabled={loading}
+              >
+                <option value="general">🌍 Général</option>
+                <option value="private">🏫 Pour la classe</option>
               </select>
             </div>
 

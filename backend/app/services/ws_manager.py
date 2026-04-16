@@ -13,6 +13,7 @@ class ConnexionManager:
     async def connect(self, user_id: UUID, websocket: WebSocket):
         await websocket.accept()
         self.active_connections[user_id] = websocket
+        
     
     def disconnect(self, user_id: UUID):
         self.active_connections.pop(user_id, None)

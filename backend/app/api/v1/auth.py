@@ -1,5 +1,6 @@
 import logging
 import datetime
+from uuid import UUID
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 
@@ -8,7 +9,7 @@ from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.dependencies import get_db, get_auth_service, get_email_service
+from app.dependencies import get_db, get_auth_service, get_email_service, get_room_service
 from app.models.token import Token
 from app.db.security import create_access_token, create_refresh_token, hash_password
 from app.models.user import UserCreate, UserInDatabase
@@ -19,6 +20,7 @@ from app.db.database import SessionLocal
 from app.services.users import AuthService
 from app.models.token import RefreshToken
 from app.db.schemas.revoked_token import RevokedToken
+from app.services.room import RoomService
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +118,8 @@ def register(
     user_in: UserCreate,
     background_tasks: BackgroundTasks,
     auth_service: AuthService = Depends(get_auth_service),
-    email_service: EmailService = Depends(get_email_service)
+    email_service: EmailService = Depends(get_email_service),
+    room_service: RoomService = Depends(get_room_service)
 ):
 
     if auth_service.check_duplicated_email(user_in.email):
@@ -127,6 +130,8 @@ def register(
     
     # création de l'utilisateur
     username = auth_service.get_username(user_in.profil_name, user_in.school_name)
+    user_room_id = room_service.get_user_room_id(user_in.level, user_in.year)
+    print(user_room_id)
     user_data = UserInDatabase(
         first_name=user_in.first_name,
         last_name=user_in.last_name,
@@ -136,7 +141,10 @@ def register(
         school_name=user_in.school_name,
         domain=user_in.domain,
         level=user_in.level,
+        type=user_in.type,
+        year=user_in.year,
         is_verified=False,
+        user_room_id=user_room_id,
         hashed_password=hash_password(user_in.password)
     )
     user = auth_service.create_user(user_data=user_data)
@@ -166,7 +174,7 @@ def confirm_email(
         raise HTTPException(400, "Invalid token")
     
 
-    if record.expires_at < datetime.datetime.now():
+    if record.expires_at < datetime.datetime.now(datetime.UTC):
 
         # supprimer l'utilisateur associé au token expiré
         user = email_service.validate_user(record)

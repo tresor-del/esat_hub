@@ -7,6 +7,10 @@ from enum import Enum
 class PostType(str, Enum):
     PHOTO = "photo"
     DOCUMENT = "document"
+    ANNONCE = "annonce"
+    COURS = "cours"
+    DEVOIR = "devoir"
+    EVENEMENT = "evenement"
 
 class UserPublic(BaseModel):
     id: UUID
@@ -19,6 +23,7 @@ class PostBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = None
     post_type: PostType
+    room_id: Optional[UUID] = None
 
     model_config = ConfigDict(from_attributes=True)
 

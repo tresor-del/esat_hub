@@ -1,5 +1,6 @@
 // pages/UserProfile.jsx
 import React, { useState, useEffect } from "react";
+import QRCode from "react-qr-code"
 import { useParams, useNavigate } from "react-router-dom";
 import { FiEdit2, FiMail, FiCalendar, FiArrowLeft } from "react-icons/fi";
 import { TbSchool } from "react-icons/tb";
@@ -59,36 +60,6 @@ const UserProfile = () => {
     }
   };
 
-  const handleAvatarUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Vérifier le type
-    if (!file.type.startsWith("image/")) {
-      alert("Veuillez sélectionner une image");
-      return;
-    }
-
-    // Vérifier la taille (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert("L'image ne doit pas dépasser 5 MB");
-      return;
-    }
-
-    try {
-      setUploadingAvatar(true);
-      await uploadAvatar(file);
-      localStorage.setItem(`avatar_bust_${currentUser.id}`, Date.now());
-      // Recharger le profil
-      await loadProfile();
-    } catch (err) {
-      console.error("Erreur lors de l'upload:", err);
-      alert("Impossible de mettre à jour la photo de profil");
-    } finally {
-      setUploadingAvatar(false);
-    }
-  };
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("fr-FR", {
@@ -121,36 +92,41 @@ const UserProfile = () => {
       <div className="profile-card card">
 
         {/* Bouton retour */}
-        <div style={{display: "flex", justifyContent: "space-between"}}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
           <button className="back-button" onClick={() => navigate(-1)}>
             <FiArrowLeft size={18} />
             Retour
           </button>
           <div>
-            {profile.card_name ? ({card_name}) : ("ESAT/2026/001")}
-        </div>
+            {profile.card_number}
+          </div>
         </div>
 
 
-        
+
 
         <div className="profile-header">
           {/* Avatar */}
-          <div className="profile-avatar-container">
-            <Avatar user={profile} size="xlarge" />
+          <div className="profile-side">
+            <div className="profile-avatar-container">
+              <Avatar user={profile} size="xlarge" />
 
-            {isOwnProfile && (
-              <label className="avatar-upload-btn">
-                <FiEdit2 size={16} />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarUpload}
-                  disabled={uploadingAvatar}
-                  style={{ display: "none" }}
-                />
-              </label>
-            )}
+            </div>
+
+
+            <div>
+              {isOwnProfile && (
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => navigate('/profile/edit')}
+                  style={{ marginBottom: '16px' }}
+                >
+                  <FiEdit2 size={16} style={{ marginRight: '8px' }} />
+                  Modifier le profil
+                </button>
+              )}
+            </div>
+
 
           </div>
 
@@ -159,49 +135,44 @@ const UserProfile = () => {
 
             <h1 className="profile-name">{profile.profil_name}</h1>
 
+
             <div className="profile-meta">
 
-              {/* <div className="profile-meta-item">
-                <FiMail size={16} />  
-                <span>{profile.email}</span>
-              </div> */}
-
-              <div className="profile-meta-item">
-                <RiSchoolLine size={16} />
-                <span>{profile.school_name}</span>
-              </div>
-
-              <div className="profile-meta-item">
-                <MdOutlineDomainVerification size={16} />
-                <span>{profile.domain}</span>
-              </div>
-
-              <div className="profile-meta-item">
-                <TbSchool size={16} />
-                <span>{profile.level}-2eme Année</span>
-              </div>
-
-              {profile.created_at && (
+            
+              <div className="info">
                 <div className="profile-meta-item">
-                  <FiCalendar size={16} />
-                  <span>Membre depuis {formatDate(profile.created_at)}</span>
+                  <MdOutlineDomainVerification size={16} />
+                  <span>{profile.domain}</span>
                 </div>
-              )}
-            </div>
 
-            {/* Statistiques */}
-            <div className="profile-stats">
-              <div className="profile-stat">
+                <div className="profile-meta-item">
+                  <TbSchool size={16} />
+                  <span>{profile.level}-{profile.year}</span>
+                </div>
 
+                {profile.created_at && (
+                  <div className="profile-meta-item">
+                    <FiCalendar size={16} />
+                    <span>Membre depuis {formatDate(profile.created_at)}</span>
+                  </div>
+                )}
               </div>
+              <div className="qr-code">
+                <QRCode
+                  value={profile.email}
+                  size={100}
+                  bgColor="#ffffff"
+                  fgColor="#000000"
+                />
+              </div>
+
             </div>
+
+
 
             {/* Liste des posts */}
             <div className="profile-posts">
 
-              {/* <h2 className="section-title">
-          {isOwnProfile ? "Mes posts" : "Posts de l'utilisateur"}
-        </h2> */}
 
               {posts.length === 0 ? (
                 <div className="empty-state card">

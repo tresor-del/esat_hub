@@ -10,6 +10,10 @@ from app.db.database import Base
 class PostType(str, enum.Enum):
     PHOTO = "photo"
     DOCUMENT = "document"
+    ANNONCE = "annonce"
+    COURS = "cours"
+    DEVOIR = "devoir"
+    EVENEMENT = "evenement"
 
 
 class Post(Base):
@@ -31,6 +35,9 @@ class Post(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
+
+    room_id = Column(UUID(as_uuid=True), ForeignKey("rooms.id"), nullable=True)
+    post_room = relationship("Room", back_populates="posts")
     
     def __repr__(self):
         return f"<Post {self.id}: {self.title} by User {self.user_id}>"

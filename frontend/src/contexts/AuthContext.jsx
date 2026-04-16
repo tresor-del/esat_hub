@@ -4,6 +4,7 @@ import {
   login as apiLogin,
   logout as apiLogout,
   isAuthenticated,
+  getUserProfile,
 } from "../services/api";
 import React from "react";
 
@@ -25,7 +26,7 @@ export const AuthProvider = ({ children }) => {
    */
 
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const token = localStorage.getItem("access_token");
       if (token) {
         const decoded = jwtDecode(token); // { sub: "user_id", exp: ... }
@@ -33,19 +34,27 @@ export const AuthProvider = ({ children }) => {
           localStorage.removeItem("access_token");
           setUser(null);
         } else {
-          // Restore saved username (if any) so UI can show user email/name after reload
-          let storedUsername = null;
           try {
-            storedUsername = localStorage.getItem("username");
-          } catch (e) {
-            storedUsername = null;
+            const profile = await getUserProfile(decoded.sub);
+            setUser({
+              authenticated: true,
+              ...profile,
+            });
+          } catch (error) {
+            console.error("Erreur chargement profil:", error);
+            // Fallback to basic info
+            let storedUsername = null;
+            try {
+              storedUsername = localStorage.getItem("username");
+            } catch (e) {
+              storedUsername = null;
+            }
+            setUser({
+              authenticated: true,
+              id: decoded.sub,
+              username: storedUsername || null,
+            });
           }
-
-          setUser({
-            authenticated: true,
-            id: decoded.sub,
-            username: storedUsername || null,
-          });
         }
       }
       setLoading(false);

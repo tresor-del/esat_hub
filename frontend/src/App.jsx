@@ -29,6 +29,7 @@ import CreatePost from "./pages/posts/CreatePost";
 import PostDetail from "./pages/posts/postDetail";
 import PostEdit from "./pages/posts/PostEdit";
 import UserProfil from "./pages/profile/UserProfil"
+import ProfileEdit from "./pages/profile/ProfileEdit"
 
 // Styles (split into ./styles/*.css)
 import "./App.css"
@@ -91,6 +92,7 @@ const AppRoutes = () => {
         <Route path="/edit/:id" element={<PostEdit />} />
         <Route path="/post/:id" element={<PostDetail />} />
         <Route path="/profile/:id" element={<UserProfil />} />
+        <Route path="/profile/edit" element={<ProfileEdit />} />
         <Route path="/" element={<Home />} />
       </Route>
 

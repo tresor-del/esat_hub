@@ -3,3 +3,4 @@ from .post import Post
 from .email_verification import EmailVerificationToken
 from .comments import Comment
 from .notification import Notification
+from .room import Room

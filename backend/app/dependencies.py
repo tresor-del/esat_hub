@@ -15,6 +15,7 @@ from app.services.posts import PostService
 from app.services.files import FileService
 from app.services.comment import CommentService
 from app.services.notification import NotificationService
+from app.services.room import RoomService
 
 def get_db():
     db = SessionLocal()
@@ -65,3 +66,6 @@ def get_comment_service(session = Depends(get_db)):
 
 def get_notification_service(session = Depends(get_db)):
     return NotificationService(session)
+
+def get_room_service(session = Depends(get_db)):
+    return RoomService(session)

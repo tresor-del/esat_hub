@@ -87,11 +87,12 @@ export const confirmEmail = async (token) => {
  * =========================================
  */
 
-export const getPosts = async ({ skip = 0, limit = 20, postType = null, myPost = false, id = null } = {}) => {
+export const getPosts = async ({ skip = 0, limit = 20, postType = null, myPost = false, id = null, roomId = null } = {}) => {
   const params = new URLSearchParams({ skip, limit, my_post: myPost });
   
   if (id) params.append("id", id);
   if (postType) params.append("post_type", postType);
+  if (roomId) params.append("room_id", roomId);
 
   const response = await api.get(`/posts/?${params}`);
   return response.data;
@@ -117,6 +118,9 @@ export const createPost = async (postData) => {
   formData.append("title", postData.title);
   formData.append("description", postData.description || "");
   formData.append("post_type", postData.post_type);
+  if (postData.room_id) {
+    formData.append("room_id", postData.room_id);
+  }
   formData.append("file", postData.file);
 
   const response = await api.post("/posts/", formData, {

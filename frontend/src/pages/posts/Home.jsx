@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { FiSearch, FiFilter } from "react-icons/fi";
 import PostCard from "../../components/posts/Postcard";
+import { getUserProfile } from "../../services/api";
 import { getPosts, searchPosts, deletePost } from "../../services/api";
+import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import "../../styles/Home.css"
 
 const Home = () => {
   const navigate = useNavigate();
@@ -12,43 +15,53 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // États pour les filtres
-  const [searchQuery, setSearchQuery] = useState("");
 
   // États pour la pagination
-  const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const postsPerPage = 10;
 
+  const [filterType, setFilterType] = useState("general");
+
+  const { user: userAuth } = useAuth();
+  const [user, setUser] = useState();
+
+
   /**
-   * Charger les postes au montage et quand on fait des recherches
+   * Charger les postes au montage et quand le filtre change
+   * Réinitialiser les posts et hasMore pour une nouvelle recherche
    */
+
   useEffect(() => {
-    
+    const userProfil = async () => {
+      try {
+        const result = await getUserProfile(userAuth?.id)
+        if (result) setUser(result);
+      } catch (error) {
+        console.log("Erreur lors de la récupération du user: ", error)
+      }
+
+    }
+    userProfil();
+  }, [])
+
+  const room_id = user?.user_room_id;
+
+  useEffect(() => {
+
+    setHasMore(true);
+    setError("");
+    if (filterType === "private" && !room_id) {
+      setPosts([])
+      return;
+    }
     loadPosts();
-  }, []);
-
-  // // Écouter les recherches provenant de la navbar
-  // useEffect(() => {
-
-  //   const onAppSearch = (e) => {
-  //     const detail = e?.detail || {};
-  //     const q = detail.query ?? "";
-  //     setSearchQuery(q);
-  //     setPage(0);
-  //     loadPosts(false, q);
-  //   };
-
-  //   window.addEventListener("app:search", onAppSearch);
-  //   return () => window.removeEventListener("app:search", onAppSearch);
-  // }, []);
+  }, [filterType]);
 
   /**
    * Charger les postes depuis l'API
    */
   const loadPosts = async (
     isLoadMore = false,
-    overrideQuery = null
   ) => {
     try {
       setLoading(true);
@@ -57,40 +70,32 @@ const Home = () => {
       const skip = isLoadMore ? posts.length : 0;
       let result;
 
-      const q = overrideQuery !== null ? overrideQuery : searchQuery;
 
-      // Si recherche active
-      if (q.trim()) {
-        result = await searchPosts(q, skip, postsPerPage);
-        console.log("Search Results: ", result)
+      // Charger avec filtre de type
+      if (filterType === "private" && !user?.user_room_id) {
+        // Pas de room_id pour l'utilisateur, afficher rien en privé
+        result = { posts: [], total: 0 };
       } else {
-        // Sinon, charger avec filtre de type
-        // const type = t === "all" ? null : t;
-        result = await getPosts({ skip, limit: postsPerPage });
+        const roomId = filterType === "private" ? user?.user_room_id : null;
+        console.log("room_id au moment du call:", room_id);
+        result = await getPosts({ skip, limit: postsPerPage, roomId });
       }
 
-      // Mettre à jour les postes
-      if (q.trim()) {
-        if (isLoadMore) {
-          setPosts([...posts, ...result.posts_list.posts]);
-        } else {
-          setPosts(result.posts_list.posts);
-        }
-      } else {
-        if (isLoadMore) {
-          setPosts([...posts, ...result.posts]);
-        } else {
-          setPosts(result.posts);
-        }
-      }
-      
 
-      // Vérifier s'il y a plus de postes
-      if (q.trim()) {
-        setHasMore(result.posts_list.length === postsPerPage);
+      // Déterminer les données en fonction du type (recherche ou filtre normal)
+      const postsData = result.posts;
+      const totalPosts = postsData.length;
+
+      // Mettre à jour les postes (fusion avec les existants si on charge plus)
+      if (isLoadMore) {
+        setPosts([...posts, ...postsData]);
       } else {
-        setHasMore(result.posts.length === postsPerPage);
+        setPosts(postsData);
       }
+
+      // Vérifier s'il y a plus de postes à charger
+      // Si le nombre de posts reçus < limit, on a atteint la fin
+      setHasMore(totalPosts === postsPerPage);
     } catch (err) {
       console.error("Erreur lors du chargement des postes:", err);
       setError("Erreur lors du chargement des postes");
@@ -140,10 +145,28 @@ const Home = () => {
     navigate(`/post/${post.id}`);
   };
 
+
+
   return (
     <div className="container">
       <div className="main-content">
         <div style={{ marginBottom: "12px" }} />
+
+        {/* Boutons de filtre - toujours visibles */}
+        <div className="post-filter-btns">
+          <button
+            className={filterType === "general" ? "active" : ""}
+            onClick={() => setFilterType("general")}
+          >
+            Général
+          </button>
+          <button
+            className={filterType === "private" ? "active" : ""}
+            onClick={() => setFilterType("private")}
+          >
+            Privé
+          </button>
+        </div>
 
         {/* Message d'erreur */}
         {error && (
@@ -164,35 +187,39 @@ const Home = () => {
           // État vide
           <div className="empty-state">
             <div className="empty-state-icon">📭</div>
-            <h3 className="empty-state-title">Aucun poste trouvé</h3>
+            <h3 className="empty-state-title">
+              {filterType === "private" ? "Aucun poste privé" : "Aucun poste trouvé"}
+            </h3>
             <p>
-              {searchQuery
-                ? "Aucun résultat pour votre recherche"
+              {filterType === "private"
+                ? "Vous n'avez accès à aucun poste privé pour le moment"
                 : "Soyez le premier à créer un poste !"}
             </p>
-            <button
-              className="btn btn-primary"
-              onClick={() => navigate("/create")}
-              style={{ marginTop: "16px" }}
-            >
-              + Créer un poste
-            </button>
+            {filterType === "general" && (
+              <button
+                className="btn btn-primary"
+                onClick={() => navigate("/create")}
+                style={{ marginTop: "16px" }}
+              >
+                + Créer un poste
+              </button>
+            )}
           </div>
         ) : (
           // Liste des postes
           <>
-          <div>
-            {posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onView={handleView}
-              />
-            ))}
-          </div>
-            
+            <div>
+              {posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onView={handleView}
+                />
+              ))}
+            </div>
+
 
             {/* Bouton charger plus */}
             {hasMore && (

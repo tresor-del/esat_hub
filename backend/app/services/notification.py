@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.db.schemas.notification import Notification
 from app.models.notifications import NotificationResponse, NotificationListResponse, NotificationResponseUser
+from app.models.user import UserResponse
 from app.services.ws_manager import ws_manager
 
 
@@ -14,6 +15,7 @@ class NotificationService:
     
     async def send_notification(self, data: NotificationResponse) -> None:
         try:
+            print(f"🔔 Création notification pour {data.recipient.id}: {data.content}")
             
             d_data = data.model_copy()
             validate_data = d_data.model_dump(exclude={"sender", "recipient"})
@@ -26,14 +28,48 @@ class NotificationService:
             self._db.commit()
             self._db.refresh(data_in_db)
             notif_data = NotificationResponseUser.model_validate(data_in_db).model_dump(mode="json")
+            print(f"💾 Notification enregistrée en base: {data_in_db.id}")
             await ws_manager.send_personal_notification(notif_data)
             print("notification envoyyé au manager")
             
 
         except Exception as e:
             # On log l'erreur mais on ne bloque pas la réponse API
-            # Le commentaire est déjà créé en base
+            # La notification n'est pas critiquement bloquante
             print(f"Échec de l'envoi de la notification : {e}")
+
+    async def send_bulk_notifications(
+        self,
+        notification_type: str,
+        content: str,
+        recipients: list,
+        sender: UserResponse | None = None,
+        post_id: int | None = None,
+        comment_id: UUID | None = None,
+    ) -> None:
+        """Envoie une notification à plusieurs destinataires."""
+        print(f"📢 Envoi de notifications en bulk: {notification_type} à {len(recipients)} destinataires")
+        for recipient in recipients:
+            print(f"👤 Destinataire: {recipient.id}")
+            if sender and recipient.id == sender.id:
+                print(f"⏭️  Saut de l'expéditeur {recipient.id}")
+                continue
+            print(f"📤 Envoi à {recipient.id}")
+            try:
+                recipient_data = UserResponse.model_validate(recipient)
+                notification = NotificationResponse(
+                    type=notification_type,
+                    content=content,
+                    is_read=False,
+                    recipient=recipient_data,
+                    sender=sender,
+                    post_id=post_id,
+                    comment_id=comment_id,
+                )
+                await self.send_notification(notification)
+                print(f"✅ Notification envoyée à {recipient.id}")
+            except Exception as e:
+                print(f"❌ Erreur envoi notification à {recipient.id}: {e}")
 
     def get_notification(self, notif_id: UUID) -> Notification | None:
         notification = self._db.query(Notification).where(Notification.id==notif_id).first()

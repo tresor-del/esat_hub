@@ -1,0 +1,56 @@
+.post-filter-btns {
+    display: flex;
+    background-color: white;
+    width: 100%;
+    overflow: hidden;
+    /* Optionnel : ajout d'une bordure basse légère pour toute la barre */
+    border-bottom: 1px solid #eee; 
+}
+
+.post-filter-btns button {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    font-size: 1rem;
+    padding: 1rem;
+    cursor: pointer;
+    position: relative;
+    color: #666;
+    font-weight: 500;
+    transition: color 0.2s ease, background-color 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    /* On retire le transform ici pour éviter les vibrations */
+}
+
+.post-filter-btns button::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: red;
+    transform: scaleX(0);
+    transform-origin: center;
+    /* On utilise une transition plus simple pour plus de stabilité */
+    transition: transform 0.2s ease-out;
+}
+
+.post-filter-btns button.active {
+    color: red;
+    /* On évite le text-shadow si ça déforme trop */
+    font-weight: 600; 
+}
+
+.post-filter-btns button.active::after {
+    transform: scaleX(1);
+}
+
+.post-filter-btns button:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Effet de clic stabilisé : On ne touche qu'à l'opacité */
+.post-filter-btns button:active {
+    background-color: rgba(0, 0, 0, 0.08);
+}

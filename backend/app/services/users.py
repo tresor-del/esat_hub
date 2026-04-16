@@ -50,10 +50,32 @@ class AuthService:
     def get_user(self, user_id: uuid.UUID) -> User | None:
         return self._db.query(User).filter(User.id == user_id).first()
     
+    def update_user(self, user_id: uuid.UUID, user_update) -> User | None:
+        user = self.get_user(user_id)
+        if not user:
+            return None
+        
+        update_data = user_update.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            if hasattr(user, key):
+                setattr(user, key, value)
+        
+        self._db.commit()
+        self._db.refresh(user)
+        return user
+    
     def delete_user(self, user_id: uuid.UUID) -> None:
         user = self.get_user(user_id)
         if user:
             self._db.delete(user)
             self._db.commit()
+    
+    def get_all_users(self) -> list[User]:
+        """Récupère tous les utilisateurs"""
+        return self._db.query(User).all()
+    
+    def get_users_by_room_id(self, room_id: uuid.UUID) -> list[User]:
+        """Récupère tous les utilisateurs d'une salle spécifique"""
+        return self._db.query(User).filter(User.user_room_id == room_id).all()
     
     

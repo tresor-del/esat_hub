@@ -21,7 +21,8 @@ class PostService:
         file_name: str,
         user_id: UUID,
         description: Optional[str] = None,
-        mime_type: Optional[str] = None
+        mime_type: Optional[str] = None,
+        room_id: Optional[UUID] = None
     ) -> Post:
         db_post = Post(
             title=title,
@@ -30,7 +31,8 @@ class PostService:
             file_path=file_path,
             file_name=file_name,
             mime_type=mime_type,
-            user_id=user_id
+            user_id=user_id,
+            room_id=room_id
         )
         self._db.add(db_post)
         self._db.commit()
@@ -42,7 +44,8 @@ class PostService:
         skip: int = 0,
         limit: int = 100,
         post_type: Optional[str] = None,
-        user_id: Optional[UUID] = None
+        user_id: Optional[UUID] = None,
+        room_id: Optional[UUID] = None
     ) -> Tuple[List[dict], int]:
         """
         Récupère les posts avec compteurs de likes et comments
@@ -56,6 +59,11 @@ class PostService:
             query = query.filter(Post.post_type == post_type)
         if user_id:
             query = query.filter(Post.user_id == user_id)
+        if room_id is not None:
+            query = query.filter(Post.room_id == room_id)
+        else:
+            # Pour les posts généraux, exclure ceux avec room_id
+            query = query.filter(Post.room_id.is_(None))
         
         # Total
         total = query.count()

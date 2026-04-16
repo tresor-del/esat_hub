@@ -7,14 +7,22 @@
   padding: var(--spacing-lg);
 }
 
-.auth-card {
+.auth-card, .edit-profile-card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: var(--spacing-xl);
-  width: 100%;
-  max-width: 400px;
+
   box-shadow: var(--shadow-md);
+}
+
+.edit-profile-card {
+    width: 100%;
+  min-width: 500px;
+}
+
+.auth-card {
+  min-width: 500px;
 }
 
 .auth-logo {
@@ -40,4 +48,71 @@
   margin-top: var(--spacing-md);
   color: var(--text-secondary);
   font-size: 14px;
+}
+
+/* Register */
+
+
+.form-select {
+  padding: 1rem;
+}
+
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  background-color: var(--bg-secondary);
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--reddit-blue);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-error {
+  color: #d32f2f;
+  font-size: 13px;
+  margin-top: var(--spacing-xs);
+}
+
+.edit-form {
+  display: flex ;
+  gap: 2rem;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.profile-info {
+  gap: 1rem;
 }

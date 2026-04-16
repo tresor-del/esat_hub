@@ -1,6 +1,6 @@
 import enum 
 import uuid
-from sqlalchemy import Boolean, Column, Date, Integer, String, Enum, text 
+from sqlalchemy import Boolean, Column, Date, Integer, String, Enum, text, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.db.database import Base
@@ -19,6 +19,7 @@ class Levels(str, enum.Enum):
 class Types(str, enum.Enum):
     DELEGUE = "DELEGUE"
     SIMPLE = "SIMPLE"
+    ADMIN = "ADMIN"
 
 class Years(str, enum.Enum):
     PREMIERE_ANNEE = "1_ERE_ANNEE"
@@ -38,7 +39,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     phone_number = Column(String, unique=True, index=True, nullable=True)
     birthday = Column(Date, nullable=True, index=True)
-    card_number = Column(Integer, unique=True, nullable=True, index=True)
+    card_number = Column(String, unique=True, nullable=True, index=True)
 
     type = Column(Enum(Types, name="types"), nullable=True, index=True, server_default=Years.PREMIERE_ANNEE.value)
     year = Column(Enum(Years, name="years"), nullable=True, index=True, server_default=Years.DEUXIEME_ANNEE.value)
@@ -92,3 +93,9 @@ class User(Base):
             foreign_keys="Notification.recipient_id", 
             back_populates="recipient"
         )
+    
+    
+    user_room_id = Column(UUID(as_uuid=True), ForeignKey("rooms.id"), index=True, nullable=True)
+    user_room = relationship("Room", back_populates="users", foreign_keys=[user_room_id])
+
+    room_rep = relationship("Room", back_populates="rep", foreign_keys="[Room.rep_id]")

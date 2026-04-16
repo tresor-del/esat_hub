@@ -12,9 +12,11 @@ const Register = () => {
     lastName: '',
     profilName: '',
     email: '',
-    schoolName: '',
+    schoolName: 'ESAT_TOGO',
     domain: '',
     level: '',
+    year: '',
+    type: 'SIMPLE',
     password: '',
     confirmPassword: '',
   });
@@ -42,15 +44,17 @@ const Register = () => {
    */
   const validateForm = () => {
     // Vérifier que tous les champs sont remplis
-    if (!formData.profilName || 
-      !formData.password || 
+    if (!formData.profilName ||
+      !formData.password ||
       !formData.confirmPassword ||
       !formData.firstName ||
       !formData.lastName ||
       !formData.profilName ||
       !formData.schoolName ||
       !formData.domain ||
-      !formData.level ) {
+      !formData.level ||
+      !formData.year ||
+      !formData.type) {
       setError('Veuillez remplir tous les champs');
       return false;
     }
@@ -94,7 +98,7 @@ const Register = () => {
     try {
       // Tentative d'inscription
 
-      const {confirmPassword, ...rest} = formData
+      const { confirmPassword, ...rest } = formData
 
       const dataToSend = {
         first_name: rest.firstName,
@@ -104,8 +108,12 @@ const Register = () => {
         school_name: rest.schoolName,
         domain: rest.domain,
         level: rest.level,
+        type: rest.type,
+        year: rest.year,
         password: rest.password
       }
+
+      console.log(dataToSend);
 
       const result = await register(dataToSend);
 
@@ -181,6 +189,7 @@ const Register = () => {
         <form onSubmit={handleSubmit} className="form">
           {/* Champ First Name */}
           <div className="form-group">
+            
             <label htmlFor="firstName" className="form-label">
               First Name
             </label>
@@ -189,7 +198,6 @@ const Register = () => {
               id="firstName"
               name="firstName"
               className="form-input"
-              placeholder="profil_name@school_name"
               value={formData.firstName}
               onChange={handleChange}
               required
@@ -232,6 +240,7 @@ const Register = () => {
             />
           </div>
 
+
           <div className="form-group">
             <label htmlFor="profilName" className="form-label">
               Profil Name
@@ -241,7 +250,6 @@ const Register = () => {
               id="profilName"
               name="profilName"
               className="form-input"
-              placeholder="profil_name@school_name"
               value={formData.profilName}
               onChange={handleChange}
               required
@@ -250,14 +258,16 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <select name="schoolName" value={formData.schoolName} onChange={handleChange}>
-              <option value="">Choisir...</option>
-              <option value="ESAT_TOGO">ESAT-TOGO</option>
+            <label htmlFor="schoolName" className='form-label'>École</label>
+            <select disabled className='form-select' name="schoolName" value={formData.schoolName} onChange={handleChange}>
+              <option value="">Choisir... </option>
+              <option value="ESAT_TOGO" selected>ESAT-TOGO</option>
             </select>
           </div>
 
           <div className="form-group">
-            <select name="domain" value={formData.domain} onChange={handleChange}>
+            <label htmlFor="domain" className='form-label'>Domaine</label>
+            <select className='form-select' name="domain" value={formData.domain} onChange={handleChange}>
               <option value="">Choisir...</option>
               <option value="INFORMATIQUE">Informatique</option>
               <option value="AERONAUTIQUE">Aéronautique</option>
@@ -265,10 +275,31 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <select name="level" value={formData.level} onChange={handleChange}>
+            <label htmlFor="level" className='form-label'>Niveau</label>
+            <select className='form-select' name="level" value={formData.level} onChange={handleChange}>
               <option value="">Choisir...</option>
               <option value="PREPA">Cycle Préparatoire</option>
               <option value="INGE">Cycle Ingénieur</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="year" className='form-label'>Année</label>
+            <select className='form-select' name="year" value={formData.year} onChange={handleChange}>
+              <option value="">Choisir...</option>
+              <option value="1_ERE_ANNEE">1 ere année</option>
+              <option value="2_EME_ANNEE">2 eme année</option>
+              <option value="3_EME_ANNEE">3 eme année</option>
+            </select>
+          </div>
+
+
+          <div className="form-group">
+            <label htmlFor="type" className='form-label'>Rôle</label>
+            <select className='form-select' name="type" value={formData.type} onChange={handleChange}>
+              <option value="">Choisir...</option>
+              <option value="SIMPLE">Étudiant</option>
+              <option value="DELEGUE">Délégué</option>
             </select>
           </div>
 
