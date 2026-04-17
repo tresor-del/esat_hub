@@ -67,19 +67,25 @@ async def create_post(
         )
 
         # Préparer l'expéditeur de notification
-        sender = UserResponse.model_validate(current_user)
+        sender = UserResponse(
+            id=current_user.id,
+            email=current_user.email,
+            username=getattr(current_user, 'username', None),
+            first_name=getattr(current_user, 'first_name', None),
+            last_name=getattr(current_user, 'last_name', None),
+            is_verified=getattr(current_user, 'is_verified', False),
+            user_room_id=getattr(current_user, 'user_room_id', None)
+        )
 
         # Préparer le contenu selon si le post est général ou de classe
         if room_id is None:
             recipients = auth_service.get_all_users()
-            notification_content = f"Nouveau post général : {title}"
+            notification_content = f"{current_user.username} à fait un post générale: {title}"
             notification_type = "post.general"
-            print(f"🌍 Post général créé, envoi à {len(recipients)} utilisateurs")
         else:
             recipients = auth_service.get_users_by_room_id(room_id)
-            notification_content = f"Nouveau post pour la classe : {title}"
+            notification_content = f"{current_user.username} à publié dans votre classe : {title}"
             notification_type = "post.class"
-            print(f"🏫 Post de classe créé, envoi à {len(recipients)} membres de la salle")
 
         # Envoi de notifications à tous les destinataires concernés
         await notification_service.send_bulk_notifications(

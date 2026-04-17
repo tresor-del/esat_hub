@@ -1,10 +1,11 @@
 import enum
+from uuid import UUID
 
 from sqlalchemy.orm import Session
 
 from app.db.schemas.room import Room, RoomNames
 from app.db.schemas.user import Levels, Years
-
+from app.models.room import RoomResponse
 
 class RoomService:
     def __init__(self, db: Session):
@@ -27,5 +28,11 @@ class RoomService:
         room = self._db.query(Room).filter(Room.name == room_name).first()
         
         return room.id if room else None
+
+    def get_user_room(self, room_id: UUID):
+        room = self._db.query(Room).filter(Room.id == room_id).first()
+
+        return room
+
 
         

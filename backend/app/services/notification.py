@@ -15,8 +15,7 @@ class NotificationService:
     
     async def send_notification(self, data: NotificationResponse) -> None:
         try:
-            print(f"🔔 Création notification pour {data.recipient.id}: {data.content}")
-            
+
             d_data = data.model_copy()
             validate_data = d_data.model_dump(exclude={"sender", "recipient"})
             validate_data.update({
@@ -28,7 +27,7 @@ class NotificationService:
             self._db.commit()
             self._db.refresh(data_in_db)
             notif_data = NotificationResponseUser.model_validate(data_in_db).model_dump(mode="json")
-            print(f"💾 Notification enregistrée en base: {data_in_db.id}")
+            print(f"Notification enregistrée en base: {data_in_db.id}")
             await ws_manager.send_personal_notification(notif_data)
             print("notification envoyyé au manager")
             
@@ -51,12 +50,27 @@ class NotificationService:
         print(f"📢 Envoi de notifications en bulk: {notification_type} à {len(recipients)} destinataires")
         for recipient in recipients:
             print(f"👤 Destinataire: {recipient.id}")
-            if sender and recipient.id == sender.id:
-                print(f"⏭️  Saut de l'expéditeur {recipient.id}")
-                continue
+            # if sender and recipient.id == sender.id:
+            #     print(f"⏭️  Saut de l'expéditeur {recipient.id}")
+            #     continue
             print(f"📤 Envoi à {recipient.id}")
             try:
-                recipient_data = UserResponse.model_validate(recipient)
+                recipient_data = UserResponse(
+                    first_name=recipient.first_name,
+                    last_name=recipient.last_name,
+                    profil_name=recipient.profil_name,
+                    school_name=recipient.school_name,
+                    domain=recipient.domain,
+                    level=recipient.level,
+                    type=recipient.type,
+                    year=recipient.year,
+                    id=recipient.id,
+                    is_verified=recipient.is_verified,
+                    username=recipient.username,
+                    user_room_id=recipient.user_room_id,
+                    email=recipient.email,
+                )
+
                 notification = NotificationResponse(
                     type=notification_type,
                     content=content,

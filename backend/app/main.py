@@ -17,6 +17,7 @@ from app.api.v1.files import router as files_router
 from app.api.v1.comment import router as comment_router
 from app.api.v1.ws import router as ws_router
 from app.api.v1.notification import router as notif_router
+from app.api.v1.room import router as room_router
 from app.core.config import settings
 
 
@@ -54,3 +55,4 @@ app.include_router(files_router, prefix="/api/v1")
 app.include_router(comment_router, prefix="/api/v1")
 app.include_router(ws_router, prefix="/api/v1")
 app.include_router(notif_router, prefix="/api/v1")
+app.include_router(room_router, prefix="/api/v1")

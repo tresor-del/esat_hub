@@ -20,11 +20,9 @@ class ConnexionManager:
 
     async def send_personal_notification(self, data):
         recipient_id = data.get("recipient").get("id")
-        print(recipient_id)
         websocket = self.active_connections.get(UUID(recipient_id))
         print("ws: ", websocket)
         if websocket:
-            print("envoyé")
             await websocket.send_json(jsonable_encoder(data))
 
 ws_manager = ConnexionManager()
