@@ -34,5 +34,20 @@ class Settings(BaseSettings):
 
     DEFAULT_AVATAR: str = "static/default_avatar.jpg"
 
+    FRONTEND_HOST: str = "http://localhost:5173"
+
+    SMTP_HOST: str
+    SMTP_PORT: int
+    SMTP_USER: str
+    SMTP_PASSWORD: str
+    EMAILS_FROM_EMAIL: str
+    EMAILS_FROM_NAME: str
+    SMTP_TLS: bool = True
+    SMTP_SSL: bool = False
+
+    @property
+    def emails_enabled(self) -> bool:
+        return bool(self.SMTP_HOST and self.EMAILS_FROM_EMAIL)
+
     
 settings = Settings()

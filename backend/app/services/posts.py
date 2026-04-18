@@ -54,6 +54,8 @@ class PostService:
             Post
         ).group_by(Post.id)
 
+        print("room id: ", room_id)
+
         # Filtres
         if post_type:
             query = query.filter(Post.post_type == post_type)

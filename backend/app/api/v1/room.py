@@ -19,5 +19,6 @@ def get_room(
     
     room = room_service.get_user_room(current_user.user_room_id)
 
+
     return room
     

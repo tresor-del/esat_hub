@@ -155,7 +155,7 @@ def register(
     # Envoie d'email à l'utilisateur
     background_tasks.add_task(
         email_service.send_verification_email,
-        user.email,
+        user,
         token
     )
     
@@ -172,7 +172,6 @@ def confirm_email(
 
     if not record:
         raise HTTPException(400, "Invalid token")
-    
 
     if record.expires_at < datetime.datetime.now(datetime.UTC):
 

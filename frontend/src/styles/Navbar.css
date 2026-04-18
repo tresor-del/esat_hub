@@ -66,9 +66,6 @@
   text-align: center;
 }
 
-.notification-icon{
-  font-size: 2rem;
-}
 
 .navbar-user {
   display: flex;
@@ -183,6 +180,7 @@
 }
 
 .navbar-icon {
-  font-size: 1.7rem;
+  font-size: 1.8rem ;
   cursor: pointer;
+  color: #444;
 }

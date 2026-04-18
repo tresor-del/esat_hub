@@ -1,0 +1,102 @@
+.room-container {
+    display: flex;
+    width: 100%;
+    height: calc(100vh - 60px);
+    background-color: var(--bg-primary);
+}
+
+.room-left {
+    min-width: 20%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    border-right: 1px solid var(--border-color);
+    padding: var(--spacing-lg);
+    background-color: var(--bg-secondary);
+}
+
+.room-right {
+    min-width: 80%;
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-xl);
+    background-color: var(--bg-primary);
+    overflow: scroll;
+}
+
+.room-btns {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    width: 100%;
+}
+
+.room-name {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+.room-users {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    gap: var(--spacing-md);
+}
+
+.room-users .user{
+    padding: 1rem;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.room-users .user:hover {
+    background-color: #999 ;
+
+}
+
+.room-posts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.room-chat {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--bg-secondary);
+    margin-bottom: var(--spacing-md);
+}
+
+.chat-message {
+    margin-bottom: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background-color: var(--bg-hover);
+    border-radius: var(--border-radius);
+}
+
+.chat-input {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.chat-input input {
+    flex: 1;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}

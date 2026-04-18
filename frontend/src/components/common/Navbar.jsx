@@ -1,21 +1,18 @@
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth} from "../../contexts/AuthContext";
 import { useWebSocket } from "../../contexts/WebSocketContext";
-import { useNavigate } from "react-router-dom";
-import { FiHome } from "react-icons/fi";
+import { HiOutlineHome } from "react-icons/hi";
 import UserMenu from "../user/UserMenu";
-import React from "react";
-import "../../styles/Navbar.css"
 import NotificationDropdown from "../notifications/NofitificationDropdown";
 import SearchDropdown from "../search/SearchDropdown";
+import "../../styles/Navbar.css"
 
 const Navbar = () => {
   const { user, logout, isAuth } = useAuth();
   const { unreadCount } = useWebSocket();
 
-
   const navigate = useNavigate();
-
 
   return (
     <nav className="navbar">
@@ -35,13 +32,15 @@ const Navbar = () => {
           {isAuth() ? (
             <>
               
-                <FiHome className="navbar-icon" onClick={() => navigate("/room")}/>
+              {/* Icone du room */}
+              <HiOutlineHome className="navbar-icon" onClick={() => navigate("/room")}/>
+              {/* Bouton de notification */}
+              <NotificationDropdown unreadCount={unreadCount} />
 
               <Link to="/create" className="btn btn-primary">
                 + Créer
               </Link>
 
-              <NotificationDropdown unreadCount={unreadCount} />
 
               {user && (
                 <UserMenu className="user-menu-btn" />

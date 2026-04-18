@@ -1,20 +1,19 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../styles/Notifications.css';
+import { HiOutlineBell } from 'react-icons/hi';
+
 import { useNotification } from '../../hooks/useNotification';
-import { formatRelativeDate } from '../../utils/dateFormatter';
 import Avatar from '../../components/ui/Avatar';
 import { deleteNotif } from '../../services/api';
 import DropdownMenu from '../ui/DropdownMenu';
-import { HiOutlineBell } from 'react-icons/hi';
 import NotificationActionsMenu from './NotificationActionsMenu';
+import '../../styles/Notifications.css';
+import '../../styles/Navbar.css'
 
 const NotificationDropdown = ({ unreadCount }) => {
 
   const { notifications, markAsRead, removeNotifications } = useNotification();
-
   const navigate = useNavigate();
-
 
   const sortedNotifications = useMemo(() => {
     const groups = {};
@@ -72,7 +71,7 @@ const NotificationDropdown = ({ unreadCount }) => {
           if (badgeCount > 0) markAsRead(); // On ne l'appelle que s'il y a du contenu non lu
         }}
       >
-        <HiOutlineBell className="notification-icon" />
+        <HiOutlineBell className="navbar-icon" />
         {/* 4. Affichage du badge si > 0 */}
         {badgeCount > 0 && <span className="notification-badge">{badgeCount}</span>}
       </div>

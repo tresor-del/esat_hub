@@ -32,6 +32,10 @@ class RoomService:
     def get_user_room(self, room_id: UUID):
         room = self._db.query(Room).filter(Room.id == room_id).first()
 
+        users = room.users
+        for user in users:
+            print(user.username)
+
         return room
 
 
