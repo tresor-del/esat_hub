@@ -2,9 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth} from "../../contexts/AuthContext";
 import { useWebSocket } from "../../contexts/WebSocketContext";
 import { useNavigate } from "react-router-dom";
-import SearchFilters from "../ui/SearchFilters";
-import Avatar from "../ui/Avatar";
-import { HiOutlineBell } from "react-icons/hi";
+import { FiHome } from "react-icons/fi";
 import UserMenu from "../user/UserMenu";
 import React from "react";
 import "../../styles/Navbar.css"
@@ -36,6 +34,9 @@ const Navbar = () => {
         <div className="navbar-menu">
           {isAuth() ? (
             <>
+              
+                <FiHome className="navbar-icon" onClick={() => navigate("/room")}/>
+
               <Link to="/create" className="btn btn-primary">
                 + Créer
               </Link>

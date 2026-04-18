@@ -30,6 +30,7 @@ import PostDetail from "./pages/posts/postDetail";
 import PostEdit from "./pages/posts/PostEdit";
 import UserProfil from "./pages/profile/UserProfil"
 import ProfileEdit from "./pages/profile/ProfileEdit"
+import Room from "./pages/room/Room";
 
 // Styles (split into ./styles/*.css)
 import "./App.css"
@@ -93,6 +94,7 @@ const AppRoutes = () => {
         <Route path="/post/:id" element={<PostDetail />} />
         <Route path="/profile/:id" element={<UserProfil />} />
         <Route path="/profile/edit" element={<ProfileEdit />} />
+        <Route path="/room" element={<Room />} />
         <Route path="/" element={<Home />} />
       </Route>
 

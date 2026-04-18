@@ -224,6 +224,13 @@ export const deleteNotif = async (notifId) => {
   return response.data
 }
 
+// Room apis
+
+export const getUserRoom = async () => {
+  const response = await api.get(`${API_BASE_URL}/rooms/me`)
+  return response.data
+}
+
 /**
  * =========================================
  * UTILITAIRES

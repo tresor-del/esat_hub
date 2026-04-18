@@ -51,7 +51,7 @@ export const WebSocketProvider = ({ children }) => {
     };
 
     return () => wsRef.current?.close();
-  }, [user]); // Se relance à la connexion/déconnexion
+  }, [user?.id]); // Se relance à la connexion/déconnexion
 
   const markAsRead = async () => {
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));

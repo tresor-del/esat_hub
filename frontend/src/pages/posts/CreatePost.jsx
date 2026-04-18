@@ -2,11 +2,30 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiUpload } from 'react-icons/fi';
 import { createPost } from '../../services/api';
+import { getUserProfile } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 
 const CreatePost = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user: userAuth } = useAuth();
+  const [user, setUser] = useState();
+
+  useEffect(() => {
+    const userProfil = async() => {
+      try {
+        const result = await getUserProfile(userAuth.id);
+        if (result) {
+          setUser(result)
+        }
+      } catch (error) {
+        console.log("Erreur de récupération de l'utilisateur: ", error)
+      }
+    }
+
+    userProfil()
+  }, [])
+
+
 
   // États du formulaire
   const [formData, setFormData] = useState({

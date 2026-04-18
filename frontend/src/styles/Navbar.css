@@ -181,3 +181,8 @@
   background-color: transparent !important;
   border: none;
 }
+
+.navbar-icon {
+  font-size: 1.7rem;
+  cursor: pointer;
+}
