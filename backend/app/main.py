@@ -1,13 +1,12 @@
 import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from contextlib import asynccontextmanager
+
 from app.core.logging import setup_logging
-
-setup_logging()
-logger = logging.getLogger(__name__)
-
 from app.db.database import Base, engine
 from app.api.v1.auth import router as auth_router
 from app.api.v1.post import router as post_router
@@ -19,6 +18,11 @@ from app.api.v1.ws import router as ws_router
 from app.api.v1.notification import router as notif_router
 from app.api.v1.room import router as room_router
 from app.core.config import settings
+from app.core.limiter import limiter
+
+
+setup_logging()
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -42,6 +46,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# rate limiting
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.get("/")
 async def accueil(request: Request):

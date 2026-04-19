@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     REFRESH_SECRET_KEY: str 
     REFRESH_ALGORITHM: str = "HS256"
     
-    app_name: str ="esat-hub"
+    APP_NAME: str ="Esat-hub"
     API_V1_STR: str = "/api/v1"
 
     SQLALCHEMY_DATABASE_URI: str 

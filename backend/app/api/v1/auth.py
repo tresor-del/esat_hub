@@ -1,8 +1,7 @@
 import logging
 import datetime
-from uuid import UUID
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request
 
 from jose import jwt, JWTError
 
@@ -16,11 +15,12 @@ from app.models.user import UserCreate, UserInDatabase
 from app.models.message import Message
 from app.services.email import EmailService
 from app.db.security import authenticate_user
-from app.db.database import SessionLocal
 from app.services.users import AuthService
 from app.models.token import RefreshToken
 from app.db.schemas.revoked_token import RevokedToken
 from app.services.room import RoomService
+from app.models.mail import EmailModel
+from app.core.limiter import limiter
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,12 @@ def login(
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
 
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="Please verify your email before logging in."
+        )
+    
     access_token = create_access_token(
         data={"sub": str(user.id)},
     )
@@ -174,12 +180,6 @@ def confirm_email(
         raise HTTPException(400, "Invalid token")
 
     if record.expires_at < datetime.datetime.now(datetime.UTC):
-
-        # supprimer l'utilisateur associé au token expiré
-        user = email_service.validate_user(record)
-        if user:
-            auth_service.delete_user(user.id)
-
         raise HTTPException(400, "Token expired")
     
     user = email_service.validate_user(record)
@@ -190,3 +190,27 @@ def confirm_email(
     auth_service.confirm_user(user, record)
 
     return Message(message="Email verified successfully")
+
+@router.post("/resend-verification", response_model=Message)
+@limiter.limit("2/minute")
+def resend_verification_email(
+    email_in: EmailModel,
+    background_tasks: BackgroundTasks,
+    email_service: EmailService = Depends(get_email_service)
+):
+    email_service.resend_verification(email_in, background_tasks)
+    
+
+    return Message(message="Si cet email est dans le système, un nouveau lien de vérification a été envoyé")
+
+
+@router.get("/check-profil-name/{profil_name}")
+def check_profil_name_availability(
+    profil_name: str, 
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    is_taken = auth_service.check_duplicated_profil_name(profil_name)
+    if is_taken:
+        return {"available": False, "message": "Ce nom de profil est déjà utilisé"}
+    return {"available": True, "message": "Nom de profil disponible"}
+

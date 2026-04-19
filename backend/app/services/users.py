@@ -31,8 +31,18 @@ class AuthService:
         self._db.refresh(user)
         
     def check_duplicated_email(self, user_email: str) -> bool:
-        result = self._db.query(User).filter(User.email == user_email).first()
-        return True if result else False
+        user = self._db.query(User).filter(User.email == user_email).first()
+        
+        if not user:
+            return False
+        
+        if not user.is_verified:
+            self._db.delete(user)
+            self._db.commit()
+            return False 
+            
+        return True
+
     
     def check_duplicated_profil_name(self, profil_name: str) -> bool:
         result = self._db.query(User).filter(User.profil_name == profil_name).first()

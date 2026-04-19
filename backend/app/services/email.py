@@ -4,11 +4,16 @@ import uuid
 import smtplib
 from email.message import EmailMessage
 
+from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
 from app.db.schemas.user import User
 from app.db.schemas.email_verification import EmailVerificationToken
 from app.core.config import settings
 from app.models.user import UserInDatabase
+from app.core.templates import email_templates
+
+template = email_templates.get_template("verfication.html")
+
 
 class EmailService:
     def __init__(self, db: Session):
@@ -16,29 +21,21 @@ class EmailService:
 
     def send_verification_email(self, user: UserInDatabase, token: str):
         verification_link = f"{settings.FRONTEND_HOST}/confirm-email?token={token}"
-        
+        html_content = template.render(
+            username=user.username,
+            verification_link=verification_link,
+            app_name=settings.APP_NAME
+        )
+
         # 1. Création du message
         msg = EmailMessage()
-        msg["Subject"] = "Confirmez votre inscription - Mon École"
+        msg["Subject"] = f"Confirmez votre inscription - {settings.APP_NAME}"
         msg["From"] = f"{settings.EMAILS_FROM_NAME} <{settings.EMAILS_FROM_EMAIL}>"
         msg["To"] = user.email
         
         # Contenu HTML 
-        msg.set_content(f"Cliquez ici pour confirmer votre email : {verification_link}") # Fallback texte
-        msg.add_alternative(f"""\
-        <html>
-          <body>
-            <h2>Bienvenue sur Esat-Hub!</h2>
-            <h4>Voici vos identifiants:</h4>
-            <ul>
-                <li>Username: {user.username}</li>
-            </ul>
-            <p>Veuillez cliquer sur le bouton ci-dessous pour valider votre compte :</p>
-            <a href="{verification_link}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Confirmer mon compte</a>
-            <p>Ce lien expirera dans 15min.</p>
-          </body>
-        </html>
-        """, subtype='html')
+        msg.set_content(f"Cliquez ici pour confirmer votre email : {verification_link}") 
+        msg.add_alternative(html_content, subtype='html')
 
         # 2. Envoi via SMTP
         try:
@@ -78,3 +75,16 @@ class EmailService:
         self._db.commit()
         
         return verification.token
+    
+    def resend_verification_email(self, email: str, bg_tasks: BackgroundTasks):
+
+        user = self._db.query(User).filter(User.email == email).first()
+
+        if not user or user.is_verified:
+            return 
+        
+        self._db.query(EmailVerificationToken).filter(EmailVerificationToken.user_id == user.id).delete()
+
+        new_token = self.create_verification_email(user.id)
+
+        bg_tasks.add_task(self.send_verification_email, email, new_token)

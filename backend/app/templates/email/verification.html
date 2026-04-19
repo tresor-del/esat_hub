@@ -1,0 +1,16 @@
+<html>
+  <body style="font-family: Arial, sans-serif; color: #333;">
+    <h2>Bienvenue sur {{app_name}}!</h2>
+    <h4>Voici vos identifiants :</h4>
+    <ul>
+        <li><strong>Username :</strong> {{ username }}</li>
+    </ul>
+    <p>Veuillez cliquer sur le bouton ci-dessous pour valider votre compte :</p>
+    <div style="margin: 20px 0;">
+        <a href="{{ link }}" style="background-color: #4CAF50; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Confirmer mon compte
+        </a>
+    </div>
+    <p style="font-size: 0.8em; color: #666;">Ce lien expirera dans 15 minutes.</p>
+  </body>
+</html>
