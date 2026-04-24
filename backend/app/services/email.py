@@ -12,7 +12,7 @@ from app.core.config import settings
 from app.models.user import UserInDatabase
 from app.core.templates import email_templates
 
-template = email_templates.get_template("verfication.html")
+template = email_templates.get_template("verification.html")
 
 
 class EmailService:

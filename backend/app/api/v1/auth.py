@@ -194,13 +194,13 @@ def confirm_email(
 @router.post("/resend-verification", response_model=Message)
 @limiter.limit("2/minute")
 def resend_verification_email(
+    request: Request,
     email_in: EmailModel,
     background_tasks: BackgroundTasks,
     email_service: EmailService = Depends(get_email_service)
 ):
     email_service.resend_verification(email_in, background_tasks)
     
-
     return Message(message="Si cet email est dans le système, un nouveau lien de vérification a été envoyé")
 
 

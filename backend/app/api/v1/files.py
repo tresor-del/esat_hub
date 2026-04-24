@@ -87,6 +87,7 @@ async def get_avatar(user_id: uuid.UUID, db: Session = Depends(get_db), user_ser
     
     if not user or not user.avatar_path or not Path(user.avatar_path).exists():
         # Retourner un avatar par défaut
-        return FileResponse(settings.DEFAULT_AVATAR)
+        # return FileResponse(settings.DEFAULT_AVATAR)
+        pass
     
     return FileResponse(user.avatar_path)

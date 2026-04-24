@@ -36,7 +36,7 @@ async def lifespan(app: FastAPI):
     engine.dispose()
     
 
-app = FastAPI(title=settings.app_name)
+app = FastAPI(title=settings.APP_NAME)
 
 # Configuration CORS
 app.add_middleware(
