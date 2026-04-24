@@ -10,6 +10,7 @@ class Schools(str, enum.Enum):
 
 class Domains(str, enum.Enum):
     AERONAUTIQUE = "AERONAUTIQUE" 
+    INFORMATIQUE = "INFORMATIQUE"
 
 class Levels(str, enum.Enum):
     PREPA = "PREPA"
