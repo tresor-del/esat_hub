@@ -2,7 +2,6 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth} from "../../contexts/AuthContext";
 import { useWebSocket } from "../../contexts/WebSocketContext";
-import { HiOutlineHome } from "react-icons/hi";
 import UserMenu from "../user/UserMenu";
 import NotificationDropdown from "../notifications/NofitificationDropdown";
 import SearchDropdown from "../search/SearchDropdown";
@@ -32,15 +31,12 @@ const Navbar = () => {
           {isAuth() ? (
             <>
               
-              {/* Icone du room */}
-              <HiOutlineHome className="navbar-icon" onClick={() => navigate("/room")}/>
-              {/* Bouton de notification */}
-              <NotificationDropdown unreadCount={unreadCount} />
-
               <Link to="/create" className="btn btn-primary">
                 + Créer
               </Link>
 
+              {/* Bouton de notification */}
+              <NotificationDropdown unreadCount={unreadCount} />
 
               {user && (
                 <UserMenu className="user-menu-btn" />

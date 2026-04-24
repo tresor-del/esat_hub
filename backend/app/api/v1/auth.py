@@ -185,13 +185,13 @@ def confirm_email(
     user = email_service.validate_user(record)
 
     if not user:
-        raise HTTPException(404, "User not found")
+        raise HTTPException(404, "Utilisateur non trouvé")
     
     auth_service.confirm_user(user, record)
 
-    return Message(message="Email verified successfully")
+    return Message(message="Email vérifié avec success. Votre compte est activé")
 
-@router.post("/resend-verification", response_model=Message)
+@router.post("/resend-email", response_model=Message)
 @limiter.limit("2/minute")
 def resend_verification_email(
     request: Request,

@@ -9,8 +9,7 @@ class Schools(str, enum.Enum):
     ESAT_TOGO = "ESAT_TOGO"
 
 class Domains(str, enum.Enum):
-    AERONAUTIQUE = "AERONAUTIQUE" # Valeurs simplifiées pour la DB
-    INFORMATIQUE = "INFORMATIQUE"
+    AERONAUTIQUE = "AERONAUTIQUE" 
 
 class Levels(str, enum.Enum):
     PREPA = "PREPA"

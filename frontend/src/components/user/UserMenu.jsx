@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FiUser, FiLogOut } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
 import DropdownMenu from "../ui/DropdownMenu";
+import { HiOutlineHome } from "react-icons/hi";
 import Avatar from "../ui/Avatar";
 import "../../styles/UserMenu.css"
 
@@ -12,9 +13,9 @@ const UserMenu = (closeMenu) => {
 
 
   return (
-    <DropdownMenu trigger={<Avatar user={user} openModal={false}/>} align="right">
-        <div className="user-menu">
-           <button
+    <DropdownMenu trigger={<Avatar user={user} openModal={false} />} align="right">
+      <div className="user-menu">
+        <button
           className="user-profile-btn"
           onClick={(e) => {
             e.stopPropagation();
@@ -22,8 +23,17 @@ const UserMenu = (closeMenu) => {
             if (closeMenu) closeMenu();
           }}
         >
-            <FiUser />
-            Profile
+          <FiUser />
+          Profile
+        </button>
+
+        <button
+          className="user-profile-btn"
+          onClick={() => navigate("/room")}
+        >
+
+          <HiOutlineHome />
+          Room
         </button>
 
         <button
@@ -33,11 +43,11 @@ const UserMenu = (closeMenu) => {
             logout();
           }}
         >
-            <FiLogOut />
-            Logout
-        </button> 
-        </div>
-        
+          <FiLogOut />
+          Logout
+        </button>
+      </div>
+
     </DropdownMenu>
   );
 };

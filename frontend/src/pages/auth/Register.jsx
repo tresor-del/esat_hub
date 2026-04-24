@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { register } from '../../services/api';
+import { useEffect } from 'react';
+import { register, checkPname } from '../../services/api';
 import "../../styles/Auth.css"
 
 const Register = () => {
@@ -25,6 +26,44 @@ const Register = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  // Profil name checking
+  const [availability, setAvailability] = useState({
+    checked: false,
+    available: false,
+    message: ""
+  });
+  const [isChecking, setIsChecking] = useState(false);
+
+  useEffect(() => {
+    checkProfilName();
+  }, [formData.profilName])
+
+  const checkProfilName = () => {
+    if (!formData.profilName || formData.profilName.length < 3) {
+      setAvailability({ checked: false, available: false, message: "" });
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setIsChecking(true);
+      try {
+        const result = await checkPname(formData.profilName);
+        console.log(result)
+        setAvailability({
+          checked: true,
+          available: result.available,
+          message: result.message
+        });
+      } catch (error) {
+        console.error("Erreur de vérification:", error);
+      } finally {
+        setIsChecking(false);
+      }
+    }, 500)
+
+    return () => clearTimeout(delayDebounceFn);
+  }
 
   /**
    * Gérer les changements dans les champs du formulaire
@@ -189,7 +228,7 @@ const Register = () => {
         <form onSubmit={handleSubmit} className="form">
           {/* Champ First Name */}
           <div className="form-group">
-            
+
             <label htmlFor="firstName" className="form-label">
               First Name
             </label>
@@ -245,17 +284,33 @@ const Register = () => {
             <label htmlFor="profilName" className="form-label">
               Profil Name
             </label>
-            <input
-              type="text"
-              id="profilName"
-              name="profilName"
-              className="form-input"
-              value={formData.profilName}
-              onChange={handleChange}
-              required
-              disabled={loading}
-            />
+              <input
+                type="text"
+                id="profilName"
+                name="profilName"
+                className={`form-input ${availability.checked ? (availability.available ? 'is-valid' : 'is-invalid') : ''
+                  }`}
+                value={formData.profilName}
+                onChange={handleChange}
+                required
+                disabled={loading}
+              />
+              {isChecking && <small className="text-muted">Vérification...</small>}
+
+
+            {/* Message d'état */}
+            {availability.checked && !isChecking && (
+              <span style={{
+                fontSize: '0.8rem',
+                color: availability.available ? '#4CAF50' : '#f44336',
+                marginTop: '4px',
+                display: 'block'
+              }}>
+                {availability.message}
+              </span>
+            )}
           </div>
+
 
           <div className="form-group">
             <label htmlFor="schoolName" className='form-label'>École</label>

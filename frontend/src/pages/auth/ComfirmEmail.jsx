@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { confirmEmail } from '../../services/api';
+import { confirmEmail, resendEmail } from '../../services/api';
 
 const ConfirmEmail = () => {
   const [searchParams] = useSearchParams();
@@ -50,6 +50,15 @@ const ConfirmEmail = () => {
     verifyEmail();
   }, [searchParams]);
 
+  const ResendEmail = async () => {
+    try {
+      const result = await resendEmail();
+      setMessage(result.message || 'Email renvoyé avec succès !');
+    } catch (error) {
+      
+    }
+  }
+
   return (
     <div className="auth-container">
       <div className="auth-card">
@@ -97,16 +106,16 @@ const ConfirmEmail = () => {
               <div style={{ fontSize: '48px', textAlign: 'center', marginBottom: '16px' }}>
                 ❌
               </div>
-              <strong>Erreur de vérification</strong>
+              <strong>{message}</strong>
               <p style={{ marginTop: '8px' }}>
                 {message}
               </p>
             </div>
 
             <div style={{ marginTop: '16px', textAlign: 'center' }}>
-              <Link to="/register" className="btn btn-secondary" style={{ marginRight: '8px' }}>
-                S'inscrire à nouveau
-              </Link>
+              <button onClick={ResendEmail} className="btn btn-secondary" style={{ marginRight: '8px' }}>
+                Renvoyer l'Email
+              </button>
               <Link to="/login" className="btn btn-primary">
                 Se connecter
               </Link>

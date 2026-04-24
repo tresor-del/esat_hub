@@ -81,6 +81,16 @@ export const confirmEmail = async (token) => {
   return response.data;
 };
 
+export const resendEmail = async (email) => {
+  const response = await api.post("/auth/resend-email", { email });
+  return response.data;
+};
+
+export const checkPname = async (profilName) => {
+  const response = await api.get(`auth/check-profil-name/${profilName}`)
+  return response.data
+}
+
 /**
  * =========================================
  * POSTS API
