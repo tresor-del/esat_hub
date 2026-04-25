@@ -48,6 +48,26 @@ class Settings(BaseSettings):
     @property
     def emails_enabled(self) -> bool:
         return bool(self.SMTP_HOST and self.EMAILS_FROM_EMAIL)
+    
+    
+    SUPER_ADMIN_FIRST_NAME: str = "Admin"
+    SUPER_ADMIN_LAST_NAME: str = "Super"
+    SUPER_ADMIN_USERNAME: str = "admin@admin_school"
+    SUPER_ADMIN_PROFIL_NAME: str = "admin"
+    SUPER_ADMIN_EMAIL: str = "admin@gmail.com"
+    SUPER_ADMIN_PASSWORD: str = "admin_s"
+    SUPER_ADMIN_SCHOOL_NAME: str = "ESAT_TOGO"
+    SUPER_ADMIN_DOMAIN: str = "INFORMATIQUE"
+    SUPER_ADMIN_LEVEL: str = "PREPA"
+    SUPER_ADMIN_YEAR: str = "2_EME_ANNEE"
+    SUPER_ADMIN_ROLE: str = "ADMIN"
+    SUPER_ADMIN_STATUS: str = "ACTIVE"
+    SUPER_ADMIN_PHONE_NUMBER: str = "+22898935845"
+    SUPER_ADMIN_BIRTHDAY: str = 24/12/2004
+    SUPER_ADMIN_CARD_NUMBER: str = "ESAT-123456789"
+    
+
+
 
     
 settings = Settings()

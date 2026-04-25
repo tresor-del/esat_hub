@@ -28,7 +28,7 @@ class Post(Base):
     mime_type = Column(String(100), nullable=True)
     
     # Relation avec l'utilisateur
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     user = relationship("User", back_populates="posts")
     
     created_at = Column(DateTime, default=datetime.utcnow)

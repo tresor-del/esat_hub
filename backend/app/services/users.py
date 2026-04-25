@@ -2,7 +2,7 @@ import re
 import uuid
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.db.schemas.user import User
+from app.db.schemas.user import User, UserStatus
 from app.db.schemas.email_verification import EmailVerificationToken
 from app.models.user import  UserInDatabase
 
@@ -25,7 +25,7 @@ class AuthService:
         )
 
     def confirm_user(self, user: User, record: EmailVerificationToken):
-        user.is_verified = True
+        user.status = UserStatus.ACTIVE
         self._db.delete(record)
         self._db.commit()
         self._db.refresh(user)

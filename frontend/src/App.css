@@ -71,6 +71,7 @@ a:hover {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--spacing-md);
+  min-width: 500px;
 }
 
 
@@ -148,8 +149,6 @@ a:hover {
   opacity: 0.5;
   cursor: not-allowed;
 }
-
-
 
 .alert {
   padding: var(--spacing-md);
