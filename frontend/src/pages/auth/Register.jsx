@@ -17,7 +17,8 @@ const Register = () => {
     domain: '',
     level: '',
     year: '',
-    type: 'SIMPLE',
+    role: 'STUDENT',
+    major: '',
     password: '',
     confirmPassword: '',
   });
@@ -92,7 +93,7 @@ const Register = () => {
       !formData.schoolName ||
       !formData.domain ||
       !formData.level ||
-      !formData.year ||
+      !formData.role ||
       !formData.type) {
       setError('Veuillez remplir tous les champs');
       return false;
@@ -147,8 +148,8 @@ const Register = () => {
         school_name: rest.schoolName,
         domain: rest.domain,
         level: rest.level,
-        type: rest.type,
-        year: rest.year,
+        major: rest.major,
+        role: rest.role,
         password: rest.password
       }
 
@@ -330,6 +331,15 @@ const Register = () => {
           </div>
 
           <div className="form-group">
+            <label htmlFor="major" className='form-label'>Filiere</label>
+            <select className='form-select' name="major" value={formData.major} onChange={handleChange}>
+              <option value="">Choisir...</option>
+              <option value="IA">Intelligence Artificielle</option>
+              <option value="CYBERSECURITE">Cybersécurité</option>
+            </select>
+          </div>
+
+          <div className="form-group">
             <label htmlFor="level" className='form-label'>Niveau</label>
             <select className='form-select' name="level" value={formData.level} onChange={handleChange}>
               <option value="">Choisir...</option>
@@ -350,12 +360,10 @@ const Register = () => {
 
 
           <div className="form-group">
-            <label htmlFor="type" className='form-label'>Rôle</label>
-            <select className='form-select' name="type" value={formData.type} onChange={handleChange}>
+            <label htmlFor="role" className='form-label'>Rôle</label>
+            <select className='form-select' name="role" value={formData.role} onChange={handleChange} disabled>
               <option value="">Choisir...</option>
-              <option value="SIMPLE">Étudiant</option>
-              <option value="DELEGUE">Délégué</option>
-            </select>
+              <option value="STUDENT" selected>Étudiant</option>            </select>
           </div>
 
           {/* Champ Mot de passe */}

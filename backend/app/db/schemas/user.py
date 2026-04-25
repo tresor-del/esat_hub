@@ -5,26 +5,37 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.db.database import Base
 
-class Schools(str, enum.Enum):
+class School(str, enum.Enum):
     ESAT_TOGO = "ESAT_TOGO"
 
-class Domains(str, enum.Enum):
+class Domain(str, enum.Enum):
     AERONAUTIQUE = "AERONAUTIQUE" 
     INFORMATIQUE = "INFORMATIQUE"
 
-class Levels(str, enum.Enum):
+class Level(str, enum.Enum):
     PREPA = "PREPA"
     INGE = "INGE"
 
-class Types(str, enum.Enum):
-    DELEGUE = "DELEGUE"
-    SIMPLE = "SIMPLE"
-    ADMIN = "ADMIN"
-
-class Years(str, enum.Enum):
+class Year(str, enum.Enum):
     PREMIERE_ANNEE = "1_ERE_ANNEE"
     DEUXIEME_ANNEE = "2_EME_ANNEE"
     TROISIEME_ANNEE = "3_EME_ANNEE"
+
+class Major(str, enum.Enum):
+    IA = "IA"
+    CYBERSECURITE = "CYBERSÉCURITÉ"
+    GENIE_LOGICIEL = "GENIE LOGICIEL"
+    GENIE_MECANIQUE = "GENIE MECANIQUE"
+
+
+class UserRole(str, enum.Enum):
+    ADMIN = "ADMIN"
+    STUDENT = "STUDENT"
+
+class UserStatus(str, enum.Enum):
+    ACTIVE = "ACTIVE"
+    PENDING = "PENDING"
+    INACTIVE = "INACTIVE"
 
 class User(Base):
     __tablename__ = "users"
@@ -41,27 +52,30 @@ class User(Base):
     birthday = Column(Date, nullable=True, index=True)
     card_number = Column(String, unique=True, nullable=True, index=True)
 
-    type = Column(Enum(Types, name="types"), nullable=True, index=True, server_default=Years.PREMIERE_ANNEE.value)
-    year = Column(Enum(Years, name="years"), nullable=True, index=True, server_default=Years.DEUXIEME_ANNEE.value)
+    role = Column(Enum(UserRole, name="userrole"), nullable=True, index=True, server_default=UserRole.STUDENT.value)
+    major = Column(Enum(Major, name="major"), nullable=True, index=True, server_default=Major.IA.value)
 
-    # Utilisation de server_default pour la cohérence avec la DB
+    status = Column(Enum(UserStatus, name="status"), nullable=True, index=True, server_default=UserStatus.PENDING.value)
+
+    year = Column(Enum(Year, name="year"), nullable=True, index=True, server_default=Year.DEUXIEME_ANNEE.value)
+
     school_name = Column(
-        Enum(Schools, name="schools"), 
+        Enum(School, name="school"), 
         index=True, 
         nullable=False, 
-        server_default=Schools.ESAT_TOGO.value
+        server_default=School.ESAT_TOGO.value
     )
     domain = Column(
-        Enum(Domains, name="domains"), 
+        Enum(Domain, name="domain"), 
         index=True, 
         nullable=False, 
-        server_default=Domains.INFORMATIQUE.value
+        server_default=Domain.INFORMATIQUE.value
     )
     level = Column(
-        Enum(Levels, name="levels"), 
+        Enum(Level, name="level"), 
         index=True, 
         nullable=False, 
-        server_default=Levels.PREPA.value
+        server_default=Level.PREPA.value
     )
     
     avatar_path = Column(String, nullable=True)

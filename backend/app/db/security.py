@@ -64,7 +64,7 @@ def authenticate_user(db: Session, username: str, password: str):
         )
     
     # Vérifier si l'email est vérifié
-    if not user.is_verified:
+    if not user.status == "ACTIVE":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Email not verified. Please check your inbox."

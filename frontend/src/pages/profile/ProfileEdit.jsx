@@ -22,7 +22,7 @@ const ProfileEdit = () => {
         school_name: '',
         domain: '',
         level: '',
-        type: '',
+        major: '',
         year: '',
         phone_number: '',
         card_number: '',
@@ -50,7 +50,7 @@ const ProfileEdit = () => {
                 school_name: result.school_name || '',
                 domain: result.domain || '',
                 level: result.level || '',
-                type: result.type || '',
+                major: result.major || '',
                 year: result.year || '',
                 phone_number: result.phone_number || '',
                 card_number: result.card_number || '',
@@ -383,18 +383,18 @@ const ProfileEdit = () => {
 
                         <div className="form-group">
                             <label htmlFor="type" className="form-label">
-                                Type
+                                Filiere
                             </label>
                             <select
-                                name="type"
-                                value={formData.type}
+                                name="major"
+                                value={formData.major}
                                 onChange={handleChange}
                                 disabled={loading}
                                 className="form-input"
                             >
                                 <option value="">Choisir...</option>
-                                <option value="SIMPLE">Étudiant</option>
-                                <option value="DELEGUE">Délégué</option>
+                                <option value="IA">Intelligence Artificielle</option>
+                                <option value="CYBERSECURITE">Cybersécurité</option>
                             </select>
                         </div>
                         <button

@@ -12,9 +12,15 @@ class UserBase(BaseModel):
     school_name: Optional[str] = None
     domain: Optional[str] = None
     level: Optional[str] = None
-    type: Optional[str] = None
+    role: Optional[str] = None
+    major: Optional[str] = None
     year: Optional[str] = None
     email: EmailStr
+    user_room_id: Optional[uuid.UUID] = None
+    phone_number: Optional[str] = None
+    birthday: Optional[datetime] = None
+    card_number: Optional[str] = None
+    status: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -28,7 +34,9 @@ class UserUpdate(BaseModel):
     school_name: Optional[str] = None
     domain: Optional[str] = None
     level: Optional[str] = None
-    type: Optional[str] = None
+    role: Optional[str] = None
+    major: Optional[str] = None
+    status: Optional[str] = None
     year: Optional[str] = None
     email: Optional[EmailStr] = None
     birthday: Optional[datetime] = None
@@ -41,13 +49,16 @@ class UserInDatabase(UserBase):
     hashed_password: str
     username: str
     user_room_id: Optional[uuid.UUID] =  None
-    is_verified: bool
 
 class UserResponse(UserBase):
     id: uuid.UUID
     is_verified: Optional[bool] = False
     username: Optional[str] = None
-    user_room_id: Optional[uuid.UUID] =  None
+    user_room_id: Optional[uuid.UUID] = None
+    phone_number: Optional[str] = None
+    birthday: Optional[datetime] = None
+    card_number: Optional[str] = None
+    status: Optional[str] = None
 
 class UserListResponse(BaseModel):
     total: int

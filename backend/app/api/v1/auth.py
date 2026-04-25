@@ -37,7 +37,7 @@ def login(
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
 
-    if not user.is_verified:
+    if not user.status == "ACTIVE":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Please verify your email before logging in."
@@ -147,9 +147,9 @@ def register(
         school_name=user_in.school_name,
         domain=user_in.domain,
         level=user_in.level,
-        type=user_in.type,
+        role=user_in.role,
+        major=user_in.major,
         year=user_in.year,
-        is_verified=False,
         user_room_id=user_room_id,
         hashed_password=hash_password(user_in.password)
     )

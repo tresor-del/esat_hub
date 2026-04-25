@@ -127,7 +127,6 @@ const UserProfile = () => {
               )}
             </div>
 
-
           </div>
 
           {/* Informations */}
@@ -135,14 +134,12 @@ const UserProfile = () => {
 
             <h1 className="profile-name">{profile.profil_name}</h1>
 
-
             <div className="profile-meta">
 
-            
               <div className="info">
                 <div className="profile-meta-item">
                   <MdOutlineDomainVerification size={16} />
-                  <span>{profile.domain}</span>
+                  <span>{profile.domain}-{profile.major}</span>
                 </div>
 
                 <div className="profile-meta-item">
@@ -150,12 +147,6 @@ const UserProfile = () => {
                   <span>{profile.level}-{profile.year}</span>
                 </div>
 
-                {profile.created_at && (
-                  <div className="profile-meta-item">
-                    <FiCalendar size={16} />
-                    <span>Membre depuis {formatDate(profile.created_at)}</span>
-                  </div>
-                )}
               </div>
               <div className="qr-code">
                 <QRCode

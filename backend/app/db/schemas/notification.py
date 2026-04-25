@@ -15,7 +15,7 @@ class Notification(Base):
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.UTC))
 
-    recipient_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    recipient_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     recipient = relationship("User", foreign_keys=[recipient_id], back_populates="notifications")
 
     sender_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
