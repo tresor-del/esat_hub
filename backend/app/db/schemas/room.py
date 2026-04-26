@@ -20,7 +20,7 @@ class Room(Base):
     
     users = relationship("User", back_populates="user_room", foreign_keys="User.user_room_id")
 
-    rep_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    rep_id = Column(UUID(as_uuid=True), ForeignKey("users.id", use_alter=True), nullable=True)
     rep = relationship("User", back_populates="room_rep", foreign_keys=[rep_id])
 
     posts = relationship("Post", back_populates="post_room")

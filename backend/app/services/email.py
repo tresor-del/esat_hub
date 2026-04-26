@@ -78,13 +78,14 @@ class EmailService:
     
     def resend_verification_email(self, email: str, bg_tasks: BackgroundTasks):
 
-        user = self._db.query(User).filter(User.email == email).first()
+        user = self._db.query(User).filter(User.email == str(email)).first()
 
-        if not user or user.is_verified:
+        if not user or user.status == "ACTIVE":
             return 
         
         self._db.query(EmailVerificationToken).filter(EmailVerificationToken.user_id == user.id).delete()
 
         new_token = self.create_verification_email(user.id)
 
-        bg_tasks.add_task(self.send_verification_email, email, new_token)
+        user_in = UserInDatabase.model_validate(user)
+        bg_tasks.add_task(self.send_verification_email, user_in, new_token)

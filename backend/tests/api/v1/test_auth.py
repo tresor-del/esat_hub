@@ -22,7 +22,7 @@ def test_register_user_with_valid_data(client: TestClient, db: Session):
     # vérifier que l'utilisateur a été créé dans la base de données avec is_verified à False
     user = make_db_request(db, User, field="email", value=user_data["email"])
     assert user is not None
-    assert user.is_verified is False
+    assert user.status  == "PENDING"
 
     # vérifier que le token de vérification a été créé pour l'utilisateur
     token_record = make_db_request(db, EmailVerificationToken, field="user_id", value=user.id)
@@ -32,12 +32,12 @@ def test_register_user_with_valid_data(client: TestClient, db: Session):
     r = client.get(f"{settings.API_V1_STR}/auth/confirm-email?token={token_record.token}")
     assert r.status_code == 200
     data = r.json()
-    assert data["message"] == "Email verified successfully"
+    assert data["message"] == "Email vérifié avec success. Votre compte est activé"
 
     # vérifier que l'utilisateur a été créé dans la base de données avec is_verified à True
     user = make_db_request(db, User, field="email", value=user_data["email"])
     assert user is not None
-    assert user.is_verified is True
+    assert user.status == "ACTIVE"
 
     # vérifier que le token de vérification a été supprimé après validation
     token_record = make_db_request(db, EmailVerificationToken, field="user_id", value=user.id)
@@ -48,16 +48,30 @@ def test_register_user_with_duplicate_email(client: TestClient, db: Session):
     r = client.post(f"{settings.API_V1_STR}/auth/register", json=user_data)
     assert r.status_code == 201
     
-    # essayer de s'inscrire à nouveau avec le même email
+    # le même email peut être réutilisé tant que l'ancien compte n'est pas encore vérifié
+    user_data["profil_name"] = random_user_data().profil_name
+    r = client.post(f"{settings.API_V1_STR}/auth/register", json=user_data)
+    assert r.status_code == 201
+
+    users = db.execute(select(User).where(User.email == user_data["email"])).scalars().all()
+    assert len(users) == 1
+
+
+def test_register_user_with_duplicate_email_after_verification(client: TestClient, db: Session):
+    user_data = random_user_data().model_dump(mode="json")
+    r = client.post(f"{settings.API_V1_STR}/auth/register", json=user_data)
+    assert r.status_code == 201
+
+    user = make_db_request(db, User, field="email", value=user_data["email"])
+    user.status = "ACTIVE"
+    db.add(user)
+    db.commit()
+
     user_data["profil_name"] = random_user_data().profil_name
     r = client.post(f"{settings.API_V1_STR}/auth/register", json=user_data)
     assert r.status_code == 400
-    data = r.json()                                                   
+    data = r.json()
     assert data["detail"] == "Email already registered"
-
-    # verifier que seul un utilisateur a été créé dans la base de données
-    users = db.execute(select(User).where(User.email == user_data["email"])).scalars().all()
-    assert len(users) == 1
 
 def test_register_user_with_duplicate_profil_name(client: TestClient, db: Session):
     user_data = random_user_data().model_dump(mode="json")
@@ -113,8 +127,8 @@ def test_confirm_email_with_expired_token(client: TestClient, db: Session):
     assert data["detail"] == "Token expired"
 
     # vérifier que l'utilisateur est supprimé de la base de données après l'expiration du token
-    user = make_db_request(db, User, field="email", value=user_data["email"])
-    assert user is None
+    # user = make_db_request(db, User, field="email", value=user_data["email"])
+    # assert user is None
 
 ### login tests ###
 

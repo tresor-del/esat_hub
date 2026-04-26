@@ -7,7 +7,7 @@ from app.models.user import UserResponse
 
 class CommentCreate(BaseModel):
     content: str
-    user_id: uuid.UUID
+    user_id: Optional[uuid.UUID] = None  # Optional - will be set from current_user in endpoint
     post_id: int
     parent_id: Optional[uuid.UUID] = None
 

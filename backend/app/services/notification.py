@@ -62,7 +62,6 @@ class NotificationService:
                     school_name=recipient.school_name,
                     domain=recipient.domain,
                     level=recipient.level,
-                    type=recipient.type,
                     year=recipient.year,
                     id=recipient.id,
                     is_verified=recipient.is_verified,

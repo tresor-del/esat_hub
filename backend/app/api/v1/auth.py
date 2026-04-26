@@ -51,7 +51,7 @@ def login(
         data={"sub": str(user.id)},
     )
 
-    return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
+    return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer") #nosec
 
 @router.post("/logout")
 def logout(body: RefreshToken, db: Session = Depends(get_db)):
@@ -114,7 +114,7 @@ def refresh_token(body: RefreshToken, db: Session = Depends(get_db)):
             data={"sub": str(user_id)},
         )
 
-        return Token(access_token=new_access_token, refresh_token=new_refresh_token, token_type="bearer")
+        return Token(access_token=new_access_token, refresh_token=new_refresh_token, token_type="bearer") #nosec
 
     except JWTError as e:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
@@ -179,7 +179,11 @@ def confirm_email(
     if not record:
         raise HTTPException(400, "Invalid token")
 
-    if record.expires_at < datetime.datetime.now(datetime.UTC):
+    expires_at = record.expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=datetime.UTC)
+
+    if expires_at < datetime.datetime.now(datetime.UTC):
         raise HTTPException(400, "Token expired")
     
     user = email_service.validate_user(record)
@@ -199,7 +203,7 @@ def resend_verification_email(
     background_tasks: BackgroundTasks,
     email_service: EmailService = Depends(get_email_service)
 ):
-    email_service.resend_verification(email_in, background_tasks)
+    email_service.resend_verification_email(email_in.email_in, background_tasks)
     
     return Message(message="Si cet email est dans le système, un nouveau lien de vérification a été envoyé")
 

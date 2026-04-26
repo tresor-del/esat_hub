@@ -17,9 +17,9 @@ class Level(str, enum.Enum):
     INGE = "INGE"
 
 class Year(str, enum.Enum):
-    PREMIERE_ANNEE = "1_ERE_ANNEE"
-    DEUXIEME_ANNEE = "2_EME_ANNEE"
-    TROISIEME_ANNEE = "3_EME_ANNEE"
+    PREMIERE_ANNEE = "PREMIERE_ANNEE"
+    DEUXIEME_ANNEE = "DEUXIEME_ANNEE"
+    TROISIEME_ANNEE = "TROISIEME_ANNEE"
 
 class Major(str, enum.Enum):
     IA = "IA"
@@ -52,27 +52,27 @@ class User(Base):
     birthday = Column(Date, nullable=True, index=True)
     card_number = Column(String, unique=True, nullable=True, index=True)
 
-    role = Column(Enum(UserRole, name="userrole"), nullable=True, index=True, server_default=UserRole.STUDENT.value)
-    major = Column(Enum(Major, name="major"), nullable=True, index=True, server_default=Major.IA.value)
+    role = Column(Enum(UserRole, name="userrole", values_callable=lambda x: [e.value for e in x]), nullable=True, index=True, server_default=UserRole.STUDENT.value)
+    major = Column(Enum(Major, name="major", values_callable=lambda x: [e.value for e in x]), nullable=True, index=True, server_default=Major.IA.value)
 
-    status = Column(Enum(UserStatus, name="status"), nullable=True, index=True, server_default=UserStatus.PENDING.value)
+    status = Column(Enum(UserStatus, name="status", values_callable=lambda x: [e.value for e in x]), nullable=True, index=True, server_default=UserStatus.PENDING.value)
 
-    year = Column(Enum(Year, name="year"), nullable=True, index=True, server_default=Year.DEUXIEME_ANNEE.value)
+    year = Column(Enum(Year, name="year", values_callable=lambda x: [e.value for e in x]), nullable=True, index=True, server_default=Year.DEUXIEME_ANNEE.value)
 
     school_name = Column(
-        Enum(School, name="school"), 
+        Enum(School, name="school", values_callable=lambda x: [e.value for e in x]), 
         index=True, 
         nullable=False, 
         server_default=School.ESAT_TOGO.value
     )
     domain = Column(
-        Enum(Domain, name="domain"), 
+        Enum(Domain, name="domain", values_callable=lambda x: [e.value for e in x]), 
         index=True, 
         nullable=False, 
         server_default=Domain.INFORMATIQUE.value
     )
     level = Column(
-        Enum(Level, name="level"), 
+        Enum(Level, name="level", values_callable=lambda x: [e.value for e in x]), 
         index=True, 
         nullable=False, 
         server_default=Level.PREPA.value
@@ -109,7 +109,7 @@ class User(Base):
         )
     
     
-    user_room_id = Column(UUID(as_uuid=True), ForeignKey("rooms.id"), index=True, nullable=True)
+    user_room_id = Column(UUID(as_uuid=True), ForeignKey("rooms.id", use_alter=True), index=True, nullable=True)
     user_room = relationship("Room", back_populates="users", foreign_keys=[user_room_id])
 
     room_rep = relationship("Room", back_populates="rep", foreign_keys="[Room.rep_id]")

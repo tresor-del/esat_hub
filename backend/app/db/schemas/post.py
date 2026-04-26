@@ -1,7 +1,7 @@
 # app/db/schemas/post.py (VERSION MISE À JOUR)
 from sqlalchemy import UUID, Column, Integer, String, Text, DateTime, Enum, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime
+import datetime
 import enum
 import uuid
 from app.db.database import Base
@@ -31,8 +31,8 @@ class Post(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     user = relationship("User", back_populates="posts")
     
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc), onupdate=lambda: datetime.datetime.now(datetime.timezone.utc))
 
     comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
 
