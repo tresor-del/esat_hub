@@ -49,6 +49,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
     return user
 
 
+
+
 def get_auth_service(session = Depends(get_db)) -> AuthService:
     return AuthService(session)
 
@@ -69,3 +71,31 @@ def get_notification_service(session = Depends(get_db)):
 
 def get_room_service(session = Depends(get_db)):
     return RoomService(session)
+
+
+async def get_current_admin(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Session = Depends(get_db)
+) -> User:
+    """
+    Dependency to verify the current user is an admin.
+    Used for admin-only routes.
+    """
+    from app.db.schemas.user import UserRole
+    
+    # Check if user is admin
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin privileges required"
+        )
+    return current_user
+
+
+async def get_admin_service(db: Session = Depends(get_db)):
+    """
+    Dependency to get the admin service.
+    Provides admin-specific functionality.
+    """
+    from app.services.admin import AdminService
+    return AdminService(db)

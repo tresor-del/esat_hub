@@ -16,7 +16,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 
-from app.db.schemas.user import User
+from app.db.schemas.user import User, UserRole, UserStatus
 from tests.utils import random_user_in_db
 from app.db.database import Base, engine
 from app.main import app
@@ -77,6 +77,8 @@ def client(db):
     with TestClient(app) as c:
         yield c
 
+# Random user
+
 @pytest.fixture(scope="function")
 def test_user_with_password(db):
     user_data, password = random_user_in_db()
@@ -103,3 +105,21 @@ def refresh_token_for_test_user(test_user_with_password):
 @pytest.fixture(scope="function")
 def access_token_for_test_user(test_user_with_password):
     return create_access_token(data={"sub": str(test_user_with_password[0].id)})
+
+# Admin user
+
+@pytest.fixture(scope="function")
+def admin(db):
+    admin_data, _ = random_user_in_db()
+    admin_data.role = UserRole.ADMIN
+    admin_data.status = UserStatus.ACTIVE
+    admin = User(**admin_data.model_dump())
+    db.add(admin)
+    db.commit()
+    db.refresh(admin)
+    return admin
+
+@pytest.fixture(scope="function")
+def admin_auth_headers(admin):
+    access_token = create_access_token(data={"sub": str(admin.id)})
+    return {"Authorization": f"Bearer {access_token}"}

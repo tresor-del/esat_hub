@@ -1,5 +1,5 @@
 from pathlib import Path
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 # On définit le chemin vers le dossier templates
 BASE_DIR = Path(__file__).resolve().parent.parent
