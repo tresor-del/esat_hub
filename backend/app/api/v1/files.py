@@ -4,7 +4,9 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-from app.dependencies import get_db, get_current_user, get_post_service, get_file_service, get_auth_service
+from app.api.deps.auth import get_current_user
+from app.api.deps.db import get_db
+from app.api.deps.services import get_post_service, get_file_service, get_auth_service
 from app.db.schemas.user import User
 from app.core.config import settings
 from app.services.posts import PostService

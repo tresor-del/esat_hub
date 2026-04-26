@@ -14,15 +14,16 @@ os.environ.setdefault("SUPER_ADMIN_BIRTHDAY", "2000-01-01")
 import pytest 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
 
 from app.db.schemas.user import User, UserRole, UserStatus
 from tests.utils import random_user_in_db
 from app.db.database import Base, engine
 from app.main import app
-from app.dependencies import get_db
+from app.api.deps.db import get_db
 from app.db.security import create_access_token, create_refresh_token
-from app.dependencies import get_auth_service
+from app.api.deps.services import get_auth_service
 
 
 # Base de donnée sqlite en memmoire pour les tests
@@ -31,7 +32,7 @@ SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 connect_args = {"check_same_thread": False}  # permet a plusieurs threads d'accéder à la même base de données en mémoire
 
 # moteur sqlalchemy qui permet de se connecter à la base de donnée
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args=connect_args)
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args=connect_args, poolclass=StaticPool)
 
 # crées mes tables dans la base de données pour les tests
 Base.metadata.create_all(bind=engine)
@@ -66,10 +67,7 @@ def db(setup_database):
 def client(db):
 
     def get_test_db():
-        try:
-            yield db
-        finally:
-            db.close()
+        yield db
 
     # override de la dépendance get_db pour utiliser la session de test au lieu de la session de production
     app.dependency_overrides[get_db] = get_test_db

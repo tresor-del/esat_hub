@@ -1,15 +1,15 @@
 import os
 import uuid
-from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 
 from app.db.schemas.user import User
 
-from sqlalchemy.orm import Session
 
-from app.dependencies import get_current_user, get_db
+from app.api.deps.auth import get_current_user
+from app.api.deps.db import get_db
 from app.core.config import settings
-from app.dependencies import get_auth_service
+from app.api.deps.services import get_auth_service
 from app.models.user import UserUpdate
 
 
