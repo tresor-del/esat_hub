@@ -8,7 +8,8 @@ from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.dependencies import get_db, get_auth_service, get_email_service, get_room_service
+from app.api.deps.db import get_db
+from app.api.deps.services import get_auth_service, get_email_service, get_room_service
 from app.models.token import Token
 from app.db.security import create_access_token, create_refresh_token, hash_password
 from app.models.user import UserCreate, UserInDatabase

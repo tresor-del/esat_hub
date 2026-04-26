@@ -2,7 +2,8 @@ import uuid
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, status, HTTPException, Depends
 
-from app.dependencies import get_current_user, get_comment_service, get_post_service, get_notification_service, get_auth_service
+from app.api.deps.auth import get_current_user
+from app.api.deps.services import get_comment_service, get_post_service, get_notification_service, get_auth_service
 from app.db.schemas.user import User
 from app.services.comment import CommentService
 from app.models.comment import CommentCreate

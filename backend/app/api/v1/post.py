@@ -4,7 +4,9 @@ from fastapi import APIRouter, File, UploadFile, Form, Depends, HTTPException, s
 from sqlalchemy.orm import Session
 from typing import Optional
 
-from app.dependencies import get_db, get_current_user, get_file_service, get_post_service, get_notification_service, get_auth_service
+from app.api.deps.auth import get_current_user
+from app.api.deps.services import get_post_service, get_file_service, get_notification_service, get_auth_service
+from app.api.deps.db import get_db
 from app.models.post import PostResponse, PostListResponse, PostType
 from app.services.files import FileService  
 from app.db.schemas.user import User
