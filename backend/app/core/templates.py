@@ -6,4 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = BASE_DIR / "templates" / "emails"
 
 # On crée l'environnement Jinja2 une seule fois
-email_templates = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
+email_templates = Environment(
+    loader=FileSystemLoader(str(TEMPLATES_DIR)),
+    autoescape=select_autoescape(['html', 'xml'])
+)

@@ -32,7 +32,7 @@ def get_comment(
     
     return comment
 
-@router.post("/create")
+@router.post("/create", status_code=status.HTTP_201_CREATED)
 async def create_comment(
     data: CommentCreate,
     current_user: User = Depends(get_current_user),

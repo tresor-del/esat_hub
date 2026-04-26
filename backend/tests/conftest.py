@@ -1,3 +1,16 @@
+import os
+# Set required environment variables before importing app modules
+os.environ.setdefault("SECRET_KEY", "test-secret-key-for-testing")
+os.environ.setdefault("REFRESH_SECRET_KEY", "test-refresh-secret-key-for-testing")
+os.environ.setdefault("SQLALCHEMY_DATABASE_URI", "sqlite:///:memory:")
+os.environ.setdefault("SMTP_HOST", "test-smtp-host")
+os.environ.setdefault("SMTP_PORT", "587")
+os.environ.setdefault("SMTP_USER", "test-smtp-user")
+os.environ.setdefault("SMTP_PASSWORD", "test-smtp-password")
+os.environ.setdefault("EMAILS_FROM_EMAIL", "test@example.com")
+os.environ.setdefault("EMAILS_FROM_NAME", "Test App")
+os.environ.setdefault("SUPER_ADMIN_BIRTHDAY", "2000-01-01")
+
 import pytest 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -78,7 +91,8 @@ def test_user_with_password(db):
     return test_user, password
 
 @pytest.fixture(scope="function")
-def auth_headers(test_user):
+def auth_headers(test_user_with_password):
+    test_user, _ = test_user_with_password
     access_token = create_access_token(data={"sub": str(test_user.id)})
     return {"Authorization": f"Bearer {access_token}"}
 

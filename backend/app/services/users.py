@@ -36,7 +36,7 @@ class AuthService:
         if not user:
             return False
         
-        if not user.is_verified:
+        if not user.status == UserStatus.ACTIVE:
             self._db.delete(user)
             self._db.commit()
             return False 
