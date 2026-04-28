@@ -6,6 +6,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import { registerSW } from 'virtual:pwa-register'
+
+// Enregistre le service worker
+registerSW({ immediate: true })
+
 
 // Créer le root et monter l'application
 ReactDOM.createRoot(document.getElementById("root")).render(

@@ -6,6 +6,7 @@ import UserMenu from "../user/UserMenu";
 import NotificationDropdown from "../notifications/NofitificationDropdown";
 import SearchDropdown from "../search/SearchDropdown";
 import { FiSettings } from "react-icons/fi";
+import InstallPWA from "./InstallPWA";
 import "../../styles/Navbar.css"
 
 const Navbar = () => {
@@ -32,6 +33,8 @@ const Navbar = () => {
         <div className="navbar-menu">
           {isAuth() ? (
             <>
+
+            <InstallPWA />
               
               <Link to="/create" className="btn btn-primary">
                 + Créer

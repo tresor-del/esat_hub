@@ -199,3 +199,20 @@
   cursor: pointer;
   color: #444;
 }
+
+.btn-install {
+  background-color: #1e3a8a; /* Le bleu de ton beau logo ! */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: transform 0.2s;
+}
+
+.btn-install:hover {
+  transform: scale(1.05);
+  background-color: #162d6d;
+}

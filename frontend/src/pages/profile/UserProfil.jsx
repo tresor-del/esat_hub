@@ -142,7 +142,7 @@ const UserProfile = () => {
                 </div>
                 <div className="profile-meta-item">
                   <QRCode
-                    value={profile.card_number}
+                    value={profile?.card_number}
                     size={64}      // C'est ici que tu règles la taille (en pixels)
                     level="H"      // Optionnel : niveau de correction d'erreur (L, M, Q, H)
                     style={{ height: "auto", maxWidth: "100%", width: "100%" }} // Optionnel : pour le rendre responsive
