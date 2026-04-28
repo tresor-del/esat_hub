@@ -7,7 +7,7 @@ from app.api.deps.services import get_admin_service, get_notification_service
 from app.db.schemas.user import User
 from app.services.admin.manager import AdminService
 from app.services.notification import NotificationService
-from app.models.user import UserResponse
+from app.models.user import UserListResponse, UserResponse
 from app.models.notifications import NotificationResponse
 
 router = APIRouter()
@@ -26,7 +26,7 @@ async def search_users(
         "results": [admin_service.users.create_user_response(u) for u in users]
     }
 
-@router.get("/users", response_model=dict)
+@router.get("/users", response_model=UserListResponse)
 async def get_all_users(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
@@ -49,7 +49,7 @@ async def get_all_users(
     
     return {
         "total": total,
-        "users": [admin_service.users.create_user_response(u) for u in users]
+        "users": users
     }
 
 

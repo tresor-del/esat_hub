@@ -49,6 +49,21 @@
   text-decoration: none;
 }
 
+.admin-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.admin-link:hover {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
 .notifications-link {
   position: relative;
 }

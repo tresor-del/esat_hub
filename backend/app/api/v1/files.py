@@ -29,16 +29,16 @@ def download_file(
             detail="Post non trouvé"
         )
     
-    if not Path(db_post.get("file_path")).exists():
+    if not Path(db_post.file_path).exists():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Fichier non trouvé"
         )
     
     return FileResponse(
-        path=db_post.get("file_path"),
-        filename=db_post.get("file_name"),
-        media_type=db_post.get("mime_type")
+        path=db_post.file_path,
+        filename=db_post.file_name,
+        media_type=db_post.mime_type
     )
 
 
@@ -90,6 +90,6 @@ async def get_avatar(user_id: uuid.UUID, db: Session = Depends(get_db), user_ser
     if not user or not user.avatar_path or not Path(user.avatar_path).exists():
         # Retourner un avatar par défaut
         # return FileResponse(settings.DEFAULT_AVATAR)
-        pass
+        return None
     
     return FileResponse(user.avatar_path)

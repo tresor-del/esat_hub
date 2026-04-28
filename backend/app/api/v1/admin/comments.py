@@ -21,7 +21,7 @@ async def get_comment_statistics(
     """Get comment statistics (admin only)."""
     return admin_service.comments.get_comment_statistics()
 
-@router.get("/comments", response_model=dict)
+@router.get("/comments")
 async def get_all_comments(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),

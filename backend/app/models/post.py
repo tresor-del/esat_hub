@@ -4,6 +4,8 @@ from datetime import datetime
 from typing import Optional
 from enum import Enum
 
+from app.models.user import UserResponse
+
 class PostType(str, Enum):
     PHOTO = "photo"
     DOCUMENT = "document"
@@ -43,10 +45,15 @@ class PostResponse(PostBase):
     mime_type: Optional[str]
     created_at: datetime
     updated_at: datetime
-    user: UserPublic
+    user: UserResponse
+    status: str
 
     model_config = ConfigDict(from_attributes=True)
 
 class PostListResponse(BaseModel):
     total: int
     posts: list[PostResponse]
+
+class PostUpdateResponse(BaseModel):
+    message: str
+    post: PostResponse 

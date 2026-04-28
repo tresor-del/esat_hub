@@ -79,6 +79,7 @@ const Home = () => {
         const roomId = filterType === "private" ? user?.user_room_id : null;
         console.log("room_id au moment du call:", room_id);
         result = await getPosts({ skip, limit: postsPerPage, roomId });
+        console.log(result)
       }
 
 

@@ -15,6 +15,11 @@ class PostType(str, enum.Enum):
     DEVOIR = "devoir"
     EVENEMENT = "evenement"
 
+class PostStatus(str, enum.Enum):
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+
+
 
 class Post(Base):
     __tablename__ = "posts"
@@ -26,6 +31,7 @@ class Post(Base):
     file_path = Column(String(500), nullable=True)
     file_name = Column(String(255), nullable=True)
     mime_type = Column(String(100), nullable=True)
+    status = Column(Enum(PostStatus), nullable=True, server_default=PostStatus.ACTIVE.value)
     
     # Relation avec l'utilisateur
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)

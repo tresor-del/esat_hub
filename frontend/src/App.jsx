@@ -31,6 +31,7 @@ import PostEdit from "./pages/posts/PostEdit";
 import UserProfil from "./pages/profile/UserProfil"
 import ProfileEdit from "./pages/profile/ProfileEdit"
 import Room from "./pages/room/Room";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 // Styles (split into ./styles/*.css)
 import "./App.css"
@@ -95,6 +96,7 @@ const AppRoutes = () => {
         <Route path="/profile/:id" element={<UserProfil />} />
         <Route path="/profile/edit" element={<ProfileEdit />} />
         <Route path="/room" element={<Room />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/" element={<Home />} />
       </Route>
 

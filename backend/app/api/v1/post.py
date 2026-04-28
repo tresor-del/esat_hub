@@ -114,6 +114,7 @@ def read_posts(
     my_posts: bool = Query(False),
     id: Optional[UUID] = None,
     room_id: Optional[UUID] = None,
+    all_posts: bool = Query(False, description="Inclure tous les posts (general + private)"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
     post_service: PostService = Depends(get_post_service)
@@ -131,7 +132,8 @@ def read_posts(
         limit=limit,
         post_type=post_type.value if post_type else None,
         user_id=target_user_id,
-        room_id=room_id
+        room_id=room_id,
+        include_all=all_posts
     )
     
     return PostListResponse(total=total, posts=posts)
@@ -179,7 +181,7 @@ async def update_post(
             detail="Post non trouvé"
         )
     
-    if db_post.get("user_id") != current_user.id:
+    if db_post.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Vous n'avez pas la permission de modifier ce post"
@@ -195,10 +197,10 @@ async def update_post(
             # Nouveau fichier uploadé
             # Supprimer l'ancien fichier
             
-            file_service.delete_file_path(db_post.get("file_path"))
+            file_service.delete_file_path(db_post.file_path)
 
             #Sauvegarder le nouveau fichier
-            file_type = post_type.value if post_type else db_post.get("post_type")
+            file_type = post_type.value if post_type else db_post.post_type
             new_file_path, new_file_name = file_service.save_upload_file(
                  upload_file=file,
                  post_type=file_type
@@ -208,7 +210,7 @@ async def update_post(
         
         elif remove_file:
              # Supprimer le fichier existant
-             file_service.delete_file_path(db_post.get("file_path"))
+             file_service.delete_file_path(db_post.file_path)
     
         # Mettre à jour le post
         db_post = post_service.update_post(
@@ -247,7 +249,7 @@ def delete_post(
             detail="Post non trouvé"
         )
     
-    if db_post.get("user_id") != current_user.id:
+    if db_post.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Vous n'avez pas la permission de supprimer ce post"
@@ -255,7 +257,7 @@ def delete_post(
     
     # Supprimer le fichier
     try:
-        file_service.delete_file_path(db_post.get("file_path"))
+        file_service.delete_file_path(db_post.file_path)
     except Exception as e:
         logger.error(f"Erreur lors de la suppression du fichier: {e}")
     

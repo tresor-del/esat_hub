@@ -93,8 +93,7 @@ const Register = () => {
       !formData.schoolName ||
       !formData.domain ||
       !formData.level ||
-      !formData.role ||
-      !formData.type) {
+      !formData.role ) {
       setError('Veuillez remplir tous les champs');
       return false;
     }

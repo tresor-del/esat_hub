@@ -63,11 +63,11 @@ async def create_comment(
 
     # Notification pour les commentaires parents
     if data.parent_id is None: 
-        recipient = auth_service.get_user(post.get("user_id"))
+        recipient = auth_service.get_user(post.user_id)
 
         notification_data = NotificationResponse(
             type="new_comment",
-            content=f"{current_user.username} a commenté votre post ({post.get('title')}): {data.content[:50]}",
+            content=f"{current_user.username} a commenté votre post ({post.title}): {data.content[:50]}",
             is_read=False,
             recipient=UserResponse.model_validate(recipient),
             sender=UserResponse.model_validate(sender),

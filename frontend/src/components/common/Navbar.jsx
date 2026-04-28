@@ -5,11 +5,13 @@ import { useWebSocket } from "../../contexts/WebSocketContext";
 import UserMenu from "../user/UserMenu";
 import NotificationDropdown from "../notifications/NofitificationDropdown";
 import SearchDropdown from "../search/SearchDropdown";
+import { FiSettings } from "react-icons/fi";
 import "../../styles/Navbar.css"
 
 const Navbar = () => {
   const { user, logout, isAuth } = useAuth();
   const { unreadCount } = useWebSocket();
+  const isAdmin = user?.role === "ADMIN";
 
   const navigate = useNavigate();
 
@@ -37,6 +39,13 @@ const Navbar = () => {
 
               {/* Bouton de notification */}
               <NotificationDropdown unreadCount={unreadCount} />
+
+              {/* Bouton Admin Dashboard */}
+              {isAdmin && (
+                <Link to="/admin" className="navbar-link admin-link" title="Tableau de bord admin">
+                  <FiSettings />
+                </Link>
+              )}
 
               {user && (
                 <UserMenu className="user-menu-btn" />

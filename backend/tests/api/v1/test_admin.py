@@ -3,7 +3,7 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 
 from app.db.schemas.user import User, UserRole, UserStatus
-from app.db.schemas.post import Post, PostType
+from app.db.schemas.post import Post, PostStatus, PostType
 from app.db.schemas.comments import Comment
 from tests.utils import random_user_in_db
 
@@ -220,6 +220,27 @@ class TestAdminPostEndpoints:
         
         assert response.status_code == 200
         assert "deleted" in response.json()["message"].lower()
+    
+    def test_update_post_status(self, client, db, admin_auth_headers, admin):
+        post = Post(
+            title="Test Post to Delete",
+            description="Test content",
+            post_type=PostType.DEVOIR,
+            user_id=admin.id
+        )
+        db.add(post)
+        db.commit()
+        db.refresh(post)
+
+        response = client.patch(f"/api/v1/admin/posts/{post.id}/status?new_status=INACTIVE", headers=admin_auth_headers)
+        
+        data = response.json()
+        print(data)
+        assert data["message"] == "Post status updated successfully"
+
+        post = db.query(Post).filter(Post.id == post.id).first()
+        assert post.status == PostStatus.INACTIVE
+
 
     def test_get_post_statistics(self, client, db, admin_auth_headers, admin):
         """Test getting post statistics."""

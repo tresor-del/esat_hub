@@ -2,6 +2,8 @@ from sqlalchemy import func
 
 from app.db.schemas.user import User, UserRole, UserStatus
 from app.services.admin.base import BaseAdminService
+from app.db.schemas.post import Post
+from app.db.schemas.comments import Comment
 
 
 class AdminStatsService(BaseAdminService):
@@ -11,6 +13,9 @@ class AdminStatsService(BaseAdminService):
             total_users = self._db.query(User).count()
             active_users = self._db.query(User).filter(User.status == UserStatus.ACTIVE).count()
             pending_users = self._db.query(User).filter(User.status == UserStatus.PENDING).count()
+
+            total_posts = self._db.query(Post).count()
+            total_comments = self._db.query(Comment).count()
 
             # Count by role
             admin_count = self._db.query(User).filter(User.role == UserRole.ADMIN).count()
@@ -28,7 +33,9 @@ class AdminStatsService(BaseAdminService):
                 "pending_users": pending_users,
                 "admin_count": admin_count,
                 "student_count": student_count,
-                "domain_counts": domain_counts
+                "domain_counts": domain_counts,
+                'total_posts': total_posts,
+                "total_comments": total_comments
             }
 
  

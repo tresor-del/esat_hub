@@ -29,17 +29,28 @@ class RoomService:
         
         return room.id if room else None
 
-    def get_user_room(self, room_id: UUID):
-        room = self._db.query(Room).filter(Room.id == room_id).first()
+    def get_user_room(self, user):
 
+        room = None
+
+        if user.user_room_id:
+            room = self._db.query(Room).filter(Room.id == user.user_room_id).first()
+        
         if not room:
-            return None
+            user_room_id = self.get_user_room_id(user.level, user.year)
 
-        users = room.users
-        for user in users:
-            print(user.username)
+            user.user_room_id = user_room_id
+            self._db.commit()
+            self._db.refresh(user)
 
-        return room
+            if user_room_id:
+                room = self._db.query(Room).filter(Room.id == user_room_id).first()
+
+
+        return RoomResponse.model_validate(room) if room else None
+
+    
+
 
 
         
