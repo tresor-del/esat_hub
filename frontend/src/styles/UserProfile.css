@@ -78,10 +78,10 @@ display: flex;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  gap: 1rem;
 }
 
 .profile-name {
-  font-size: 28px;
   font-weight: 700;
   margin: 0 0 16px 0;
   color: #1c1c1c;
@@ -89,8 +89,7 @@ display: flex;
 
 .profile-meta {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 8px;
   margin-bottom: 24px;
 

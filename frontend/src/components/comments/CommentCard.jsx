@@ -21,6 +21,7 @@ const CommentCard = ({ comment, user, onReplySubmit, loading, onEdit, onDelete }
     const [editText, setEditText] = useState(comment.content)
 
     const isOwner = user && user.id === comment.user.id
+    const isAdmin = user && user.role === "ADMIN";
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -138,7 +139,7 @@ const handleDelete = async () => {
                     )}
                 </div>
             </div>
-            {isOwner && !isEditing &&(
+            {(isAdmin || isOwner) && !isEditing &&(
                 <div className="comment-options">
                     <CommentActionsMenu comment={comment} onEdit={openEditMode} onDelete={handleDelete} />
                 </div>

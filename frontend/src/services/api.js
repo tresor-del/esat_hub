@@ -97,12 +97,14 @@ export const checkPname = async (profilName) => {
  * =========================================
  */
 
-export const getPosts = async ({ skip = 0, limit = 20, postType = null, myPost = false, id = null, roomId = null } = {}) => {
-  const params = new URLSearchParams({ skip, limit, my_post: myPost });
+export const getPosts = async ({ skip = 0, limit = 20, postType = null, myPost = false, user_id = null, roomId = null, allPosts = false } = {}) => {
+  const params = new URLSearchParams({ skip, limit });
   
-  if (id) params.append("id", id);
+  if (myPost) params.append("my_posts", "true");
+  if (user_id) params.append("id", user_id);
   if (postType) params.append("post_type", postType);
   if (roomId) params.append("room_id", roomId);
+  if (allPosts) params.append("all_posts", "true");
 
   const response = await api.get(`/posts/?${params}`);
   return response.data;

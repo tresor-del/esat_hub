@@ -6,14 +6,17 @@ import DropdownMenu from "../ui/DropdownMenu";
 const CommentActionsMenu = ({ comment, onEdit, onDelete }) => {
   const { user } = useAuth();
   const isAuthor = user?.id && comment.user?.id && user.id === comment.user.id;
-
+  const isAdmin = user?.role === "ADMIN";
   // Si l'utilisateur n'est pas l'auteur, ne rien afficher
-  if (!isAuthor) return null;
+  if (!isAuthor && !isAdmin) return null;
 
+  console.log("es auteur du comment: ", isAuthor)
+  console.log("est admin: ", isAdmin)
+  console.log("n'est pas aut et admin: ", !isAuthor && !isAdmin)
 
   return (
     <DropdownMenu trigger={<FiMoreVertical />} align="right">
-      {onEdit && (
+      {isAuthor && onEdit && (
         <button
           className="post-action-btn"
           onClick={(e) => {
@@ -32,7 +35,7 @@ const CommentActionsMenu = ({ comment, onEdit, onDelete }) => {
         </button>
       )}
 
-      {onDelete && (
+      {(isAuthor || isAdmin) &&onDelete && (
         <button
           className="post-action-btn"
           onClick={(e) => {

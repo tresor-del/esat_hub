@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { FiUser, FiLogOut } from "react-icons/fi";
+import { FiUser, FiLogOut, FiSettings } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
 import DropdownMenu from "../ui/DropdownMenu";
 import { HiOutlineHome } from "react-icons/hi";
@@ -10,6 +10,7 @@ import "../../styles/UserMenu.css"
 const UserMenu = (closeMenu) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const isAdmin = user?.role === "ADMIN";
 
 
   return (
@@ -35,6 +36,20 @@ const UserMenu = (closeMenu) => {
           <HiOutlineHome />
           Room
         </button>
+
+        {/* Bouton Admin Dashboard */}
+        {isAdmin && (
+          <button
+            className="user-profile-btn"
+            onClick={() => navigate("/admin")}
+          >
+
+            <FiSettings />
+            Admin
+          </button>
+        )}
+
+
 
         <button
           className="user-logout-btn"

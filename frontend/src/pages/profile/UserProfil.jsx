@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import QRCode from "react-qr-code"
 import { useParams, useNavigate } from "react-router-dom";
-import { FiEdit2, FiMail, FiCalendar, FiArrowLeft } from "react-icons/fi";
+import { FiEdit2, FiMail, FiCalendar, FiArrowLeft, FiUser } from "react-icons/fi";
 import { TbSchool } from "react-icons/tb";
 import { RiSchoolLine } from "react-icons/ri";
 import { MdOutlineDomainVerification } from "react-icons/md";
@@ -10,7 +10,6 @@ import { getUserProfile, getPosts, uploadAvatar } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../../components/ui/Avatar";
 import PostCard from "../../components/posts/Postcard";
-import { jsx } from "react/jsx-runtime";
 
 const UserProfile = () => {
   const { id } = useParams();
@@ -28,15 +27,15 @@ const UserProfile = () => {
 
   useEffect(() => {
     loadProfile();
-    loadUserPosts();
+
   }, [id]);
 
   const loadProfile = async () => {
     try {
       setLoading(true);
       const result = await getUserProfile(id);
-      console.log("resdkddlk", result)
       setProfile(result);
+      loadUserPosts(result.id);
     } catch (err) {
       console.error(err);
       setError("Impossible de charger le profil");
@@ -45,9 +44,9 @@ const UserProfile = () => {
     }
   };
 
-  const loadUserPosts = async () => {
+  const loadUserPosts = async (userId) => {
     try {
-      const result = await getPosts({ id: id });
+      const result = await getPosts({ user_id: userId });
       console.log(result.posts)
       setPosts(result.posts || []);
 
@@ -114,29 +113,24 @@ const UserProfile = () => {
             </div>
 
 
-            <div>
-              {isOwnProfile && (
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => navigate('/profile/edit')}
-                  style={{ marginBottom: '16px' }}
-                >
-                  <FiEdit2 size={16} style={{ marginRight: '8px' }} />
-                  Modifier le profil
-                </button>
-              )}
-            </div>
-
-          </div>
-
-          {/* Informations */}
-          <div className="profile-info">
-
-            <h1 className="profile-name">{profile.profil_name}</h1>
-
             <div className="profile-meta">
+              <div className="profile-name">
+                <h2 >{profile.profil_name}</h2>
+                <span>{profile.username}</span>
+              </div>
+
 
               <div className="info">
+                <div className="profile-meta-item">
+                  <FiUser size={16} />
+                  <span>{profile.last_name} {profile.first_name}</span>
+                </div>
+
+                <div className="profile-meta-item">
+                  <FiMail size={16} />
+                  <span>{profile.email}</span>
+                </div>
+
                 <div className="profile-meta-item">
                   <MdOutlineDomainVerification size={16} />
                   <span>{profile.domain}-{profile.major}</span>
@@ -146,24 +140,39 @@ const UserProfile = () => {
                   <TbSchool size={16} />
                   <span>{profile.level}-{profile.year}</span>
                 </div>
-
+                <div className="profile-meta-item">
+                  <QRCode
+                    value={profile.card_number}
+                    size={64}      // C'est ici que tu règles la taille (en pixels)
+                    level="H"      // Optionnel : niveau de correction d'erreur (L, M, Q, H)
+                    style={{ height: "auto", maxWidth: "100%", width: "100%" }} // Optionnel : pour le rendre responsive
+                  />
+                </div>
+                <div>
+                  {isOwnProfile && (
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => navigate('/profile/edit')}
+                      style={{ marginBottom: '16px' }}
+                    >
+                      <FiEdit2 size={16} style={{ marginRight: '8px' }} />
+                      Modifier le profil
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="qr-code">
-                <QRCode
-                  value={profile.email}
-                  size={100}
-                  bgColor="#ffffff"
-                  fgColor="#000000"
-                />
-              </div>
-
             </div>
 
+          </div>
+
+          {/* Informations */}
+          <div className="profile-info">
 
 
             {/* Liste des posts */}
             <div className="profile-posts">
 
+              <h3>Les publications de {profile.profil_name}</h3><br /><br />
 
               {posts.length === 0 ? (
                 <div className="empty-state card">

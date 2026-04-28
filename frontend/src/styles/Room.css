@@ -6,7 +6,7 @@
 }
 
 .room-left {
-    min-width: 20%;
+    max-width: 250px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -17,12 +17,12 @@
 }
 
 .room-right {
-    min-width: 80%;
+    flex: 1;
     display: flex;
     flex-direction: column;
     padding: var(--spacing-xl);
     background-color: var(--bg-primary);
-    overflow: scroll;
+    overflow: auto;
 }
 
 .room-btns {
@@ -38,6 +38,281 @@
     font-weight: bold;
     color: var(--text-primary);
     margin-bottom: var(--spacing-md);
+}
+
+.room-btns .btn {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+/* User Cell Compact - for room members table */
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-cell .user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.user-cell .user-name {
+    font-weight: 500;
+    color: #1a1a2e;
+    font-size: 14px;
+}
+
+.user-cell .user-username {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* Loading and Error States */
+.room-loading,
+.room-error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+}
+
+.room-error {
+    color: #dc3545;
+}
+
+/* Users View */
+.room-users-view {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.users-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.users-search {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.users-search .search-icon {
+    color: #9ca3af;
+    margin-right: 12px;
+    font-size: 18px;
+}
+
+.users-search input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background: transparent;
+}
+
+.search-results-info {
+    font-size: 14px;
+    color: #6b7280;
+    padding: 8px 0;
+}
+
+/* Users Table */
+.users-table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.users-table th,
+.users-table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.users-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #6b7280;
+    letter-spacing: 0.05em;
+}
+
+.users-table tr:hover {
+    background: #f9fafb;
+}
+
+.users-table tr:last-child td {
+    border-bottom: none;
+}
+
+.user-row {
+    transition: background-color 0.2s ease;
+}
+
+/* User Cell */
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.user-name {
+    font-weight: 500;
+    color: #1a1a2e;
+}
+
+.user-username {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* Email Cell */
+.email-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #4b5563;
+}
+
+.cell-icon {
+    color: #9ca3af;
+    font-size: 16px;
+}
+
+/* Badges */
+.domain-badge,
+.year-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.domain-badge {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.year-badge {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-badge.status-active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-badge.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* No Results */
+.no-results {
+    text-align: center;
+    padding: 40px 20px !important;
+    color: #6b7280;
+}
+
+/* Posts View */
+.room-posts-view {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.posts-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.posts-loading,
+.no-posts {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+    color: #6b7280;
+    font-size: 15px;
+}
+
+.room-posts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .room-container {
+        flex-direction: column;
+    }
+    
+    .room-left {
+        min-width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .users-table-container {
+        overflow-x: auto;
+    }
+    
+    .users-table {
+        min-width: 600px;
+    }
 }
 
 .room-users {

@@ -40,13 +40,6 @@ const Navbar = () => {
               {/* Bouton de notification */}
               <NotificationDropdown unreadCount={unreadCount} />
 
-              {/* Bouton Admin Dashboard */}
-              {isAdmin && (
-                <Link to="/admin" className="navbar-link admin-link" title="Tableau de bord admin">
-                  <FiSettings />
-                </Link>
-              )}
-
               {user && (
                 <UserMenu className="user-menu-btn" />
               )}

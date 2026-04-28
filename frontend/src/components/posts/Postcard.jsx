@@ -12,6 +12,7 @@ const PostCard = ({
   post,
   onEdit,
   onDelete,
+  onToggleStatus,
   onView,
   variant = "list"
 }) => {
@@ -46,6 +47,7 @@ const PostCard = ({
       onView(post);
     }
   };
+  
 
 
   return (
@@ -59,9 +61,10 @@ const PostCard = ({
             dateVariant="relative"
             showAvatar={true}
             openModal={false}
+            variant="compact"
           />
 
-          <PostActionsMenu post={post} onEdit={onEdit} onDelete={onDelete} />
+          <PostActionsMenu post={post} onEdit={onEdit} onDelete={onDelete} onToggleStatus={onToggleStatus} />
         </div>
 
         {/* Titre du poste */}

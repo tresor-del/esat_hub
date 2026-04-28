@@ -1,115 +1,103 @@
 import React, { useState, useEffect } from "react";
-import { FiSearch, FiFilter } from "react-icons/fi";
+import { FiSearch, FiFilter, FiGlobe, FiLock, FiUsers, FiBook } from "react-icons/fi";
 import PostCard from "../../components/posts/Postcard";
-import { getUserProfile } from "../../services/api";
+import { getUserProfile, getUserRoom } from "../../services/api";
 import { getPosts, searchPosts, deletePost } from "../../services/api";
+import { updatePostStatus } from "../../services/adminApi";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "../../styles/Home.css"
 
+
 const Home = () => {
   const navigate = useNavigate();
+  const { user: userAuth } = useAuth();
 
-  // États pour les postes
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-
-  // États pour la pagination
   const [hasMore, setHasMore] = useState(true);
+  const [filterType, setFilterType] = useState("general"); // "general" | "private" | "my_posts"
+  const [fullUser, setFullUser] = useState(null);
+  const [room, setRoom] = useState(null);
   const postsPerPage = 10;
 
-  const [filterType, setFilterType] = useState("general");
-
-  const { user: userAuth } = useAuth();
-  const [user, setUser] = useState();
-
-
-  /**
-   * Charger les postes au montage et quand le filtre change
-   * Réinitialiser les posts et hasMore pour une nouvelle recherche
-   */
+  // 1. Charger le profil complet une seule fois
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (userAuth?.id) {
+        try {
+          const result = await getUserProfile(userAuth.id);
+          setFullUser(result);
+        } catch (err) {
+          console.error("Erreur profil:", err);
+        }
+      }
+    };
+    loadProfile();
+  }, [userAuth?.id]);
 
   useEffect(() => {
-    const userProfil = async () => {
-      try {
-        const result = await getUserProfile(userAuth?.id)
-        if (result) setUser(result);
-      } catch (error) {
-        console.log("Erreur lors de la récupération du user: ", error)
-      }
-
-    }
-    userProfil();
+    const loadRoom = async () => {
+        try {
+          const result = await getUserRoom();
+          setRoom(result);
+        } catch (err) {
+          console.error("Erreur room:", err);
+        }
+      };
+    loadRoom();
   }, [])
 
-  const room_id = user?.user_room_id;
-
+  // 2. Charger les posts quand le filtre change OU quand l'user est enfin chargé
   useEffect(() => {
+    if (filterType === "private" && !fullUser) return;
+    if (filterType === "my_posts" && !fullUser) return;
 
-    setHasMore(true);
-    setError("");
-    if (filterType === "private" && !room_id) {
-      setPosts([])
-      return;
-    }
-    loadPosts();
-  }, [filterType]);
+    loadPosts(false);
+  }, [filterType, fullUser, room]);
 
-  /**
-   * Charger les postes depuis l'API
-   */
-  const loadPosts = async (
-    isLoadMore = false,
-  ) => {
+  const loadPosts = async (isLoadMore = false) => {
     try {
       setLoading(true);
       setError("");
-
       const skip = isLoadMore ? posts.length : 0;
-      let result;
 
+      let roomId = null;
+      let myPost = false;
+      let allPosts = false;
 
-      // Charger avec filtre de type
-      if (filterType === "private" && !user?.user_room_id) {
-        // Pas de room_id pour l'utilisateur, afficher rien en privé
-        result = { posts: [], total: 0 };
-      } else {
-        const roomId = filterType === "private" ? user?.user_room_id : null;
-        console.log("room_id au moment du call:", room_id);
-        result = await getPosts({ skip, limit: postsPerPage, roomId });
-        console.log(result)
+      // Filtrer selon le type
+      if (filterType === "private") {
+        // Posts de ma salle de classe (room_id non null)
+        roomId = fullUser?.user_room_id;
+        if (!roomId) {
+          setPosts([]);
+          setHasMore(false);
+          return;
+        } 
+
+      } else if (filterType === "my_posts") {
+        // Mes propres posts
+        myPost = true;
+      } else if (filterType === "general") {
+        // Posts généraux seulement (room_id = null, exclure les posts de classes)
+        allPosts = false;
+        // roomId reste null, ce qui dans l'API signifie posts sans room
       }
+      // filterType === "general" -> roomId = null (posts généraux sans room_id)
 
+      const result = await getPosts({ skip, limit: postsPerPage, roomId, myPost, allPosts });
 
-      // Déterminer les données en fonction du type (recherche ou filtre normal)
-      const postsData = result.posts;
-      const totalPosts = postsData.length;
-
-      // Mettre à jour les postes (fusion avec les existants si on charge plus)
-      if (isLoadMore) {
-        setPosts([...posts, ...postsData]);
-      } else {
-        setPosts(postsData);
-      }
-
-      // Vérifier s'il y a plus de postes à charger
-      // Si le nombre de posts reçus < limit, on a atteint la fin
-      setHasMore(totalPosts === postsPerPage);
+      const postsData = result.posts || [];
+      setPosts(prev => isLoadMore ? [...prev, ...postsData] : postsData);
+      setHasMore(postsData.length === postsPerPage);
     } catch (err) {
-      console.error("Erreur lors du chargement des postes:", err);
-      setError("Erreur lors du chargement des postes");
+      console.error("Erreur:", err);
+      setError("Impossible de charger les publications.");
     } finally {
       setLoading(false);
     }
-  };
-
-  /**
-   * Charger plus de postes (pagination)
-   */
-  const loadMore = () => {
-    loadPosts(true);
   };
 
   /**
@@ -146,93 +134,70 @@ const Home = () => {
     navigate(`/post/${post.id}`);
   };
 
+  const onToggleStatus = async (post) => {
+    const newStatus = post.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+    try {
+      await updatePostStatus(post.id, newStatus);
+      setPosts(posts.map(p => p.id === post.id ? { ...p, status: newStatus } : p));
+    } catch (error) {
+      alert("Erreur lors du changement de statut");
+    }
+  };
 
+  // Obtenir le nom de la salle si disponible
+  const roomName = room?.name || "Ma Classe";
 
   return (
     <div className="container">
       <div className="main-content">
-        <div style={{ marginBottom: "12px" }} />
-
-        {/* Boutons de filtre - toujours visibles */}
-        <div className="post-filter-btns">
+        {/* Filtres améliorés */}
+        <div className="post-filter-btns" style={{ marginBottom: "20px" }}>
           <button
-            className={filterType === "general" ? "active" : ""}
+            className={`filter-btn ${filterType === "general" ? "active" : ""}`}
             onClick={() => setFilterType("general")}
           >
-            Général
+            <span>Tous les posts</span>
           </button>
+          
           <button
-            className={filterType === "private" ? "active" : ""}
+            className={`filter-btn ${filterType === "private" ? "active" : ""}`}
             onClick={() => setFilterType("private")}
           >
-            Privé
+            <span>{roomName}</span>
           </button>
         </div>
 
-        {/* Message d'erreur */}
-        {error && (
-          <div className="alert alert-error" style={{ marginBottom: "16px" }}>
-            {error}
-          </div>
-        )}
-
-        {/* État de chargement */}
         {loading && posts.length === 0 ? (
-          <div className="loading">
-            <div className="spinner"></div>
-            <p style={{ marginTop: "16px", color: "var(--text-secondary)" }}>
-              Chargement des postes...
-            </p>
-          </div>
-        ) : posts.length === 0 ? (
-          // État vide
-          <div className="empty-state">
-            <div className="empty-state-icon">📭</div>
-            <h3 className="empty-state-title">
-              {filterType === "private" ? "Aucun poste privé" : "Aucun poste trouvé"}
-            </h3>
-            <p>
-              {filterType === "private"
-                ? "Vous n'avez accès à aucun poste privé pour le moment"
-                : "Soyez le premier à créer un poste !"}
-            </p>
-            {filterType === "general" && (
-              <button
-                className="btn btn-primary"
-                onClick={() => navigate("/create")}
-                style={{ marginTop: "16px" }}
-              >
-                + Créer un poste
-              </button>
-            )}
-          </div>
+          <div className="loading"><div className="spinner"></div></div>
         ) : (
-          // Liste des postes
           <>
-            <div>
-              {posts.map((post) => (
+            {posts.length === 0 ? (
+              <div className="empty-state">
+                <h3>
+                  {filterType === "general" && "Aucun post général"}
+                  {filterType === "private" && `Aucun post dans ${roomName}`}
+                </h3>
+                <p>
+                  {filterType === "general" && "Les posts des classes n'apparaissent pas ici. Créez un post général pour le voir ici."}
+                  {filterType === "private" && "Les posts de votre salle de classe apparaîtront ici."}
+                </p>
+              </div>
+            ) : (
+              posts.map((post) => (
                 <PostCard
                   key={post.id}
                   post={post}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  onToggleStatus={onToggleStatus}
                   onView={handleView}
                 />
-              ))}
-            </div>
-
-
-            {/* Bouton charger plus */}
+              ))
+            )}
             {hasMore && (
-              <div style={{ textAlign: "center", marginTop: "24px" }}>
-                <button
-                  className="btn btn-secondary"
-                  onClick={loadMore}
-                  disabled={loading}
-                >
-                  {loading ? "Chargement..." : "Charger plus"}
-                </button>
-              </div>
+              <button className="btn btn-secondary" onClick={() => loadPosts(true)} disabled={loading}>
+                {loading ? "Chargement..." : "Charger plus"}
+              </button>
             )}
           </>
         )}

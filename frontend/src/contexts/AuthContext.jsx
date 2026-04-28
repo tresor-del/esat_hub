@@ -82,10 +82,10 @@ export const AuthProvider = ({ children }) => {
       }
 
       const decoded = jwtDecode(data.access_token);
+      const userprofile = await getUserProfile(decoded.sub);
       setUser({
         authenticated: true,
-        id: decoded.sub,
-        username,
+        ...userprofile,
       });
 
       return { success: true };

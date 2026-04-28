@@ -7,7 +7,12 @@ const PostAuthorInfo = ({
   user,
   dateVariant = "relative",
   showAvatar = true, 
-  openModal = true
+  openModal = true,
+  showEmail = false,
+  showDomain = false,
+  showYear = false,
+  showStatus = false,
+  variant = "default" // "default" | "compact" | "full"
 }) => {
   const navigate = useNavigate();
 
@@ -19,12 +24,54 @@ const PostAuthorInfo = ({
     }
   };
 
-  console.log(openModal)
+  // Format name: profil_name > username > first_name + last_name
+  const displayName = user?.profil_name || user?.username || `${user?.first_name || ''} ${user?.last_name || ''}`.trim();
 
+  // Compact variant - just avatar and name
+  if (variant === "compact") {
+    return (
+      <div className="user-cell">
+        <Avatar user={user} size="medium" onClick={handleUserClick} openModal={openModal} />
+        <div className="user-info">
+          <span className="user-name">{displayName}</span>
+          <span className="user-username">{user?.username}</span>
+        </div>
+      </div>
+    );
+  }
 
+  // Full variant - with email, domain, year, status
+  if (variant === "full") {
+    return (
+      <div className="user-cell-full">
+        <Avatar user={user} size="large" onClick={handleUserClick} openModal={openModal} />
+        <div className="user-info-full">
+          <span className="user-name" onClick={handleUserClick} style={{ cursor: "pointer" }}>
+            {displayName}
+          </span>
+          <span className="user-username">{user?.username}</span>
+          {showEmail && <span className="user-email">{user?.email}</span>}
+          <div className="user-badges">
+            {showDomain && user?.domain && (
+              <span className="domain-badge">{user.domain}</span>
+            )}
+            {showYear && user?.year && (
+              <span className="year-badge">{user.year}</span>
+            )}
+            {showStatus && user?.status && (
+              <span className={`status-badge status-${user.status.toLowerCase()}`}>
+                {user.status}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Default variant - original behavior
   return (
     <div className="post-user-info">
-      
       {showAvatar && (
         <Avatar 
           user={user} 
@@ -33,7 +80,6 @@ const PostAuthorInfo = ({
           openModal={openModal}
         />
       )}
-      
       <span 
         style={{ 
           fontWeight: dateVariant === "absolute" ? 600 : "bold", 

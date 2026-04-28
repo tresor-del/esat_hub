@@ -42,7 +42,7 @@ import { useEffect } from "react";
  */
 
 const AppRoutes = () => {
-  const { isAuth, logout } = useAuth();
+  const { loading, isAuth, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,6 +63,10 @@ const AppRoutes = () => {
     };
 
   }, [logout, navigate])
+
+  if (loading) {
+    return <div className="spinner"></div>; 
+  }
 
   return (
     <Routes>
@@ -109,7 +113,7 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        
+
       </Route>
 
 

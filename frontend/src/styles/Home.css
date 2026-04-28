@@ -1,12 +1,58 @@
 .post-filter-btns {
     display: flex;
+    gap: 12px;
     background-color: white;
     width: 100%;
-    overflow: hidden;
-    /* Optionnel : ajout d'une bordure basse légère pour toute la barre */
-    border-bottom: 1px solid #eee; 
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
+.post-filter-btns .filter-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background-color: #f9fafb;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 16px 12px;
+    cursor: pointer;
+    position: relative;
+    color: #6b7280;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.post-filter-btns .filter-btn:hover {
+    background-color: #f3f4f6;
+    border-color: #e5e7eb;
+}
+
+.post-filter-btns .filter-btn.active {
+    background-color: #eff6ff;
+    border-color: #3b82f6;
+    color: #1d4ed8;
+}
+
+.post-filter-btns .filter-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.post-filter-btns .filter-btn span:first-of-type {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.post-filter-btns .filter-desc {
+    font-size: 11px;
+    opacity: 0.8;
+    font-weight: 400;
+}
+
+/* Legacy support - old buttons still work */
 .post-filter-btns button {
     flex: 1;
     background-color: transparent;
@@ -18,27 +64,23 @@
     color: #666;
     font-weight: 500;
     transition: color 0.2s ease, background-color 0.2s ease;
-    -webkit-tap-highlight-color: transparent;
-    /* On retire le transform ici pour éviter les vibrations */
 }
 
-.post-filter-btns button::after {
+/* .post-filter-btns button::after {
     content: "";
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 3px;
+    height: 3px;    
     background-color: red;
     transform: scaleX(0);
     transform-origin: center;
-    /* On utilise une transition plus simple pour plus de stabilité */
     transition: transform 0.2s ease-out;
-}
+} */
 
 .post-filter-btns button.active {
     color: red;
-    /* On évite le text-shadow si ça déforme trop */
     font-weight: 600; 
 }
 
@@ -50,7 +92,6 @@
     background-color: rgba(0, 0, 0, 0.03);
 }
 
-/* Effet de clic stabilisé : On ne touche qu'à l'opacité */
 .post-filter-btns button:active {
     background-color: rgba(0, 0, 0, 0.08);
 }
