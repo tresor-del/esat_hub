@@ -1,4 +1,5 @@
 from typing import List, Optional
+from uuid import UUID
 from sqlalchemy import func
 
 from app.db.schemas.post import Post
@@ -15,7 +16,7 @@ class AdminPostsService(BaseAdminService):
         limit: int = 100,
         post_type: Optional[str] = None,
         status: Optional[str] = None,
-        room_id: Optional[int] = None
+        room_id: Optional[UUID] = None
     ) -> tuple[List[Post], int]:
         """Get all posts with optional filters."""
         query = self._db.query(Post)
@@ -27,7 +28,7 @@ class AdminPostsService(BaseAdminService):
             query = query.filter(Post.status == status.upper())
         
         if room_id is not None:
-            if room_id == 0:
+            if str(room_id) == "0":
                 # Filter for general posts (room_id is NULL)
                 query = query.filter(Post.room_id == None)
             else:

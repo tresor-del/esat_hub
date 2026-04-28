@@ -9,7 +9,7 @@ import {
   getAllUsers, searchUsers, updateUserStatus, 
   getAllPostsAdmin, updatePostStatus, deletePostAdmin,
   getAdminStats, getPostStatistics, getCommentStatistics,
-  getAllCommentsAdmin
+  getAllCommentsAdmin, getAllRoomsAdmin
 } from "../../services/adminApi";
 import PostAuthorInfo from "../../components/posts/PostAuthorInfo";
 import "../../styles/AdminDashboard.css";
@@ -20,6 +20,7 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [posts, setPosts] = useState([]);
   const [comments, setComments] = useState([]);
+  const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [stats, setStats] = useState(null);
@@ -38,9 +39,25 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (isAdmin) {
+      loadRooms();
+      loadData();
+    }
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (isAdmin) {
       loadData();
     }
   }, [isAdmin, activeTab, userStatusFilter, userRoleFilter, postStatusFilter, postTypeFilter, postRoomFilter]);
+
+  const loadRooms = async () => {
+    try {
+      const roomsData = await getAllRoomsAdmin({ limit: 100 });
+      setRooms(roomsData.rooms || []);
+    } catch (error) {
+      console.error("Erreur lors du chargement des rooms:", error);
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -58,13 +75,12 @@ const AdminDashboard = () => {
         });
         setUsers(data.users || []);
       } else if (activeTab === "posts") {
-        const roomId = postRoomFilter ? parseInt(postRoomFilter) : null;
         const [postsData, postStatsData] = await Promise.all([
           getAllPostsAdmin({ 
             limit: 100,
             status: postStatusFilter || null,
             postType: postTypeFilter || null,
-            roomId: postRoomFilter === "" ? null : (postRoomFilter === "0" ? 0 : parseInt(postRoomFilter))
+            roomId: postRoomFilter || null
           }),
           getPostStatistics()
         ]);
@@ -182,6 +198,13 @@ const AdminDashboard = () => {
               <span className="stat-label">Utilisateurs actifs</span>
             </div>
           </div>
+          <div className="stat-card">
+            <FiUsers className="stat-icon" />
+            <div className="stat-content">
+              <span className="stat-value">{rooms.length || 0}</span>
+              <span className="stat-label">Groupes</span>
+            </div>
+          </div>
         </div>
       )}
 
@@ -278,11 +301,9 @@ const AdminDashboard = () => {
             >
               <option value="">Toutes les publications</option>
               <option value="0">Publications générales</option>
-              <option value="1">Groupe 1</option>
-              <option value="2">Groupe 2</option>
-              <option value="3">Groupe 3</option>
-              <option value="4">Groupe 4</option>
-              <option value="5">Groupe 5</option>
+              {rooms.map((room) => (
+                <option key={room.id} value={room.id}>{room.name}</option>
+              ))}
             </select>
           </>
         )}

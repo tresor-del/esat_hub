@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     
     SECRET_KEY: str 
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
     REFRESH_SECRET_KEY: str 
@@ -20,6 +20,13 @@ class Settings(BaseSettings):
     
     APP_NAME: str ="Esat-hub"
     API_V1_STR: str = "/api/v1"
+
+    # Production settings
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"  # Comma-separated list
+    DEBUG: bool = False
+    
+    # Rate limiting
+    RATE_LIMIT_PER_MINUTE: int = 60
 
     SQLALCHEMY_DATABASE_URI: str 
 

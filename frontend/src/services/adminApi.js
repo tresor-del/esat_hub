@@ -117,3 +117,30 @@ export const getAllCommentsAdmin = async ({ skip = 0, limit = 50, postId = null 
   const response = await api.get(`/admin/comments?${params}`);
   return response.data;
 };
+
+// ==================== ROOMS ====================
+
+/**
+ * Obtenir toutes les rooms (admin)
+ */
+export const getAllRoomsAdmin = async ({ skip = 0, limit = 100 } = {}) => {
+  const params = new URLSearchParams({ skip, limit });
+  const response = await api.get(`/admin/rooms?${params}`);
+  return response.data;
+};
+
+/**
+ * Obtenir les statistiques des rooms (admin)
+ */
+export const getRoomStatistics = async () => {
+  const response = await api.get("/admin/rooms/statistics");
+  return response.data;
+};
+
+/**
+ * Obtenir une room par ID (admin)
+ */
+export const getRoomByIdAdmin = async (roomId) => {
+  const response = await api.get(`/admin/rooms/${roomId}`);
+  return response.data;
+};

@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from app.api.deps.auth import get_current_admin
 from app.api.deps.services import get_admin_service, get_notification_service
@@ -19,17 +20,24 @@ async def get_all_posts(
     limit: int = Query(100, ge=1, le=500),
     post_type: Optional[str] = Query(None, description="Filter by post type (GENERAL, ROOM, EVENT)"),
     status: Optional[str] = Query(None, description="Filter by status (ACTIVE, INACTIVE)"),
-    room_id: Optional[int] = Query(None, description="Filter by room ID"),
+    room_id: Optional[str] = Query(None, description="Filter by room ID (use '0' for general posts)"),
     admin: User = Depends(get_current_admin),
     admin_service: AdminService = Depends(get_admin_service),
 ):
     """Get all posts with optional filters (admin only)."""
+    room_uuid = None
+    if room_id and room_id != "0":
+        try:
+            room_uuid = UUID(room_id)
+        except ValueError:
+            pass
+    
     posts, total = admin_service.posts.get_all_posts(
         skip=skip,
         limit=limit,
         post_type=post_type,
         status=status,
-        room_id=room_id
+        room_id=room_uuid if room_id else None
     )
     
     return {

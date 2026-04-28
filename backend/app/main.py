@@ -39,13 +39,19 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=settings.APP_NAME)
 
-# Configuration CORS
+# Configuration CORS - Restreint pour la production
+def get_cors_origins():
+    """Get CORS origins from settings or default to localhost for dev"""
+    if hasattr(settings, 'CORS_ORIGINS') and settings.CORS_ORIGINS:
+        return [origin.strip() for origin in settings.CORS_ORIGINS.split(',')]
+    return ["http://localhost:5173", "http://localhost:3000"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=get_cors_origins(),
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allow_headers=["Authorization", "Content-Type", "X-Requested-With"],
 )
 
 # rate limiting
@@ -54,7 +60,16 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.get("/")
 async def accueil(request: Request):
-    return {"Hello"}
+    return {"Hello": "Welcome to ESAT-HUB API"}
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for production monitoring"""
+    return {
+        "status": "healthy",
+        "service": settings.APP_NAME,
+        "version": "1.0.0"
+    }
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(post_router, prefix="/api/v1")
