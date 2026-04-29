@@ -115,9 +115,7 @@ const PostDetail = () => {
           <div className="post-meta">
             <PostAuthorInfo
               user={post.user}
-              createdAt={post.created_at}
-              showAvatar={true}
-              openModal={true}
+              variant="compact"
             />
 
             <PostActionsMenu
@@ -129,7 +127,7 @@ const PostDetail = () => {
           </div>
 
           {/* Titre */}
-          <h1 className="post-title" style={{ fontSize: "22px" }}>
+          <h1 className="post-title">
             {post.title}
           </h1>
 

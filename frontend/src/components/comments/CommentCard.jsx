@@ -64,7 +64,7 @@ const handleDelete = async () => {
         <div className="comment-item" id={`comment-${comment.id}`}>
             <div>
                 <div className="comment-info">
-                    <PostAuthorInfo user={comment.user} />
+                    <PostAuthorInfo user={comment.user} variant="compact"/>
                     <span className="comment-date">{formatRelativeDate(comment.created_at)}</span>
                 </div>
 

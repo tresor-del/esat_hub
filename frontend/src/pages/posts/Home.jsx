@@ -179,7 +179,7 @@ const Home = () => {
                 </h3>
                 <p>
                   {filterType === "general" && "Les posts des classes n'apparaissent pas ici. Créez un post général pour le voir ici."}
-                  {filterType === "private" && "Les posts de votre salle de classe apparaîtront ici."}
+                  {filterType === "private" && "Les posts de votre salle apparaîtront ici. Créez un post pour votre salle le voir ici."}
                 </p>
               </div>
             ) : (

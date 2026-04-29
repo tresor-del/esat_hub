@@ -1,5 +1,8 @@
 /* Le conteneur doit avoir la même largeur que ton bloc de recherche dans la navbar */
 .search-dropdown-wrapper {
+  justify-content: center;
+  align-items: center;
+  display: flex;
   position: relative;
   width: 100%; /* S'adapte au conteneur parent dans la Navbar */
   max-width: 600px; /* Optionnel : pour ne pas que ce soit trop géant sur grand écran */
@@ -10,7 +13,7 @@
   position: absolute;
   top: calc(100% + 5px); /* Juste en dessous de l'input avec un petit espace */
   left: 0;
-  width: 100%; /* <--- C'est ici que la magie opère : 100% du parent */
+  width: 100%; 
   
   background: white;
   border-radius: 8px;

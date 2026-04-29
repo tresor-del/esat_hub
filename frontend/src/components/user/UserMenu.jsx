@@ -7,64 +7,47 @@ import { HiOutlineHome } from "react-icons/hi";
 import Avatar from "../ui/Avatar";
 import "../../styles/UserMenu.css"
 
-const UserMenu = (closeMenu) => {
-  const { user, logout } = useAuth();
+export const UserMenuLinks = ({ user, isAdmin, onAction }) => {
   const navigate = useNavigate();
-  const isAdmin = user?.role === "ADMIN";
+  const { logout } = useAuth();
 
+  const handleNavigate = (path) => {
+    navigate(path);
+    if (onAction) onAction();
+  };
 
   return (
-    <DropdownMenu trigger={<Avatar user={user} openModal={false} />} align="right">
-      <div className="user-menu">
-        <button
-          className="user-profile-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/profile/${user.id}`);
-            if (closeMenu) closeMenu();
-          }}
-        >
-          <FiUser />
-          Profile
+    <>
+      <button className="user-profile-btn" onClick={() => handleNavigate(`/profile/${user.id}`)}>
+        <FiUser /> Profile
+      </button>
+      <button className="user-profile-btn" onClick={() => handleNavigate("/room")}>
+        <HiOutlineHome /> Room
+      </button>
+      {isAdmin && (
+        <button className="user-profile-btn" onClick={() => handleNavigate("/admin")}>
+          <FiSettings /> Admin
         </button>
-
-        <button
-          className="user-profile-btn"
-          onClick={() => navigate("/room")}
-        >
-
-          <HiOutlineHome />
-          Room
-        </button>
-
-        {/* Bouton Admin Dashboard */}
-        {isAdmin && (
-          <button
-            className="user-profile-btn"
-            onClick={() => navigate("/admin")}
-          >
-
-            <FiSettings />
-            Admin
-          </button>
-        )}
-
-
-
-        <button
-          className="user-logout-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            logout();
-          }}
-        >
-          <FiLogOut />
-          Logout
-        </button>
-      </div>
-
-    </DropdownMenu>
+      )}
+      <button className="user-logout-btn" onClick={() => { logout(); if (onAction) onAction(); }}>
+        <FiLogOut /> Logout
+      </button>
+    </>
   );
 };
 
+const UserMenu = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+
+  return (
+    <div className="user-menu-desktop-only">
+      <DropdownMenu trigger={<Avatar user={user} openModal={false} />} align="right">
+        <div className="user-menu">
+          <UserMenuLinks user={user} isAdmin={isAdmin} />
+        </div>
+      </DropdownMenu>
+    </div>
+  );
+};
 export default UserMenu;

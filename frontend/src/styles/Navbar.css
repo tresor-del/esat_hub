@@ -4,18 +4,51 @@
   padding: var(--spacing-sm) 0;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
+  height: 60px;
   box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  padding: 1rem;
 }
 
 .navbar-container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 var(--spacing-md);
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
+.navbar-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.short-logo {
+  display: none;
+}
+
+.navbar-search {
+  flex: 1;
+  max-width: 500px;
+}
+
+.nav-items {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.menu-toggle {
+  display: none;
+}
+
+/* Cache hamburger sur PC */
+
 
 .navbar-logo {
   display: flex;
@@ -137,6 +170,7 @@
 .search-filters {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 }
 
@@ -153,7 +187,7 @@
 
 .search-input-wrapper .search-icon {
   position: absolute;
-  
+
   color: var(--text-secondary);
   font-size: 16px;
 }
@@ -195,13 +229,13 @@
 }
 
 .navbar-icon {
-  font-size: 1.8rem ;
+  font-size: 1.8rem;
   cursor: pointer;
   color: #444;
 }
 
 .btn-install {
-  background-color: #1e3a8a; /* Le bleu de ton beau logo ! */
+  background-color: #1e3a8a;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -215,4 +249,202 @@
 .btn-install:hover {
   transform: scale(1.05);
   background-color: #162d6d;
+}
+
+/* Container pour l'icône et son badge */
+.icon-with-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem; /* Aligne la taille de la cloche sur les autres icônes */
+}
+
+/* Le petit badge rouge */
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: var(--reddit-orange);
+  color: white;
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-secondary); /* Pour qu'il ressorte bien */
+  font-weight: bold;
+}
+
+.mobile-notification-btn {
+  padding: none !important;
+}
+
+/* Style spécifique au bouton dans le menu mobile */
+.notification-trigger-mobile .user-profile-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  padding: 12px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 16px;
+  text-align: left;
+}
+
+
+.user-menu-mobile {
+  display: none; /* Caché sur PC */
+}
+
+.notification-mobile-wrapper { display: none; }
+.notifications-mobile-header { display: none; }
+
+@media (max-width: 768px) {
+    .notification-desktop-wrapper { display: none; }
+  .notification-mobile-wrapper { display: block; }
+    .notifications-full-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg-secondary);
+    z-index: 2000; /* Doit être au-dessus de la navbar */
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  .notifications-mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .close-notif-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-primary);
+  }
+
+  .notification-item {
+    padding: 15px 10px;
+    border-bottom: 1px solid var(--bg-primary);
+  }
+    .user-menu-desktop-only {
+    display: none; /* Cache l'avatar dropdown sur mobile */
+  }
+
+  .user-menu-mobile {
+    display: flex; /* Affiche les boutons à plat */
+    flex-direction: column;
+    width: 100%;
+    gap: 5px;
+  }
+
+.nav-items {
+  gap: unset;
+}
+
+  /* Style des boutons "aplatis" sur mobile */
+  .user-menu-mobile button {
+    background: transparent;
+    border: none;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    color: var(--text-primary);
+    width: 100%;
+    text-align: left;
+  }
+
+  .short-logo {
+    display: block;
+  }
+
+  .full-logo {
+    display: none;
+  }
+
+  .menu-toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    order: 3;
+  }
+
+  .menu-toggle {
+    display: block;
+    font-size: 27px;
+    cursor: pointer;
+  }
+
+
+
+  .navbar-search {
+    max-width: none;
+  }
+
+  .navbar-links-wrapper {
+    display: none;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+  }
+
+  .navbar-links-wrapper.open {
+    display: block;
+  }
+
+  .nav-items {
+    flex-direction: column;
+  }
+
+  .nav-items>* {
+    width: 100%;
+  }
+
+  .search-input-wrapper {
+    max-width: 200px;
+    justify-content: center;
+  }
+
+  .search-input {
+  padding-left: 0;
+  padding-right: 0;
+  width: 100%;
+  min-width: unset !important;
+}
+
+
+    .btn-create {
+    padding: 4px 8px;
+    width: 70px;
+    height: 36px;
+    border-radius: none; /* Devient un bouton rond */
+    min-width: 36px;
+    order: 2;
+  }
+
+
+
+  .btn-create span{
+    display: flex;
+  }
+
 }

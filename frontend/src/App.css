@@ -220,3 +220,14 @@ a:hover {
   flex: 1;
   min-width: 250px;
 }
+
+@media (max-width: 768px) {
+  .container {
+    padding-top: 1rem !important;
+    padding: unset;
+  }
+  .main-content {
+  min-width: unset;
+}
+  
+}

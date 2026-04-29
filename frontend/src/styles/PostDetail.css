@@ -17,3 +17,14 @@
   font-size: 1.5rem;
   cursor: pointer;
 }
+
+
+@media (max-width: 500px) {
+  .post-title {
+    font-size: 15px;
+  }
+.post-detail-container {
+  width:unset;
+}
+}
+

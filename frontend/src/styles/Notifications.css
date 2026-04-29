@@ -33,7 +33,6 @@
   display: flex;
   gap: 10px;
   cursor: pointer;
-  align-items: center;
   justify-content: space-between;
 }
 

@@ -1,7 +1,3 @@
-/**
- * Service API - Gestion de toutes les requêtes HTTP
- */
-
 import api, { API_BASE_URL } from "../utils/axiosConfig";
 
 

@@ -145,3 +145,21 @@
 .post-action-btn:hover {
   background-color: var(--bg-primary);
 }
+
+@media (max-width: 768px) {
+
+.post-card {
+  display: flex;
+  max-width: 600px;
+}
+
+}
+
+@media (max-width: 500px) {
+
+.post-card {
+  display: flex;
+  max-width: 400px;
+}
+
+}

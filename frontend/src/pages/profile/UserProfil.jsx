@@ -92,16 +92,14 @@ const UserProfile = () => {
 
         {/* Bouton retour */}
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <button className="back-button" onClick={() => navigate(-1)}>
+          {/* <button className="back-button" onClick={() => navigate(-1)}>
             <FiArrowLeft size={18} />
             Retour
-          </button>
+          </button> */}
           <div>
-            {profile.card_number}
+
           </div>
         </div>
-
-
 
 
         <div className="profile-header">
