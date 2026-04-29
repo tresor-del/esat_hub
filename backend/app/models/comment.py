@@ -28,4 +28,8 @@ class CommentListResponse(BaseModel):
     total: int
     comments: List[CommentResponse]
 
+class CommentStatsResponse(BaseModel):
+    total_comments: int
+    reply_count: int
+
 

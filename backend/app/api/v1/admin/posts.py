@@ -8,7 +8,8 @@ from app.services.admin.manager import AdminService
 from app.services.notification import NotificationService
 from app.models.notifications import NotificationResponse
 from app.models.message import Message
-from app.models.post import PostListResponse, PostResponse, PostUpdateResponse
+from app.models.post import PostListResponse, PostStatsResponse
+from app.db.schemas.post import Post
 
 
 router = APIRouter()
@@ -24,7 +25,9 @@ async def get_all_posts(
     admin: User = Depends(get_current_admin),
     admin_service: AdminService = Depends(get_admin_service),
 ):
-    """Get all posts with optional filters (admin only)."""
+    """
+    Retourne tous les posts avec des filtres optionnel.
+    """
     room_uuid = None
     if room_id and room_id != "0":
         try:
@@ -32,7 +35,7 @@ async def get_all_posts(
         except ValueError:
             pass
     
-    posts, total = admin_service.posts.get_all_posts(
+    result = admin_service.posts.get_all_posts(
         skip=skip,
         limit=limit,
         post_type=post_type,
@@ -40,18 +43,17 @@ async def get_all_posts(
         room_id=room_uuid if room_id else None
     )
     
-    return {
-        "total": total,
-        "posts": posts
-    }
+    return result
 
 
-@router.get("/posts/statistics", response_model=dict)
+@router.get("/posts/statistics", response_model=PostStatsResponse)
 async def get_post_statistics(
     admin: User = Depends(get_current_admin),
     admin_service: AdminService = Depends(get_admin_service),
 ):
-    """Get post statistics (admin only)."""
+    """
+    Retourne les stats d'un post
+    """
     return admin_service.posts.get_post_statistics()
 
 @router.get("/posts/{post_id}")
@@ -60,43 +62,47 @@ async def get_post_by_id(
     admin: User = Depends(get_current_admin),
     admin_service: AdminService = Depends(get_admin_service),
 ):
-    """Get a specific post by ID (admin only)."""
+    """
+    Retourne un post spécifique.
+    """
     post = admin_service.posts.get_post_by_id(post_id)
     if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Post {post_id} not found"
+            detail=f"Post non trouvé."
         )
     
     return post
 
-@router.delete("/posts/{post_id}")
+@router.delete("/posts/{post_id}", response_model=Message)
 async def delete_post(
     post_id: int,
     admin: User = Depends(get_current_admin),
     admin_service: AdminService = Depends(get_admin_service),
     notification_service: NotificationService = Depends(get_notification_service),
 ):
-    """Delete a post and send notification to the author (admin only)."""
+    """
+    Supprime un post puis envoie une notification à l'auteur.
+    """
     try:
         post = admin_service.posts.get_post_by_id(post_id)
         if not post:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Post {post_id} not found"
+                detail=f"Post non trouvé."
             )
         
         user = admin_service.users.get_user_by_id(post.user_id)
         
-        # Delete the post
+        # Supprimer le post
         admin_service.posts.delete_post(post_id)
         
-        # Send notification to the post user
+        # Envoie de notif a l'auteur
         if user:
             try:
                 notification = NotificationResponse(
-                    type="POST_DELETED",
-                    content=f"Your post '{post.title}' has been deleted by an administrator",
+                    type="POST_SUPPRIMÉ",
+                    content=f"Votre post '{post.title}' à été supprimé par un administateur.",
                     is_read=False,
                     recipient=admin_service.users.create_user_response(user),
                     sender=admin_service.users.create_user_response(admin),
@@ -104,16 +110,17 @@ async def delete_post(
                 )
                 await notification_service.send_notification(notification)
             except Exception as e:
-                print(f"Failed to send notification: {e}")
+                print(f"Erreur lors de l'envoie de la notification: {e}")
         
-        return {"message": f"Post {post_id} deleted successfully"}
+        return Message(message="Post supprimé avec succès.")
+    
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
         )
 
-@router.patch("/posts/{post_id}/status")
+@router.patch("/posts/{post_id}/status", response_model=Message)
 async def update_post_status(
     post_id: int,
     new_status: str = Query(..., description="New status (ACTIVE, INACTIVE)"),
@@ -121,7 +128,9 @@ async def update_post_status(
     admin_service: AdminService = Depends(get_admin_service),
     notification_service: NotificationService = Depends(get_notification_service),
 ):
-    """Update a post's status (admin only)."""
+    """
+    Mettre à jour le statut d'un post.
+    """
     try:
         post = admin_service.posts.get_post_by_id(post_id)
         user = admin_service.users.get_user_by_id(post.user_id)
@@ -141,8 +150,8 @@ async def update_post_status(
             except Exception as e:
                 print(f"Failed to send notification: {e}")
         
-
-        return Message(message="Post status updated successfully")
+        return Message(message="Statut mis à jour avec succès.")
+    
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

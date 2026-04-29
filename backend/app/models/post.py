@@ -57,3 +57,7 @@ class PostListResponse(BaseModel):
 class PostUpdateResponse(BaseModel):
     message: str
     post: PostResponse 
+
+class PostStatsResponse(BaseModel):
+    total_posts: int
+    type_counts: Optional[dict] = None

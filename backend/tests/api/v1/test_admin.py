@@ -116,7 +116,6 @@ class TestAdminUserEndpoints:
     def test_delete_user(self, client, db, admin_auth_headers, admin):
         """Test deleting (deactivating) a user."""
 
-        
         # Create regular user
         user_data, _ = random_user_in_db()
         user = User(**user_data.model_dump())
@@ -129,7 +128,7 @@ class TestAdminUserEndpoints:
         response = client.delete(f"/api/v1/admin/users/{user.id}", headers=admin_auth_headers)
         
         assert response.status_code == 200
-        assert "deactivated" in response.json()["message"].lower()
+        assert "désactivé" in response.json()["message"].lower()
 
     def test_cannot_delete_self(self, client, db, admin_auth_headers, admin):
         """Test that admin cannot delete their own account."""
@@ -157,7 +156,7 @@ class TestAdminUserEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert "query" in data
-        assert "results" in data
+        assert "users" in data
         assert data["query"] == "test"
 
 
@@ -202,7 +201,6 @@ class TestAdminPostEndpoints:
     def test_delete_post(self, client, db, admin_auth_headers, admin):
         """Test deleting a post."""
 
-        
         # Create a test post
         post = Post(
             title="Test Post to Delete",
@@ -218,8 +216,9 @@ class TestAdminPostEndpoints:
 
         response = client.delete(f"/api/v1/admin/posts/{post.id}", headers=admin_auth_headers)
         
+        print(response.json())
         assert response.status_code == 200
-        assert "deleted" in response.json()["message"].lower()
+        assert "supprimé" in response.json()["message"].lower()
     
     def test_update_post_status(self, client, db, admin_auth_headers, admin):
         post = Post(
@@ -236,7 +235,7 @@ class TestAdminPostEndpoints:
         
         data = response.json()
         print(data)
-        assert data["message"] == "Post status updated successfully"
+        assert data["message"] == "Statut mis à jour avec succès."
 
         post = db.query(Post).filter(Post.id == post.id).first()
         assert post.status == PostStatus.INACTIVE
@@ -244,9 +243,6 @@ class TestAdminPostEndpoints:
 
     def test_get_post_statistics(self, client, db, admin_auth_headers, admin):
         """Test getting post statistics."""
-
-        
-        # Get token for admin
 
         response = client.get("/api/v1/admin/posts/statistics", headers=admin_auth_headers)
         
@@ -333,7 +329,7 @@ class TestAdminCommentEndpoints:
         response = client.delete(f"/api/v1/admin/comments/{comment.id}", headers=admin_auth_headers)
         
         assert response.status_code == 200
-        assert "deleted" in response.json()["message"].lower()
+        assert "supprimé" in response.json()["message"].lower()
 
     def test_get_comment_statistics(self, client, db, admin_auth_headers, admin):
         """Test getting comment statistics."""

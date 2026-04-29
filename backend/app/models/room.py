@@ -12,3 +12,17 @@ class RoomResponse(BaseModel):
     posts: list[PostResponse]
 
     model_config = ConfigDict(from_attributes=True)
+
+class RoomListResponse(BaseModel):
+    total: int
+    rooms: list[RoomResponse]
+
+class RoomResponseAdmin(BaseModel):
+    id: UUID
+    name: str
+    post_count: int
+    member_count: int
+
+class RoomStatsResponseAdmin(BaseModel):
+    total_rooms: int
+    rooms: list[RoomResponseAdmin]

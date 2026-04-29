@@ -65,3 +65,9 @@ class UserListResponse(BaseModel):
     users: list[UserResponse]
 
     model_config = ConfigDict(from_attributes=True)
+
+class UserSearchResponse(BaseModel):
+    query: str
+    users: list[UserResponse]
+
+    model_config = ConfigDict(from_attributes=True)

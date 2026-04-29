@@ -3,7 +3,7 @@ from uuid import UUID
 
 from app.db.schemas.user import User, UserRole, UserStatus
 from app.services.admin.base import BaseAdminService
-from app.models.user import UserResponse
+from app.models.user import UserListResponse, UserResponse, UserSearchResponse
 
 
 class AdminUsersService(BaseAdminService):
@@ -16,10 +16,9 @@ class AdminUsersService(BaseAdminService):
         status: Optional[str] = None,
         domain: Optional[str] = None,
         year: Optional[str] = None
-    ) -> tuple[List[User], int]:
+    ) -> UserListResponse:
         """
-        Get all users with optional filters.
-        Returns tuple of (users, total_count).
+        Retourne tous les utilisateurs avec des filtres optionnels
         """
         query = self._db.query(User)
 
@@ -35,7 +34,7 @@ class AdminUsersService(BaseAdminService):
         total = query.count()
         users = query.offset(skip).limit(limit).all()
 
-        return users, total
+        return UserListResponse(total=total, users=users)
 
     def get_user_by_id(self, user_id: UUID) -> Optional[User]:
         """Get a user by ID."""
@@ -46,7 +45,9 @@ class AdminUsersService(BaseAdminService):
         return self._db.query(User).filter(User.email == email).first()
 
     def update_user_status(self, user_id: UUID, new_status: str) -> User:
-        """Update a user's status."""
+        """
+        Modifie le statut d'un utilisateur.
+        """
         user = self.get_user_by_id(user_id)
         if not user:
             raise ValueError(f"User {user_id} not found")
@@ -68,7 +69,9 @@ class AdminUsersService(BaseAdminService):
         return user
 
     def delete_user(self, user_id: UUID) -> bool:
-        """Delete a user (soft delete by setting status to INACTIVE)."""
+        """
+        Désactiver un user.
+        """
         user = self.get_user_by_id(user_id)
         if not user:
             raise ValueError(f"User {user_id} not found")
@@ -77,16 +80,23 @@ class AdminUsersService(BaseAdminService):
         self._db.commit()
         return True
 
-    def search_users(self, query: str, limit: int = 50) -> List[User]:
-        """Search users by name, email, or username."""
+    def search_users(self, query: str, limit: int = 50) -> UserSearchResponse:
+        """
+        Recherche d'un utilisateur par nom,email ou nom de profile.
+        """
         search_pattern = f"%{query}%"
-        return self._db.query(User).filter(
+        users = self._db.query(User).filter(
             (User.first_name.ilike(search_pattern)) |
             (User.last_name.ilike(search_pattern)) |
             (User.email.ilike(search_pattern)) |
             (User.username.ilike(search_pattern)) |
             (User.profil_name.ilike(search_pattern))
         ).limit(limit).all()
+
+        return UserSearchResponse(
+            query=query,
+            users = [self.create_user_response(user) for user in users]
+        )
     
     def create_user_response(self, user: User) -> UserResponse:
         """Create UserResponse from User model."""
