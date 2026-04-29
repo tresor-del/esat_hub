@@ -1,0 +1,26 @@
+name: Dependabot auto-merge
+on: pull_request
+
+# Obligatoire pour autoriser le bot à modifier les PR et le contenu
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    # On vérifie que c'est bien Dependabot qui a ouvert la PR
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2 
+
+      - name: Approve and merge immediately
+        # On utilise 'gh pr merge' sans '--auto' pour fusionner direct
+        run: |
+          gh pr review --approve "$PR_URL"
+          gh pr merge --squash --delete-branch "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
