@@ -3,7 +3,6 @@ from uuid import UUID
 from fastapi import WebSocket
 from fastapi.encoders import jsonable_encoder
 
-from app.db.schemas.notification import Notification
 
 class ConnexionManager:
 

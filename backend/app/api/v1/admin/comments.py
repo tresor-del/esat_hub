@@ -7,7 +7,7 @@ from app.api.deps.auth import  get_current_admin
 from app.api.deps.services import get_admin_service, get_notification_service
 from app.db.schemas.user import User
 from app.services.admin.manager import AdminService
-from app.services.notification import NotificationService
+from app.services.interactions.notification import NotificationService
 from app.models.notifications import NotificationResponse
 from app.models.comment import CommentListResponse, CommentResponse, CommentStatsResponse
 from app.models.message import Message

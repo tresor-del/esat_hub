@@ -4,7 +4,7 @@ from app.api.deps.services import get_room_service
 from app.api.deps.auth import get_current_user
 from app.db.schemas.user import User
 from app.db.schemas.room import Room
-from app.services.room import RoomService
+from app.services.social.room import RoomService
 
 
 router = APIRouter(prefix="/rooms", tags=["Room"])

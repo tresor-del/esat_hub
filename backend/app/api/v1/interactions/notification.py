@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from app.api.deps.auth import get_current_user
 from app.api.deps.services import get_notification_service
 from app.db.schemas.user import User
-from app.services.notification import NotificationService
+from app.services.interactions.notification import NotificationService
 from app.models.message import Message
 
 

@@ -4,7 +4,7 @@ from jose import jwt, JWTError
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from app.core.config import settings
-from app.services.ws_manager import ws_manager
+from app.services.realtime.ws_manager import ws_manager
 
 router = APIRouter(tags=["websocket"])
 

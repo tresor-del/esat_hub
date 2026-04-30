@@ -6,18 +6,9 @@ from slowapi.errors import RateLimitExceeded
 
 from contextlib import asynccontextmanager
 
+from app.api.v1 import router as api_v1_router
 from app.core.logging import setup_logging
 from app.db.database import Base, engine
-from app.api.v1.auth import router as auth_router
-from app.api.v1.post import router as post_router
-from app.api.v1.users import router as users_router
-from app.api.v1.search import router as search_router
-from app.api.v1.files import router as files_router
-from app.api.v1.comment import router as comment_router
-from app.api.v1.ws import router as ws_router
-from app.api.v1.notification import router as notif_router
-from app.api.v1.room import router as room_router
-from app.api.v1.admin import router as admin_router
 from app.core.config import settings
 from app.core.limiter import limiter
 
@@ -71,13 +62,4 @@ async def health_check():
         "version": "1.0.0"
     }
 
-app.include_router(auth_router, prefix="/api/v1")
-app.include_router(post_router, prefix="/api/v1")
-app.include_router(users_router, prefix="/api/v1")
-app.include_router(search_router, prefix="/api/v1")
-app.include_router(files_router, prefix="/api/v1")
-app.include_router(comment_router, prefix="/api/v1")
-app.include_router(ws_router, prefix="/api/v1")
-app.include_router(notif_router, prefix="/api/v1")
-app.include_router(room_router, prefix="/api/v1")
-app.include_router(admin_router, prefix="/api/v1")
+app.include_router(api_v1_router, prefix="/api/v1")

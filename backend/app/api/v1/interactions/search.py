@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps.auth import get_current_user
 from app.api.deps.db import get_db
-from app.engine.search_engine import SearchEngine
+from app.services.interactions.search import SearchEngine
 from app.db.schemas.user import User
 
 

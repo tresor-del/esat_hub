@@ -1,15 +1,17 @@
 from typing import  Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, BackgroundTasks
+from sqlalchemy.orm import Session
 
 from app.api.deps.auth import get_current_admin
-from app.api.deps.services import get_admin_service, get_notification_service
+from app.api.deps.services import get_admin_service
+from app.api.deps.db import get_db
 from app.db.schemas.user import User
 from app.services.admin.manager import AdminService
-from app.services.notification import NotificationService
 from app.models.user import UserListResponse, UserResponse, UserSearchResponse
 from app.models.notifications import NotificationResponse
 from app.models.message import Message
+from app.tasks.notifications import send_notification_task
 
 router = APIRouter()
 
@@ -71,12 +73,13 @@ async def get_user_by_id(
 
 
 @router.patch("/users/{user_id}/status", response_model=UserResponse)
-async def update_user_status(
+def update_user_status(
     user_id: UUID,
+    background_tasks: BackgroundTasks,
     new_status: str = Query(..., description="New status (ACTIVE, PENDING, INACTIVE)"),
     admin: User = Depends(get_current_admin),
     admin_service: AdminService = Depends(get_admin_service),
-    notification_service: NotificationService = Depends(get_notification_service),
+    db: Session = Depends(get_db),
 ):
     """
     Mettre à jour le statut d'un user et evoyer une notif.
@@ -84,18 +87,15 @@ async def update_user_status(
     try:
         user = admin_service.users.update_user_status(user_id, new_status)
         
-        # Envoyer une notification a l'utilisateur
-        try:
-            notification = NotificationResponse(
-                type="STATUS_UPDATE",
-                content=f"Le Statut de votre compte est changé à {new_status}",
-                is_read=False,
-                recipient=admin_service.users.create_user_response(user),
-                sender=admin_service.users.create_user_response(admin),
-            )
-            await notification_service.send_notification(notification)
-        except Exception as e:
-            print(f"Failed to send notification: {e}")
+        # Envoyer une notification a l'utilisateur en arrière-plan
+        notification = NotificationResponse(
+            type="STATUS_UPDATE",
+            content=f"Le Statut de votre compte est changé à {new_status}",
+            is_read=False,
+            recipient=admin_service.users.create_user_response(user),
+            sender=admin_service.users.create_user_response(admin),
+        )
+        background_tasks.add_task(send_notification_task, notification)
         
         return admin_service.users.create_user_response(user)
     except ValueError as e:
@@ -106,29 +106,27 @@ async def update_user_status(
 
 
 @router.patch("/users/{user_id}/role", response_model=UserResponse)
-async def update_user_role(
+def update_user_role(
     user_id: UUID,
+    background_tasks: BackgroundTasks,
     new_role: str = Query(..., description="New role (ADMIN, STUDENT, TEACHER)"),
     admin: User = Depends(get_current_admin),
     admin_service: AdminService = Depends(get_admin_service),
-    notification_service: NotificationService = Depends(get_notification_service),
+    db: Session = Depends(get_db),
 ):
     """Update a user's role and send notification (admin only)."""
     try:
         user = admin_service.users.update_user_role(user_id, new_role)
         
-        # Envoyer la notif.
-        try:
-            notification = NotificationResponse(
-                type="ROLE_UPDATE",
-                content=f"Le role de votre compte est changé à {new_role}",
-                is_read=False,
-                recipient=admin_service.users.create_user_response(user),
-                sender=admin_service.users.create_user_response(admin),
-            )
-            await notification_service.send_notification(notification)
-        except Exception as e:
-            print(f"Failed to send notification: {e}")
+        # Envoyer la notif en arrière-plan
+        notification = NotificationResponse(
+            type="ROLE_UPDATE",
+            content=f"Le role de votre compte est changé à {new_role}",
+            is_read=False,
+            recipient=admin_service.users.create_user_response(user),
+            sender=admin_service.users.create_user_response(admin),
+        )
+        background_tasks.add_task(send_notification_task, notification)
         
         return admin_service.users.create_user_response(user)
     except ValueError as e:
@@ -138,11 +136,12 @@ async def update_user_role(
         )
 
 @router.delete("/users/{user_id}", response_model=Message)
-async def delete_user(
+def delete_user(
     user_id: UUID,
+    background_tasks: BackgroundTasks,
     admin: User = Depends(get_current_admin),
     admin_service: AdminService = Depends(get_admin_service),
-    notification_service: NotificationService = Depends(get_notification_service),
+    db: Session = Depends(get_db),
 ):
     """
     Désactiver un user.
@@ -164,18 +163,15 @@ async def delete_user(
         
         admin_service.users.delete_user(user_id)
         
-        # Send notification to the user
-        try:
-            notification = NotificationResponse(
-                type="ACCOUNT_DELETED",
-                content="Votre compte a été désactivé par un administrateur.",
-                is_read=False,
-                recipient=admin_service.users.create_user_response(user),
-                sender=admin_service.users.create_user_response(admin),
-            )
-            await notification_service.send_notification(notification)
-        except Exception as e:
-            print(f"Failed to send notification: {e}")
+        # Send notification to the user en arrière-plan
+        notification = NotificationResponse(
+            type="ACCOUNT_DELETED",
+            content="Votre compte a été désactivé par un administrateur.",
+            is_read=False,
+            recipient=admin_service.users.create_user_response(user),
+            sender=admin_service.users.create_user_response(admin),
+        )
+        background_tasks.add_task(send_notification_task, notification)
         
         return Message(message="Utilisateur désactivé avec succès")
     except ValueError as e:

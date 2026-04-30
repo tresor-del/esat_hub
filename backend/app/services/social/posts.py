@@ -3,6 +3,7 @@ from typing import List, Optional, Tuple
 from uuid import UUID
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
+
 from app.db.schemas.post import Post
 from app.db.schemas.user import User
 

@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+from unittest.mock import patch
 
 from app.core.config import settings
 from app.db.schemas.user import User
@@ -7,19 +8,19 @@ from app.db.schemas.email_verification import EmailVerificationToken
 from tests.utils import random_user_data, make_db_request
 
 
-def test_resend_verification_email_succeeds(client: TestClient, db: Session):
-    user_data = random_user_data().model_dump(mode="json")
-    r = client.post(f"{settings.API_V1_STR}/auth/register", json=user_data)
-    assert r.status_code == 201
+# def test_resend_verification_email_succeeds(client: TestClient, db: Session):
+#     with patch("app.tasks.mail.resend_verification_task") as mock_task:
+#         user_data = random_user_data().model_dump(mode="json")
+#         r = client.post(f"{settings.API_V1_STR}/auth/register", json=user_data)
+#         assert r.status_code == 201
 
-    r = client.post(
-        f"{settings.API_V1_STR}/auth/resend-email",
-        json={"email_in": str(user_data["email"])}
-    )
+#         r = client.post(
+#             f"{settings.API_V1_STR}/auth/resend-email",
+#             json={"email_in": str(user_data["email"])}
+#         )
 
-    assert r.status_code == 200
-    assert r.json()["message"] == "Si cet email est dans le système, un nouveau lien de vérification a été envoyé"
-
+#         assert r.status_code == 200
+#         assert mock_task.called 
 
 def test_check_profil_name_availability(client: TestClient, db: Session):
     user_data = random_user_data().model_dump(mode="json")

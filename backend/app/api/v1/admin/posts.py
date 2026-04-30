@@ -1,15 +1,18 @@
 from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, BackgroundTasks
+from sqlalchemy.orm import Session
+
 from app.api.deps.auth import get_current_admin
-from app.api.deps.services import get_admin_service, get_notification_service
+from app.api.deps.services import get_admin_service
+from app.api.deps.db import get_db
 from app.db.schemas.user import User
 from app.services.admin.manager import AdminService
-from app.services.notification import NotificationService
 from app.models.notifications import NotificationResponse
 from app.models.message import Message
 from app.models.post import PostListResponse, PostStatsResponse
 from app.db.schemas.post import Post
+from app.tasks.notifications import send_notification_task
 
 
 router = APIRouter()
@@ -75,11 +78,12 @@ async def get_post_by_id(
     return post
 
 @router.delete("/posts/{post_id}", response_model=Message)
-async def delete_post(
+def delete_post(
     post_id: int,
+    background_tasks: BackgroundTasks,
     admin: User = Depends(get_current_admin),
     admin_service: AdminService = Depends(get_admin_service),
-    notification_service: NotificationService = Depends(get_notification_service),
+    db: Session = Depends(get_db),
 ):
     """
     Supprime un post puis envoie une notification à l'auteur.
@@ -97,20 +101,18 @@ async def delete_post(
         # Supprimer le post
         admin_service.posts.delete_post(post_id)
         
-        # Envoie de notif a l'auteur
+        # Envoie de notif a l'auteur en arrière-plan
         if user:
-            try:
-                notification = NotificationResponse(
-                    type="POST_SUPPRIMÉ",
-                    content=f"Votre post '{post.title}' à été supprimé par un administateur.",
-                    is_read=False,
-                    recipient=admin_service.users.create_user_response(user),
-                    sender=admin_service.users.create_user_response(admin),
-                    post_id=post_id,
-                )
-                await notification_service.send_notification(notification)
-            except Exception as e:
-                print(f"Erreur lors de l'envoie de la notification: {e}")
+            notification = NotificationResponse(
+                type="POST_SUPPRIMÉ",
+                content=f"Votre post '{post.title}' à été supprimé par un administateur.",
+                is_read=False,
+                recipient=admin_service.users.create_user_response(user),
+                sender=admin_service.users.create_user_response(admin),
+                post_id=post_id,
+            )
+            
+            background_tasks.add_task(send_notification_task, notification)
         
         return Message(message="Post supprimé avec succès.")
     
@@ -121,12 +123,13 @@ async def delete_post(
         )
 
 @router.patch("/posts/{post_id}/status", response_model=Message)
-async def update_post_status(
+def update_post_status(
     post_id: int,
+    background_tasks: BackgroundTasks,
     new_status: str = Query(..., description="New status (ACTIVE, INACTIVE)"),
     admin: User = Depends(get_current_admin),
     admin_service: AdminService = Depends(get_admin_service),
-    notification_service: NotificationService = Depends(get_notification_service),
+    db: Session = Depends(get_db),
 ):
     """
     Mettre à jour le statut d'un post.
@@ -137,18 +140,16 @@ async def update_post_status(
         admin_service.posts.update_post_status(post_id, new_status)
 
         if user:
-            try:
-                notification = NotificationResponse(
-                    type="POST_STATUS_UPDATE",
-                    content=f"Un admin a changé le status de votre post '{post.title}' à {new_status}",
-                    is_read=False,
-                    recipient=admin_service.users.create_user_response(user),
-                    sender=admin_service.users.create_user_response(admin),
-                    post_id=post_id,
-                )
-                await notification_service.send_notification(notification)
-            except Exception as e:
-                print(f"Failed to send notification: {e}")
+            notification = NotificationResponse(
+                type="POST_STATUS_UPDATE",
+                content=f"Un admin a changé le status de votre post '{post.title}' à {new_status}",
+                is_read=False,
+                recipient=admin_service.users.create_user_response(user),
+                sender=admin_service.users.create_user_response(admin),
+                post_id=post_id,
+            )
+            
+            background_tasks.add_task(send_notification_task, notification)
         
         return Message(message="Statut mis à jour avec succès.")
     

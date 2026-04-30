@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi import APIRouter, status, HTTPException, Depends, BackgroundTasks
 
 from app.api.deps.auth import get_current_user
-from app.api.deps.services import get_comment_service, get_post_service, get_notification_service, get_auth_service
+from app.api.deps.services import get_comment_service, get_post_service, get_auth_service
 from app.api.deps.db import get_db
 from app.db.schemas.user import User
 from app.services.social.comment import CommentService
@@ -12,7 +12,6 @@ from app.services.social.posts import PostService
 from app.models.message import Message
 from app.models.user import UserResponse
 from app.models.notifications import NotificationResponse
-from app.api.v1.realtime.ws import ws_manager
 from app.services.auth.users import AuthService
 from app.tasks.notifications import send_notification_task
 from app.core.notifications import notification_contents

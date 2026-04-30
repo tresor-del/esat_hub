@@ -1,13 +1,13 @@
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from app.services.users import AuthService
-from app.services.email import EmailService
-from app.services.posts import PostService
-from app.services.files import FileService
-from app.services.comment import CommentService
-from app.services.notification import NotificationService
-from app.services.room import RoomService
+from app.services.auth.users import AuthService
+from app.services.auth.email import EmailService
+from app.services.social.posts import PostService
+from app.services.common.files import FileService
+from app.services.social.comment import CommentService
+from app.services.interactions.notification import NotificationService
+from app.services.social.room import RoomService
 from app.services.admin.manager import AdminService
 from app.api.deps.db import get_db
 

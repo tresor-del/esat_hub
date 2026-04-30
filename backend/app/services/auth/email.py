@@ -76,7 +76,7 @@ class EmailService:
         
         return verification.token
     
-    def resend_verification_email(self, email: str, bg_tasks: BackgroundTasks):
+    def resend_verification_email(self, email: str):
 
         user = self._db.query(User).filter(User.email == str(email)).first()
 
@@ -88,4 +88,5 @@ class EmailService:
         new_token = self.create_verification_email(user.id)
 
         user_in = UserInDatabase.model_validate(user)
-        bg_tasks.add_task(self.send_verification_email, user_in, new_token)
+        
+        self.send_verification_email(user_in, new_token)

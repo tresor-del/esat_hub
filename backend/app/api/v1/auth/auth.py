@@ -14,18 +14,19 @@ from app.models.token import Token
 from app.db.security import create_access_token, create_refresh_token, hash_password
 from app.models.user import UserCreate, UserInDatabase
 from app.models.message import Message
-from app.services.email import EmailService
+from app.services.auth.email import EmailService
 from app.db.security import authenticate_user
-from app.services.users import AuthService
+from app.services.auth.users import AuthService
 from app.models.token import RefreshToken
 from app.db.schemas.revoked_token import RevokedToken
-from app.services.room import RoomService
+from app.services.social.room import RoomService
 from app.models.mail import EmailModel
 from app.core.limiter import limiter
+from app.tasks.mail import send_verification_task, resend_verification_task
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter()
 
 
 @router.post("/token", response_model=Token)
@@ -161,7 +162,7 @@ def register(
     
     # Envoie d'email à l'utilisateur
     background_tasks.add_task(
-        email_service.send_verification_email,
+        send_verification_task,
         user,
         token
     )
@@ -204,7 +205,7 @@ def resend_verification_email(
     background_tasks: BackgroundTasks,
     email_service: EmailService = Depends(get_email_service)
 ):
-    email_service.resend_verification_email(email_in.email_in, background_tasks)
+    background_tasks.add_task(resend_verification_task, email_in.email_in)
     
     return Message(message="Si cet email est dans le système, un nouveau lien de vérification a été envoyé")
 
