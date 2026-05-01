@@ -12,7 +12,7 @@ class Comment(Base):
     created_at = Column(DateTime, index=True, default=lambda: datetime.datetime.now(datetime.UTC))
     edited_at = Column(DateTime, index=True, default=lambda: datetime.datetime.now(datetime.UTC), onupdate=lambda: datetime.datetime.now(datetime.UTC))
 
-    post_id = Column(Integer, ForeignKey("posts.id"), nullable=False)
+    post_id = Column(UUID(as_uuid=True), ForeignKey("posts.id"), nullable=False)
     post = relationship("Post", back_populates="comments")
 
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)

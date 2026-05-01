@@ -62,6 +62,11 @@ const Room = () => {
         }
     }
 
+    const handleSeeFiles = () => {
+        setView('files');
+    }
+
+
     // Filter users based on search query
     const filteredUsers = room?.users?.filter(user => {
         const query = searchQuery.toLowerCase();

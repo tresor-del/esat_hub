@@ -7,6 +7,7 @@ import PostAuthorInfo from "../../components/posts/PostAuthorInfo"
 import PostActionsMenu from "../../components//posts/PostActionsMenu";
 import PostMedia from "../../components/posts/PostMedia";
 import CommentSection from "../../components/comments/CommentSection";
+import PostCard from "../../components/posts/Postcard";
 import "../../styles/CommentSection.css"
 import "../../styles/PostDetail.css"
 import "../../styles/PostMedia.css"
@@ -112,51 +113,22 @@ const PostDetail = () => {
           </div>
 
           {/* Métadonnées avec avatar */}
-          <div className="post-meta">
-            <PostAuthorInfo
-              user={post.user}
-              variant="compact"
-            />
-
-            <PostActionsMenu
+            <PostCard
+              key={post.id}
               post={post}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              icon="menu"
+              detail={true}
             />
-          </div>
-
-          {/* Titre */}
-          <h1 className="post-title">
-            {post.title}
-          </h1>
-
-          {/* Description complète */}
-          {post.description && (
-            <p className="post-description full">{post.description}</p>
-          )}
-
-          {/* Médias (photo ou document) */}
-          <PostMedia post={post} size="normal" bust={location.state?.updatedAt} />
-
-          {/* Actions avec vrais likes */}
-          {/* <PostActions 
-            voteCount={likesCount}
-            commentCount={commentsCount}
-            downloadCount={0}
-            isLiked={isLiked}
-            onUpvote={handleToggleLike}
-            variant="detail"
-          /> */}
-
-          <CommentSection
-            postId={id}
-            user={user}
-            onCommentAdded={handleCommentAdded}
-          />
+            <br />
+            <CommentSection
+              postId={id}
+              user={user}
+              onCommentAdded={handleCommentAdded}
+            />
         </div>
-      </div>
 
+      </div>
     </div>
   );
 };

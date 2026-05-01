@@ -126,10 +126,14 @@ export const createPost = async (postData) => {
   formData.append("title", postData.title);
   formData.append("description", postData.description || "");
   formData.append("post_type", postData.post_type);
+  
   if (postData.room_id) {
     formData.append("room_id", postData.room_id);
   }
-  formData.append("file", postData.file);
+
+  if (postData.file) {
+    formData.append("file", postData.file);
+  }
 
   const response = await api.post("/posts/", formData, {
     headers: {
@@ -138,6 +142,7 @@ export const createPost = async (postData) => {
   });
   return response.data;
 };
+
 
 export const updatePost = async (postId, updateData) => {
   console.log("Juste avant l'envoie vers le serveur: ", updateData.get("title"));

@@ -14,7 +14,8 @@ const PostCard = ({
   onDelete,
   onToggleStatus,
   onView,
-  variant = "list"
+  variant = "list",
+  detail = false
 }) => {
 
   const [commentsLength, setCommentLength] = useState(0);
@@ -62,7 +63,7 @@ const PostCard = ({
 
 
   return (
-    <div className="post-card">
+    <div className={`post-card ${detail ? 'post-detail-card' : ''}`}>
       <div className="post-content post-content-d">
         {/* Métadonnées avec avatar */}
         <div className="post-meta">

@@ -18,9 +18,9 @@ class PostService:
         self,
         title: str,
         post_type: str,
-        file_path: str,
-        file_name: str,
         user_id: UUID,
+        file_path: Optional[str] = None,
+        file_name: Optional[str] = None,
         description: Optional[str] = None,
         mime_type: Optional[str] = None,
         room_id: Optional[UUID] = None
@@ -56,9 +56,6 @@ class PostService:
             Post
         ).group_by(Post.id)
 
-        print("room id: ", room_id)
-        print("include_all: ", include_all)
-
         # Filtres
         if post_type:
             query = query.filter(Post.post_type == post_type)
@@ -93,7 +90,7 @@ class PostService:
      
     def get_post(
         self, 
-        post_id: int, 
+        post_id: UUID, 
         current_user_id: Optional[UUID] = None
     ) :
         """
@@ -117,7 +114,7 @@ class PostService:
     
     def update_post(
         self,
-        post_id: int,
+        post_id: UUID,
         title: Optional[str] = None,
         description: Optional[str] = None,
         post_type: Optional[str] = None,
@@ -148,7 +145,7 @@ class PostService:
         self._db.refresh(db_post)
         return db_post
     
-    def delete_post(self, post_id: int) -> bool:
+    def delete_post(self, post_id: UUID) -> bool:
         db_post = self._db.query(Post).filter(Post.id == post_id).first()
         
         if db_post is None:

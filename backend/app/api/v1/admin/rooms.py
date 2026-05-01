@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from app.api.deps.auth import get_current_admin
 from app.api.deps.services import get_admin_service
@@ -37,7 +39,7 @@ async def get_room_statistics(
 
 @router.get("/rooms/{room_id}", response_model=RoomResponseAdmin)
 async def get_room_by_id(
-    room_id: int,
+    room_id: UUID,
     admin: User = Depends(get_current_admin),
     admin_service: AdminService = Depends(get_admin_service),
 ):

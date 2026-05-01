@@ -16,7 +16,7 @@ router = APIRouter(prefix="/files", tags=["files"])
 
 @router.get("/posts/{post_id}")
 def download_file(
-    post_id: int, 
+    post_id: uuid.UUID, 
     db: Session = Depends(get_db),
     post_service: PostService = Depends(get_post_service)
 ):

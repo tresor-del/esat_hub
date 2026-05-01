@@ -12,7 +12,7 @@ class AdminCommentsService(BaseAdminService):
         self,
         skip: int = 0,
         limit: int = 100,
-        post_id: Optional[int] = None
+        post_id: Optional[UUID] = None
     ) -> CommentListResponse:
         """
         Retourne tous les commentaires avec des filtres optionnels.

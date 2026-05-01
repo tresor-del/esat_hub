@@ -40,7 +40,7 @@ class CommentService:
         self._db.commit()
         return True
     
-    def get_comments(self, post_id: int) -> CommentListResponse:
+    def get_comments(self, post_id: uuid.UUID) -> CommentListResponse:
         statement = select(Comment).where(Comment.post_id == post_id)
         comments = self._db.execute(statement).scalars().all()
         total = len(comments)

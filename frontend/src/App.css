@@ -221,6 +221,20 @@ a:hover {
   min-width: 250px;
 }
 
+footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: #ffffff;
+  margin-top: 2rem;
+}
+
+footer p {
+  color: #7c7c7c;
+}
+
 @media (max-width: 768px) {
   .container {
     padding-top: 1rem !important;
@@ -228,6 +242,10 @@ a:hover {
   }
   .main-content {
   min-width: unset;
+}
+
+footer p {
+  font-size: 1rem;
 }
   
 }

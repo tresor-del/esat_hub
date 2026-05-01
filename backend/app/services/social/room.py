@@ -48,9 +48,4 @@ class RoomService:
 
 
         return RoomResponse.model_validate(room) if room else None
-
-    
-
-
-
-        
+  

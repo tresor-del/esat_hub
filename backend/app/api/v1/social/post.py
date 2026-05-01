@@ -11,8 +11,6 @@ from app.models.post import PostResponse, PostListResponse, PostType
 from app.services.common.files import FileService  
 from app.db.schemas.user import User
 from app.services.social.posts import PostService
-from app.services.auth.users import AuthService
-from app.models.user import UserResponse
 from app.core.config import settings
 from app.tasks.posts import handle_new_post
 
@@ -30,25 +28,31 @@ def create_post(
     description: Optional[str] = Form(None),
     post_type: PostType = Form(...),
     room_id: Optional[UUID] = Form(None),
-    file: UploadFile = File(...),
+    file: Optional[UploadFile] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
     post_service: PostService = Depends(get_post_service),
     file_service: FileService = Depends(get_file_service)
 ):
     """Créer un nouveau post avec fichier"""
+    file_path = None
+    original_filename = None
+    mime_type = None
+    
     try:
-        file_path, original_filename = file_service.save_upload_file(
-            upload_file=file,
-            post_type=post_type.value
-        )
-
-        if not file_path and not original_filename:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Fichier non supporté pour le type de post"
+        if file:
+            file_path, original_filename = file_service.save_upload_file(
+                upload_file=file,
+                post_type=post_type.value
             )
-        
+
+            if not file_path and not original_filename:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Fichier non supporté pour le type de post"
+                )
+            mime_type = file.content_type
+
         # Validation de room_id
         if room_id is not None:
             if current_user.user_room_id != room_id:
@@ -61,9 +65,9 @@ def create_post(
             title=title,
             description=description,
             post_type=post_type.value,
-            file_path=file_path,
+            file_path=file_path if file_path else None,
             file_name=original_filename,
-            mime_type=file.content_type,
+            mime_type=mime_type,
             user_id=current_user.id,
             room_id=room_id
         )
@@ -117,7 +121,7 @@ def read_posts(
 
 @router.get("/posts/{post_id}", response_model=PostResponse)
 def read_post(
-    post_id: int, 
+    post_id: UUID, 
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
     post_service: PostService = Depends(get_post_service)
@@ -135,7 +139,7 @@ def read_post(
 
 @router.put("/posts/{post_id}", response_model=PostResponse)
 async def update_post(
-    post_id: int,
+    post_id: UUID,
     title: Optional[str] = Form(None),
     description: Optional[str] = Form(None),
     post_type: Optional[PostType] = Form(None),
@@ -211,7 +215,7 @@ async def update_post(
     
 @router.delete("/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(
-    post_id: int, 
+    post_id: UUID, 
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
     post_service: PostService = Depends(get_post_service),

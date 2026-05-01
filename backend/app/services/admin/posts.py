@@ -44,7 +44,7 @@ class AdminPostsService(BaseAdminService):
 
         return PostListResponse(total=total, posts=posts)
 
-    def get_post_by_id(self, post_id: int) -> Optional[Post]:
+    def get_post_by_id(self, post_id: UUID) -> Optional[Post]:
         """
         Retourne un post par id
         """
@@ -52,7 +52,7 @@ class AdminPostsService(BaseAdminService):
 
         return post
 
-    def delete_post(self, post_id: int) -> bool:
+    def delete_post(self, post_id: UUID) -> bool:
         """
         Supprimer un post par id.
         """
@@ -78,7 +78,7 @@ class AdminPostsService(BaseAdminService):
 
         return PostStatsResponse(total_posts=total_posts, type_counts=type_counts)
     
-    def update_post_status(self, post_id: int, new_status: str) -> None:
+    def update_post_status(self, post_id: UUID, new_status: str) -> None:
         """
         Mettre à jour le statut d'un post.
         """

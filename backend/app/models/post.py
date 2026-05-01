@@ -9,10 +9,7 @@ from app.models.user import UserResponse
 class PostType(str, Enum):
     PHOTO = "photo"
     DOCUMENT = "document"
-    ANNONCE = "annonce"
-    COURS = "cours"
-    DEVOIR = "devoir"
-    EVENEMENT = "evenement"
+    TEXT = "text"
 
 class UserPublic(BaseModel):
     id: UUID
@@ -39,9 +36,9 @@ class PostUpdate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class PostResponse(PostBase):
-    id: int
-    file_path: str
-    file_name: str
+    id: UUID
+    file_path: Optional[str]
+    file_name: Optional[str]
     mime_type: Optional[str]
     created_at: datetime
     updated_at: datetime

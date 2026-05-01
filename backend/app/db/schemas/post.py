@@ -14,17 +14,17 @@ class PostType(str, enum.Enum):
     COURS = "cours"
     DEVOIR = "devoir"
     EVENEMENT = "evenement"
+    TEXT = "text"
 
 class PostStatus(str, enum.Enum):
     ACTIVE = "ACTIVE"
     INACTIVE = "INACTIVE"
 
 
-
 class Post(Base):
     __tablename__ = "posts"
     
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     post_type = Column(Enum(PostType), nullable=True)
@@ -32,6 +32,7 @@ class Post(Base):
     file_name = Column(String(255), nullable=True)
     mime_type = Column(String(100), nullable=True)
     status = Column(Enum(PostStatus), nullable=True, server_default=PostStatus.ACTIVE.value)
+    tags = Column(String(255), nullable=True)
     
     # Relation avec l'utilisateur
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)

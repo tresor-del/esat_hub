@@ -105,7 +105,7 @@ def delete_comment(
 
 @router.get("/posts/{post_id}/comments")
 def get_post_comments(
-    post_id: int,
+    post_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
     comment_service: CommentService = Depends(get_comment_service),
     post_service: PostService = Depends(get_post_service)

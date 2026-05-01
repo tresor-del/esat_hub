@@ -299,19 +299,27 @@
     .room-container {
         flex-direction: column;
     }
-    
+
     .room-left {
         min-width: 100%;
         border-right: none;
         border-bottom: 1px solid var(--border-color);
+        gap: 1rem;
     }
-    
+
     .users-table-container {
         overflow-x: auto;
     }
-    
+
     .users-table {
         min-width: 600px;
+    }
+
+    .room-btns {
+        display: flex;
+        flex-direction: row;
+        gap: var(--spacing-sm);
+        width: 100%;
     }
 }
 
@@ -322,7 +330,7 @@
     gap: var(--spacing-md);
 }
 
-.room-users .user{
+.room-users .user {
     padding: 1rem;
     border-radius: 20px;
     display: flex;
@@ -330,7 +338,7 @@
 }
 
 .room-users .user:hover {
-    background-color: #999 ;
+    background-color: #999;
 
 }
 

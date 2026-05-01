@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 from app.db.schemas.room import Room
 from app.services.admin.base import BaseAdminService
 from app.models.room import RoomListResponse, RoomResponseAdmin, RoomStatsResponseAdmin
@@ -15,7 +16,7 @@ class AdminRoomsService(BaseAdminService):
         rooms = query.order_by(Room.name).offset(skip).limit(limit).all()
         return RoomListResponse(total=total, rooms=rooms)
 
-    def get_room_by_id(self, room_id: int) -> Optional[RoomResponseAdmin]:
+    def get_room_by_id(self, room_id: UUID) -> Optional[RoomResponseAdmin]:
         """
         retourne une salle par l'id
         """

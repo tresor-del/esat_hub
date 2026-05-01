@@ -3,7 +3,6 @@ from fastapi import APIRouter, Depends
 from app.api.deps.services import get_room_service
 from app.api.deps.auth import get_current_user
 from app.db.schemas.user import User
-from app.db.schemas.room import Room
 from app.services.social.room import RoomService
 
 
@@ -19,4 +18,3 @@ def get_room(
     room = room_service.get_user_room(current_user)
 
     return room
-    

@@ -7,7 +7,7 @@
   overflow: hidden;
   transition: box-shadow 0.2s;
   align-items: flex-end;
-  width: 600px;
+  width: 500px;
 }
 
 .post-card:hover {

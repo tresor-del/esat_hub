@@ -13,7 +13,6 @@ router = APIRouter(tags=["websocket"])
 async def websocket_endpoint(websocket: WebSocket):
     token = websocket.query_params.get("token")
 
-
     if not token:
         await websocket.close(code=1008, reason="token query parameter is required")
         return

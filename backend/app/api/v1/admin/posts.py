@@ -61,7 +61,7 @@ async def get_post_statistics(
 
 @router.get("/posts/{post_id}")
 async def get_post_by_id(
-    post_id: int,
+    post_id: UUID,
     admin: User = Depends(get_current_admin),
     admin_service: AdminService = Depends(get_admin_service),
 ):
@@ -79,7 +79,7 @@ async def get_post_by_id(
 
 @router.delete("/posts/{post_id}", response_model=Message)
 def delete_post(
-    post_id: int,
+    post_id: UUID,
     background_tasks: BackgroundTasks,
     admin: User = Depends(get_current_admin),
     admin_service: AdminService = Depends(get_admin_service),
@@ -124,7 +124,7 @@ def delete_post(
 
 @router.patch("/posts/{post_id}/status", response_model=Message)
 def update_post_status(
-    post_id: int,
+    post_id: UUID,
     background_tasks: BackgroundTasks,
     new_status: str = Query(..., description="New status (ACTIVE, INACTIVE)"),
     admin: User = Depends(get_current_admin),

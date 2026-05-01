@@ -43,7 +43,7 @@ class NotificationService:
         content: str,
         recipients: list,
         sender: UserResponse | None = None,
-        post_id: int | None = None,
+        post_id: UUID | None = None,
         comment_id: UUID | None = None,
     ) -> None:
         """Envoie une notification à plusieurs destinataires."""
