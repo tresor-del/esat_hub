@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.db.schemas.notification import Notification
 from app.models.notifications import NotificationResponse, NotificationListResponse, NotificationResponseUser
 from app.models.user import UserResponse
-from app.services.realtime import ws_manager
+from app.services.realtime.ws_manager import ws_manager
 
 
 class NotificationService:

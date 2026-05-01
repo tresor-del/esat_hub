@@ -7,12 +7,12 @@ from app.models.user import UserInDatabase, UserResponse
 from app.models.notifications import NotificationResponse
 
 
-def send_notification_task(data: NotificationResponse):
+async def send_notification_task(data: NotificationResponse):
     with SessionLocal() as db: 
         service = NotificationService(db)
-        service.send_notification(data)
+        await service.send_notification(data)
 
-def send_bulk_notifications_task(
+async def send_bulk_notifications_task(
         notification_type: str,
         content: str,
         recipients: list,
@@ -22,7 +22,7 @@ def send_bulk_notifications_task(
 ):
     with SessionLocal() as db:
         service = NotificationService(db)
-        service.send_bulk_notifications(
+        await service.send_bulk_notifications(
             notification_type=notification_type,
             content=content,
             recipients=recipients,

@@ -15,6 +15,7 @@ from app.models.notifications import NotificationResponse
 from app.services.auth.users import AuthService
 from app.tasks.notifications import send_notification_task
 from app.core.notifications import notification_contents
+from app.tasks.comment_events import handle_new_comment_task
 
 router = APIRouter(prefix="/comments", tags=["comments"])
 
@@ -55,57 +56,11 @@ def create_comment(
     
     data.user_id = current_user.id
 
-    result = comment_service.create_comment(data=data)
+    comment = comment_service.create_comment(data=data)
 
-    # Envoyer une notification au propriétaire du post en arrière-plan
-    post = post_service.get_post(data.post_id)
-    sender = auth_service.get_user(current_user.id)
-    
-    # Notification pour les commentaires parents
-    if data.parent_id is None: 
-        recipient = auth_service.get_user(post.user_id)
+    background_tasks.add_task(handle_new_comment_task, comment.id, current_user.id)
 
-        content = notification_contents.new_comment(
-            username=current_user.username,
-            post_title=post.title,
-            comment_preview=result.content[:50],
-            is_reply=False
-        )
-
-        notification_data = NotificationResponse(
-            type="new_comment",
-            content=content,
-            is_read=False,
-            recipient=UserResponse.model_validate(recipient),
-            sender=UserResponse.model_validate(sender),
-            post_id=data.post_id,
-            comment_id=result.id
-        )
-
-    # Notification pour les réponses aux commentaires
-    else:
-        parent_comment = comment_service.get_comment(result.parent_id)
-        recipient = parent_comment.user
-        content = notification_contents.new_comment(
-            username=current_user.username,
-            post_title=post.title,
-            comment_preview=result.content[:50],
-            is_reply=True
-        )
-        notification_data = NotificationResponse(
-            type="new_comment",
-            content=content,
-            is_read=False,
-            recipient=recipient,
-            sender=UserResponse.model_validate(sender),
-            post_id=data.post_id,
-            comment_id=result.id
-        )
-    
-    # Ajouter la tâche de notification en arrière-plan
-    background_tasks.add_task(send_notification_task, notification_data)
-
-    return result
+    return comment
 
 @router.put("/update/{comment_id}")
 def update_comment(
@@ -127,8 +82,8 @@ def update_comment(
             detail="Not allowed"
         )
 
-    result = comment_service.update_comment(comment_id, new_content)
-    return result
+    new_comment = comment_service.update_comment(comment_id, new_content)
+    return new_comment
 
 @router.delete("/delete/{comment_id}")
 def delete_comment(

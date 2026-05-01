@@ -15,9 +15,9 @@ class CommentService:
         comment = self._db.query(Comment).filter(Comment.id == comment_id).first()
         return comment
 
-    def get_comment(self, comment_id: uuid.UUID) -> Comment:
+    def get_comment(self, comment_id: uuid.UUID) -> CommentResponse:
         comment = self.get_comment_in_db(comment_id)
-        return comment
+        return CommentResponse.model_validate(comment)
     
     def create_comment(self, data: CommentCreate) -> CommentResponse:
         validate_data = data.model_dump()

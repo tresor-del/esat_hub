@@ -23,7 +23,7 @@ class Year(str, enum.Enum):
 
 class Major(str, enum.Enum):
     IA = "IA"
-    CYBERSECURITE = "CYBERSÉCURITÉ"
+    CYBERSECURITE = "CYBERSECURITE"
     GENIE_LOGICIEL = "GENIE LOGICIEL"
     GENIE_MECANIQUE = "GENIE MECANIQUE"
 
