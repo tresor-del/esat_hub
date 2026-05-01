@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FiSearch, FiFilter, FiGlobe, FiLock, FiUsers, FiBook } from "react-icons/fi";
 import PostCard from "../../components/posts/Postcard";
-import { getUserProfile, getUserRoom } from "../../services/api";
+import { getPost, getUserProfile, getUserRoom } from "../../services/api";
 import { getPosts, searchPosts, deletePost } from "../../services/api";
 import { updatePostStatus } from "../../services/adminApi";
 import { useAuth } from "../../contexts/AuthContext";
@@ -56,6 +56,25 @@ const Home = () => {
 
     loadPosts(false);
   }, [filterType, fullUser, room]);
+
+  // Ajouter des posts dynamiquement depuis le ws
+  useEffect(() => {
+    const handleRealtime = async (event) => {
+      const post_data = event.detail;
+
+      try {
+        const response = await getPost(post_data.post_id);
+        if (response) {
+          setPosts(prev => [response, ...prev.filter(p => p.id !== response.id)])
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    };
+
+    window.addEventListener("NEW_POST", handleRealtime);
+    return () => window.removeEventListener("NEW_POST", handleRealtime);
+  }, [])
 
   const loadPosts = async (isLoadMore = false) => {
     try {
@@ -167,11 +186,11 @@ const Home = () => {
           </button>
         </div>
 
-        {loading && posts.length === 0 ? (
+        {loading && posts?.length === 0 ? (
           <div className="loading"><div className="spinner"></div></div>
         ) : (
           <>
-            {posts.length === 0 ? (
+            {posts?.length === 0 ? (
               <div className="empty-state">
                 <h3>
                   {filterType === "general" && "Aucun post général"}
@@ -183,7 +202,7 @@ const Home = () => {
                 </p>
               </div>
             ) : (
-              posts.map((post) => (
+              posts?.map((post) => (
                 <PostCard
                   key={post.id}
                   post={post}

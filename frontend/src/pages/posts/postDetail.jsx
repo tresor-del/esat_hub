@@ -148,17 +148,7 @@ const PostDetail = () => {
             onUpvote={handleToggleLike}
             variant="detail"
           /> */}
-        </div>
-      </div>
 
-      {/* Section commentaires */}
-      <div className="card comments-card" style={{ width: "100%" }}>
-        <div className="card-header">
-          <h3 className="card-title">
-            Commentaires ({commentCount})
-          </h3>
-        </div>
-        <div className="card-body">
           <CommentSection
             postId={id}
             user={user}
@@ -166,6 +156,7 @@ const PostDetail = () => {
           />
         </div>
       </div>
+
     </div>
   );
 };

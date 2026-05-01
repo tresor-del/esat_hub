@@ -23,3 +23,5 @@ class Comment(Base):
     parent = relationship("Comment", back_populates="replies", remote_side=[id])
     # un commentaire peut avoir plusieurs réponses
     replies = relationship("Comment", back_populates="parent")
+
+    notifications = relationship("Notification", back_populates="comment_rel", cascade="all, delete-orphan")

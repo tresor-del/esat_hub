@@ -181,7 +181,7 @@ display: flex;
 /* Responsive */
 @media (max-width: 768px) {
   .profile-container {
-    padding: 0;
+    padding: 10px;
   }
 
   .back-button{

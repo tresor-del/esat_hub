@@ -41,6 +41,7 @@ class Post(Base):
     updated_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc), onupdate=lambda: datetime.datetime.now(datetime.timezone.utc))
 
     comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
+    notifications = relationship("Notification", back_populates="post_rel", cascade="all, delete-orphan")
 
     room_id = Column(UUID(as_uuid=True), ForeignKey("rooms.id"), nullable=True)
     post_room = relationship("Room", back_populates="posts")

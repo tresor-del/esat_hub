@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { addComment, getComments, deleteComment, updateComment } from "../../services/api"; // Assure-toi que l'import est bon
+import { addComment, getComments, deleteComment, updateComment, getComment } from "../../services/api"; // Assure-toi que l'import est bon
 import { useLocation } from "react-router-dom";
 import CommentCard from "./CommentCard";
 import "../../styles/CommentSection.css";
@@ -11,6 +11,7 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
     const [error, setError] = useState("");
     const location = useLocation();
 
+    
     // Charger les commentaires
     const loadComments = async () => {
         try {
@@ -26,6 +27,50 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        const handleRealtimeComment = async (event) => {
+            const comment_data = event.detail;
+
+            const isSamePost = String(comment_data.post_id) === String(postId);
+            const isNotFromMe = comment_data.sender?.id !== user?.id;
+
+            if (isSamePost && isNotFromMe) {
+                // 1. Vérifier si on l'a déjà (sécurité doublon)
+                const exists = comments.some(c => c.id === comment_data.comment_id);
+                if (exists) return;
+
+                try {
+                    // 2. On récupère l'objet complet
+                    const newComment = await getComment(comment_data.comment_id);
+                    if (!newComment) return;
+
+                    setComments(prev => {
+                        // SI C'EST UNE RÉPONSE (parent_id existe)
+                        if (newComment.parent_id) {
+                            return prev.map(c => {
+                                if (c.id === newComment.parent_id) {
+                                    // On l'ajoute dans les replies du parent
+                                    const updatedReplies = c.replies ? [newComment, ...c.replies] : [newComment];
+                                    return { ...c, replies: updatedReplies };
+                                }
+                                return c;
+                            });
+                        }
+
+                        // SI C'EST UN COMMENTAIRE RACINE
+                        if (prev.some(c => c.id === newComment.id)) return prev;
+                        return [newComment, ...prev];
+                    });
+                } catch (error) {
+                    console.log("Erreur realtime reply:", error);
+                }
+            }
+        };
+
+        window.addEventListener("NEW_COMMENT", handleRealtimeComment);
+        return () => window.removeEventListener("NEW_COMMENT", handleRealtimeComment);
+    }, [postId, user?.id, comments]); // Crucial d'avoir comments ici
 
 
     useEffect(() => {
@@ -50,9 +95,10 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                 content: content,
                 parent_id: null
             };
-            await addComment(commentData);
+            const response = await addComment(commentData);
             setContent("");
-            loadComments(); // Recharger pour voir le nouveau commentaire et sa structure
+            setComments(prevComments => [response, ...prevComments]);
+            // loadComments(); // Recharger pour voir le nouveau commentaire et sa structure
         } catch (err) {
             setError("Erreur lors de l'ajout");
         } finally {
@@ -70,8 +116,17 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                 content: text,
                 parent_id: parentId
             };
-            await addComment(responseData);
-            loadComments();
+            const response = await addComment(responseData);
+            setComments(prevComments => {
+                return prevComments.map(c => {
+                    if (c.id === parentId) {
+                        // On ajoute la réponse dans le tableau replies du parent
+                        const updatedReplies = c.replies ? [response, ...c.replies] : [response];
+                        return { ...c, replies: updatedReplies };
+                    }
+                    return c;
+                });
+            });
         } catch (err) {
             setError("Erreur lors de l'envoi de la réponse");
         } finally {
@@ -96,10 +151,10 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
 
     const handleUpdateComment = async (commentId, new_content) => {
         try {
-            const result = await updateComment(commentId, new_content);
-            if (result) {
+            const response = await updateComment(commentId, new_content);
+            if (response) {
                 alert("Commentaire modifié avec succès");
-                loadComments();
+                setComments(prev => prev.map(c => c.id === commentId ? response : c));
             }
         } catch (error) {
             console.log("Erreur lors de la mise à jour: ", error);
@@ -107,10 +162,10 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
         }
     }
 
-     const handleTextareaChange = (e) => {
+    const handleTextareaChange = (e) => {
         const element = e.target;
         setContent(element.value);
-        
+
         // Ajustement automatique de la hauteur
         element.style.height = "auto"; // Réinitialise pour recalculer
         element.style.height = `${element.scrollHeight}px`; // Applique la hauteur du contenu
@@ -137,7 +192,7 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                 {comments
                     .filter(c => c.parent_id === null).sort((a, b) => {
                         return new Date(b.created_at) - new Date(a.created_at)
-                    }) 
+                    })
                     .map((comment) => (
                         <CommentCard
                             key={comment.id}

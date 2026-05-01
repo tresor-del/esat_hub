@@ -10,12 +10,8 @@ from app.services.social.comment import CommentService
 from app.models.comment import CommentCreate
 from app.services.social.posts import PostService
 from app.models.message import Message
-from app.models.user import UserResponse
-from app.models.notifications import NotificationResponse
 from app.services.auth.users import AuthService
-from app.tasks.notifications import send_notification_task
-from app.core.notifications import notification_contents
-from app.tasks.comment_events import handle_new_comment_task
+from app.tasks.comments import handle_new_comment_task
 
 router = APIRouter(prefix="/comments", tags=["comments"])
 

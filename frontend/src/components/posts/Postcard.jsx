@@ -19,11 +19,15 @@ const PostCard = ({
 
   const [commentsLength, setCommentLength] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
-  const isLongDescription = post.description.length > 50;
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
 
   useEffect(() => {
+    const handResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handResize);
     fetchCount()
-  }, [])
+    return () => window.removeEventListener("resize", handResize);
+  }, []);
 
   const fetchCount = async () => {
     try {
@@ -43,16 +47,23 @@ const PostCard = ({
   const handleCardClick = (e) => {
     if (variant === "detail") return;
     if (e.target.closest("button") || e.target.closest(".read-more-btn")) return;
-    if (onView) {
-      onView(post);
+
+    if (isMobile) {
+      if (onView) {
+        onView(post);
+      }
+    } else {
+      if (onView) {
+        onView(post);
+      }
     }
   };
-  
+
 
 
   return (
     <div className="post-card">
-      <div className="post-content">
+      <div className="post-content post-content-d">
         {/* Métadonnées avec avatar */}
         <div className="post-meta">
           <PostAuthorInfo
@@ -76,7 +87,7 @@ const PostCard = ({
             <p className={`post-description ${isExpanded ? 'expanded' : 'clamped'}`}>
               {post.description}
             </p>
-            {isLongDescription && (
+            {post.description.length > 50 && (
               <span className="read-more-btn" onClick={toggleReadMore}>
                 {isExpanded ? " Voir moins" : "Voir plus"}
               </span>

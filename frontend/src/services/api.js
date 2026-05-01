@@ -215,6 +215,11 @@ export const updateComment = async (commentId, new_content) => {
   return response.data
 }
 
+export const getComment = async (commentId) => {
+  const response = await api.get(`${API_BASE_URL}/comments/${commentId}`)
+  return response.data
+}
+
 /* Notification */
 
 export const getNotifications = async () => {

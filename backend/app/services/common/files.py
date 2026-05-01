@@ -10,8 +10,6 @@ from app.core.config import settings
 from app.db.schemas.user import User
 
 
-
-
 class FileService:
 
     def __init__(self):
@@ -46,7 +44,9 @@ class FileService:
         
             # Générer un nom de fichier unique
             unique_filename = f"{uuid.uuid4()}{file_ext}"
-            file_path = Path(self.UPLOAD_DIR) / post_type / unique_filename
+            upload_dir = Path(self.UPLOAD_DIR)
+            upload_dir.mkdir(exist_ok=True)
+            file_path = upload_dir / post_type / unique_filename
 
             # Créer le sous-dossier si nécessaire
             file_path.parent.mkdir(exist_ok=True)

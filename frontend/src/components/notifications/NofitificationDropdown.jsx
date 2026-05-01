@@ -86,9 +86,10 @@ const NotificationDropdown = ({ unreadCount }) => {
       ) : (
         <div className="notifications-list">
           {sortedNotifications.map((notif) => {
+            const groupKey = `${notif.type}-${notif.post_id}`
             const isGroupUnread = notifications.some(n => notif.ids.includes(n.id) && !n.is_read);
             return (
-              <div key={notif.id} className={`notification-item ${isGroupUnread ? 'unread' : ''}`} 
+              <div key={groupKey} className={`notification-item ${isGroupUnread ? 'unread' : ''}`} 
                    onClick={() => { navigate(`/post/${notif.post_id}?commentId=${notif.comment_id}`); setIsMobileOpen(false); }}>
                 <div className="notification-content">
                   <Avatar user={notif.count === 1 ? notif.sender : notif.latest_sender} size='small' />

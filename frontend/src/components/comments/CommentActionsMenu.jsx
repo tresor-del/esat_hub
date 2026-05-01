@@ -10,10 +10,6 @@ const CommentActionsMenu = ({ comment, onEdit, onDelete }) => {
   // Si l'utilisateur n'est pas l'auteur, ne rien afficher
   if (!isAuthor && !isAdmin) return null;
 
-  console.log("es auteur du comment: ", isAuthor)
-  console.log("est admin: ", isAdmin)
-  console.log("n'est pas aut et admin: ", !isAuthor && !isAdmin)
-
   return (
     <DropdownMenu trigger={<FiMoreVertical />} align="right">
       {isAuthor && onEdit && (

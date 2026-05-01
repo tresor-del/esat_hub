@@ -12,6 +12,7 @@ export const WebSocketProvider = ({ children }) => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const wsRef = useRef(null);
+   const shouldReconnect = useRef(true);
 
   // 1. Calcul du compteur (Badge)
   const unreadCount = notifications.filter(n => n.is_read === false).length;
@@ -32,26 +33,54 @@ export const WebSocketProvider = ({ children }) => {
     }
   };
 
-  // 3. Gestion du WebSocket et du chargement initial
-  useEffect(() => {
+useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
 
-    // On charge la DB dès qu'on a le token
+    shouldReconnect.current = true;
     loadNotifications();
 
-    const ws = new WebSocket(`${wsUrl}?token=${token}`);
-    wsRef.current = ws;
+    // let reconnectTimeout; 
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      // On s'assure que le message temps réel est marqué non lu
-      console.log("message du ws: ", data)
-      setNotifications(prev => [{ ...data, is_read: false }, ...prev]);
+    const createWebSocket = () => {
+      if (wsRef.current) wsRef.current.close();
+
+        const ws = new WebSocket(`${wsUrl}?token=${token}`);
+        wsRef.current = ws;
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.recipient?.id === user?.id) {
+                setNotifications(prev => [{ ...data, is_read: false }, ...prev]);
+            }
+            if (data.type === "new_comment") {
+                window.dispatchEvent(new CustomEvent("NEW_COMMENT", { detail: data }));
+            }
+            if (data.type === "new_post") {
+                window.dispatchEvent(new CustomEvent("NEW_POST", { detail: data}))
+            }
+        };
+
+        ws.onclose = (e) => {
+          if (e.code === 1008) {
+                console.log("Accès refusé (403), on arrête la reconnexion.");
+                shouldReconnect.current = false;
+                return;
+            }
+            // if (shouldReconnect.current) {
+            //     setTimeout(createWebSocket, 3000); // ✅ réattache tout automatiquement
+            // }
+        };
     };
 
-    return () => wsRef.current?.close();
-  }, [user?.id]); // Se relance à la connexion/déconnexion
+    createWebSocket();
+
+    return () => {
+        // shouldReconnect.current = false;
+        // clearTimeout(reconnectTimeout); 
+        wsRef.current?.close();
+    };
+}, [user?.id]);
 
   const markAsRead = async () => {
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));

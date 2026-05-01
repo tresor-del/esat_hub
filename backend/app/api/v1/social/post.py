@@ -14,7 +14,8 @@ from app.services.social.posts import PostService
 from app.services.auth.users import AuthService
 from app.models.user import UserResponse
 from app.core.config import settings
-from app.tasks.notifications import send_bulk_notifications_task
+from app.tasks.posts import handle_new_post
+
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +34,7 @@ def create_post(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
     post_service: PostService = Depends(get_post_service),
-    file_service: FileService = Depends(get_file_service),
-    auth_service: AuthService = Depends(get_auth_service)
+    file_service: FileService = Depends(get_file_service)
 ):
     """Créer un nouveau post avec fichier"""
     try:
@@ -57,7 +57,7 @@ def create_post(
                     detail="Vous n'avez pas le droit de poster dans cette salle"
                 )
         
-        db_post = post_service.create_post(
+        post = post_service.create_post(
             title=title,
             description=description,
             post_type=post_type.value,
@@ -68,38 +68,14 @@ def create_post(
             room_id=room_id
         )
 
-        # Préparer l'expéditeur de notification
-        sender = UserResponse(
-            id=current_user.id,
-            email=current_user.email,
-            username=getattr(current_user, 'username', None),
-            first_name=getattr(current_user, 'first_name', None),
-            last_name=getattr(current_user, 'last_name', None),
-            is_verified=getattr(current_user, 'is_verified', False),
-            user_room_id=getattr(current_user, 'user_room_id', None)
-        )
-
-        # Préparer le contenu selon si le post est général ou de classe
-        if room_id is None:
-            recipients = auth_service.get_all_users()
-            notification_content = f"{current_user.username} à fait un post générale: {title}"
-            notification_type = "post.general"
-        else:
-            recipients = auth_service.get_users_by_room_id(room_id)
-            notification_content = f"{current_user.username} à publié dans votre classe : {title}"
-            notification_type = "post.class"
-
-        # Envoi de notifications à tous les destinataires concernés en arrière-plan
         background_tasks.add_task(
-            send_bulk_notifications_task,
-            notification_type=notification_type,
-            content=notification_content,
-            recipients=recipients,
-            sender=sender,
-            post_id=db_post.id,
+            handle_new_post,
+            current_user,
+            room_id,
+            post
         )
         
-        return db_post
+        return post
     
     except Exception as e:
         raise HTTPException(

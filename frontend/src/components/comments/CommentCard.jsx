@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PostAuthorInfo from "../posts/PostAuthorInfo";
 import { formatRelativeDate } from "../../utils/dateFormatter";
 import { useLocation } from "react-router-dom";
@@ -6,6 +6,7 @@ import { FiEdit, FiTrash2, FiMoreVertical } from "react-icons/fi";
 import CommentActionsMenu from "./CommentActionsMenu";
 import "../../styles/CommentSection.css"
 import { useAuth } from "../../contexts/AuthContext";
+import { getComment, getUserProfile } from "../../services/api";
 
 const CommentCard = ({ comment, user, onReplySubmit, loading, onEdit, onDelete }) => {
     const [isReplying, setIsReplying] = useState(false);
@@ -20,8 +21,8 @@ const CommentCard = ({ comment, user, onReplySubmit, loading, onEdit, onDelete }
     const [isEditing, setIsEditing] = useState(false);
     const [editText, setEditText] = useState(comment.content)
 
-    const isOwner = user && user.id === comment.user.id
-    const isAdmin = user && user.role === "ADMIN";
+    const isOwner = user && user?.id === comment.user?.id
+    const isAdmin = user && user?.role === "ADMIN";
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -34,18 +35,20 @@ const CommentCard = ({ comment, user, onReplySubmit, loading, onEdit, onDelete }
 
     const hasReplies = comment.replies && comment.replies.length > 0;
 
+    const hasParent = !!comment.parent;
+
     const cancelEdit = () => {
         setIsEditing(false);
         setEditText(comment.content)
     }
 
     const openEditMode = () => {
-    setIsEditing(true);
-};
+        setIsEditing(true);
+    };
 
-const handleDelete = async () => {
-       await onDelete(comment.id);
-};
+    const handleDelete = async () => {
+        await onDelete(comment.id);
+    };
 
     const handleEdit = async () => {
         if (!editText.trim()) return;
@@ -56,7 +59,7 @@ const handleDelete = async () => {
         } finally {
             setIsEditing(false);
         }
-        
+
     }
 
 
@@ -64,7 +67,7 @@ const handleDelete = async () => {
         <div className="comment-item" id={`comment-${comment.id}`}>
             <div>
                 <div className="comment-info">
-                    <PostAuthorInfo user={comment.user} variant="compact"/>
+                    <PostAuthorInfo user={comment.user} variant="compact" />
                     <span className="comment-date">{formatRelativeDate(comment.created_at)}</span>
                 </div>
 
@@ -82,8 +85,12 @@ const handleDelete = async () => {
                                 <button onClick={cancelEdit}>Annuler</button>
                             </div>
                         </div>
-                    ): (
-                        <div className="content">{comment.content}</div>
+                    ) : (
+                        hasParent ? (
+                            <div className="comment-content"> <span style={{color: "blue"}}>@{comment.parent?.user?.profil_name}</span>: {comment.content}</div>
+                        ) : (
+                            <div className="comment-content">{comment.content}</div>
+                        )
                     )}
 
                     {!isEditing && (
@@ -121,25 +128,26 @@ const handleDelete = async () => {
                         </form>
                     )}
 
-                    {/* Affichage conditionnel des réponses */}
-                    {hasReplies && showReplies && (
-                        <div className="replies-container">
-                            {comment.replies.map((reply) => (
-                                <CommentCard
-                                    key={reply.id}
-                                    comment={reply}
-                                    user={user}
-                                    onReplySubmit={onReplySubmit}
-                                    loading={loading}
-                                    onEdit={onEdit}
-                                    onDelete={onDelete}
-                                />
-                            ))}
-                        </div>
-                    )}
+
                 </div>
+                {/* Affichage conditionnel des réponses */}
+                {hasReplies && showReplies && (
+                    <div className="replies-container">
+                        {comment.replies.map((reply) => (
+                            <CommentCard
+                                key={reply.id}
+                                comment={reply}
+                                user={user}
+                                onReplySubmit={onReplySubmit}
+                                loading={loading}
+                                onEdit={onEdit}
+                                onDelete={onDelete}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
-            {(isAdmin || isOwner) && !isEditing &&(
+            {(isAdmin || isOwner) && !isEditing && (
                 <div className="comment-options">
                     <CommentActionsMenu comment={comment} onEdit={openEditMode} onDelete={handleDelete} />
                 </div>

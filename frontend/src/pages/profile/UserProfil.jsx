@@ -22,6 +22,7 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(true);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [error, setError] = useState("");
+  const [qrValue, setQrValue] = useState()
 
   const isOwnProfile = currentUser?.id === id;
 
@@ -36,6 +37,7 @@ const UserProfile = () => {
       const result = await getUserProfile(id);
       setProfile(result);
       loadUserPosts(result.id);
+      setQrValue(result.card_number)
     } catch (err) {
       console.error(err);
       setError("Impossible de charger le profil");
@@ -140,10 +142,10 @@ const UserProfile = () => {
                 </div>
                 <div className="profile-meta-item">
                   <QRCode
-                    value={profile?.card_number}
-                    size={64}      // C'est ici que tu règles la taille (en pixels)
-                    level="H"      // Optionnel : niveau de correction d'erreur (L, M, Q, H)
-                    style={{ height: "auto", maxWidth: "100%", width: "100%" }} // Optionnel : pour le rendre responsive
+                    value={qrValue}
+                    size={64}     
+                    level="H"   
+                    style={{ height: "auto", maxWidth: "100%", width: "100%" }} 
                   />
                 </div>
                 <div>
@@ -170,7 +172,7 @@ const UserProfile = () => {
             {/* Liste des posts */}
             <div className="profile-posts">
 
-              <h3>Les publications de {profile.profil_name}</h3><br /><br />
+              <h3>Récentes publications</h3><br />
 
               {posts.length === 0 ? (
                 <div className="empty-state card">
