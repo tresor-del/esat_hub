@@ -32,6 +32,8 @@ import UserProfil from "./pages/profile/UserProfil"
 import ProfileEdit from "./pages/profile/ProfileEdit"
 import Room from "./pages/room/Room";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import ChatPage from "./pages/chat/ChatPage";
+
 
 // Styles (split into ./styles/*.css)
 import "./App.css"
@@ -123,6 +125,8 @@ const AppRoutes = () => {
         path="*"
         element={<Navigate to={isAuth() ? "/" : "/login"} replace />}
       />
+
+        <Route path="/chat" element={<ChatPage />} />
     </Routes>
   );
 };

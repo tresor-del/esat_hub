@@ -4,11 +4,12 @@ import { FiSearch, FiFilter } from "react-icons/fi";
 const SearchFilters = ({
   onSearch, // Récupère la prop envoyée par SearchDropdown
   compact = false,
+  chat = false,
 }) => {
   return (
-    <div className={`search-filters ${compact ? "compact" : ""}`}>
+    <div className={`${compact ? "search-filters compact" : ""} ${chat ? "chat-filter": ""}`}>
       <form className="search-form" onSubmit={(e) => e.preventDefault()}>
-        <div className="search-input-wrapper">
+        <div className={`${compact ? "search-input-wrapper" : ""}`}>
           <input
             type="text"
             className="form-input search-input"

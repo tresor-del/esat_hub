@@ -11,13 +11,13 @@ export const useWebSocket = () => useContext(WebSocketContext);
 export const WebSocketProvider = ({ children }) => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
+  const [messages, setMessages] = useState({});
+  const [unreadChatsCount, setUnreadChatsCount] = useState(0);
   const wsRef = useRef(null);
-   const shouldReconnect = useRef(true);
+  const shouldReconnect = useRef(true);
 
-  // 1. Calcul du compteur (Badge)
   const unreadCount = notifications.filter(n => n.is_read === false).length;
 
-  // 2. Fonction pour charger l'historique depuis la DB
   const loadNotifications = async () => {
     try {
       const result = await getNotifications();
@@ -33,62 +33,99 @@ export const WebSocketProvider = ({ children }) => {
     }
   };
 
-useEffect(() => {
+  useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
 
     shouldReconnect.current = true;
     loadNotifications();
 
-    // let reconnectTimeout; 
-
     const createWebSocket = () => {
       if (wsRef.current) wsRef.current.close();
 
-        const ws = new WebSocket(`${wsUrl}?token=${token}`);
-        wsRef.current = ws;
+      // On garde l'URL globale d'origine
+      const ws = new WebSocket(`${wsUrl}?token=${token}`);
+      wsRef.current = ws;
 
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.recipient?.id === user?.id) {
-                setNotifications(prev => [{ ...data, is_read: false }, ...prev]);
-            }
-            if (data.type === "new_comment") {
-                window.dispatchEvent(new CustomEvent("NEW_COMMENT", { detail: data }));
-            }
-            if (data.type === "new_post") {
-                window.dispatchEvent(new CustomEvent("NEW_POST", { detail: data}))
-            }
-        };
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
 
-        ws.onclose = (e) => {
-          if (e.code === 1008) {
-                console.log("Accès refusé (403), on arrête la reconnexion.");
-                shouldReconnect.current = false;
-                return;
-            }
-            // if (shouldReconnect.current) {
-            //     setTimeout(createWebSocket, 3000); // ✅ réattache tout automatiquement
-            // }
-        };
+        // 1. GESTION DU CHAT
+        // Si les données reçues ont un sender_id, c'est un message de chat
+        if (data.sender_id) {
+
+          const interlocutorId = data.sender_id === user.id ? data.recipient_id : data.sender_id
+
+          setMessages(prev => ({
+            ...prev,
+            [interlocutorId]: [...(prev[interlocutorId] || []), data]
+        }));
+        
+          return; // On stoppe ici pour ce message
+        }
+
+        // 2. GESTION DES NOTIFICATIONS
+        if (data.recipient?.id === user?.id) {
+          setNotifications(prev => [{ ...data, is_read: false }, ...prev]);
+        }
+        if (data.type === "new_comment") {
+          window.dispatchEvent(new CustomEvent("NEW_COMMENT", { detail: data }));
+        }
+        if (data.type === "new_post") {
+          window.dispatchEvent(new CustomEvent("NEW_POST", { detail: data }));
+        }
+      };
+
+      ws.onclose = (e) => {
+        if (e.code === 1008) {
+          console.log("Accès refusé (403), on arrête la reconnexion.");
+          shouldReconnect.current = false;
+          return;
+        }
+      };
     };
 
     createWebSocket();
 
     return () => {
-        // shouldReconnect.current = false;
-        // clearTimeout(reconnectTimeout); 
-        wsRef.current?.close();
+      wsRef.current?.close();
     };
-}, [user?.id]);
+  }, [user?.id]);
+
+  // FONCTION POUR ENVOYER UN MESSAGE DE CHAT
+  const sendMessage = (recipientId, content) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      const payload = {
+        recipient_id: recipientId,
+        message: content
+      };
+      
+      // On l'envoie au serveur via le socket unique
+      wsRef.current.send(JSON.stringify(payload));
+      
+      // On l'ajoute à notre affichage local
+      const myMsg = {
+      sender_id: user.id,
+      recipient_id: recipientId,
+      content: content,
+      timestamp: new Date().toISOString()
+    };
+
+    // On stocke notre propre message dans la boîte dédiée à ce destinataire
+    setMessages(prev => ({
+      ...prev,
+      [recipientId]: [...(prev[recipientId] || []), myMsg]
+    }));
+    }
+  };
 
   const markAsRead = async () => {
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     try {
-      const result = await markNotificationsAsRead()
-      console.log(result)
+      const result = await markNotificationsAsRead();
+      console.log(result);
     } catch (error) {
-      console.log("Erreur: ", error)
+      console.log("Erreur: ", error);
     }
   };
 
@@ -97,7 +134,14 @@ useEffect(() => {
   };
 
   return (
-    <WebSocketContext.Provider value={{ notifications, unreadCount, markAsRead, removeNotifications }}>
+    <WebSocketContext.Provider value={{ 
+      notifications, 
+      messages, 
+      sendMessage, 
+      unreadCount, 
+      markAsRead, 
+      removeNotifications 
+    }}>
       {children}
     </WebSocketContext.Provider>
   );

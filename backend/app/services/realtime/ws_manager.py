@@ -27,6 +27,15 @@ class ConnexionManager:
         if websocket:
             await websocket.send_json(jsonable_encoder(data))
     
+    async def send_message(self, recipient_id: UUID, data):
+        print("active_connections:", self.active_connections)  # qui est connecté ?
+        print("data reçue:", data)  # quelle structure ?
+        print("recipient_id cherché:", recipient_id)
+        websocket = self.active_connections.get(recipient_id)
+        print("ws: ", websocket)
+        if websocket:
+            await websocket.send_json(jsonable_encoder(data))
+    
     async def broadcast(self, data):
         for websocket in self.active_connections.values():
             print("message envoyé à: ", websocket)

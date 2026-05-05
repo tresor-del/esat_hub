@@ -31,6 +31,8 @@ class Major(str, enum.Enum):
 class UserRole(str, enum.Enum):
     ADMIN = "ADMIN"
     STUDENT = "STUDENT"
+    SCHOOL_ADMIN = "SCHOOL_ADMIN"
+    TEACHER = "TEACHER"
 
 class UserStatus(str, enum.Enum):
     ACTIVE = "ACTIVE"
@@ -58,6 +60,34 @@ class User(Base):
     status = Column(Enum(UserStatus, name="status", values_callable=lambda x: [e.value for e in x]), nullable=True, index=True, server_default=UserStatus.PENDING.value)
 
     year = Column(Enum(Year, name="year", values_callable=lambda x: [e.value for e in x]), nullable=True, index=True, server_default=Year.DEUXIEME_ANNEE.value)
+    
+    avatar_path = Column(String, nullable=True)
+    qr_path = Column(String, nullable=True)
+    hashed_password = Column(String, nullable=False)
+    is_verified = Column(Boolean, server_default=text("false"), default=False)
+
+
+    # Relations
+    posts = relationship("Post", back_populates="user",cascade="all, delete-orphan")
+
+    email_verification_tokens = relationship("EmailVerificationToken",cascade="all, delete-orphan")
+
+    comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
+
+    notifications = relationship("Notification", foreign_keys="Notification.recipient_id", back_populates="recipient")
+    
+    
+    user_room_id = Column(UUID(as_uuid=True), ForeignKey("rooms.id", use_alter=True), index=True, nullable=True)
+    user_room = relationship("Room", back_populates="users", foreign_keys=[user_room_id])
+
+    room_rep = relationship("Room", back_populates="rep", foreign_keys="[Room.rep_id]")
+
+    sent_messages = relationship("Message", foreign_keys="[Message.sender_id]", back_populates="sender")
+    received_messages = relationship("Message", foreign_keys="[Message.recipient_id]", back_populates="recipient")
+
+    # POUR LES ENSEIGNANTS
+    teachs = Column(String, nullable=True)
+    full_name = Column(String, nullable=True)
 
     school_name = Column(
         Enum(School, name="school", values_callable=lambda x: [e.value for e in x]), 
@@ -77,39 +107,3 @@ class User(Base):
         nullable=False, 
         server_default=Level.PREPA.value
     )
-    
-    avatar_path = Column(String, nullable=True)
-    qr_path = Column(String, nullable=True)
-    hashed_password = Column(String, nullable=False)
-    is_verified = Column(Boolean, server_default=text("false"), default=False)
-
-
-    # Relations
-    posts = relationship(
-        "Post",
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
-
-    email_verification_tokens = relationship(
-        "EmailVerificationToken",
-        cascade="all, delete-orphan"
-    )
-
-    comments = relationship(
-        "Comment",
-        back_populates="user",
-        cascade="all, delete-orphan"
-    )
-
-    notifications = relationship(
-            "Notification", 
-            foreign_keys="Notification.recipient_id", 
-            back_populates="recipient"
-        )
-    
-    
-    user_room_id = Column(UUID(as_uuid=True), ForeignKey("rooms.id", use_alter=True), index=True, nullable=True)
-    user_room = relationship("Room", back_populates="users", foreign_keys=[user_room_id])
-
-    room_rep = relationship("Room", back_populates="rep", foreign_keys="[Room.rep_id]")

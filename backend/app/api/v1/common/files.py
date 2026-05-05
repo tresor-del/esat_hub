@@ -10,6 +10,7 @@ from app.api.deps.services import get_post_service, get_file_service, get_auth_s
 from app.db.schemas.user import User
 from app.core.config import settings
 from app.services.social.posts import PostService
+from app.services.common.files import FileService
 
 router = APIRouter(prefix="/files", tags=["files"])
 
@@ -93,3 +94,16 @@ async def get_avatar(user_id: uuid.UUID, db: Session = Depends(get_db), user_ser
         return None
     
     return FileResponse(user.avatar_path)
+
+@router.post("/chat/upload")
+async def upload_chat_file(
+    file: UploadFile = File(...),
+    file_service: FileService = Depends(get_file_service)
+    ):
+
+    file_path, _ = file_service.save_upload_file(
+        upload_file=file
+    )
+
+    # 3. Renvoyer le chemin relatif
+    return {"file_path": file_path}

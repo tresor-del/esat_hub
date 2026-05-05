@@ -1,8 +1,8 @@
-"""initial_layout_with_uuid
+"""initial commit
 
-Revision ID: b0f36fd0a54a
+Revision ID: 642a37b4f980
 Revises: 
-Create Date: 2026-05-01 18:08:28.986082
+Create Date: 2026-05-02 08:00:08.450568
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'b0f36fd0a54a'
+revision: str = '642a37b4f980'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -40,18 +40,20 @@ def upgrade() -> None:
     sa.Column('phone_number', sa.String(), nullable=True),
     sa.Column('birthday', sa.Date(), nullable=True),
     sa.Column('card_number', sa.String(), nullable=True),
-    sa.Column('role', sa.Enum('ADMIN', 'STUDENT', name='userrole'), server_default='STUDENT', nullable=True),
+    sa.Column('role', sa.Enum('ADMIN', 'STUDENT', 'SCHOOL_ADMIN', 'TEACHER', name='userrole'), server_default='STUDENT', nullable=True),
     sa.Column('major', sa.Enum('IA', 'CYBERSECURITE', 'GENIE LOGICIEL', 'GENIE MECANIQUE', name='major'), server_default='IA', nullable=True),
     sa.Column('status', sa.Enum('ACTIVE', 'PENDING', 'INACTIVE', name='status'), server_default='PENDING', nullable=True),
     sa.Column('year', sa.Enum('PREMIERE_ANNEE', 'DEUXIEME_ANNEE', 'TROISIEME_ANNEE', name='year'), server_default='DEUXIEME_ANNEE', nullable=True),
-    sa.Column('school_name', sa.Enum('ESAT_TOGO', name='school'), server_default='ESAT_TOGO', nullable=False),
-    sa.Column('domain', sa.Enum('AERONAUTIQUE', 'INFORMATIQUE', name='domain'), server_default='INFORMATIQUE', nullable=False),
-    sa.Column('level', sa.Enum('PREPA', 'INGE', name='level'), server_default='PREPA', nullable=False),
     sa.Column('avatar_path', sa.String(), nullable=True),
     sa.Column('qr_path', sa.String(), nullable=True),
     sa.Column('hashed_password', sa.String(), nullable=False),
     sa.Column('is_verified', sa.Boolean(), server_default=sa.text('false'), nullable=True),
     sa.Column('user_room_id', sa.UUID(), nullable=True),
+    sa.Column('teachs', sa.String(), nullable=True),
+    sa.Column('full_name', sa.String(), nullable=True),
+    sa.Column('school_name', sa.Enum('ESAT_TOGO', name='school'), server_default='ESAT_TOGO', nullable=False),
+    sa.Column('domain', sa.Enum('AERONAUTIQUE', 'INFORMATIQUE', name='domain'), server_default='INFORMATIQUE', nullable=False),
+    sa.Column('level', sa.Enum('PREPA', 'INGE', name='level'), server_default='PREPA', nullable=False),
     sa.ForeignKeyConstraint(['user_room_id'], ['rooms.id'], use_alter=True),
     sa.PrimaryKeyConstraint('id')
     )
