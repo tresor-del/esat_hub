@@ -10,6 +10,7 @@ import { getUserProfile, getPosts, uploadAvatar } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../../components/ui/Avatar";
 import PostCard from "../../components/posts/Postcard";
+import PostAuthorInfo from "../../components/posts/PostAuthorInfo";
 
 const UserProfile = () => {
   const { id } = useParams();
@@ -23,6 +24,7 @@ const UserProfile = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [error, setError] = useState("");
   const [qrValue, setQrValue] = useState()
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const isOwnProfile = currentUser?.id === id;
 
@@ -30,6 +32,16 @@ const UserProfile = () => {
     loadProfile();
 
   }, [id]);
+
+  // Détection des petits écrans
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const loadProfile = async () => {
     try {
@@ -92,32 +104,48 @@ const UserProfile = () => {
       {/* Carte de profil */}
       <div className="profile-card card">
 
-        {/* Bouton retour */}
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          {/* <button className="back-button" onClick={() => navigate(-1)}>
-            <FiArrowLeft size={18} />
-            Retour
-          </button> */}
-          <div>
-
-          </div>
-        </div>
-
-
         <div className="profile-header">
           {/* Avatar */}
           <div className="profile-side">
             <div className="profile-avatar-container">
-              <Avatar user={profile} size="xlarge" />
-
+              {isMobile ? (
+                <div className="u-i">
+                  <Avatar user={profile} size="large" />
+                  <div className="ui-items">
+                    <span style={{fontWeight: "bold"}}>{profile.profil_name}</span>
+                    <span style={{color: "#777"}}>{profile.username}</span>
+                  </div>
+                </div>
+              ):
+              (
+                <Avatar user={profile} size="xlarge" />
+                
+              )}
+              
             </div>
 
-
             <div className="profile-meta">
+              
+                  {isOwnProfile && (
+                    <button
+                      className="btn btn-secondary profile-edit-btn"
+                      onClick={() => navigate('/profile/edit')}
+                      style={{ marginBottom: '16px' }}
+                    >
+                      <FiEdit2 size={16} style={{ marginRight: '8px' }} />
+                      Modifier le profil
+                    </button>
+                  )}
+
+              {isMobile ? (
+                <div></div>
+              ):
+              (
               <div className="profile-name">
                 <h2 >{profile.profil_name}</h2>
                 <span>{profile.username}</span>
               </div>
+              )}
 
 
               <div className="info">
@@ -140,26 +168,23 @@ const UserProfile = () => {
                   <TbSchool size={16} />
                   <span>{profile.level}-{profile.year}</span>
                 </div>
-                <div className="profile-meta-item">
-                  <QRCode
-                    value={qrValue}
-                    size={64}     
-                    level="H"   
-                    style={{ height: "auto", maxWidth: "100%", width: "100%" }} 
-                  />
-                </div>
-                <div>
-                  {isOwnProfile && (
-                    <button
-                      className="btn btn-secondary"
-                      onClick={() => navigate('/profile/edit')}
-                      style={{ marginBottom: '16px' }}
-                    >
-                      <FiEdit2 size={16} style={{ marginRight: '8px' }} />
-                      Modifier le profil
-                    </button>
-                  )}
-                </div>
+                {isMobile ? (
+                  // Version mobile compacte du QR code
+                  <div>
+                    
+                  </div>
+                ) : (
+                  // Version desktop normale
+                  <div className="profile-meta-item">
+                    {/* <QRCode
+                      value={qrValue}
+                      size={64}
+                      level="H"
+                      style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                    /> */}
+                  </div>
+                )}
+                
               </div>
             </div>
 
@@ -168,26 +193,30 @@ const UserProfile = () => {
           {/* Informations */}
           <div className="profile-info">
 
-
             {/* Liste des posts */}
             <div className="profile-posts">
 
-              <h3>Récentes publications</h3><br />
-
               {posts.length === 0 ? (
                 <div className="empty-state card">
-                  <p>Aucun post pour l'instant.</p>
+                  <p> <span style={{fontWeight: "bold"}}>{profile.profil_name} </span> n'a aucun post pour l'instant.</p>
                 </div>
               ) : (
                 <div className="posts-grid">
-                  {posts.map((post) => (
+                  {(isMobile ? posts.slice(0, 3) : posts).map((post) => (
                     <PostCard
                       key={post.id}
                       post={post}
                       onView={(p) => navigate(`/post/${p.id}`)}
-                      variant="list"
+                      variant={isMobile ? "compact" : "list"}
                     />
                   ))}
+                  {isMobile && posts.length > 3 && (
+                    <div className="load-more-mobile" style={{ textAlign: 'center', padding: '16px' }}>
+                      <button className="btn btn-secondary" onClick={() => navigate(`/profile/${id}/posts`)}>
+                        Voir tous les posts ({posts.length})
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

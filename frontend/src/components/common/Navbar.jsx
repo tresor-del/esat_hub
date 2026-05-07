@@ -5,10 +5,12 @@ import { useWebSocket } from "../../contexts/WebSocketContext";
 import UserMenu from "../user/UserMenu";
 import NotificationDropdown from "../notifications/NofitificationDropdown";
 import SearchDropdown from "../search/SearchDropdown";
-import { FiSettings, FiMenu, FiX } from "react-icons/fi";
+import { FiSettings, FiMenu, FiX, FiInbox, FiMessageCircle } from "react-icons/fi";
 import InstallPWA from "./InstallPWA";
 import { UserMenuLinks } from "../user/UserMenu";
 import "../../styles/Navbar.css"
+import '../../styles/Notifications.css';
+import "../../styles/UserMenu.css"
 
 const Navbar = () => {
   const { user, logout, isAuth } = useAuth();
@@ -19,6 +21,14 @@ const Navbar = () => {
   const navigate = useNavigate();
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
+
+  const handleNavigate = (path) => {
+    navigate(path);
+    if (onAction) onAction();
+  };
+
+  const { unreadChatsCount } = useWebSocket();
+
 
   return (
     <nav className="navbar">
@@ -49,35 +59,43 @@ const Navbar = () => {
           </div>
         </div>
 
-        </div>
+      </div>
 
-        {/* Menu de navigation */}
-        <div className={`navbar-menu navbar-links-wrapper ${isMenuOpen ? "open" : ""}`}>
-          {isAuth() ? (
-            <div className="nav-items">
-              <InstallPWA />
+      {/* Menu de navigation */}
+      <div className={`navbar-menu navbar-links-wrapper ${isMenuOpen ? "open" : ""}`}>
+        {isAuth() ? (
+          <div className="nav-items">
+            <InstallPWA />
 
-              {/* Bouton de notification */}
-              <NotificationDropdown unreadCount={unreadCount} />
-
-              <div className="user-menu-mobile">
-                <UserMenuLinks user={user} isAdmin={isAdmin} onAction={closeMenu} />
-              </div>
-
-              <UserMenu className="user-menu-btn" />
-
+            <div className="notification-trigger message-desktop" onClick={() => handleNavigate("/chat")}>
+              <FiMessageCircle  size={25} />
+              {unreadChatsCount > 0 && (
+                <span className="notification-badge">{unreadChatsCount}</span>
+              )}
             </div>
-          ) : (
-            <>
-              <Link to="/login" className="navbar-link" onClick={closeMenu}>
-                Se connecter
-              </Link>
-              <Link to="/register" className="btn btn-primary" onClick={closeMenu}>
-                S'inscrire
-              </Link>
-            </>
-          )}
-        </div>
+
+
+            {/* Bouton de notification */}
+            <NotificationDropdown unreadCount={unreadCount} />
+
+            <div className="user-menu-mobile">
+              <UserMenuLinks user={user} isAdmin={isAdmin} onAction={closeMenu} />
+            </div>
+
+            <UserMenu className="user-menu-btn" />
+
+          </div>
+        ) : (
+          <>
+            <Link to="/login" className="navbar-link" onClick={closeMenu}>
+              Se connecter
+            </Link>
+            <Link to="/register" className="btn btn-primary" onClick={closeMenu}>
+              S'inscrire
+            </Link>
+          </>
+        )}
+      </div>
     </nav>
   );
 };

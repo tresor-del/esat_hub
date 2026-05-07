@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { getNotifications, markNotificationsAsRead } from '../services/api';
+import { getUnreadMsgTotal } from '../services/chatApi';
 
 const wsUrl = import.meta.env.VITE_WS_BASE_URL;
 
@@ -12,9 +13,9 @@ export const WebSocketProvider = ({ children }) => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [messages, setMessages] = useState({});
-  const [unreadChatsCount, setUnreadChatsCount] = useState(0);
   const wsRef = useRef(null);
   const shouldReconnect = useRef(true);
+  const [unreadChatsCount, setUnreadChatsCount] = useState(0);
 
   const unreadCount = notifications.filter(n => n.is_read === false).length;
 
@@ -32,6 +33,26 @@ export const WebSocketProvider = ({ children }) => {
       console.error("Erreur chargement notifications:", error);
     }
   };
+
+  const loadInitialUnread = async () => {
+    const res = await getUnreadMsgTotal();
+    setUnreadChatsCount(res.total);
+  };
+
+  const refreshUnreadCount = async () => {
+    try {
+        const res = await getUnreadMsgTotal();
+        setUnreadChatsCount(res.total);
+    } catch (e) {
+        console.error("Erreur refresh count", e);
+    }
+};
+
+  useEffect(() => {
+    if (user) {
+      loadInitialUnread();
+    }
+  }, [user]);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -59,8 +80,12 @@ export const WebSocketProvider = ({ children }) => {
           setMessages(prev => ({
             ...prev,
             [interlocutorId]: [...(prev[interlocutorId] || []), data]
-        }));
-        
+          }));
+
+          if (data.sender_id && data.sender_id !== user.id) {
+            setUnreadChatsCount(prev => prev + 1);
+          }
+
           return; // On stoppe ici pour ce message
         }
 
@@ -74,6 +99,7 @@ export const WebSocketProvider = ({ children }) => {
         if (data.type === "new_post") {
           window.dispatchEvent(new CustomEvent("NEW_POST", { detail: data }));
         }
+
       };
 
       ws.onclose = (e) => {
@@ -99,23 +125,23 @@ export const WebSocketProvider = ({ children }) => {
         recipient_id: recipientId,
         message: content
       };
-      
+
       // On l'envoie au serveur via le socket unique
       wsRef.current.send(JSON.stringify(payload));
-      
+
       // On l'ajoute à notre affichage local
       const myMsg = {
-      sender_id: user.id,
-      recipient_id: recipientId,
-      content: content,
-      timestamp: new Date().toISOString()
-    };
+        sender_id: user.id,
+        recipient_id: recipientId,
+        content: content,
+        timestamp: new Date().toISOString()
+      };
 
-    // On stocke notre propre message dans la boîte dédiée à ce destinataire
-    setMessages(prev => ({
-      ...prev,
-      [recipientId]: [...(prev[recipientId] || []), myMsg]
-    }));
+      // On stocke notre propre message dans la boîte dédiée à ce destinataire
+      setMessages(prev => ({
+        ...prev,
+        [recipientId]: [...(prev[recipientId] || []), myMsg]
+      }));
     }
   };
 
@@ -133,14 +159,18 @@ export const WebSocketProvider = ({ children }) => {
     setNotifications(prev => prev.filter(n => !idsToDelete.includes(n.id)));
   };
 
+
+
   return (
-    <WebSocketContext.Provider value={{ 
-      notifications, 
-      messages, 
-      sendMessage, 
-      unreadCount, 
-      markAsRead, 
-      removeNotifications 
+    <WebSocketContext.Provider value={{
+      notifications,
+      messages,
+      sendMessage,
+      unreadCount,
+      markAsRead,
+      removeNotifications,
+      unreadChatsCount,
+      refreshUnreadCount
     }}>
       {children}
     </WebSocketContext.Provider>

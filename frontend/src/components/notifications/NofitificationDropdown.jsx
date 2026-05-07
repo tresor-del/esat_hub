@@ -143,62 +143,6 @@ const NotificationDropdown = ({ unreadCount }) => {
         </DropdownMenu>
       </div>
     </>
-    // <DropdownMenu trigger={
-    //   <div className="notification-trigger"
-    //     onClick={() => {
-    //       if (badgeCount > 0) markAsRead(); // On ne l'appelle que s'il y a du contenu non lu
-    //     }}
-    //   >
-    //     <HiOutlineBell className="navbar-icon" />
-    //     {/* 4. Affichage du badge si > 0 */}
-    //     {badgeCount > 0 && <span className="notification-badge">{badgeCount}</span>}
-    //   </div>
-    // } align="right">
-    //     <h4>Notifications</h4>
-    //   <hr />
-    //   {notifications.length === 0 ? (
-    //     <p className="no-notifications">Aucune notification pour le moment.</p>
-    //   ) : (
-    //     <div className="notifications-list">
-    //       {sortedNotifications.map((notif) => {
-    //         const isGroupUnread = notifications.some(n => notif.ids.includes(n.id) && !n.is_read);
-    //         return (
-
-    //         <div key={notif.id} className={`notification-item ${isGroupUnread ? 'unread' : ''}`} onClick={() => navigate(`/post/${notif.post_id}?commentId=${notif.comment_id}`)}>
-    //           {/* <div className="notification-header"> 
-    //             <span className="notification-time">{formatRelativeDate(notif.latest_date)}</span>
-    //           </div> */}
-    //           <div className="notification-content">
-
-    //             {notif.count === 1 ?
-    //               (<Avatar user={notif.sender} size='small' />) : <Avatar user={notif.latest_sender} size='small' />
-    //             }
-
-    //             <p>
-    //               {notif.count === 1 && notif.content}
-
-    //               {notif.count === 2
-    //                 && `${notif.latest_author} et 1 autre personne ont commenté votre post`}
-
-    //               {notif.count > 2
-    //                 && `${notif.latest_author} et ${notif.count - 1} personnes ont commenté votre post `}
-    //             </p>
-
-    //           </div >
-    //           <div onClick={(e) => e.stopPropagation()}>
-    //             <NotificationActionsMenu notifIds={notif.ids} onDelete={handleDeleteNotif} />
-    //           </div>
-    //           {/* <div className="btns">
-    //             <button className='notification-button-delete' onClick={() => handleDeleteNotif(notif.ids)}>
-    //               Supprimer
-    //             </button>
-    //           </div> */}
-    //         </div>
-    //         )
-    //       })}
-    //     </div>
-    //   )}
-    // </DropdownMenu>
   );
 };
 

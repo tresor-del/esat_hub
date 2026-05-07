@@ -6,27 +6,6 @@
   padding: 20px;
 }
 
-.back-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  margin-bottom: 24px;
-  background: white;
-  border: 1px solid var(--border-color, #edeff1);
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #666;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.back-button:hover {
-  background-color: #f6f7f8;
-  border-color: #d7dadc;
-}
-
 /* Carte de profil */
 .profile-card {
   padding: 32px;
@@ -41,7 +20,7 @@
 }
 
 .profile-side {
-display: flex;
+  display: flex;
   flex-direction: column;
   gap: 2rem;
 }
@@ -49,7 +28,7 @@ display: flex;
 .profile-avatar-container {
   position: relative;
   flex-shrink: 0;
-  
+
 }
 
 .avatar-upload-btn {
@@ -130,7 +109,7 @@ display: flex;
   color: var(--reddit-blue, #0079d3);
 }
 
-.profile-stat > div {
+.profile-stat>div {
   display: flex;
   flex-direction: column;
 }
@@ -151,7 +130,6 @@ display: flex;
 /* Posts de l'utilisateur */
 .profile-posts {
   width: 100%;
-  margin-top: 32px;
 }
 
 .section-title {
@@ -180,20 +158,30 @@ display: flex;
 
 /* Responsive */
 @media (max-width: 768px) {
+
   .profile-container {
-    padding: 10px;
+    padding: unset;
+    padding-top: 10px;
   }
 
-  .back-button{
-  padding: 0;
-}
+  .profile-side {
+    width: 100%;
+  }
+
+  .back-button {
+    padding: 0;
+  }
+
   .profile-card {
     padding: 10px;
   }
 
   .profile-header {
     flex-direction: column;
-    align-items: center;
+  }
+
+  .profile-edit-btn {
+    width: 100%;
   }
 
   .profile-stats {
@@ -201,11 +189,18 @@ display: flex;
     gap: 24px;
   }
 
-  .profile-meta {
-    align-items: center;
+  .u-i {
+    display: flex;
+    gap: 1rem;
   }
 
+  .ui-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
   .posts-grid {
     grid-template-columns: 1fr;
+    width: 100% !important;
   }
 }

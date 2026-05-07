@@ -66,8 +66,8 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
+    <div className="auth-container login">
+      <div className="auth-card login-card">
         {/* Logo */}
         <div className="auth-logo">
           <div className="auth-logo-text">Esat-Hub</div>

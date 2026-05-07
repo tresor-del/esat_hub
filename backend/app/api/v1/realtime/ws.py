@@ -60,6 +60,7 @@ async def websocket_endpoint(websocket: WebSocket):
                         "sender_id": str(user_id),
                         "content": saved_msg.content,
                         "timestamp": str(saved_msg.timestamp),
+                        "is_read": saved_msg.is_read,
                     }
                     
                     # Envoi ciblé au destinataire s'il est connecté

@@ -6,6 +6,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../../components/ui/Avatar";
 import { FiEdit2 } from "react-icons/fi";
 import "../../styles/Auth.css";
+import "../../styles/UserProfile.css"
 
 const ProfileEdit = () => {
     const navigate = useNavigate();
@@ -161,19 +162,6 @@ const ProfileEdit = () => {
     return (
         <div className="auth-container">
             <div className="auth-card edit-profile-card">
-                <div className="auth-logo">
-                    <div className="auth-logo-text">Modifier le profil</div>
-                </div>
-
-                <button
-                    className="back-button"
-                    onClick={() => navigate(-1)}
-                    style={{ alignSelf: 'flex-start', marginBottom: '20px' }}
-                >
-                    <FiArrowLeft size={18} />
-                    Retour
-                </button>
-
                 {error && (
                     <div className="alert alert-error">
                         {error}
@@ -198,8 +186,6 @@ const ProfileEdit = () => {
 
                         </div>
                     </div>
-
-
 
                     <div className="profile-info">
                         

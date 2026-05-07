@@ -59,9 +59,10 @@ a:hover {
 
 
 .container {
+  padding-top: 1rem !important;
   max-width: 900px;
   margin: 0 auto;
-  padding: var(--spacing-lg) var(--spacing-md);
+  /* padding: var(--spacing-lg) var(--spacing-md); */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -70,7 +71,6 @@ a:hover {
 .main-content {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--spacing-md);
   min-width: 500px;
 }
 
@@ -237,8 +237,8 @@ footer p {
 
 @media (max-width: 768px) {
   .container {
-    padding-top: 1rem !important;
     padding: unset;
+    align-items: unset;
   }
   .main-content {
   min-width: unset;

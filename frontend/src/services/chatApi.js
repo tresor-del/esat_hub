@@ -9,3 +9,13 @@ export const getRecentChat = async () => {
     const response = await api.get(`/chat/recent`)
     return response.data
 }
+
+export const getUnreadMsgTotal = async () => {
+    const response = await api.get(`/chat/unread-total`)
+    return response.data
+}
+
+export const markMessagesAsReadApi = async (recipientId) => {
+    const response = await api.put(`/chat/read/${recipientId}`)
+    return response.data
+}

@@ -106,9 +106,6 @@ const Room = () => {
             <div className="room-right">
                 {view === 'users' ? (
                     <div className="room-users-view">
-                        <div className="users-header">
-                            <h2>Membres de la salle ({room?.users?.length || 0})</h2>
-                        </div>
                         
                         <div className="users-search">
                             <FiSearch className="search-icon" />
@@ -161,10 +158,6 @@ const Room = () => {
                     </div>
                 ) : (
                     <div className="room-posts-view">
-                        <div className="posts-header">
-                            <h2>Publications de la salle</h2>
-                        </div>
-                        
                         {loadingPosts ? (
                             <div className="posts-loading">Chargement des posts...</div>
                         ) : (

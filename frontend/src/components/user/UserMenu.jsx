@@ -1,12 +1,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { FiUser, FiLogOut, FiSettings, FiInbox } from "react-icons/fi";
+import { FiUser, FiLogOut, FiSettings, FiInbox, FiMessageCircle } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
 import DropdownMenu from "../ui/DropdownMenu";
 import { HiOutlineHome } from "react-icons/hi";
 import { useWebSocket } from "../../contexts/WebSocketContext";
 import Avatar from "../ui/Avatar";
 import "../../styles/UserMenu.css"
+import '../../styles/Notifications.css';
+import '../../styles/Navbar.css'
 
 export const UserMenuLinks = ({ user, isAdmin, onAction }) => {
   const navigate = useNavigate();
@@ -27,23 +29,14 @@ export const UserMenuLinks = ({ user, isAdmin, onAction }) => {
       <button className="user-profile-btn" onClick={() => handleNavigate("/room")}>
         <HiOutlineHome /> Room
       </button>
-      <button className="user-profile-btn" onClick={() => handleNavigate("/chat")}>
-        <FiInbox /> Inbox
+      <button className="user-profile-btn mobile-message-btn" onClick={() => handleNavigate("/chat")}>
+        <div className="icon-with-badge">
+        <FiMessageCircle />
         {unreadChatsCount > 0 && (
-            <span style={{
-                position: 'absolute',
-                top: '-6px',
-                right: '-8px',
-                background: '#e53e3e',
-                color: 'white',
-                borderRadius: '50%',
-                padding: '1px 6px',
-                fontSize: '11px',
-                fontWeight: 'bold'
-            }}>
-                {unreadChatsCount}
-            </span>
+            <span className="notification-badge">{unreadChatsCount}</span>
         )}
+        </div>
+        Message
       </button>
       {isAdmin && (
         <button className="user-profile-btn" onClick={() => handleNavigate("/admin")}>

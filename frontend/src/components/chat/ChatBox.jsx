@@ -1,23 +1,23 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import Avatar from '../ui/Avatar';
+import { FiArrowLeft } from 'react-icons/fi';
 import "../../styles/Chat.css";
 import { getChatHistory } from '../../services/chatApi';
-
-// Import du sélecteur d'emojis
 import EmojiPicker from 'emoji-picker-react';
 
-const ChatBox = ({ recipient }) => {
-    const { messages, sendMessage, user } = useWebSocket();
+const ChatBox = ({ recipient, onClose, isMobile }) => {
+    const { unreadChatsCount, messages, sendMessage, user } = useWebSocket();
     const [text, setText] = useState("");
     const [localHistory, setLocalHistory] = useState([]);
-    const [showEmojiPicker, setShowEmojiPicker] = useState(false); // État pour afficher/masquer le sélecteur
-    
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
     const messagesEndRef = useRef(null);
-    const inputRef = useRef(null); // Référence pour cibler l'input text
+    const inputRef = useRef(null);
 
     useEffect(() => {
         const loadHistory = async () => {
+            setLocalHistory([]);
             try {
                 const res = await getChatHistory(recipient.id);
                 setLocalHistory(res);
@@ -26,15 +26,47 @@ const ChatBox = ({ recipient }) => {
             }
         };
         loadHistory();
-        setShowEmojiPicker(false); // Ferme le sélecteur si on change de contact
+        setShowEmojiPicker(false);
     }, [recipient.id]);
 
     const liveMessages = messages[recipient.id] || [];
-    const conversation = [...localHistory, ...liveMessages];
+    const conversation = [
+    ...localHistory, 
+    ...liveMessages.filter(liveMsg => 
+        !localHistory.some(histMsg => histMsg.id === liveMsg.id)
+    )
+];
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [conversation.length]);
+
+    // --- FONCTIONS DE FORMATAGE ---
+    const formatChatTimestamp = (timestamp) => {
+        return new Intl.DateTimeFormat('fr-FR', {
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+        }).format(new Date(timestamp));
+    };
+
+    const getRelativeDateLabel = (timestamp) => {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startOfYesterday = new Date(startOfToday);
+        startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+        const oneWeekAgo = new Date(startOfToday);
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 6);
+
+        if (date >= startOfToday) return "Aujourd'hui";
+        if (date >= startOfYesterday) return "Hier";
+        if (date >= oneWeekAgo) {
+            return new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(date);
+        }
+        return new Intl.DateTimeFormat('fr-FR').format(date);
+    };
+    // ------------------------------
 
     const handleSend = (e) => {
         e.preventDefault();
@@ -45,69 +77,75 @@ const ChatBox = ({ recipient }) => {
         }
     };
 
-    // Fonction magique pour insérer l'emoji là où se trouve le curseur
     const onEmojiClick = (emojiData) => {
         const input = inputRef.current;
         if (!input) return;
-
         const start = input.selectionStart;
         const end = input.selectionEnd;
-        
-        // On découpe le texte pour insérer l'emoji au milieu
         const newText = text.substring(0, start) + emojiData.emoji + text.substring(end);
-        
         setText(newText);
-
-        // On remet le focus sur l'input et on place le curseur juste après l'emoji
         setTimeout(() => {
             input.focus();
             input.setSelectionRange(start + emojiData.emoji.length, start + emojiData.emoji.length);
         }, 10);
     };
 
+    // Variable pour suivre la date du message précédent lors du rendu
+    let lastDateLabel = null;
+
     return (
         <div className='chat-box-container'>
-            <div>
-                <strong className='chat-box-header'>
-                    <Avatar user={recipient} /> {recipient.profil_name}
-                </strong>
-            </div>
+            {isMobile && (
+                    <div className='chat-box-header-m'>
+                        <button className='chat-close-btn' onClick={onClose}>
+                            <FiArrowLeft /> Retour
+                        </button>
+                        <span>{recipient.profil_name}</span>
+                    </div>
+            )}
 
             <div className='chat-list'>
-                {conversation.map((msg, i) => (
-                    <div
-                        key={i}
-                        className={`chat-message-wrapper ${msg.sender_id === recipient.id ? 'incoming' : 'outgoing'}`}
-                    >
-                        <span className="chat-message-bubble">
-                            {msg.content}
-                        </span>
-                    </div>
-                ))}
+                {conversation.map((msg, i) => {
+                    const currentDateLabel = getRelativeDateLabel(msg.timestamp);
+                    const showDateBadge = currentDateLabel !== lastDateLabel;
+                    lastDateLabel = currentDateLabel;
+
+                    return (
+                        <React.Fragment key={i}>
+                            {showDateBadge && (
+                                <div className="chat-date-separator">
+                                    <span>{currentDateLabel}</span>
+                                </div>
+                            )}
+                            <div className={`chat-message-wrapper ${msg.sender_id === recipient.id ? 'incoming' : 'outgoing'}`}>
+                                <div className="chat-message-bubble">
+                                    {msg.content}
+                                    <div className="chat-message-time">
+                                        {formatChatTimestamp(msg.timestamp)}
+                                    </div>
+                                </div>
+                            </div>
+                        </React.Fragment>
+                    );
+                })}
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Formulaire avec sélecteur d'emojis */}
             <form onSubmit={handleSend} className="chat-form" style={{ position: 'relative' }}>
-                
-                {/* Boîte flottante du sélecteur d'emojis */}
                 {showEmojiPicker && (
                     <div style={{ position: 'absolute', bottom: '70px', left: '15px', zIndex: 1000 }}>
                         <EmojiPicker onEmojiClick={onEmojiClick} />
                     </div>
                 )}
-
-                <button 
-                    type="button" 
-                    className="emoji-btn" 
+                <button
+                    type="button"
+                    className="emoji-btn"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', padding: '0 10px' }}
                 >
                     😊
                 </button>
-
                 <input
-                    ref={inputRef} // Attachement de la référence
+                    ref={inputRef}
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     placeholder="Écrivez votre message..."

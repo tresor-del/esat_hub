@@ -168,9 +168,9 @@ const Home = () => {
 
   return (
     <div className="container">
-      <div className="main-content">
+      <div className="main-content home">
         {/* Filtres améliorés */}
-        <div className="post-filter-btns" style={{ marginBottom: "20px" }}>
+        <div className="post-filter-btns">
           <button
             className={`filter-btn ${filterType === "general" ? "active" : ""}`}
             onClick={() => setFilterType("general")}

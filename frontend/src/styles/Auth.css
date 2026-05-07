@@ -127,6 +127,8 @@
   gap: 1rem;
 }
 
+
+
 @media (max-width: 768px) {
   .edit-form {
     flex-direction: column;
@@ -142,6 +144,20 @@
 
 .auth-card {
   min-width: unset;
+}
+
+.edit-profile-card {
+    padding: unset;
+}
+
+.login-card, .register-card {
+  min-height: 100vh;
+  width: 100% !important;
+  padding: 1rem;
+}
+
+.login, .register{
+  padding: unset;
 }
 
 }

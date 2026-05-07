@@ -115,6 +115,7 @@
 }
 
 
+
 .navbar-user {
   display: flex;
   align-items: center;
@@ -370,6 +371,7 @@
 
   .short-logo {
     display: block;
+    
   }
 
   .full-logo {
@@ -441,7 +443,9 @@
     order: 2;
   }
 
-
+.message-desktop {
+  display: none;
+}
 
   .btn-create span{
     display: flex;

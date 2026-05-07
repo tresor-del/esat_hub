@@ -104,6 +104,7 @@ const AppRoutes = () => {
         <Route path="/room" element={<Room />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/" element={<Home />} />
+        <Route path="/chat" element={<ChatPage />} />
       </Route>
 
 
@@ -126,7 +127,7 @@ const AppRoutes = () => {
         element={<Navigate to={isAuth() ? "/" : "/login"} replace />}
       />
 
-        <Route path="/chat" element={<ChatPage />} />
+        
     </Routes>
   );
 };

@@ -32,3 +32,13 @@
 .user-menu .user-logout-btn {
     color: rgb(202, 21, 21)
 }
+
+.mobile-message-btn {
+    display: none !important;
+}
+
+@media (max-width: 768px){
+    .mobile-message-btn {
+    display: flex !important;
+}
+}

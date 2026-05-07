@@ -52,6 +52,12 @@
     font-weight: 400;
 }
 
+.home {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 
 @media (max-width: 768px) {
 
@@ -67,10 +73,12 @@
     border: 1px solid transparent;
     border-radius: 12px;
     padding: 8px 6px;
+    width: 100%;;
 }
 
     .post-filter-btns {
-        width: 400px;
+        min-width: 400px;
+        width: 100%;
         border-radius: unset;
     }
 

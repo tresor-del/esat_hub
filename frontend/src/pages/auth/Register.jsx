@@ -181,8 +181,8 @@ const Register = () => {
   // Afficher le message de succès
   if (success) {
     return (
-      <div className="auth-container">
-        <div className="auth-card">
+      <div className="auth-container register">
+        <div className="auth-card register-card">
           <div className="auth-logo">
             <div className="auth-logo-text">Esat-Hub</div>
           </div>
@@ -207,8 +207,8 @@ const Register = () => {
 
   // Afficher le formulaire d'inscription
   return (
-    <div className="auth-container">
-      <div className="auth-card">
+    <div className="auth-container register">
+      <div className="auth-card register-card">
         {/* Logo */}
         <div className="auth-logo">
           <div className="auth-logo-text">Esat-Hub</div>

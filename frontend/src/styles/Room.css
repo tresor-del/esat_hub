@@ -268,7 +268,7 @@
 .room-posts-view {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-lg);
+    gap: 0.5rem;
 }
 
 .posts-header h2 {
@@ -300,6 +300,11 @@
         flex-direction: column;
     }
 
+    .room-right {
+        padding: unset;
+        margin-top: 1rem;
+    }
+
     .room-left {
         min-width: 100%;
         border-right: none;
@@ -321,6 +326,13 @@
         gap: var(--spacing-sm);
         width: 100%;
     }
+
+    .room-posts-view {
+        gap: 0.5rem;
+    }
+.room-users-view {
+    padding: 1rem;
+}
 }
 
 .room-users {
