@@ -52,16 +52,11 @@ const ChatPage = () => {
         setActiveRecipient(recipient);
         if (recipient.unread_count > 0) {
             try {
-                // 1. Appel API pour mettre à jour la DB
+
                 await markMessagesAsReadApi(recipient.id);
 
-                // 2. Refresh du badge global dans la Navbar
                 await refreshUnreadCount();
 
-                // 3. Optionnel : On peut aussi forcer un reload des conversations 
-                // pour enlever le point rouge de la sidebar immédiatement
-                // (Comme tu as [messages] en dépendance de ton useEffect, 
-                // ça se fera peut-être déjà selon ta logique)
             } catch (error) {
                 console.error("Erreur marquage lu:", error);
             }

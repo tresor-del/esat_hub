@@ -1,8 +1,3 @@
-/**
- * Point d'entrée de l'application React
- * Initialise et monte l'application dans le DOM
- */
-
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";

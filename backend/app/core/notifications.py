@@ -71,5 +71,4 @@ class NotificationContentBuilder:
         return f"Votre compte a été suspendu pour {duration}. Raison: {reason}"
     
 
-# Instance globale pour faciliter l'utilisation
 notification_contents = NotificationContentBuilder()

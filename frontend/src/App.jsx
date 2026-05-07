@@ -1,7 +1,4 @@
-/**
- * Composant Principal App
- * Configure le routeur et les routes de l'application
- */
+
 import React from "react";
 import {
   BrowserRouter as Router,

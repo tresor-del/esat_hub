@@ -1,50 +1,55 @@
-# Esat-Hub
+# Esat-hub - School Activity Management Platform
 
-A web platform for managing and sharing school activities, achievements, and projects at our school.
-Esat Hub helps esat students to keep track of their favourite moments all along the academic year
+A modern web platform designed for students to manage, share, and track school activities, achievements, and collaborative projects throughout the academic year.
 
-## Stack:
-- Frontend: React, Typescript
-- Backend: FastAPI
-- Database: PostgreSQL
-- Database Migration: Alembic
-- Deps Handler: Poetry
+## Features
+- **Social Feed:** Share achievements and school projects.
+- **Real-time Chat:** Instant messaging between students.
+- **Room Management:** Keep track of school spaces and activities.
+- **AI-Powered Insights:** Smart analysis of student interactions.
 
-## System Requirements:
-- OS: Linux
-- Poetry
-- Docker
-- Nodejs
+## Tech Stack
+- **Frontend:** React, TypeScript, Vite
+- **Backend:** FastAPI (Python 3.12+)
+- **Database:** PostgreSQL
+- **Migrations:** Alembic
+- **Dependency Management:** Poetry (Backend), NPM (Frontend)
+- **Containerization:** Docker & Docker Compose
 
-## How to run:
+## System Requirements
+- OS: Linux / macOS
+- [Poetry](https://python-poetry.org)
+- Docker & Docker Compose
+- Node.js (v18+)
 
-### Server Dependencies installation:
+## Getting Started
+
+### 1. Database & Infrastructure
+Start the database services using Docker:
 ```bash
-    cd ./backend
-    poetry install
+docker compose up -d
 ```
 
-### Run the server:
+### 2. Backend Setup
+Navigate to the backend directory, install dependencies, and run migrations:
 ```bash
-    ./scripts/start_backend.sh
+cd ./backend
+poetry install
+poetry run alembic upgrade head
+./scripts/start_backend.sh
 ```
 
-### Run the database:
+### 3. Frontend Setup
+Navigate to the frontend directory and start the development server:
 ```bash
-    docker compose up
+cd ./frontend
+npm install
+npm run dev
 ```
 
-### Frontend Dependencies intallation
-```bash
-    cd ./frontend
-    npm install
-```
+## Project Structure
+- **/frontend**: React application (UI/UX)
+- **/backend**: FastAPI server (Business logic & API)
+- **/scripts**: Automation scripts for deployment and development
 
-### Run the frontend:
-```bash
-    npm run dev
-```
 
-## Important folders:
-- Frontend: [frontend](./frontend)
-- Backend: [backend](./backend/README.md)
