@@ -10,14 +10,14 @@ A modern web platform designed for students to manage, share, and track school a
 
 ## Tech Stack
 - **Frontend:** React, TypeScript, Vite
-- **Backend:** FastAPI (Python 3.12+)
+- **Backend:** FastAPI 
 - **Database:** PostgreSQL
 - **Migrations:** Alembic
 - **Dependency Management:** Poetry (Backend), NPM (Frontend)
 - **Containerization:** Docker & Docker Compose
 
 ## System Requirements
-- OS: Linux / macOS
+- OS: Linux / macOS (for Windows, need to update the scripts)
 - [Poetry](https://python-poetry.org)
 - Docker & Docker Compose
 - Node.js (v18+)
