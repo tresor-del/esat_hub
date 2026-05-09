@@ -5,8 +5,10 @@ import shutil
 import uuid
 import cloudinary
 import cloudinary.uploader 
-from fastapi import UploadFile, status
+from cloudinary.exceptions import NotFound
+from fastapi import UploadFile, status, HTTPException
 from sqlalchemy.orm import Session
+
 from app.db.schemas.user import User
 from app.core.config import settings
 from app.db.schemas.user import User
@@ -135,3 +137,14 @@ class FileService:
         current_user.avatar_path = new_avatar_path
         db.commit()
 
+    def check_file_exists(self, public_id: str):
+        try:
+            # On tente de récupérer la ressource
+            cloudinary.api.resource(public_id)
+            return True
+        except NotFound:
+            # Cloudinary renvoie NotFound si l'ID n'existe pas
+            return False
+        except Exception as e:
+            # Pour toute autre erreur (réseau, config, etc.)
+            raise HTTPException(status_code=500, detail=f"Erreur Cloudinary: {str(e)}")

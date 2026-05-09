@@ -19,7 +19,8 @@ router = APIRouter(prefix="/files", tags=["files"])
 def download_file(
     post_id: uuid.UUID, 
     db: Session = Depends(get_db),
-    post_service: PostService = Depends(get_post_service)
+    post_service: PostService = Depends(get_post_service),
+    file_service: FileService = Depends(get_file_service)
 ):
     """Télécharger le fichier d'un post"""
     db_post = post_service.get_post(post_id=post_id)
@@ -30,7 +31,7 @@ def download_file(
             detail="Post non trouvé"
         )
     
-    if not Path(db_post.file_path).exists():
+    if file_service.check_file_exists(db_post.file_path):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Fichier non trouvé"
@@ -88,7 +89,7 @@ async def get_avatar(user_id: uuid.UUID, db: Session = Depends(get_db), user_ser
     
     user = user_service.get_user(user_id)
     
-    if not user or not user.avatar_path or not Path(user.avatar_path).exists():
+    if not user or not user.avatar_path or not get_file_service.check_file_exists(user.avatar_path):
         # Retourner un avatar par défaut
         # return FileResponse(settings.DEFAULT_AVATAR)
         return None
