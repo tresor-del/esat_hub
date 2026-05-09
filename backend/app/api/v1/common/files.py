@@ -31,11 +31,11 @@ def download_file(
             detail="Post non trouvé"
         )
     
-    if file_service.check_file_exists(db_post.file_path):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Fichier non trouvé"
-        )
+    # if file_service.check_file_exists(db_post.file_path):
+    #     raise HTTPException(
+    #         status_code=status.HTTP_404_NOT_FOUND,
+    #         detail="Fichier non trouvé"
+    #     )
     
     return FileResponse(
         path=db_post.file_path,
