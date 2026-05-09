@@ -100,7 +100,7 @@ const ChatPage = () => {
 
 
     return (
-        <div className='chat-container' style={{"display": "flex"}}>
+        <div className="chat-container" style={{display: 'flex', height: 'calc(100vh - 60px)'}}>
 
             {/* SIDEBAR : Recherche et Contacts */}
             <div className={`side-bar ${isMobileView && isChatOpen ? 'hidden' : ''}`}>
