@@ -74,7 +74,9 @@ class Settings(BaseSettings):
     SUPER_ADMIN_BIRTHDAY: date = None
     SUPER_ADMIN_CARD_NUMBER: str = ""
     
-
+    CLOUDINARY_CLOUD_NAME: str = ""
+    CLOUDINARY_API_KEY: str = ""
+    CLOUDINARY_API_SECRET: str = ""
 
 
     

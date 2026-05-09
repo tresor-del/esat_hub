@@ -3,20 +3,28 @@ from PIL import Image
 from pathlib import Path
 import shutil
 import uuid
+import cloudinary
+import cloudinary.uploader 
 from fastapi import UploadFile, status
 from sqlalchemy.orm import Session
 from app.db.schemas.user import User
 from app.core.config import settings
 from app.db.schemas.user import User
 
+cloudinary.config(
+    cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+    api_key=settings.CLOUDINARY_API_KEY,
+    api_secret=settings.CLOUDINARY_API_SECRET,
+    secure=True
+)
 
 class FileService:
 
     def __init__(self):
         self.ALLOWED_DOCUMENT_EXTENSIONS = settings.ALLOWED_DOCUMENT_EXTENSIONS
         self.ALLOWED_PHOTO_EXTENSIONS = settings.ALLOWED_PHOTO_EXTENSIONS
-        self.UPLOAD_DIR = settings.UPLOAD_DIR
-        self.AVATAR_DIR = settings.AVATAR_DIR
+        # self.UPLOAD_DIR = settings.UPLOAD_DIR
+        # self.AVATAR_DIR = settings.AVATAR_DIR
 
     def save_upload_file(
         self,
@@ -43,36 +51,64 @@ class FileService:
                 return None, None
         
             # Générer un nom de fichier unique
-            unique_filename = f"{uuid.uuid4()}{file_ext}"
-            upload_dir = Path(self.UPLOAD_DIR)
-            upload_dir.mkdir(exist_ok=True)
-            file_path = upload_dir / post_type / unique_filename
+            # unique_filename = f"{uuid.uuid4()}{file_ext}"
+            # upload_dir = Path(self.UPLOAD_DIR)
+            # upload_dir.mkdir(exist_ok=True)
+            # file_path = upload_dir / post_type / unique_filename
 
-            # Créer le sous-dossier si nécessaire
-            file_path.parent.mkdir(exist_ok=True)
+            # # Créer le sous-dossier si nécessaire
+            # file_path.parent.mkdir(exist_ok=True)
             
-            # Sauvegarder le fichier
-            with file_path.open("wb") as buffer:
-                shutil.copyfileobj(upload_file.file, buffer)
+            # # Sauvegarder le fichier
+            # with file_path.open("wb") as buffer:
+            #     shutil.copyfileobj(upload_file.file, buffer)
+
+            content = upload_file.file.read()
+            folder = f"esat_hub/{post_type}"
+            public_id = f"{folder}/{uuid.uuid4()}"
+
+            result = cloudinary.uploader.upload(
+                content,
+                public_id=public_id,
+                resource_type="auto"
+            )
+            return result["secure_url"], upload_file.filename
         
         # si on reçoit du contenu binaire
         if resized and resized_file: 
             
             # si c'est un avatar
             if is_avatar:
+                public_id = f"esat_hub/avatars/{uuid.uuid4()}"
+                result = cloudinary.uploader.upload(
+                    resized_file,
+                    public_id=public_id,
+                    resource_type="image"
+                )
+                return result["secure_url"], upload_file.filename if upload_file else None
+
+        return None, None
                 # Sauvegarder avec un nom unique
-                filename = f"{uuid.uuid4()}.jpg"
-                file_path = Path(self.AVATAR_DIR) / filename
-                file_path.parent.mkdir(exist_ok=True)
-                # resized_file.save(file_path, "JPEG", quality=85)
-                Path(file_path).write_bytes(resized_file)
+        #         filename = f"{uuid.uuid4()}.jpg"
+        #         file_path = Path(self.AVATAR_DIR) / filename
+        #         file_path.parent.mkdir(exist_ok=True)
+        #         # resized_file.save(file_path, "JPEG", quality=85)
+        #         Path(file_path).write_bytes(resized_file)
         
-        return str(file_path), upload_file.filename if upload_file else None
+        # return str(file_path), upload_file.filename if upload_file else None
 
     def delete_file_path(self, file_path: str):
 
-        if Path(file_path).exists():
-            Path(file_path).unlink()
+        try:
+            # Extraire le public_id depuis l'URL
+            part = file_path.split("/upload/")[1]
+            public_id = part.split(".")[0]
+            cloudinary.uploader.destroy(public_id)
+        except Exception:
+            pass
+
+        # if Path(file_path).exists():
+        #     Path(file_path).unlink()
     
     def resize_image(self, content: bytes, max_size: tuple[int, int] = (800, 800)) -> bytes:
 
