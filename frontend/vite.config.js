@@ -35,5 +35,14 @@ export default defineConfig({
         ]
       }
     })
-  ]
+  ],
+  server: {
+    allowedHosts: true,
+    historyApiFallback: true, // Aide pour les routes React
+    proxy: {
+      // Optionnel : si tu veux rediriger tes appels API proprement
+    }
+  }
 })
+
+

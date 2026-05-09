@@ -5,8 +5,10 @@ from sqlalchemy import pool
 
 from alembic import context
 
+
 from app.db.schemas import user, email_verification, post, comments, notification, room, message, revoked_token
 from app.db.database import Base
+from app.core.config import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -59,8 +61,11 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    configuration = config.get_section(config.config_ini_section, {})
+    configuration["sqlalchemy.url"] = settings.SQLALCHEMY_DATABASE_URI
+
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
