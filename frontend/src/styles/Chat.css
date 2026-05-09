@@ -1,7 +1,7 @@
 /* ChatPage */
 
 .chat-container {
-    display: flex;
+    display: flex !important;
     height: calc(100vh - 60px);
 }
 
