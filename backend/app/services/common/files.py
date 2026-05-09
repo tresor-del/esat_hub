@@ -8,6 +8,7 @@ import cloudinary
 import cloudinary.uploader 
 from cloudinary.exceptions import NotFound
 from fastapi import UploadFile, status, HTTPException
+import httpx
 from sqlalchemy.orm import Session
 
 from app.db.schemas.user import User
@@ -176,4 +177,14 @@ class FileService:
                 detail=f"Erreur lors de la vérification Cloudinary : {str(e)}"
             )
         
-        
+    async def stream_file(self, file_url: str):
+        async with httpx.AsyncClient() as client:
+            try:
+                async with client.stream("GET", file_url) as response:
+                    if response.status_code != 200:
+                        return # S'arrête si le fichier n'est pas accessible
+                    
+                    async for chunk in response.iter_bytes():
+                        yield chunk
+            except Exception:
+                return

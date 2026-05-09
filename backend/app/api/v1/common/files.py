@@ -2,7 +2,8 @@ from pathlib import Path
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
+
 from sqlalchemy.orm import Session
 from app.api.deps.auth import get_current_user
 from app.api.deps.db import get_db
@@ -16,16 +17,16 @@ router = APIRouter(prefix="/files", tags=["files"])
 
 
 @router.get("/posts/{post_id}")
-def download_file(
+async def download_file(
     post_id: uuid.UUID, 
     db: Session = Depends(get_db),
     post_service: PostService = Depends(get_post_service),
     file_service: FileService = Depends(get_file_service)
 ):
     """Télécharger le fichier d'un post"""
-    db_post = post_service.get_post(post_id=post_id)
+    post = post_service.get_post(post_id=post_id)
     
-    if db_post is None:
+    if post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Post non trouvé"
@@ -37,10 +38,15 @@ def download_file(
     #         detail="Fichier non trouvé"
     #     )
     
-    return FileResponse(
-        path=db_post.file_path,
-        filename=db_post.file_name,
-        media_type=db_post.mime_type
+    # return FileResponse(
+    #     path=db_post.file_path,
+    #     filename=db_post.file_name,
+    #     media_type=db_post.mime_type
+    # )
+
+    return StreamingResponse(
+        file_service.stream_file(post.file_url), 
+        media_type=post.mime_type or "application/octet-stream"
     )
 
 
@@ -98,7 +104,9 @@ async def get_avatar(
         # return FileResponse(settings.DEFAULT_AVATAR)
         return None
     
-    return FileResponse(user.avatar_path)
+    return StreamingResponse(
+        file_service.stream_file(user.avatar_url)
+    )
 
 @router.post("/chat/upload")
 async def upload_chat_file(
