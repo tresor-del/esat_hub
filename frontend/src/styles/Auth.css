@@ -160,5 +160,9 @@
   padding: unset;
 }
 
+.post-create-info {
+  flex-direction: column;
+}
+
 }
 

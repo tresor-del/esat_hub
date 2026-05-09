@@ -78,7 +78,7 @@ const PostMedia = ({ post, bust, size = "small" }) => {
 
   // ==================== PHOTOS ====================
   if (post.post_type === "photo") {
-    const imageUrl = getPostFileUrl(post.id, effectiveBust);
+    const imageUrl = getPostFileUrl(post, effectiveBust);
 
     const [isNarrow, setIsNarrow] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);

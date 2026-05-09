@@ -36,9 +36,10 @@ export const uploadAvatar = async (file) => {
 /**
  * Obtenir l'URL de l'avatar
  */
-export const getAvatarUrl = (userId, bust = null) => {
-  if (!userId) return null;
-  const base = `${api.defaults.baseURL}/files/users/${userId}/avatar`;
+export const getAvatarUrl = (user, bust = null) => {
+  if (!user) return null;
+  // const base = `${api.defaults.baseURL}/files/users/${userId}/avatar`;
+  const base = user.avatar_path;
   return bust ? `${base}?v=${bust}` : base;
 
 };
@@ -155,8 +156,9 @@ export const deletePost = async (postId) => {
   return response.data;
 };
 
-export const getPostFileUrl = (postId, bust = null) => {
-  const base = `${API_BASE_URL}/files/posts/${postId}`;
+export const getPostFileUrl = (post, bust = null) => {
+  // const base = `${API_BASE_URL}/files/posts/${postId}`;
+  const base = post.file_path ;
   return bust ? `${base}?v=${bust}` : base;
 };
 

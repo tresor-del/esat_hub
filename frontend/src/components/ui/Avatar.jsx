@@ -55,7 +55,7 @@
 
     // Obtenir l'URL de l'avatar
     const avatarUrl = user?.avatar_url || (user?.id && !imageError 
-      ? getAvatarUrl(user.id, avatarBust) 
+      ? getAvatarUrl(user, avatarBust) 
       : null);
 
     // Obtenir les initiales

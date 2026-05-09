@@ -45,7 +45,7 @@ async def download_file(
     # )
 
     return StreamingResponse(
-        file_service.stream_file(post.file_url), 
+        file_service.stream_file(post.file_path), 
         media_type=post.mime_type or "application/octet-stream"
     )
 
@@ -105,7 +105,7 @@ async def get_avatar(
         return None
     
     return StreamingResponse(
-        file_service.stream_file(user.avatar_url)
+        file_service.stream_file(user.avatar_path)
     )
 
 @router.post("/chat/upload")
