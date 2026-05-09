@@ -73,11 +73,11 @@
     border: 1px solid transparent;
     border-radius: 12px;
     padding: 8px 6px;
-    width: 100%;;
+    width: 100%;
 }
 
     .post-filter-btns {
-        min-width: 400px;
+        /* min-width: 400px; */
         width: 100%;
         border-radius: unset;
     }

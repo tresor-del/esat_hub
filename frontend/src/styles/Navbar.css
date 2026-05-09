@@ -258,7 +258,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem; /* Aligne la taille de la cloche sur les autres icônes */
+  font-size: 1.2rem;
+  /* Aligne la taille de la cloche sur les autres icônes */
 }
 
 /* Le petit badge rouge */
@@ -275,7 +276,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--bg-secondary); /* Pour qu'il ressorte bien */
+  border: 2px solid var(--bg-secondary);
+  /* Pour qu'il ressorte bien */
   font-weight: bold;
 }
 
@@ -300,23 +302,41 @@
 
 
 .user-menu-mobile {
-  display: none; /* Caché sur PC */
+  display: none;
+  /* Caché sur PC */
 }
 
-.notification-mobile-wrapper { display: none; }
-.notifications-mobile-header { display: none; }
+.notification-mobile-wrapper {
+  display: none;
+}
+
+.notifications-mobile-header {
+  display: none;
+}
 
 @media (max-width: 768px) {
-    .notification-desktop-wrapper { display: none; }
-  .notification-mobile-wrapper { display: block; }
-    .notifications-full-page {
+
+  .navbar {
+    padding: 0.5rem;
+  }
+
+  .notification-desktop-wrapper {
+    display: none;
+  }
+
+  .notification-mobile-wrapper {
+    display: block;
+  }
+
+  .notifications-full-page {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
     background: var(--bg-secondary);
-    z-index: 2000; /* Doit être au-dessus de la navbar */
+    z-index: 2000;
+    /* Doit être au-dessus de la navbar */
     overflow-y: auto;
     padding: 20px;
   }
@@ -340,20 +360,23 @@
     padding: 15px 10px;
     border-bottom: 1px solid var(--bg-primary);
   }
-    .user-menu-desktop-only {
-    display: none; /* Cache l'avatar dropdown sur mobile */
+
+  .user-menu-desktop-only {
+    display: none;
+    /* Cache l'avatar dropdown sur mobile */
   }
 
   .user-menu-mobile {
-    display: flex; /* Affiche les boutons à plat */
+    display: flex;
+    /* Affiche les boutons à plat */
     flex-direction: column;
     width: 100%;
     gap: 5px;
   }
 
-.nav-items {
-  gap: unset;
-}
+  .nav-items {
+    gap: unset;
+  }
 
   /* Style des boutons "aplatis" sur mobile */
   .user-menu-mobile button {
@@ -371,7 +394,7 @@
 
   .short-logo {
     display: block;
-    
+
   }
 
   .full-logo {
@@ -390,8 +413,6 @@
     font-size: 27px;
     cursor: pointer;
   }
-
-
 
   .navbar-search {
     max-width: none;
@@ -427,28 +448,36 @@
   }
 
   .search-input {
-  padding-left: 0;
-  padding-right: 0;
-  width: 100%;
-  min-width: unset !important;
-}
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+    min-width: unset !important;
+  }
 
 
-    .btn-create {
+  .btn-create {
     padding: 4px 8px;
     width: 70px;
     height: 36px;
-    border-radius: none; /* Devient un bouton rond */
+    border-radius: none;
+    /* Devient un bouton rond */
     min-width: 36px;
     order: 2;
   }
 
-.message-desktop {
-  display: none;
-}
+  .message-desktop {
+    display: none;
+  }
 
-  .btn-create span{
+  .btn-create span {
     display: flex;
   }
 
+}
+
+@media (max-width: 500px) {
+  .search-input-wrapper {
+    max-width: 150px;
+    justify-content: center;
+  }
 }
