@@ -1,4 +1,5 @@
 import io
+import re
 from PIL import Image
 from pathlib import Path
 import shutil
@@ -137,14 +138,42 @@ class FileService:
         current_user.avatar_path = new_avatar_path
         db.commit()
 
-    def check_file_exists(self, public_id: str):
+    def check_file_exists(self, input_value: str):
+        """
+        Vérifie si un fichier existe. 
+        L'input peut être un public_id ou une URL complète.
+        """
+        if not input_value:
+            return False
+            
+        public_id = input_value
+        resource_type = "image" # Par défaut
+
+        # Correction : on cherche 'res.cloudinary.com' ou 'cloudinary.com'
+        if "cloudinary.com" in input_value:
+            # Déterminer le type de ressource pour les fichiers non-images (PDF, etc.)
+            if "/raw/upload/" in input_value:
+                resource_type = "raw"
+            elif "/video/upload/" in input_value:
+                resource_type = "video"
+
+            # Regex robuste : capture tout après /upload/ (ignore v123...) jusqu'à l'extension
+            pattern = r"/upload/(?:v\d+/)?(.+?)(?:\.[a-z0-9]{3,4})?$"
+            match = re.search(pattern, input_value)
+            if match:
+                public_id = match.group(1)
+
         try:
-            # On tente de récupérer la ressource
-            cloudinary.api.resource(public_id)
+            # On passe le resource_type pour gérer les documents et images
+            cloudinary.api.resource(public_id, resource_type=resource_type)
             return True
         except NotFound:
-            # Cloudinary renvoie NotFound si l'ID n'existe pas
             return False
         except Exception as e:
-            # Pour toute autre erreur (réseau, config, etc.)
-            raise HTTPException(status_code=500, detail=f"Erreur Cloudinary: {str(e)}")
+            # En FastAPI, il vaut mieux logger l'erreur ici
+            raise HTTPException(
+                status_code=500, 
+                detail=f"Erreur lors de la vérification Cloudinary : {str(e)}"
+            )
+        
+        

@@ -50,7 +50,7 @@ async def upload_avatar(
     avatar: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    file_service = Depends(get_file_service)
+    file_service: FileService = Depends(get_file_service)
 ):
 
     # Vérifier le type
@@ -85,11 +85,15 @@ async def upload_avatar(
     return {"message": "Avatar mis à jour", "avatar_path": file_path}
 
 @router.get("/users/{user_id}/avatar")
-async def get_avatar(user_id: uuid.UUID, db: Session = Depends(get_db), user_service = Depends(get_auth_service)):
+async def get_avatar(
+    user_id: uuid.UUID, 
+    db: Session = Depends(get_db), 
+    file_service: FileService = Depends(get_file_service),
+    user_service = Depends(get_auth_service)):
     
     user = user_service.get_user(user_id)
     
-    if not user or not user.avatar_path or not get_file_service.check_file_exists(user.avatar_path):
+    if not user or not user.avatar_path or not file_service.check_file_exists(user.avatar_path):
         # Retourner un avatar par défaut
         # return FileResponse(settings.DEFAULT_AVATAR)
         return None
