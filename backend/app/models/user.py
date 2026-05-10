@@ -59,6 +59,7 @@ class UserResponse(UserBase):
     birthday: Optional[datetime] = None
     card_number: Optional[str] = None
     status: Optional[str] = None
+    avatar_path: Optional[str] = None
 
 class UserListResponse(BaseModel):
     total: int

@@ -4,6 +4,7 @@
   "description": "Frontend React pour Enrollix avec authentification",
   "private": true,
   "dependencies": {
+    "@tanstack/react-query": "^5.100.9",
     "axios": "^1.6.2",
     "date-fns": "^4.1.0",
     "emoji-picker-react": "^4.19.1",

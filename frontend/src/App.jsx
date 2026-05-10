@@ -32,9 +32,11 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import ChatPage from "./pages/chat/ChatPage";
 
 
-// Styles (split into ./styles/*.css)
 import "./App.css"
 import { useEffect } from "react";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 /**
  * Routes de l'application
@@ -64,7 +66,7 @@ const AppRoutes = () => {
   }, [logout, navigate])
 
   if (loading) {
-    return <div className="spinner"></div>; 
+    return <div className="spinner"></div>;
   }
 
   return (
@@ -124,7 +126,7 @@ const AppRoutes = () => {
         element={<Navigate to={isAuth() ? "/" : "/login"} replace />}
       />
 
-        
+
     </Routes>
   );
 };
@@ -134,13 +136,15 @@ const AppRoutes = () => {
  */
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <WebSocketProvider>
-          <AppRoutes />
-        </WebSocketProvider>
-      </AuthProvider>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <AuthProvider>
+          <WebSocketProvider>
+            <AppRoutes />
+          </WebSocketProvider>
+        </AuthProvider>
+      </Router>
+    </QueryClientProvider>
   );
 }
 

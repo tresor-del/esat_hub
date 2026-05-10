@@ -21,7 +21,7 @@ const PostCard = ({
   const [commentsLength, setCommentLength] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [user, setUser] = useState()
+  // const [user, setUser] = useState()
 
 
   useEffect(() => {
@@ -61,21 +61,20 @@ const PostCard = ({
     }
   };
 
-  const getPostUserProfile = async(userId) => {
-    try {
-      const user = await getUserProfile(userId);
-      if (user) {
-        setUser(user);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // const getPostUserProfile = async(userId) => {
+  //   try {
+  //     const user = await getUserProfile(userId);
+  //     if (user) {
+  //       setUser(user);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
-  useEffect(() => {
-    getPostUserProfile(post.user?.id)
-  }, [post])
-
+  // useEffect(() => {
+  //   getPostUserProfile(post.user?.id)
+  // }, [post])
 
 
   return (
@@ -84,7 +83,7 @@ const PostCard = ({
         {/* Métadonnées avec avatar */}
         <div className="post-meta">
           <PostAuthorInfo
-            user={user}
+            user={post.user}
             createdAt={post.created_at}
             dateVariant="relative"
             showAvatar={true}

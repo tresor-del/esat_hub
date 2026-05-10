@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FiSearch, FiFilter, FiGlobe, FiLock, FiUsers, FiBook } from "react-icons/fi";
 import PostCard from "../../components/posts/Postcard";
 import { getPost, getUserProfile, getUserRoom } from "../../services/api";
@@ -12,112 +13,155 @@ import "../../styles/Home.css"
 const Home = () => {
   const navigate = useNavigate();
   const { user: userAuth } = useAuth();
-
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [hasMore, setHasMore] = useState(true);
   const [filterType, setFilterType] = useState("general"); // "general" | "private" | "my_posts"
-  const [fullUser, setFullUser] = useState(null);
-  const [room, setRoom] = useState(null);
+  const queryClient = useQueryClient(); 
   const postsPerPage = 10;
 
-  // 1. Charger le profil complet une seule fois
-  useEffect(() => {
-    const loadProfile = async () => {
-      if (userAuth?.id) {
-        try {
-          const result = await getUserProfile(userAuth.id);
-          setFullUser(result);
-        } catch (err) {
-          console.error("Erreur profil:", err);
-        }
-      }
-    };
-    loadProfile();
-  }, [userAuth?.id]);
+  // Cache du profil
+  const { data: fullUser } = useQuery({
+    queryKey: ["userProfile", userAuth?.id],
+    queryFn: () => getUserProfile(userAuth.id),
+    enabled: !!userAuth?.id,
+    staleTime: Infinity, // Le profil ne change pas souvent
+  });
 
-  useEffect(() => {
-    const loadRoom = async () => {
-        try {
-          const result = await getUserRoom();
-          setRoom(result);
-        } catch (err) {
-          console.error("Erreur room:", err);
-        }
-      };
-    loadRoom();
-  }, [])
+  // Cache de la room
+  const { data: room } = useQuery({
+    queryKey: ["userRoom"],
+    queryFn: getUserRoom,
+    staleTime: 1000 * 60 * 30, // 30 minutes de cache
+  });
 
-  // 2. Charger les posts quand le filtre change OU quand l'user est enfin chargé
-  useEffect(() => {
-    if (filterType === "private" && !fullUser) return;
-    if (filterType === "my_posts" && !fullUser) return;
+    // LE CACHE DES POSTS 
+  const { 
+    data: postsData, 
+    isLoading, 
+    isFetching 
+  } = useQuery({
+    queryKey: ["posts", filterType, fullUser?.user_room_id], 
+    queryFn: async () => {
+      let roomId = filterType === "private" ? fullUser?.user_room_id : null;
+      let myPost = filterType === "my_posts";
+      
+      const result = await getPosts({ 
+        skip: 0, 
+        limit: postsPerPage, 
+        roomId, 
+        myPost, 
+        allPosts: false 
+      });
+      return result.posts || [];
+    },
+    // On n'active la recherche que si on a les infos nécessaires pour le filtre
+    enabled: (filterType !== "private" || !!fullUser),
+    staleTime: 1000 * 60, // Garde les posts "frais" pendant 1 min
+  });
 
-    loadPosts(false);
-  }, [filterType, fullUser, room]);
+  const posts = postsData || [];
 
-  // Ajouter des posts dynamiquement depuis le ws
-  useEffect(() => {
-    const handleRealtime = async (event) => {
-      const post_data = event.detail;
+  // const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState("");
+  const [hasMore, setHasMore] = useState(true);
+  // const [fullUser, setFullUser] = useState(null);
+  // const [room, setRoom] = useState(null);
 
-      try {
-        const response = await getPost(post_data.post_id);
-        if (response) {
-          setPosts(prev => [response, ...prev.filter(p => p.id !== response.id)])
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    };
+  // // 1. Charger le profil complet une seule fois
+  // useEffect(() => {
+  //   const loadProfile = async () => {
+  //     if (userAuth?.id) {
+  //       try {
+  //         const result = await getUserProfile(userAuth.id);
+  //         setFullUser(result);
+  //       } catch (err) {
+  //         console.error("Erreur profil:", err);
+  //       }
+  //     }
+  //   };
+  //   loadProfile();
+  // }, [userAuth?.id]);
 
-    window.addEventListener("NEW_POST", handleRealtime);
-    return () => window.removeEventListener("NEW_POST", handleRealtime);
-  }, [])
+  // useEffect(() => {
+  //   const loadRoom = async () => {
+  //       try {
+  //         const result = await getUserRoom();
+  //         setRoom(result);
+  //       } catch (err) {
+  //         console.error("Erreur room:", err);
+  //       }
+  //     };
+  //   loadRoom();
+  // }, [])
 
-  const loadPosts = async (isLoadMore = false) => {
-    try {
-      setLoading(true);
-      setError("");
-      const skip = isLoadMore ? posts.length : 0;
+  // // 2. Charger les posts quand le filtre change OU quand l'user est enfin chargé
+  // useEffect(() => {
+  //   if (filterType === "private" && !fullUser) return;
+  //   if (filterType === "my_posts" && !fullUser) return;
 
-      let roomId = null;
-      let myPost = false;
-      let allPosts = false;
+  //   loadPosts(false);
+  // }, [filterType, fullUser, room]);
 
-      // Filtrer selon le type
-      if (filterType === "private") {
-        // Posts de ma salle de classe (room_id non null)
-        roomId = fullUser?.user_room_id;
-        if (!roomId) {
-          setPosts([]);
-          setHasMore(false);
-          return;
-        } 
+  // // Ajouter des posts dynamiquement depuis le ws
+  // useEffect(() => {
+  //   const handleRealtime = async (event) => {
+  //     const post_data = event.detail;
 
-      } else if (filterType === "my_posts") {
-        // Mes propres posts
-        myPost = true;
-      } else if (filterType === "general") {
-        // Posts généraux seulement (room_id = null, exclure les posts de classes)
-        allPosts = false;
-        // roomId reste null, ce qui dans l'API signifie posts sans room
-      }
-      // filterType === "general" -> roomId = null (posts généraux sans room_id)
+  //     try {
+  //       const response = await getPost(post_data.post_id);
+  //       if (response) {
+  //         setPosts(prev => [response, ...prev.filter(p => p.id !== response.id)])
+  //       }
+  //     } catch (error) {
+  //       console.log(error)
+  //     }
+  //   };
 
-      const result = await getPosts({ skip, limit: postsPerPage, roomId, myPost, allPosts });
+  //   window.addEventListener("NEW_POST", handleRealtime);
+  //   return () => window.removeEventListener("NEW_POST", handleRealtime);
+  // }, [])
 
-      const postsData = result.posts || [];
-      setPosts(prev => isLoadMore ? [...prev, ...postsData] : postsData);
-      setHasMore(postsData.length === postsPerPage);
-    } catch (err) {
-      console.error("Erreur:", err);
-      setError("Impossible de charger les publications.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const loadPosts = async (isLoadMore = false) => {
+  //   try {
+  //     setLoading(true);
+  //     setError("");
+  //     const skip = isLoadMore ? posts.length : 0;
+
+  //     let roomId = null;
+  //     let myPost = false;
+  //     let allPosts = false;
+
+  //     // Filtrer selon le type
+  //     if (filterType === "private") {
+  //       // Posts de ma salle de classe (room_id non null)
+  //       roomId = fullUser?.user_room_id;
+  //       if (!roomId) {
+  //         setPosts([]);
+  //         setHasMore(false);
+  //         return;
+  //       } 
+
+  //     } else if (filterType === "my_posts") {
+  //       // Mes propres posts
+  //       myPost = true;
+  //     } else if (filterType === "general") {
+  //       // Posts généraux seulement (room_id = null, exclure les posts de classes)
+  //       allPosts = false;
+  //       // roomId reste null, ce qui dans l'API signifie posts sans room
+  //     }
+  //     // filterType === "general" -> roomId = null (posts généraux sans room_id)
+
+  //     const result = await getPosts({ skip, limit: postsPerPage, roomId, myPost, allPosts });
+
+  //     const postsData = result.posts || [];
+  //     setPosts(prev => isLoadMore ? [...prev, ...postsData] : postsData);
+  //     setHasMore(postsData.length === postsPerPage);
+  //   } catch (err) {
+  //     console.error("Erreur:", err);
+  //     setError("Impossible de charger les publications.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   /**
    * Gérer la modification d'un poste
