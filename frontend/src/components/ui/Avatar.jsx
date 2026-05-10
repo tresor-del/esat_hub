@@ -54,7 +54,7 @@
     };
 
     // Obtenir l'URL de l'avatar
-    const avatarUrl = user?.avatar_url || (user?.id && !imageError 
+    const avatarUrl = user?.avatar_path || (user?.id && !imageError 
       ? getAvatarUrl(user, avatarBust) 
       : null);
 
