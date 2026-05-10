@@ -4,7 +4,7 @@ import PostAuthorInfo from "./PostAuthorInfo";
 import PostActionsMenu from "./PostActionsMenu";
 import PostMedia from "./PostMedia";
 import { useLocation } from "react-router-dom";
-import { getComments } from "../../services/api";
+import { getComments, getUserProfile } from "../../services/api";
 import { formatRelativeDate } from "../../utils/dateFormatter";
 import "../../styles/PostCard.css"
 
@@ -21,6 +21,7 @@ const PostCard = ({
   const [commentsLength, setCommentLength] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [user, setUser] = useState()
 
 
   useEffect(() => {
@@ -60,6 +61,21 @@ const PostCard = ({
     }
   };
 
+  const getPostUserProfile = async(userId) => {
+    try {
+      const user = await getUserProfile(userId);
+      if (user) {
+        setUser(user);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    getPostUserProfile(post.user?.id)
+  }, [post])
+
 
 
   return (
@@ -68,7 +84,7 @@ const PostCard = ({
         {/* Métadonnées avec avatar */}
         <div className="post-meta">
           <PostAuthorInfo
-            user={post.user}
+            user={user}
             createdAt={post.created_at}
             dateVariant="relative"
             showAvatar={true}
