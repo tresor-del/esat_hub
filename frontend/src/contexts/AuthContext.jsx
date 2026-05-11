@@ -1,3 +1,5 @@
+import axios from "axios";
+import { API_BASE_URL } from "../utils/axiosConfig";
 import { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -30,9 +32,33 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem("access_token");
       if (token) {
         const decoded = jwtDecode(token); // { sub: "user_id", exp: ... }
+        // si l'access token a expiré:
         if (decoded.exp * 1000 < Date.now()) {
-          localStorage.removeItem("access_token");
-          setUser(null);
+          // tenter de récupérer le refresh token:
+          const refreshToken = localStorage.getItem("refresh_token");
+          if (refreshToken) {
+            try {
+              // tenter le refresh
+              const res = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+                refresh_token: refreshToken
+              });
+              localStorage.setItem("access_token", res.data.access_token);
+              localStorage.setItem("refresh_token", res.data.refresh_token);
+              // puis charger le profil normalement
+              const newDecoded = jwtDecode(res.data.access_token);
+              const profile = await getUserProfile(newDecoded.sub);
+              setUser({ authenticated: true, ...profile });
+            } catch (e) {
+              // refresh expiré aussi → déconnexion réelle
+              localStorage.removeItem("access_token");
+              localStorage.removeItem("refresh_token");
+              setUser(null);
+            }
+          } else {
+
+            localStorage.removeItem("access_token");
+            setUser(null);
+          };
         } else {
           try {
             const profile = await getUserProfile(decoded.sub);
@@ -150,6 +176,10 @@ export const AuthProvider = ({ children }) => {
    */
   const isAuth = () => user?.authenticated === true;
 
+  const updateUser = (newData) => {
+    setUser(prev => ({ ...prev, ...newData }));
+  }
+
   // Valeur fournie par le contexte
   const value = {
     user,
@@ -157,6 +187,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     isAuth,
     loading,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

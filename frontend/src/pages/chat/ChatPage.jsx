@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import { useNavigate } from 'react-router-dom';
 import SearchFilters from '../../components/ui/SearchFilters';
@@ -9,14 +9,18 @@ import Avatar from '../../components/ui/Avatar';
 import ChatBox from '../../components/chat/ChatBox';
 import "../../styles/Chat.css"
 import { getRecentChat } from '../../services/chatApi';
+import { set } from 'date-fns';
 
 const ChatPage = () => {
     const { unreadChatsCount, refreshUnreadCount, messages } = useWebSocket();
     const [activeRecipient, setActiveRecipient] = useState(null);
+    // on utilise useRef pour avoir les valeurs courantes et eviter les closures
+    const activeRecipientRef = useRef();
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [view, setView] = useState("recent")
     const [recentChats, setRecentChats] = useState([]);
+    const [loadingRecentChats, setLoadingRecentChats] = useState(false);
     const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
     const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -25,16 +29,46 @@ const ChatPage = () => {
 
     useEffect(() => {
         const loadRecent = async () => {
+            setLoadingRecentChats(true);
             try {
                 const data = await getRecentChat();
                 setRecentChats(data || []);
                 console.log("Recent:", data)
             } catch (error) {
                 console.error("Erreur chargement récents:", error);
+            } finally {
+                setLoadingRecentChats(false);
             }
         };
         loadRecent();
-    }, [messages, unreadChatsCount]);
+    }, []);
+
+    useEffect(() => {
+        const handleChatUpdate = (event) => {
+
+            const msg = event.detail;
+            const isActiveConv = activeRecipientRef.current?.id === msg.sender_id;
+
+            setRecentChats(prev => prev.map(chat => {
+
+                const isThisChat = chat.id === msg.sender_id || chat.id === msg.recipient_id;
+                if (!isThisChat) return chat;
+
+                return {
+                    ...chat,
+                    last_message_content: msg.content,
+                    last_message_timestamp: msg.timestamp,
+                    // Non lu seulement si message entrant ET pas dans la conv active
+                    unread_count: msg.isIncoming && !isActiveConv
+                        ? chat.unread_count + 1
+                        : chat.unread_count
+                };
+            }));
+        };
+        window.addEventListener("CHAT_UPDATED", handleChatUpdate);
+        return () => window.removeEventListener("CHAT_UPDATED", handleChatUpdate);
+    }, []);
+
 
     useEffect(() => {
         const handleResize = () => {
@@ -50,17 +84,24 @@ const ChatPage = () => {
 
     const handleSelectRecipient = async (recipient) => {
         setActiveRecipient(recipient);
-        if (recipient.unread_count > 0) {
-            try {
+        activeRecipientRef.current = recipient;
 
-                await markMessagesAsReadApi(recipient.id);
+        setRecentChats(prev => prev.map(chat =>
+            chat.id === recipient.id
+                ? { ...chat, unread_count: 0 }
+                : chat
+        ));
 
-                await refreshUnreadCount();
+        try {
 
-            } catch (error) {
-                console.error("Erreur marquage lu:", error);
-            }
+            await markMessagesAsReadApi(recipient.id);
+
+            await refreshUnreadCount();
+
+        } catch (error) {
+            console.error("Erreur marquage lu:", error);
         }
+
         if (isMobileView) {
             setIsChatOpen(true);
         }
@@ -69,6 +110,7 @@ const ChatPage = () => {
     const handleCloseChat = () => {
         setIsChatOpen(false);
         setActiveRecipient(null);
+        activeRecipientRef.current = null;
     };
 
     const handleSearch = async (value) => {
@@ -100,7 +142,7 @@ const ChatPage = () => {
 
 
     return (
-        <div className="chat-container" style={{display: 'flex', height: 'calc(100vh - 60px)'}}>
+        <div className="chat-container" style={{ display: 'flex', height: 'calc(100vh - 60px)' }}>
 
             {/* SIDEBAR : Recherche et Contacts */}
             <div className={`side-bar ${isMobileView && isChatOpen ? 'hidden' : ''}`}>
@@ -125,40 +167,45 @@ const ChatPage = () => {
                 {view === 'recent' && (
                     <div className="contacts-list">
                         {recentChats.length > 0 ? (
-                            recentChats.map(u => (
-                                <div
-                                    key={u.id}
-                                    onClick={() => handleSelectRecipient(u)}
-                                    // La classe 'active' gérera le changement de background color
-                                    className={`contact-list-item 
-                        ${activeRecipient?.id === u.id ? 'active' : ''}
+                            loadingRecentChats ? (
+                                <div style={{ margin: 'auto', textAlign: 'center', color: '#888' }}>
+                                    <div className="spinner"></div>
+                                </div>
+                            ) : (
+                                recentChats.map(u => (
+                                    <div
+                                        key={u.user?.id}
+                                        onClick={() => handleSelectRecipient(u.user)}
+                                        // La classe 'active' gérera le changement de background color
+                                        className={`contact-list-item 
+                        ${activeRecipient?.id === u.user?.id ? 'active' : ''}
                         ${u.unread_count > 0 ? 'unread' : ''}
                         `}
-                                >
-                                    <Avatar user={u} />
-                                    <div className="contact-info">
-                                        <div className="contact-header">
-                                            <span className="contact-name">{u.profil_name}</span>
-                                            {/* Affichage de l'heure du dernier message */}
-                                            <span className="contact-time">{formatTime(u.last_message_timestamp)}</span>
-                                        </div>
-                                        <div className='content-u'>
-                                            {/* Aperçu du message */}
-                                            <p className="contact-preview">
-                                                {u.last_message_content || "Aucun message"}
-                                            </p>
-                                            {u.unread_count > 0 && (<span className='unread-msg-badge'>{u.unread_count}</span>)}
-                                        </div>
+                                    >
+                                        <Avatar user={u.user} />
+                                        <div className="contact-info">
+                                            <div className="contact-header">
+                                                <span className="contact-name">{u.user.profil_name}</span>
+                                                {/* Affichage de l'heure du dernier message */}
+                                                <span className="contact-time">{formatTime(u.last_message_timestamp)}</span>
+                                            </div>
+                                            <div className='content-u'>
+                                                {/* Aperçu du message */}
+                                                <p className="contact-preview">
+                                                    {u.last_message_content || "Aucun message"}
+                                                </p>
+                                                {u.unread_count > 0 && (<span className='unread-msg-badge'>{u.unread_count}</span>)}
+                                            </div>
 
+                                        </div>
                                     </div>
-                                </div>
-                            ))
+                                ))
+                            )
                         ) : (
                             <p className='empty-text'>Aucune conversation récente</p>
                         )}
                     </div>
                 )}
-
 
                 {view === 'new' && (
                     <div className='new-view'>

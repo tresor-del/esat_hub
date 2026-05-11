@@ -3,13 +3,14 @@ import { useWebSocket } from '../../contexts/WebSocketContext';
 import Avatar from '../ui/Avatar';
 import { FiArrowLeft } from 'react-icons/fi';
 import "../../styles/Chat.css";
-import { getChatHistory } from '../../services/chatApi';
+import { getChatHistory, markMessagesAsReadApi } from '../../services/chatApi';
 import EmojiPicker from 'emoji-picker-react';
 
 const ChatBox = ({ recipient, onClose, isMobile }) => {
     const { unreadChatsCount, messages, sendMessage, user } = useWebSocket();
     const [text, setText] = useState("");
     const [localHistory, setLocalHistory] = useState([]);
+    const [loadingHistory, setLoadingHistory] = useState(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
     const messagesEndRef = useRef(null);
@@ -18,11 +19,14 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
     useEffect(() => {
         const loadHistory = async () => {
             setLocalHistory([]);
+            setLoadingHistory(true);
             try {
                 const res = await getChatHistory(recipient.id);
                 setLocalHistory(res);
             } catch (error) {
                 console.log(error);
+            } finally {
+                setLoadingHistory(false);  // ← fin
             }
         };
         loadHistory();
@@ -30,12 +34,27 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
     }, [recipient.id]);
 
     const liveMessages = messages[recipient.id] || [];
+
+    // On prend le timestamp du dernier message de l'historique
+    const lastHistoryTimestamp = localHistory.length > 0
+        ? new Date(localHistory[localHistory.length - 1].timestamp)
+        : new Date(0);
+
+    // On garde seulement les liveMessages plus récents que l'historique
     const conversation = [
-    ...localHistory, 
-    ...liveMessages.filter(liveMsg => 
-        !localHistory.some(histMsg => histMsg.id === liveMsg.id)
-    )
-];
+        ...localHistory,
+        ...liveMessages.filter(liveMsg =>
+            new Date(liveMsg.timestamp) > lastHistoryTimestamp
+        )
+    ];
+
+    useEffect(() => {
+        const liveMessages = messages[recipient.id] || [];
+        if (liveMessages.length > 0) {
+            // On a des messages en temps réel, on les marque comme lus
+            markMessagesAsReadApi(recipient.id).catch(console.error);
+        }
+    }, [messages[recipient.id]?.length]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -96,38 +115,45 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
     return (
         <div className='chat-box-container'>
             {isMobile && (
-                    <div className='chat-box-header-m'>
-                        <button className='chat-close-btn' onClick={onClose}>
-                            <FiArrowLeft /> Retour
-                        </button>
-                        <span>{recipient.profil_name}</span>
-                    </div>
+                <div className='chat-box-header-m'>
+                    <button className='chat-close-btn' onClick={onClose}>
+                        <FiArrowLeft /> Retour
+                    </button>
+                    <span>{recipient.profil_name}</span>
+                </div>
             )}
 
             <div className='chat-list'>
-                {conversation.map((msg, i) => {
-                    const currentDateLabel = getRelativeDateLabel(msg.timestamp);
-                    const showDateBadge = currentDateLabel !== lastDateLabel;
-                    lastDateLabel = currentDateLabel;
 
-                    return (
-                        <React.Fragment key={i}>
-                            {showDateBadge && (
-                                <div className="chat-date-separator">
-                                    <span>{currentDateLabel}</span>
-                                </div>
-                            )}
-                            <div className={`chat-message-wrapper ${msg.sender_id === recipient.id ? 'incoming' : 'outgoing'}`}>
-                                <div className="chat-message-bubble">
-                                    {msg.content}
-                                    <div className="chat-message-time">
-                                        {formatChatTimestamp(msg.timestamp)}
+                {loadingHistory ? (
+                    <div style={{ margin: 'auto', textAlign: 'center', color: '#888' }}>
+                        <div className="spinner"></div>
+                    </div>
+                ) : (
+                    conversation.map((msg, i) => {
+                        const currentDateLabel = getRelativeDateLabel(msg.timestamp);
+                        const showDateBadge = currentDateLabel !== lastDateLabel;
+                        lastDateLabel = currentDateLabel;
+
+                        return (
+                            <React.Fragment key={i}>
+                                {showDateBadge && (
+                                    <div className="chat-date-separator">
+                                        <span>{currentDateLabel}</span>
+                                    </div>
+                                )}
+                                <div className={`chat-message-wrapper ${msg.sender_id === recipient.id ? 'incoming' : 'outgoing'}`}>
+                                    <div className="chat-message-bubble">
+                                        {msg.content}
+                                        <div className="chat-message-time">
+                                            {formatChatTimestamp(msg.timestamp)}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </React.Fragment>
-                    );
-                })}
+                            </React.Fragment>
+                        );
+                    })
+                )}
                 <div ref={messagesEndRef} />
             </div>
 

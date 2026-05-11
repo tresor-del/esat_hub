@@ -8,29 +8,29 @@ import "../../styles/Auth.css"
 
 const CreatePost = () => {
   const navigate = useNavigate();
-  const { user: userAuth } = useAuth();
-  const [user, setUser] = useState();
+  const { user } = useAuth();
+  // const [user, setUser] = useState();
 
-  useEffect(() => {
-    const userProfil = async () => {
-      try {
-        const result = await getUserProfile(userAuth.id);
-        if (result) {
-          setUser(result)
-        }
-      } catch (error) {
-        console.log("Erreur de récupération de l'utilisateur: ", error)
-      }
-    }
+  // useEffect(() => {
+  //   const userProfil = async () => {
+  //     try {
+  //       const result = await getUserProfile(userAuth.id);
+  //       if (result) {
+  //         setUser(result)
+  //       }
+  //     } catch (error) {
+  //       console.log("Erreur de récupération de l'utilisateur: ", error)
+  //     }
+  //   }
 
-    userProfil()
-  }, [])
+  //   userProfil()
+  // }, [])
 
   // États du formulaire
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    post_type: 'photo', // ✅ Minuscule
+    post_type: 'photo', 
     post_scope: 'general',
     room_id: null,
     file: null,

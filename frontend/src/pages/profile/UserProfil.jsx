@@ -1,4 +1,4 @@
-// pages/UserProfile.jsx
+import { useQuery } from "@tanstack/react-query";
 import React, { useState, useEffect } from "react";
 import QRCode from "react-qr-code"
 import { useParams, useNavigate } from "react-router-dom";
@@ -17,21 +17,41 @@ const UserProfile = () => {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
 
-  const [profile, setProfile] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const [stats, setStats] = useState({ postsCount: 0, });
+  // const [profile, setProfile] = useState(null);
+  // const [posts, setPosts] = useState([]);
+  // const [stats, setStats] = useState({ postsCount: 0, });
   const [loading, setLoading] = useState(true);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [error, setError] = useState("");
+  // const [error, setError] = useState("");
   const [qrValue, setQrValue] = useState()
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const isOwnProfile = currentUser?.id === id;
 
-  useEffect(() => {
-    loadProfile();
+  // Profil
+  const { data: profile, isLoading, error } = useQuery({
+    queryKey: ["userProfile", id],
+    queryFn: () => isOwnProfile ? Promise.resolve(currentUser) : getUserProfile(id),
+    staleTime: isOwnProfile ? Infinity : 1000 * 60 * 5, 
+    enabled: !!id,
+  });
 
-  }, [id]);
+  // Posts
+  const { data: postsData } = useQuery({
+    queryKey: ["userPosts", id],
+    queryFn: () => getPosts({ user_id: id }),
+    staleTime: 1000 * 60,
+    enabled: !!profile,
+  });
+
+  const posts = postsData?.posts || [];
+  const stats = { postsCount: postsData?.total || 0 };
+
+
+  // useEffect(() => {
+  //   loadProfile();
+
+  // }, [id]);
 
   // Détection des petits écrans
   useEffect(() => {
@@ -43,35 +63,35 @@ const UserProfile = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const loadProfile = async () => {
-    try {
-      setLoading(true);
-      const result = await getUserProfile(id);
-      setProfile(result);
-      loadUserPosts(result.id);
-      setQrValue(result.card_number)
-    } catch (err) {
-      console.error(err);
-      setError("Impossible de charger le profil");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const loadProfile = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const result = isOwnProfile ? currentUser : await getUserProfile(id);
+  //     setProfile(result);
+  //     loadUserPosts(result.id);
+  //     setQrValue(result.card_number)
+  //   } catch (err) {
+  //     console.error(err);
+  //     setError("Impossible de charger le profil");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-  const loadUserPosts = async (userId) => {
-    try {
-      const result = await getPosts({ user_id: userId });
-      console.log(result.posts)
-      setPosts(result.posts || []);
+  // const loadUserPosts = async (userId) => {
+  //   try {
+  //     const result = await getPosts({ user_id: userId });
+  //     console.log(result.posts)
+  //     setPosts(result.posts || []);
 
-      // Calculer les stats
-      setStats({
-        postsCount: result.total || 0,
-      });
-    } catch (err) {
-      console.error("Erreur lors du chargement des posts:", err);
-    }
-  };
+  //     // Calculer les stats
+  //     setStats({
+  //       postsCount: result.total || 0,
+  //     });
+  //   } catch (err) {
+  //     console.error("Erreur lors du chargement des posts:", err);
+  //   }
+  // };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -81,7 +101,7 @@ const UserProfile = () => {
     });
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container" style={{ padding: "40px 20px", textAlign: "center" }}>
         <div className="loading">Chargement du profil...</div>

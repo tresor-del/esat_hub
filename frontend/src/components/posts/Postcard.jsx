@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import PostAuthorInfo from "./PostAuthorInfo";
 import PostActionsMenu from "./PostActionsMenu";
 import PostMedia from "./PostMedia";
@@ -18,27 +19,36 @@ const PostCard = ({
   detail = false
 }) => {
 
-  const [commentsLength, setCommentLength] = useState(0);
+  // const [commentsLength, setCommentLength] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   // const [user, setUser] = useState()
 
+  const { data: commentsData } = useQuery({
+    queryKey: ["commentsCount", post.id],
+    queryFn: () => getComments(post.id),
+    staleTime: 1000 * 60,
+  });
+
+  const commentsLength = commentsData?.total || 0;
 
   useEffect(() => {
     const handResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handResize);
-    fetchCount()
+    // fetchCount()
     return () => window.removeEventListener("resize", handResize);
   }, []);
 
-  const fetchCount = async () => {
-    try {
-      const result = await getComments(post.id)
-      setCommentLength(result.total)
-    } catch (error) {
-      setCommentLength(0)
-    }
-  }
+
+
+  // const fetchCount = async () => {
+  //   try {
+  //     const result = await getComments(post.id)
+  //     setCommentLength(result.total)
+  //   } catch (error) {
+  //     setCommentLength(0)
+  //   }
+  // }
 
   const toggleReadMore = (e) => {
     e.stopPropagation();

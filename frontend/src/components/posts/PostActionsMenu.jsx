@@ -9,9 +9,9 @@ const PostActionsMenu = ({ post, onEdit, onDelete, onToggleStatus }) => {
   const isAdmin = user?.role === "ADMIN";
 
   // Debug logs
-  console.log("User:", user);
-  console.log("Post:", post);
-  console.log("isAdmin:", isAdmin);
+  // console.log("User:", user);
+  // console.log("Post:", post);
+  // console.log("isAdmin:", isAdmin);
 
   // Si l'utilisateur n'est pas l'auteur et pas admin, ne rien afficher
   if (!isAuthor && !isAdmin) return null;

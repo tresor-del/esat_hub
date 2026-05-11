@@ -2,7 +2,7 @@
 import axios from "axios";
 
 // URL de base de l'API
-const API_BASE_URL= import.meta.env.VITE_API_BASE_URL ;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Instance Axios avec configuration par défaut
 const api = axios.create({
@@ -11,14 +11,14 @@ const api = axios.create({
 
 let isRefreshing = false;
 let failedQueue = [];
-  
+
 // fonction qui gère toutes les requêtes stockée dans la file d'attente
 const processQueue = (error, token = null) => {
 
   failedQueue.forEach((prom) => {
-    if (error){
+    if (error) {
       prom.reject(error)
-    } else  {
+    } else {
       prom.resolve(token);
     }
   });
@@ -45,35 +45,35 @@ api.interceptors.response.use(
     const request = error.config;
 
     if (error.response?.status === 401 &&
-        !request._retry && 
-        localStorage.getItem("refresh_token")
+      !request._retry &&
+      localStorage.getItem("refresh_token")
     ) {
 
       request._retry = true;
 
       // stocker la requête si la recup du nouveau token est déjà en cours
       // et la traiter que si le token est récupéré
-      if(isRefreshing){
+      if (isRefreshing) {
         // stocker cette requête dans la file d'attente
         return new Promise(function (resolve, reject) {
-          failedQueue.push({resolve, reject});
-        }) 
-        .then((token) => {
-          request.headers.Authorization = "Bearer " + token;
-          return api(request);
+          failedQueue.push({ resolve, reject });
         })
-        .catch((err) => Promise.reject(err));
+          .then((token) => {
+            request.headers.Authorization = "Bearer " + token;
+            return api(request);
+          })
+          .catch((err) => Promise.reject(err));
       }
 
       // mécanisme pour récupérer le token si aucun processus de récupération n'est en cours
       isRefreshing = true;
       const refreshToken = localStorage.getItem("refresh_token")
-      
+
       try {
         // essayer de récuperer un nouveau token par axios
         const res = await axios.post(
           `${API_BASE_URL}/auth/refresh`,
-          {refresh_token: refreshToken}
+          { refresh_token: refreshToken }
         );
 
         // Mise à jour du stockage et des headers par défaut
@@ -83,6 +83,10 @@ api.interceptors.response.use(
         localStorage.removeItem("refresh_token");
         localStorage.setItem("refresh_token", newRefreshToken)
         api.defaults.headers.Authorization = "Bearer " + newAccessToken;
+
+        // evenement pour permettre au ws d'utiliser le nouveau token pour les requetes
+        window.dispatchEvent(new CustomEvent("TOKEN_REFRESHED", { detail: { token: newAccessToken } }));
+
 
         // on peut alors continuer les requêtes dans la queue
         processQueue(null, newAccessToken);
@@ -101,15 +105,17 @@ api.interceptors.response.use(
         isRefreshing = false;
 
         // nettoyage complet
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+
+        // notification globale pour rédiriger les requêtes vers le login
+        window.dispatchEvent(
+          new CustomEvent("app:logout", { detail: { reason: "unauthorized" } }),
+        );
+        return Promise.reject(refreshError);
 
       }
 
-      // notification globale pour rédiriger les requêtes vers le login
-      window.dispatchEvent(
-        new CustomEvent("app:logout", { detail: { reason: "unauthorized" } }),
-      );
     }
     return Promise.reject(error);
   },

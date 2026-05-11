@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, 
 from jose import jwt, JWTError
 
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from app.core.config import settings
 from app.api.deps.db import get_db
@@ -73,8 +74,14 @@ def logout(body: RefreshToken, db: Session = Depends(get_db)):
         if already_revoked:
             raise HTTPException(status_code=401, detail="Token already revoked")
 
-        db.add(RevokedToken(jti=jti))
-        db.commit()
+        try:
+            db.add(RevokedToken(jti=jti))
+            db.commit()
+        except IntegrityError:
+            # Deux requêtes simultanées avec le même token
+            db.rollback()
+            raise HTTPException(status_code=401, detail="Invalid refresh token")
+
 
         return Message(message="Logout out successfully")
 

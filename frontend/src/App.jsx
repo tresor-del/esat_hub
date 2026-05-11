@@ -70,64 +70,68 @@ const AppRoutes = () => {
   }
 
   return (
-    <Routes>
 
-      {/* Routes publiques */}
+    <WebSocketProvider>
+      <Routes>
 
-      <Route element={<EmptyLayout />}>
+        {/* Routes publiques */}
+
+        <Route element={<EmptyLayout />}>
+          <Route
+            path="/login"
+            element={isAuth() ? <Navigate to="/" replace /> : <Login />}
+          />
+          <Route
+            path="/register"
+            element={isAuth() ? <Navigate to="/" replace /> : <Register />}
+          />
+          <Route path="/confirm-email" element={<ConfirmEmail />} />
+        </Route>
+
+
+        {/* Routes protégées AVEC navbar */}
         <Route
-          path="/login"
-          element={isAuth() ? <Navigate to="/" replace /> : <Login />}
-        />
+          element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/create" element={<CreatePost />} />
+          <Route path="/edit/:id" element={<PostEdit />} />
+          <Route path="/post/:id" element={<PostDetail />} />
+          <Route path="/profile/:id" element={<UserProfil />} />
+          <Route path="/profile/edit" element={<ProfileEdit />} />
+          <Route path="/room" element={<Room />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/chat" element={<ChatPage />} />
+        </Route>
+
+
+        {/* Routes protégées SANS navbar */}
         <Route
-          path="/register"
-          element={isAuth() ? <Navigate to="/" replace /> : <Register />}
+          element={
+            <ProtectedRoute>
+              <EmptyLayout />
+            </ProtectedRoute>
+          }
+        >
+
+        </Route>
+
+
+        {/* Fallback */}
+
+        <Route
+          path="*"
+          element={<Navigate to={isAuth() ? "/" : "/login"} replace />}
         />
-        <Route path="/confirm-email" element={<ConfirmEmail />} />
-      </Route>
 
 
-      {/* Routes protégées AVEC navbar */}
-      <Route
-        element={
-          <ProtectedRoute>
-            <MainLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="/create" element={<CreatePost />} />
-        <Route path="/edit/:id" element={<PostEdit />} />
-        <Route path="/post/:id" element={<PostDetail />} />
-        <Route path="/profile/:id" element={<UserProfil />} />
-        <Route path="/profile/edit" element={<ProfileEdit />} />
-        <Route path="/room" element={<Room />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/chat" element={<ChatPage />} />
-      </Route>
+      </Routes>
+    </WebSocketProvider>
 
-
-      {/* Routes protégées SANS navbar */}
-      <Route
-        element={
-          <ProtectedRoute>
-            <EmptyLayout />
-          </ProtectedRoute>
-        }
-      >
-
-      </Route>
-
-
-      {/* Fallback */}
-
-      <Route
-        path="*"
-        element={<Navigate to={isAuth() ? "/" : "/login"} replace />}
-      />
-
-
-    </Routes>
   );
 };
 
@@ -139,9 +143,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <AuthProvider>
-          <WebSocketProvider>
-            <AppRoutes />
-          </WebSocketProvider>
+          <AppRoutes />
         </AuthProvider>
       </Router>
     </QueryClientProvider>

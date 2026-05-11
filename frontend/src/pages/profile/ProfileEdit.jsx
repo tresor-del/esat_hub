@@ -10,60 +10,60 @@ import "../../styles/UserProfile.css"
 
 const ProfileEdit = () => {
     const navigate = useNavigate();
-    const { user: authUser, logout } = useAuth();
+    const { user, logout, updateUser } = useAuth();
 
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
-    const [profile, setProfile] = useState(null);
+    // const [profile, setProfile] = useState(null);
 
     const [formData, setFormData] = useState({
-        first_name: '',
-        last_name: '',
-        profil_name: '',
-        email: '',
-        school_name: '',
-        domain: '',
-        level: '',
-        major: '',
-        year: '',
-        phone_number: '',
-        card_number: '',
-        birthday: '',
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        profil_name: user.profil_name || '',
+        email: user.email || '',
+        school_name: user.school_name || '',
+        domain: user.domain || '',
+        level: user.level || '',
+        major: user.major || '',
+        year: user.year || '',
+        phone_number: user.phone_number || '',
+        card_number: user.card_number || '',
+        birthday: user.birthday || '',
     });
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
 
-    useEffect(() => {
-        loadProfile();
-    }, []);
+    // useEffect(() => {
+    //     loadProfile();
+    // }, []);
 
-    const loadProfile = async () => {
-        try {
-            setLoading(true);
-            const result = await getUserProfile(authUser.id);
-            setProfile(result);
-            setFormData({
-                first_name: result.first_name || '',
-                last_name: result.last_name || '',
-                profil_name: result.profil_name || '',
-                email: result.email || '',
-                school_name: result.school_name || '',
-                domain: result.domain || '',
-                level: result.level || '',
-                major: result.major || '',
-                year: result.year || '',
-                phone_number: result.phone_number || '',
-                card_number: result.card_number || '',
-                birthday: result.birthday || '',
-            });
-        } catch (err) {
-            console.error('Erreur chargement profil:', err);
-            setError('Impossible de charger le profil');
-        } finally {
-            setLoading(false);
-        }
-    };
+    // const loadProfile = async () => {
+    //     try {
+    //         setLoading(true);
+    //         const result = await getUserProfile(user.id);
+    //         setProfile(result);
+    //         setFormData({
+    //             first_name: result.first_name || '',
+    //             last_name: result.last_name || '',
+    //             profil_name: result.profil_name || '',
+    //             email: result.email || '',
+    //             school_name: result.school_name || '',
+    //             domain: result.domain || '',
+    //             level: result.level || '',
+    //             major: result.major || '',
+    //             year: result.year || '',
+    //             phone_number: result.phone_number || '',
+    //             card_number: result.card_number || '',
+    //             birthday: result.birthday || '',
+    //         });
+    //     } catch (err) {
+    //         console.error('Erreur chargement profil:', err);
+    //         setError('Impossible de charger le profil');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
 
     const handleAvatarUpload = async (e) => {
@@ -84,10 +84,10 @@ const ProfileEdit = () => {
 
         try {
             setUploadingAvatar(true);
-            await uploadAvatar(file);
-            localStorage.setItem(`avatar_bust_${authUser.id}`, Date.now());
+            const result = await uploadAvatar(file);
+            localStorage.setItem(`avatar_bust_${user.id}`, Date.now());
             // Recharger le profil
-            await loadProfile();
+            updateUser({ avatar_path: result.avatar_path });
         } catch (err) {
             console.error("Erreur lors de l'upload:", err);
             alert("Impossible de mettre à jour la photo de profil");
@@ -141,7 +141,7 @@ const ProfileEdit = () => {
         }
     };
 
-    if (!authUser || Object.keys(authUser).length === 0) {
+    if (!user || Object.keys(user).length === 0) {
         return <div className="container">Chargement...</div>;
     }
 
@@ -171,7 +171,7 @@ const ProfileEdit = () => {
                 <form onSubmit={handleSubmit} className="edit-form">
                     <div className="profile-side">
                         <div className="profile-avatar-container">
-                            <Avatar user={authUser} size="xlarge" />
+                            <Avatar user={user} size="xlarge" uploading={uploadingAvatar} />
 
                             <label className="avatar-upload-btn">
                                 <FiEdit2 size={16} />
@@ -179,7 +179,6 @@ const ProfileEdit = () => {
                                     type="file"
                                     accept="image/*"
                                     onChange={handleAvatarUpload}
-                                    disabled={uploadingAvatar}
                                     style={{ display: "none" }}
                                 />
                             </label>
@@ -188,7 +187,7 @@ const ProfileEdit = () => {
                     </div>
 
                     <div className="profile-info">
-                        
+
                         <div className="form-group">
                             <label htmlFor="first_name" className="form-label">
                                 Numéro de carte

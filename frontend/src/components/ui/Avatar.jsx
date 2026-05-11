@@ -10,7 +10,8 @@
     size = "medium", // "small" | "medium" | "large"
     onClick,
     className = "",
-    openModal = true
+    openModal = true,
+    uploading = false
   }) => {
     const [imageError, setImageError] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -74,7 +75,13 @@
         onClick={onClick}
         title={user?.email || "Utilisateur"}
       >
-        {avatarUrl && !imageError ? (
+        {uploading ? (
+      // 🆕 Spinner pendant l'upload
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+        <div className="spinner"></div>
+      </div>
+    ) : 
+        avatarUrl && !imageError ? (
           <img
             src={avatarUrl}
             alt={user?.email || "Avatar"}

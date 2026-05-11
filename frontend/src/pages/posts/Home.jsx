@@ -14,7 +14,7 @@ const Home = () => {
   const navigate = useNavigate();
   const { user: userAuth } = useAuth();
   const [filterType, setFilterType] = useState("general"); // "general" | "private" | "my_posts"
-  const queryClient = useQueryClient(); 
+  const queryClient = useQueryClient();
   const postsPerPage = 10;
 
   // Cache du profil
@@ -32,23 +32,23 @@ const Home = () => {
     staleTime: 1000 * 60 * 30, // 30 minutes de cache
   });
 
-    // LE CACHE DES POSTS 
-  const { 
-    data: postsData, 
-    isLoading, 
-    isFetching 
+  // LE CACHE DES POSTS 
+  const {
+    data: postsData,
+    isLoading,
+    isFetching
   } = useQuery({
-    queryKey: ["posts", filterType, fullUser?.user_room_id], 
+    queryKey: ["posts", filterType, fullUser?.user_room_id],
     queryFn: async () => {
       let roomId = filterType === "private" ? fullUser?.user_room_id : null;
       let myPost = filterType === "my_posts";
-      
-      const result = await getPosts({ 
-        skip: 0, 
-        limit: postsPerPage, 
-        roomId, 
-        myPost, 
-        allPosts: false 
+
+      const result = await getPosts({
+        skip: 0,
+        limit: postsPerPage,
+        roomId,
+        myPost,
+        allPosts: false
       });
       return result.posts || [];
     },
@@ -60,9 +60,9 @@ const Home = () => {
   const posts = postsData || [];
 
   // const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   // const [error, setError] = useState("");
-  const [hasMore, setHasMore] = useState(true);
+  // const [hasMore, setHasMore] = useState(true);
   // const [fullUser, setFullUser] = useState(null);
   // const [room, setRoom] = useState(null);
 
@@ -221,7 +221,7 @@ const Home = () => {
           >
             <span>Tous les posts</span>
           </button>
-          
+
           <button
             className={`filter-btn ${filterType === "private" ? "active" : ""}`}
             onClick={() => setFilterType("private")}
@@ -230,7 +230,7 @@ const Home = () => {
           </button>
         </div>
 
-        {loading && posts?.length === 0 ? (
+        {isLoading && posts?.length === 0 ? (
           <div className="loading"><div className="spinner"></div></div>
         ) : (
           <>
@@ -257,11 +257,9 @@ const Home = () => {
                 />
               ))
             )}
-            {hasMore && (
-              <button className="btn btn-secondary" onClick={() => loadPosts(true)} disabled={loading}>
-                {loading ? "Chargement..." : "Charger plus"}
-              </button>
-            )}
+            <button className="btn btn-secondary" onClick={() => loadPosts(true)} disabled={isLoading}>
+              {isLoading ? "Chargement..." : "Charger plus"}
+            </button>
           </>
         )}
       </div>

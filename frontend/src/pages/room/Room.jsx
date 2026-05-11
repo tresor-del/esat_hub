@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext"
 import { getUserRoom, getPosts } from "../../services/api"
@@ -11,76 +12,111 @@ import { Navigate } from "react-router-dom";
 
 const Room = () => {
     const { user: authUser } = useAuth();
-    const [room, setRoom] = useState(null);
-    const [loading, setLoading] = useState(true);
+    // const [room, setRoom] = useState(null);
+    // const [loading, setLoading] = useState(true);
     const [view, setView] = useState('users'); // 'users', 'posts'
-    const [posts, setPosts] = useState([]);
-    const [loadingPosts, setLoadingPosts] = useState(false);
+    // const [posts, setPosts] = useState([]);
+    // const [loadingPosts, setLoadingPosts] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
 
-    useEffect(() => {
-        if (authUser) {
-            userRoomFunc();
-        }
-    }, [authUser])
+      // Room — change très rarement
+  const { data: room, isLoading } = useQuery({
+    queryKey: ["userRoom"],
+    queryFn: getUserRoom,
+    staleTime: 1000 * 60 * 30, // 30 minutes
+    enabled: !!authUser,
+  });
 
-    const userRoomFunc = async () => {
-        try {
-            setLoading(true);
-            const result = await getUserRoom();
-            if (result) {
-                setRoom(result);
-                console.log("user_room: ", result)
-            }
-        } catch (error) {
-            console.log("Erreur lors de la récupération du room: ", error);
-        } finally {
-            setLoading(false)
-        }
-    }
+    // Posts de la room — chargés seulement si vue 'posts' active
+  const { data: postsData, isLoading: loadingPosts } = useQuery({
+    queryKey: ["roomPosts", room?.id],
+    queryFn: () => getPosts({ roomId: room.id }),
+    staleTime: 1000 * 60,
+    enabled: view === 'posts' && !!room?.id, // ← chargé seulement quand nécessaire
+  });
+
+    const posts = postsData?.posts || [];
+
+  const filteredUsers = room?.users?.filter(user => {
+    const query = searchQuery.toLowerCase();
+    return (
+      user.username?.toLowerCase().includes(query) ||
+      user.email?.toLowerCase().includes(query) ||
+      user.profil_name?.toLowerCase().includes(query) ||
+      user.first_name?.toLowerCase().includes(query) ||
+      user.last_name?.toLowerCase().includes(query)
+    );
+  }) || [];
+
+  if (isLoading) return <div className="room-loading">Chargement...</div>;
+  if (!room) return <div className="room-error">Aucune salle trouvée.</div>;
+
+
+    // useEffect(() => {
+    //     if (authUser) {
+    //         userRoomFunc();
+    //     }
+    // }, [authUser])
+
+    // const userRoomFunc = async () => {
+    //     try {
+    //         setLoading(true);
+    //         const result = await getUserRoom();
+    //         if (result) {
+    //             setRoom(result);
+    //             console.log("user_room: ", result)
+    //         }
+    //     } catch (error) {
+    //         console.log("Erreur lors de la récupération du room: ", error);
+    //     } finally {
+    //         setLoading(false)
+    //     }
+    // }
 
     const handleSeeUsers = () => {
         setView('users');
     }
 
-    const handleSeePosts = async () => {
-        setView('posts');
-        if (posts.length === 0 && !loadingPosts) {
-            try {
-                setLoadingPosts(true);
-                const roomId = room.id
-                const result = await getPosts({ roomId });
-                if (result) {
-                    setPosts(result.posts);
-                    console.log(result)
-                }
-            } catch (error) {
-                console.log("Erreur lors de la récupération des posts: ", error);
-            } finally {
-                setLoadingPosts(false);
-            }
-        }
-    }
+    const handleSeePosts = () => setView('posts');
 
-    const handleSeeFiles = () => {
-        setView('files');
-    }
+    // const handleSeePosts = async () => {
+    //     setView('posts');
+    //     if (posts.length === 0 && !loadingPosts) {
+    //         try {
+    //             setLoadingPosts(true);
+    //             const roomId = room.id
+    //             const result = await getPosts({ roomId });
+    //             if (result) {
+    //                 setPosts(result.posts);
+    //                 console.log(result)
+    //             }
+    //         } catch (error) {
+    //             console.log("Erreur lors de la récupération des posts: ", error);
+    //         } finally {
+    //             setLoadingPosts(false);
+    //         }
+    //     }
+    // }
+
+    // const handleSeeFiles = () => {
+    //     setView('files');
+    // }
 
 
-    // Filter users based on search query
-    const filteredUsers = room?.users?.filter(user => {
-        const query = searchQuery.toLowerCase();
-        return (
-            user.username?.toLowerCase().includes(query) ||
-            user.email?.toLowerCase().includes(query) ||
-            user.profil_name?.toLowerCase().includes(query) ||
-            user.first_name?.toLowerCase().includes(query) ||
-            user.last_name?.toLowerCase().includes(query)
-        );
-    }) || [];
+    // // Filter users based on search query
+    // const filteredUsers = room?.users?.filter(user => {
+    //     const query = searchQuery.toLowerCase();
+    //     return (
+    //         user.username?.toLowerCase().includes(query) ||
+    //         user.email?.toLowerCase().includes(query) ||
+    //         user.profil_name?.toLowerCase().includes(query) ||
+    //         user.first_name?.toLowerCase().includes(query) ||
+    //         user.last_name?.toLowerCase().includes(query)
+    //     );
+    // }) || [];
 
-    if (loading) return <div className="room-loading">Chargement...</div>;
-    if (!room) return <div className="room-error">Aucune salle trouvée.</div>;
+    // if (loading) return <div className="room-loading">Chargement...</div>;
+    // if (!room) return <div className="room-error">Aucune salle trouvée.</div>;
 
     return (
         <div className="room-container">

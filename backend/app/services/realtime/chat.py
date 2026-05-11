@@ -73,9 +73,7 @@ def get_recent_conversations(db: Session, user_id: UUID):
     # 4. On retourne des types Python simples (évite la RecursionError)
     return [
         {
-            "id": str(u.id),
-            "profil_name": u.profil_name,
-            "avatar_url": u.avatar_path,
+            "user": u,
             "last_message_content": content,
             "last_message_timestamp": timestamp.isoformat(),
             "unread_count": unread_count # C'est maintenant un entier (int)
