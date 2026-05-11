@@ -113,8 +113,13 @@ def refresh_token(body: RefreshToken, db: Session = Depends(get_db)):
         if already_used:
             raise HTTPException(status_code=401, detail="Invalid refresh token")
         
-        db.add(RevokedToken(jti=jti))
-        db.commit()
+        try:
+            db.add(RevokedToken(jti=jti))
+            db.commit()
+        except IntegrityError:
+            # Deux requêtes simultanées avec le même token
+            db.rollback()
+            raise HTTPException(status_code=401, detail="Invalid refresh token")
 
         new_access_token = create_access_token(
             data={"sub": user_id}

@@ -213,7 +213,7 @@ useEffect(() => {
         window.dispatchEvent(new CustomEvent("app:logout", { detail: { reason: "unauthorized" } }));
       }
     }
-  }, 60 * 1000); // vérifie toutes les minutes
+  }, 5 * 60 * 1000); // vérifie toutes les minutes
 
   return () => clearInterval(interval);
 }, [user]);
