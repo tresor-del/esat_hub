@@ -10,7 +10,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.core.config import settings
 from app.api.deps.db import get_db
-from app.api.deps.services import get_auth_service, get_email_service, get_room_service
+from app.api.deps.services import get_admin_service, get_auth_service, get_email_service, get_room_service
 from app.models.token import Token
 from app.db.security import create_access_token, create_refresh_token, hash_password
 from app.models.user import UserCreate, UserInDatabase
@@ -23,7 +23,11 @@ from app.db.schemas.revoked_token import RevokedToken
 from app.services.social.room import RoomService
 from app.models.mail import EmailModel
 from app.core.limiter import limiter
+from app.api.deps.auth import get_current_admin
+from app.tasks.notifications import send_notification_task
 from app.tasks.mail import send_verification_task, resend_verification_task
+from app.models.notifications import NotificationResponse
+from app.services.admin.manager import AdminService
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +142,7 @@ def register(
     user_in: UserCreate,
     background_tasks: BackgroundTasks,
     auth_service: AuthService = Depends(get_auth_service),
-    email_service: EmailService = Depends(get_email_service),
+    admin_service: AdminService = Depends(get_admin_service),
     room_service: RoomService = Depends(get_room_service)
 ):
 
@@ -168,18 +172,31 @@ def register(
         hashed_password=hash_password(user_in.password)
     )
     user = auth_service.create_user(user_data=user_data)
-    
-    # création de l'email de vérification
-    token = email_service.create_verification_email(user_id=user.id)
-    
-    # Envoie d'email à l'utilisateur
-    background_tasks.add_task(
-        send_verification_task,
-        user,
-        token
+    admin = auth_service.get_admin()
+
+    # Envoyer une notification à l'admin en arrière-plan pour la confirmation
+    notification = NotificationResponse(
+        type="STATUS_UPDATE",
+        content=f"Une confirmation de compte en attente",
+        is_read=False,
+        sender=admin_service.users.create_user_response(user),
+        recipient=admin_service.users.create_user_response(admin),
     )
     
-    return Message(message="Registration successful. Check your email.")
+    background_tasks.add_task(send_notification_task, notification)
+        
+    
+    # # création de l'email de vérification
+    # token = email_service.create_verification_email(user_id=user.id)
+    
+    # # Envoie d'email à l'utilisateur
+    # background_tasks.add_task(
+    #     send_verification_task,
+    #     user,
+    #     token
+    # )
+    
+    return Message(message="Registration successful.")
 
 @router.get("/confirm-email")
 def confirm_email(

@@ -5,6 +5,7 @@ from fastapi import HTTPException, status
 from app.db.schemas.user import User, UserStatus
 from app.db.schemas.email_verification import EmailVerificationToken
 from app.models.user import  UserInDatabase
+from app.core.config import settings
 
 
 class AuthService:
@@ -59,6 +60,9 @@ class AuthService:
 
     def get_user(self, user_id: uuid.UUID) -> User | None:
         return self._db.query(User).filter(User.id == user_id).first()
+    
+    def get_admin(self)-> User | None:
+        return self._db.query(User).filter(User.username == settings.SUPER_ADMIN_USERNAME).first()
     
     def update_user(self, user_id: uuid.UUID, user_update) -> User | None:
         user = self.get_user(user_id)

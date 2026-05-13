@@ -4,6 +4,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
+import alembic_postgresql_enum 
 
 
 from app.db.schemas import user, email_verification, post, comments, notification, room, message, revoked_token
@@ -48,6 +49,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+         compare_type=True,
     )
 
     with context.begin_transaction():

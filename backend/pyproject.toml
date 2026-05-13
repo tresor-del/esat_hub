@@ -24,6 +24,8 @@ pillow = ">=12.2.0,<13.0.0"
 websockets = ">=16.0,<17.0"
 slowapi = ">=0.1.9,<0.2.0"
 cloudinary = ">=1.44.2,<2.0.0"
+requests = "^2.34.0"
+alembic-postgresql-enum = "^1.10.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=9.0.2,<10.0.0"

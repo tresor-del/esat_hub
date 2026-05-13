@@ -78,6 +78,8 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: str = ""
     CLOUDINARY_API_SECRET: str = ""
 
+    BREVO_API_KEY: str
+
 
     
 settings = Settings()
