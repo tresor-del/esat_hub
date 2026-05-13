@@ -32,7 +32,7 @@ async def handle_new_comment_task(comment_id: UUID, sender_id: UUID):
         #     return
 
         content = notification_contents.new_comment(
-            username=sender.profile_name,
+            username=sender.profil_name,
             post_title=post.title,
             comment_preview=comment.content[:50],
             is_reply=is_reply

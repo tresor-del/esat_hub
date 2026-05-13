@@ -115,7 +115,7 @@ const NotificationDropdown = ({ unreadCount }) => {
                 <p className="notification-text">{buildNotifText(notif)}</p>
 
                 {/* Empêche le clic sur le menu d'actions de naviguer */}
-                <div onClick={(e) => e.stopPropagation()}>j
+                <div onClick={(e) => e.stopPropagation()}>
                   <NotificationActionsMenu
                     notifIds={notif.ids}
                     onDelete={handleDelete}

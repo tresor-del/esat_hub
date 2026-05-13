@@ -25,7 +25,7 @@ async def handle_new_post(current_user, room_id, post):
         if room_id is None:
             recipients = auth_service.get_all_users()
             notif_content = notification_contents.new_post(
-                username=current_user.profile_name,
+                username=current_user.profil_name,
                 post_title=post.title,
                 is_general=True
             )
@@ -33,7 +33,7 @@ async def handle_new_post(current_user, room_id, post):
         else:
             recipients = auth_service.get_users_by_room_id(room_id)
             notif_content = notification_contents.new_post(
-                username=current_user.profile_name,
+                username=current_user.profil_name,
                 post_title=post.title,
                 is_general=True
             )
