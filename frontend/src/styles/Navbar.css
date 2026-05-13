@@ -1,86 +1,273 @@
-.navbar {
-  background-color: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
-  padding: var(--spacing-sm) 0;
+/* ─────────────────────────────────────────────
+   Navbar.css
+   ───────────────────────────────────────────── */
+
+/* ── Visibilité desktop / mobile ─────────────── */
+.show-desktop,
+.show-mobile {
   position: sticky;
   top: 0;
   z-index: 1000;
+}
+
+.show-desktop {
+  display: block;
+}
+
+.show-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .show-desktop {
+    display: none;
+  }
+
+  .show-mobile {
+    display: block;
+  }
+
+  /* .btn-create {
+    padding: 4px 9px !important;
+    border-radius: 15px !important;
+    font-size: 0.8rem !important;
+  } */
+}
+
+/* ── Base navbar ─────────────────────────────── */
+
+.navbar {
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
   height: 60px;
   box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
-  padding: 1rem;
+  padding: 0 1rem;
+  box-sizing: border-box;
+  width: 100%;
+  overflow: visible;
 }
 
 .navbar-container {
-  max-width: 1280px;
-  margin: 0 auto;
   width: 100%;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  overflow: visible;
 }
 
-.navbar-actions-group {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.short-logo {
-  display: none;
-}
-
-.navbar-search {
-  flex: 1;
-  max-width: 500px;
-}
-
-.nav-items {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.menu-toggle {
-  display: none;
-}
-
-/* Cache hamburger sur PC */
-
+/* ── Logo ────────────────────────────────────── */
 
 .navbar-logo {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  font-size: 24px;
+  /* gap: 6px; */
+  font-size: 18px;
   font-weight: bold;
   color: var(--reddit-orange);
+  flex-shrink: 0;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .navbar-logo:hover {
   text-decoration: none;
 }
 
-.navbar-menu {
-  display: flex;
-  gap: var(--spacing-md);
-  align-items: center;
+/* ── Barre de recherche ──────────────────────── */
+
+.navbar-search {
+  min-width: 0;
+  width: 100%;
+  padding: 1rem;
 }
 
+/* ── Actions (droite) ────────────────────────── */
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* ── Bouton icône générique ──────────────────── */
+
+.navbar-icon-btn,
+.menu-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.navbar-icon-btn {
+  padding: unset;
+}
+
+.navbar-icon-btn:hover {
+  background-color: var(--bg-hover);
+}
+
+/* ── Badge + icône ───────────────────────────── */
+
+.icon-with-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: var(--reddit-orange);
+  color: white;
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-secondary);
+  font-weight: bold;
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* ── Icône cloche ────────────────────────────── */
+
+.navbar-icon {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  display: flex;
+}
+
+.navbar-icon-container {
+  background-color:  #e7e7e7;
+  border-radius: 50% !important;
+  padding: 4px;
+}
+
+.navbar-icon-container:hover {
+  background-color: #cacaca
+}
+
+/* ── Trigger notification ────────────────────── */
+
+.notification-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* padding: 6px; */
+  cursor: pointer;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+/* .notification-trigger:hover {
+  background-color: var(--bg-hover);
+} */
+
+/* ── Bouton Créer ────────────────────────────── */
+
+.btn-create {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Lien navbar ─────────────────────────────── */
+
 .navbar-link {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 6px 12px;
   border-radius: var(--border-radius);
   color: var(--text-primary);
   font-weight: 500;
   transition: background-color 0.2s;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .navbar-link:hover {
   background-color: var(--bg-hover);
-  text-decoration: none;
 }
+
+/* ─────────────────────────────────────────────
+   MOBILE
+   ───────────────────────────────────────────── */
+
+.navbar--mobile {
+  height: auto;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+}
+
+.navbar--mobile .navbar-container {
+  height: 60px;
+  padding: 0 5px;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.navbar--mobile .navbar-search {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+}
+
+.navbar--mobile .navbar-actions {
+
+  margin-left: 0;
+  flex-shrink: 0;
+}
+
+/* ── Drawer mobile ───────────────────────────── */
+
+.navbar-drawer {
+  width: 100%;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: var(--shadow-md);
+  box-sizing: border-box;
+}
+
+.navbar-drawer .btn-create {
+  width: 100%;
+  justify-content: flex-start;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.navbar-drawer .navbar-link {
+  width: 100%;
+  display: flex;
+  padding: 10px 12px;
+}
+
+/* ── Admin ───────────────────────────────────── */
 
 .admin-link {
   display: flex;
@@ -97,117 +284,45 @@
   color: #92400e;
 }
 
-.notifications-link {
-  position: relative;
+/* ── Search input ────────────────────────────── */
+.search-filters,
+.search-filters .search-form,
+.search-filters .search-input-wrapper {
+  width: 100%;
 }
-
-.unread-badge {
-  position: absolute;
-  top: 3px;
-  right: 15px;
-  background: #ff4444;
-  color: white;
-  border-radius: 50%;
-  font-size: 0.7em;
-  font-weight: bold;
-  min-width: 18px;
-  text-align: center;
+ 
+.search-input {
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
-
-
-
-.navbar-user {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background-color: var(--bg-hover);
-}
-
-/* Styled user trigger shown in the navbar */
-.navbar-user-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.02));
-  cursor: pointer;
-}
-
-.navbar-user-trigger:hover {
-  background-color: var(--bg-hover);
-}
-
-.navbar-user-trigger .avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--reddit-blue);
-  color: var(--text-light);
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.navbar-user-trigger .nav-username {
-  font-size: 14px;
-  color: var(--text-primary);
-  font-weight: 600;
-  max-width: 140px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.navbar-user {
-  background: transparent;
-  padding: 0;
-}
-
-
-/* SearchFilters component styles */
-.search-filters {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.search-filters.compact {
-  gap: 6px;
-}
-
+ 
 .search-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-  width: 400px;
+  width: 100%;
+  justify-content: center;
 }
-
+ 
 .search-input-wrapper .search-icon {
   position: absolute;
-
+  left: 10px;
   color: var(--text-secondary);
   font-size: 16px;
 }
-
+ 
 .search-input {
-  padding-left: 50px;
+  padding-left: 36px;
   padding-right: 8px;
   height: 34px;
   font-size: 13px;
   border-radius: 20px;
   width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
-
-.filter-buttons {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
+ 
 .filter-btn {
   background: transparent;
   border: none;
@@ -216,24 +331,17 @@
   font-size: 13px;
   cursor: pointer;
   color: var(--text-secondary);
+  white-space: nowrap;
 }
-
+ 
 .filter-btn.active {
   background: var(--bg-hover);
   color: var(--text-primary);
   font-weight: 700;
 }
 
-.user-menu-btn {
-  background-color: transparent !important;
-  border: none;
-}
 
-.navbar-icon {
-  font-size: 1.8rem;
-  cursor: pointer;
-  color: #444;
-}
+/* ── PWA ─────────────────────────────────────── */
 
 .btn-install {
   background-color: #1e3a8a;
@@ -245,239 +353,10 @@
   font-weight: 600;
   font-size: 0.9rem;
   transition: transform 0.2s;
+  white-space: nowrap;
 }
 
 .btn-install:hover {
   transform: scale(1.05);
   background-color: #162d6d;
-}
-
-/* Container pour l'icône et son badge */
-.icon-with-badge {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  /* Aligne la taille de la cloche sur les autres icônes */
-}
-
-/* Le petit badge rouge */
-.notification-badge {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background-color: var(--reddit-orange);
-  color: white;
-  font-size: 10px;
-  min-width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--bg-secondary);
-  /* Pour qu'il ressorte bien */
-  font-weight: bold;
-}
-
-.mobile-notification-btn {
-  padding: none !important;
-}
-
-/* Style spécifique au bouton dans le menu mobile */
-.notification-trigger-mobile .user-profile-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: transparent;
-  border: none;
-  padding: 12px;
-  cursor: pointer;
-  color: var(--text-primary);
-  font-size: 16px;
-  text-align: left;
-}
-
-
-.user-menu-mobile {
-  display: none;
-  /* Caché sur PC */
-}
-
-.notification-mobile-wrapper {
-  display: none;
-}
-
-.notifications-mobile-header {
-  display: none;
-}
-
-@media (max-width: 768px) {
-
-  .navbar {
-    padding: 0.5rem;
-  }
-
-  .notification-desktop-wrapper {
-    display: none;
-  }
-
-  .notification-mobile-wrapper {
-    display: block;
-  }
-
-  .notifications-full-page {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: var(--bg-secondary);
-    z-index: 2000;
-    /* Doit être au-dessus de la navbar */
-    overflow-y: auto;
-    padding: 20px;
-  }
-
-  .notifications-mobile-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-
-  .close-notif-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: var(--text-primary);
-  }
-
-  .notification-item {
-    padding: 15px 10px;
-    border-bottom: 1px solid var(--bg-primary);
-  }
-
-  .user-menu-desktop-only {
-    display: none;
-    /* Cache l'avatar dropdown sur mobile */
-  }
-
-  .user-menu-mobile {
-    display: flex;
-    /* Affiche les boutons à plat */
-    flex-direction: column;
-    width: 100%;
-    gap: 5px;
-  }
-
-  .nav-items {
-    gap: unset;
-  }
-
-  /* Style des boutons "aplatis" sur mobile */
-  .user-menu-mobile button {
-    background: transparent;
-    border: none;
-    padding: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 16px;
-    color: var(--text-primary);
-    width: 100%;
-    text-align: left;
-  }
-
-  .short-logo {
-    display: block;
-
-  }
-
-  .full-logo {
-    display: none;
-  }
-
-  .menu-toggle-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    order: 3;
-  }
-
-  .menu-toggle {
-    display: block;
-    font-size: 27px;
-    cursor: pointer;
-  }
-
-  .navbar-search {
-    max-width: none;
-  }
-
-  .navbar-links-wrapper {
-    display: none;
-    position: absolute;
-    top: 60px;
-    left: 0;
-    width: 100%;
-    background: var(--bg-secondary);
-    padding: 20px;
-    border-bottom: 1px solid var(--border-color);
-    box-shadow: var(--shadow-md);
-  }
-
-  .navbar-links-wrapper.open {
-    display: block;
-  }
-
-  .nav-items {
-    flex-direction: column;
-  }
-
-  .nav-items>* {
-    width: 100%;
-  }
-
-  .search-input-wrapper {
-    max-width: 200px;
-    justify-content: center;
-  }
-
-  .search-input {
-    padding-left: 0;
-    padding-right: 0;
-    width: 100%;
-    min-width: unset !important;
-  }
-
-
-  .btn-create {
-    padding: 4px 8px;
-    width: 70px;
-    height: 36px;
-    border-radius: none;
-    /* Devient un bouton rond */
-    min-width: 36px;
-    order: 2;
-  }
-
-  .message-desktop {
-    display: none;
-  }
-
-  .btn-create span {
-    display: flex;
-  }
-
-}
-
-@media (max-width: 500px) {
-  .search-input-wrapper {
-    max-width: 150px;
-    justify-content: center;
-  }
 }

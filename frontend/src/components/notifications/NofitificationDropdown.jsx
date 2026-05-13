@@ -1,148 +1,151 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { HiOutlineBell } from 'react-icons/hi';
-import { FiX, FiMenu } from 'react-icons/fi';
+import React, { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { HiOutlineBell } from "react-icons/hi";
 
-import { useNotification } from '../../hooks/useNotification';
-import Avatar from '../../components/ui/Avatar';
-import { deleteNotif } from '../../services/api';
-import DropdownMenu from '../ui/DropdownMenu';
-import NotificationActionsMenu from './NotificationActionsMenu';
-import '../../styles/Notifications.css';
-import '../../styles/Navbar.css'
-import '../../styles/UserMenu.css'
+import { useNotification } from "../../hooks/useNotification";
+import { deleteNotif } from "../../services/api";
+import Avatar from "../ui/Avatar";
+import DropdownMenu from "../ui/DropdownMenu";
+import NotificationActionsMenu from "./NotificationActionsMenu";
+import "../../styles/Notifications.css";
+
+/**
+ * Regroupe les notifications par type + post,
+ * puis trie par date décroissante.
+ */
+function groupNotifications(notifications) {
+  const groups = {};
+
+  notifications.forEach((notif) => {
+    const key = `${notif.type}-${notif.post_id}`;
+
+    if (!groups[key]) {
+      groups[key] = {
+        ...notif,
+        count: 1,
+        latest_date: notif.created_at,
+        latest_author: notif.sender?.username,
+        latest_sender: notif.sender,
+        ids: [notif.id],
+      };
+    } else {
+      groups[key].count += 1;
+      groups[key].ids.push(notif.id);
+
+      if (new Date(notif.created_at) > new Date(groups[key].latest_date)) {
+        groups[key].latest_date   = notif.created_at;
+        groups[key].latest_author = notif.sender?.username;
+        groups[key].latest_sender = notif.sender;
+      }
+    }
+  });
+
+  return Object.values(groups).sort(
+    (a, b) => new Date(b.latest_date) - new Date(a.latest_date)
+  );
+}
+
+/**
+ * Construit le texte d'une notification groupée.
+ */
+function buildNotifText(notif) {
+  if (notif.count === 1) return notif.content;
+  if (notif.count === 2) return `${notif.latest_author} et 1 autre personne ont commenté votre post`;
+  return `${notif.latest_author} et ${notif.count - 1} personnes ont commenté votre post`;
+}
+
+/* ─────────────────────────────────────────────── */
 
 const NotificationDropdown = ({ unreadCount }) => {
-
   const { notifications, markAsRead, removeNotifications } = useNotification();
   const navigate = useNavigate();
 
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  /* Groupes triés */
+  const grouped = useMemo(
+    () => groupNotifications(notifications),
+    [notifications]
+  );
 
-  const handleOpenMobile = () => {
-    if (badgeCount > 0) markAsRead();
-    setIsMobileOpen(true);
+  /* Nombre de groupes ayant au moins une notif non lue */
+  const badgeCount = useMemo(
+    () =>
+      grouped.filter((group) =>
+        notifications.some((n) => group.ids.includes(n.id) && !n.is_read)
+      ).length,
+    [grouped, notifications]
+  );
+
+  /* Supprimer une ou plusieurs notifications */
+  const handleDelete = async (notifIds) => {
+    if (!window.confirm("Voulez-vous supprimer cette notification ?")) return;
+    try {
+      await Promise.all(notifIds.map((id) => deleteNotif(id)));
+      removeNotifications(notifIds);
+    } catch (error) {
+      console.error("Erreur suppression notification :", error);
+    }
   };
 
-  const sortedNotifications = useMemo(() => {
-    const groups = {};
+  /* Naviguer vers le post ciblé */
+  const handleClick = (notif) => {
+    navigate(`/post/${notif.post_id}?commentId=${notif.comment_id}`);
+  };
 
-    notifications.forEach((notif) => {
-      const key = `${notif.type}-${notif.post_id}`;
-
-      if (!groups[key]) {
-        groups[key] = {
-          ...notif,
-          count: 1,
-          latest_date: notif.created_at,
-          latest_author: notif.sender?.username,
-          latest_sender: notif.sender,
-          ids: [notif.id]
-        };
-      } else {
-        groups[key].count += 1;
-        groups[key].ids.push(notif.id);
-        if (new Date(notif.created_at) > new Date(groups[key].latest_date)) {
-          groups[key].latest_date = notif.created_at;
-          groups[key].latest_author = notif.sender?.username;
-          groups[key].latest_sender = notif.sender;
-        }
-      }
-
-    })
-    return Object.values(groups).sort((a, b) =>
-      new Date(b.latest_date) - new Date(a.latest_date)
-    );
-  }, [notifications])
-
-  const badgeCount = useMemo(() => {
-    return sortedNotifications.filter(group =>
-      notifications.some(n => group.ids.includes(n.id) && !n.is_read)
-    ).length;
-  }, [sortedNotifications, notifications])
-
-  const handleDeleteNotif = async (notifIds) => {
-    if (window.confirm("voulez vous supprimer cette notification ?")) {
-      try {
-        await Promise.all(notifIds.map(id => deleteNotif(id)))
-        removeNotifications(notifIds);
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
-  }
-
-  const Content = (
-        <div className="notifications-container-content">
-      <div className="notifications-mobile-header">
-        <h4>Notifications</h4>
-        <button className="close-notif-btn" onClick={() => setIsMobileOpen(false)}>
-          <FiX />
-        </button>
-      </div>
+  /* ── Contenu de la liste ── */
+  const ListContent = (
+    <div className="notifications-list-wrapper">
       {notifications.length === 0 ? (
-        <p className="no-notifications">Aucune notification pour le moment.</p>
+        <p className="notifications-empty">Aucune notification pour le moment.</p>
       ) : (
-        <div className="notifications-list">
-          {sortedNotifications.map((notif) => {
-            const groupKey = `${notif.type}-${notif.post_id}`
-            const isGroupUnread = notifications.some(n => notif.ids.includes(n.id) && !n.is_read);
+        <ul className="notifications-list">
+          {grouped.map((notif) => {
+            const key        = `${notif.type}-${notif.post_id}`;
+            const isUnread   = notifications.some(
+              (n) => notif.ids.includes(n.id) && !n.is_read
+            );
+            const senderUser = notif.count === 1 ? notif.sender : notif.latest_sender;
+
             return (
-              <div key={groupKey} className={`notification-item ${isGroupUnread ? 'unread' : ''}`} 
-                   onClick={() => { navigate(`/post/${notif.post_id}?commentId=${notif.comment_id}`); setIsMobileOpen(false); }}>
-                <div className="notification-content">
-                  <Avatar user={notif.count === 1 ? notif.sender : notif.latest_sender} size='small' />
-                  <p>
-                    {notif.count === 1 ? notif.content : 
-                     notif.count === 2 ? `${notif.latest_author} et 1 autre personne ont commenté votre post` :
-                     `${notif.latest_author} et ${notif.count - 1} personnes ont commenté votre post`}
-                  </p>
-                </div>
+              <li
+                key={key}
+                className={`notification-item ${isUnread ? "notification-item--unread" : ""}`}
+                onClick={() => handleClick(notif)}
+              >
+                <Avatar user={senderUser} size="small" />
+                <p className="notification-text">{buildNotifText(notif)}</p>
+
+                {/* Empêche le clic sur le menu d'actions de naviguer */}
                 <div onClick={(e) => e.stopPropagation()}>
-                  <NotificationActionsMenu notifIds={notif.ids} onDelete={handleDeleteNotif} />
+                  <NotificationActionsMenu
+                    notifIds={notif.ids}
+                    onDelete={handleDelete}
+                  />
                 </div>
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ul>
+      )}
+    </div>
+  );
+
+  /* ── Trigger (icône cloche + badge) ── */
+  const BellTrigger = (
+    <div
+      className="notification-trigger navbar-icon-container"
+      onClick={() => badgeCount > 0 && markAsRead()}
+    >
+      <HiOutlineBell className="navbar-icon" size={30} style={{ opacity: 0.7 }} />
+      {badgeCount > 0 && (
+        <span className="notification-badge">{badgeCount}</span>
       )}
     </div>
   );
 
   return (
-    <>
-{/* VERSION MOBILE : Intégrée à la liste des boutons */}
-<div className="notification-mobile-wrapper">
-  <div className="notification-trigger-mobile" onClick={handleOpenMobile}>
-    <button className="user-profile-btn mobile-notification-btn">
-      <div className="icon-with-badge">
-        <HiOutlineBell />
-        {badgeCount > 0 && <span className="notification-badge">{badgeCount}</span>}
-      </div>
-      Notifications
-    </button>
-  </div>
-  
-  {isMobileOpen && (
-    <div className="notifications-full-page">
-      {Content}
-    </div>
-  )}
-</div>
-
-      {/* VERSION DESKTOP : Dropdown classique */}
-      <div className="notification-desktop-wrapper">
-        <DropdownMenu trigger={
-          <div className="notification-trigger" onClick={() => badgeCount > 0 && markAsRead()}>
-            <HiOutlineBell className="navbar-icon" />
-            {badgeCount > 0 && <span className="notification-badge">{badgeCount}</span>}
-          </div>
-        } align="right">
-          {Content}
-        </DropdownMenu>
-      </div>
-    </>
+    <DropdownMenu trigger={BellTrigger} align="right" title="Notifications">
+      {ListContent}
+    </DropdownMenu>
   );
 };
 

@@ -1,6 +1,7 @@
 .post-create-container {
   margin: 1rem;
 }
+
 .auth-container {
   display: flex;
   align-items: center;
@@ -130,6 +131,8 @@
 
 
 @media (max-width: 768px) {
+
+  
   .edit-form {
     flex-direction: column;
     align-items: center;
@@ -151,6 +154,9 @@
 }
 
 .login-card, .register-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   min-height: 100vh;
   width: 100% !important;
   padding: 1rem;

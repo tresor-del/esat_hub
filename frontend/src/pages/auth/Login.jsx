@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import "../../styles/Auth.css"
-import React from "react";
+import logo from "../../../public/icon-180x180.png"
+
 
 
 const Login = () => {
@@ -70,6 +71,7 @@ const Login = () => {
       <div className="auth-card login-card">
         {/* Logo */}
         <div className="auth-logo">
+          <img src={logo} alt="" width={60}/>
           <div className="auth-logo-text">Esat-Hub</div>
         </div>
 
@@ -97,7 +99,7 @@ const Login = () => {
               id="username"
               name="username"
               className="form-input"
-              placeholder="profil_name@schoolname"
+              placeholder="profil_name@esat_togo"
               value={formData.username}
               onChange={handleChange}
               disabled={loading}

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { register, checkPname } from '../../services/api';
 import "../../styles/Auth.css"
+import logo from "../../../public/icon-180x180.png"
 
 const Register = () => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const Register = () => {
   // États de l'interface
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState(true);
 
   // Profil name checking
   const [availability, setAvailability] = useState({
@@ -152,7 +153,7 @@ const Register = () => {
         password: rest.password
       }
 
-      console.log(dataToSend);
+      // console.log(dataToSend);
 
       const result = await register(dataToSend);
 
@@ -160,9 +161,9 @@ const Register = () => {
       setSuccess(true);
 
       // Rediriger vers la page de connexion après 3 secondes
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000);
+      // setTimeout(() => {
+      //   navigate('/login');
+      // }, 3000);
 
     } catch (err) {
       console.error('Erreur lors de l\'inscription:', err);
@@ -184,22 +185,25 @@ const Register = () => {
       <div className="auth-container register">
         <div className="auth-card register-card">
           <div className="auth-logo">
+            <img src={logo} alt="" width={60}/>
             <div className="auth-logo-text">Esat-Hub</div>
           </div>
 
           <h2 className="auth-title">Inscription Réussie !</h2>
 
           <div className="alert alert-success">
-            <strong>Vérifiez votre email</strong>
+            <strong>Confirmation en cours...</strong>
             <p style={{ marginTop: '8px' }}>
-              Un email de vérification a été envoyé à <strong>{formData.email}</strong>.
-              Cliquez sur le lien dans l'email pour activer votre compte.
+              Votre compte doit être confirmer par un admin avant de vous connecter
             </p>
           </div>
 
-          <div className="auth-link" style={{ marginTop: '16px' }}>
-            Redirection vers la page de connexion...
+          <div>
+            <Link to="/login" className="btn btn-primary btn-full">
+              Se connecter
+            </Link>
           </div>
+
         </div>
       </div>
     );
@@ -211,6 +215,7 @@ const Register = () => {
       <div className="auth-card register-card">
         {/* Logo */}
         <div className="auth-logo">
+          <img src={logo} alt="" width={60}/>
           <div className="auth-logo-text">Esat-Hub</div>
         </div>
 
@@ -335,6 +340,12 @@ const Register = () => {
               <option value="">Choisir...</option>
               <option value="IA">Intelligence Artificielle</option>
               <option value="CYBERSECURITE">Cybersécurité</option>
+              <option value="GENIE LOGICIEL">Génie Logiciel</option>
+              <option value="DATA SCIENCE">Data Science</option>
+              <option value="RESEAU ET TELECOMS">Réseau et Télécommunication</option>
+              <option value="SYSTEMES EMBARQUES">Systèmes Embarqués</option>
+              <option value="MAINTENANCE AERONAUTIQUE">Maintenance Aéronautique</option>
+              <option value="CONCEPTION AEROSPACIAL">Conception Aérospaciale</option>
             </select>
           </div>
 

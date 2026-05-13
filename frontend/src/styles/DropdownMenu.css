@@ -1,66 +1,156 @@
-.menu-dropdown {
+/* ─────────────────────────────────────────────
+   DropdownMenu.css
+   ───────────────────────────────────────────── */
+
+/* ── Wrapper positionnel ─────────────────────── */
+
+.dropdown-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Bouton trigger ──────────────────────────── */
+
+.dropdown-trigger {
   background: transparent;
+  border: none;
+  cursor: pointer;
   padding: 0;
-  border: 1px solid #999;
-}
-
-.menu-dropdown button.navbar-link {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 8px 10px;
-}
-
-/* Dropdown general styling */
-.menu-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  background: var(--bg-secondary, #fff);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-  border-radius: 10px;
-  padding: 10px;
-  z-index: 999;
-  min-width: 180px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.menu-dropdown.align-right {
-  right: 0;
-}
-
-.menu-dropdown.align-left {
-  left: 0;
-}
-
-.menu-dropdown .post-action-btn,
-.menu-dropdown button.post-action-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-primary);
-  width: 100%;
-  justify-content: flex-start;
 }
 
-.menu-dropdown .post-action-btn:hover,
-.menu-dropdown button.post-action-btn:hover,
-.menu-dropdown button.navbar-link:hover {
+/* ── Panel desktop (flottant) ────────────────── */
+
+.dropdown-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  min-width: 180px;
+  z-index: 1000;
+  overflow: hidden;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dropdown-panel--left  { left: 0; }
+.dropdown-panel--right { right: 0; }
+
+/* ── Éléments à l'intérieur du panel ─────────── */
+
+.dropdown-panel button,
+.dropdown-panel .navbar-link,
+.dropdown-panel .post-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.dropdown-panel button:hover,
+.dropdown-panel .navbar-link:hover,
+.dropdown-panel .post-action-btn:hover {
   background: var(--bg-hover);
 }
 
-.dropdown-menu-wrapper {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* ── Overlay desktop ─────────────────────────── */
+
+.dropdown-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: transparent;
 }
 
-.menu-button {
-  background-color: transparent;
+/* ── Plein écran mobile ──────────────────────── */
+
+.dropdown-fullscreen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-secondary);
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.25s ease-out;
+}
+
+.dropdown-fullscreen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dropdown-fullscreen-header h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dropdown-close-btn {
+  background: var(--bg-hover);
   border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.dropdown-fullscreen-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dropdown-fullscreen-body button,
+.dropdown-fullscreen-body .navbar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.dropdown-fullscreen-body button:hover,
+.dropdown-fullscreen-body .navbar-link:hover {
+  background: var(--bg-hover);
+}
+
+/* ── Animation entrée mobile ─────────────────── */
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0);    }
 }

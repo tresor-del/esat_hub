@@ -1,130 +1,97 @@
-import React, { useState, useRef, useEffect } from "react";
-import "../../styles/DropdownMenu.css"
+  import React, { useState, useRef, useEffect } from "react";
+  import { FiX } from "react-icons/fi";
+  import "../../styles/DropdownMenu.css";
 
-const DropdownMenu = ({
-  trigger,
-  children,
-  align = "left",
-  className = "",
-  forcedOpen = null,
-}) => {
-  const [internalOpen, setInternalOpen] = useState(false);
-  // On utilise forcedOpen s'il est fourni, sinon le state interne
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-  const triggerRef = useRef(null);
-  const menuRef = useRef(null);
+  /**
+   * DropdownMenu
+   * - Desktop : petit menu flottant sous le trigger
+   * - Mobile  : panneau plein-écran avec header et bouton fermer
+   *
+   * Props :
+   *   trigger   – élément React affiché comme bouton d'ouverture
+   *   children  – contenu du menu
+   *   align     – "left" | "right" (position desktop, défaut "left")
+   *   title     – titre affiché sur mobile (défaut "Menu")
+   *   className – classe CSS supplémentaire sur le wrapper
+   */
+  const DropdownMenu = ({
+    trigger,
+    children,
+    align = "left",
+    title = "Menu",
+    className = "",
+  }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const wrapperRef = useRef(null);
 
-  // utility to get focusable elements
-  const getFocusable = (el) => {
-    if (!el) return [];
-    return Array.from(
-      el.querySelectorAll(
-        'a[href], button:not([disabled]), textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select, [tabindex]:not([tabindex="-1"])',
-      ),
+    /* Détection responsive */
+    useEffect(() => {
+      const onResize = () => setIsMobile(window.innerWidth <= 768);
+      window.addEventListener("resize", onResize);
+      return () => window.removeEventListener("resize", onResize);
+    }, []);
+
+    /* Bloquer le scroll body en mode plein-écran mobile */
+    useEffect(() => {
+      document.body.style.overflow = isMobile && isOpen ? "hidden" : "";
+      return () => { document.body.style.overflow = ""; };
+    }, [isOpen, isMobile]);
+
+    /* Fermer en cliquant en dehors (desktop uniquement) */
+    useEffect(() => {
+      if (isMobile || !isOpen) return;
+      const onClickOutside = (e) => {
+        if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+          setIsOpen(false);
+        }
+      };
+      document.addEventListener("mousedown", onClickOutside);
+      return () => document.removeEventListener("mousedown", onClickOutside);
+    }, [isOpen, isMobile]);
+
+    const open  = () => setIsOpen(true);
+    const close = () => setIsOpen(false);
+    const toggle = () => setIsOpen((prev) => !prev);
+
+    return (
+      <div ref={wrapperRef} className={`dropdown-wrapper ${className}`}>
+        {/* Trigger */}
+        <button type="button" className="dropdown-trigger" onClick={toggle}>
+          {trigger}
+        </button>
+
+        {/* Contenu */}
+        {isOpen && (
+          <>
+            {isMobile ? (
+              /* ── Mobile : plein écran ── */
+              <div className="dropdown-fullscreen">
+                <div className="dropdown-fullscreen-header">
+                  <h4>{title}</h4>
+                  <button className="dropdown-close-btn" onClick={close} aria-label="Fermer">
+                    <FiX size={20} />
+                  </button>
+                </div>
+                <div className="dropdown-fullscreen-body">
+                  {children}
+                </div>
+              </div>
+            ) : (
+              /* ── Desktop : flottant ── */
+              <div className={`dropdown-panel dropdown-panel--${align}`}>
+                {children}
+              </div>
+            )}
+
+            {/* Overlay desktop (ferme au clic à côté) */}
+            {!isMobile && (
+              <div className="dropdown-overlay" onClick={close} />
+            )}
+          </>
+        )}
+      </div>
     );
   };
 
-  useEffect(() => {
-    const onDocClick = (e) => {
-      if (!ref.current) return;
-      if (!ref.current.contains(e.target)) {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", onDocClick);
-    return () => document.removeEventListener("mousedown", onDocClick);
-  }, []);
-
-  const handleClose = () => setOpen(false);
-
-  // Keyboard handling: Esc to close, trap focus when open
-  useEffect(() => {
-    const onKeyDown = (e) => {
-      if (!open) return;
-      // Close on Escape
-      if (e.key === "Escape") {
-        setOpen(false);
-        // restore focus to trigger
-        if (triggerRef.current) triggerRef.current.focus();
-      }
-
-      if (e.key === "Tab") {
-        const menuEl = menuRef.current;
-        const focusable = getFocusable(menuEl);
-        if (focusable.length === 0) {
-          // nothing to focus in menu -> prevent leaving
-          e.preventDefault();
-          return;
-        }
-
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-
-        if (e.shiftKey) {
-          if (document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          }
-        } else {
-          if (document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        }
-      }
-    };
-
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [open]);
-
-  // When opening, move focus to first focusable element inside menu (or to menu if none)
-  useEffect(() => {
-    if (!open) return;
-    const menuEl = menuRef.current;
-    const focusable = getFocusable(menuEl);
-    if (focusable.length > 0) {
-      // small timeout to ensure element is in DOM
-      setTimeout(() => focusable[0].focus(), 0);
-    } else if (menuEl) {
-      // if nothing focusable, focus the menu container for screen readers
-      menuEl.setAttribute("tabindex", "-1");
-      setTimeout(() => menuEl.focus(), 0);
-    }
-  }, [open]);
-
-  return (
-    <div ref={ref} className={`dropdown-menu-wrapper ${className}`}>
-      <button
-        ref={triggerRef}
-        type="button"
-        className="menu-button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setOpen(!open)
-        }}
-        aria-haspopup="true"
-        aria-expanded={open}
-      >
-        {trigger}
-      </button>
-
-      {open && (
-        <div
-          ref={menuRef}
-          className={`menu-dropdown ${align === "right" ? "align-right" : "align-left"}`}
-          role="menu"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {children}
-        </div>
-      )}
-
-      
-    </div>
-  );
-};
-
-export default DropdownMenu;
+  export default DropdownMenu;
