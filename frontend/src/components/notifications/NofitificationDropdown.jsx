@@ -111,11 +111,11 @@ const NotificationDropdown = ({ unreadCount }) => {
                 className={`notification-item ${isUnread ? "notification-item--unread" : ""}`}
                 onClick={() => handleClick(notif)}
               >
-                <Avatar user={senderUser} size="small" />
+                <Avatar user={senderUser} size="medium" />
                 <p className="notification-text">{buildNotifText(notif)}</p>
 
                 {/* Empêche le clic sur le menu d'actions de naviguer */}
-                <div onClick={(e) => e.stopPropagation()}>
+                <div onClick={(e) => e.stopPropagation()}>j
                   <NotificationActionsMenu
                     notifIds={notif.ids}
                     onDelete={handleDelete}
