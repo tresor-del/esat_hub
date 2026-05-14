@@ -8,7 +8,6 @@ import { markMessagesAsReadApi } from '../../services/chatApi';
 import Avatar from '../../components/ui/Avatar';
 import ChatBox from '../../components/chat/ChatBox';
 import "../../styles/Chat.css"
-import logo from "../../../public/logo_circle.png"
 import { getRecentChat } from '../../services/chatApi';
 import { set } from 'date-fns';
 
@@ -84,29 +83,35 @@ const ChatPage = () => {
     }, []);
 
     const handleSelectRecipient = async (recipient) => {
+        // 1. ACTIONS INITIALES INSTANTANÉES (L'interface change de suite)
         setActiveRecipient(recipient);
         activeRecipientRef.current = recipient;
-
-        setRecentChats(prev => prev.map(chat =>
-            chat.id === recipient.id
-                ? { ...chat, unread_count: 0 }
-                : chat
-        ));
-
-        try {
-
-            await markMessagesAsReadApi(recipient.id);
-
-            await refreshUnreadCount();
-
-        } catch (error) {
-            console.error("Erreur marquage lu:", error);
-        }
 
         if (isMobileView) {
             setIsChatOpen(true);
         }
+
+        // 2. MISE À JOUR LOCALE DU COMPTEUR (Pas d'attente d'API)
+        setRecentChats(prev => prev.map(chat =>
+            // CORRECTION SÉCURITÉ : Vérifier chat.user?.id au lieu de chat.id 
+            // car u.user?.id est utilisé dans le .map de votre JSX
+            (chat.id === recipient.id || chat.user?.id === recipient.id)
+                ? { ...chat, unread_count: 0 }
+                : chat
+        ));
+
+        // 3. OPÉRATIONS RÉSEAU EN ARRIÈRE-PLAN (Exécutées en tâche de fond)
+        try {
+            // Lancés en parallèle sans bloquer l'ouverture visuelle de ChatBox
+            await Promise.all([
+                markMessagesAsReadApi(recipient.id),
+                refreshUnreadCount()
+            ]);
+        } catch (error) {
+            console.error("Erreur requêtes arrière-plan chat:", error);
+        }
     };
+
 
     const handleCloseChat = () => {
         setIsChatOpen(false);

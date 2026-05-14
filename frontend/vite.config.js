@@ -2,21 +2,25 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// https://vitejs.dev
 export default defineConfig({
   base: './',
   plugins: [
     react(),
-    // On place le plugin PWA ici, dans la liste des plugins
     VitePWA({
+      // 1. Basculer sur l'injection de manifeste personnalisé
+      strategies: 'injectManifest',
+      srcDir: 'public',       // Indique où chercher votre fichier de base
+      filename: 'sw.js',      // Nom de votre fichier Service Worker personnalisé
       registerType: 'autoUpdate',
-        devOptions: {
-            enabled: true // <--- Ajoute cette ligne pour voir le bouton en développement
-        },
+      
+      devOptions: {
+        enabled: true,        // Conserve le fonctionnement du Service Worker en dév
+        type: 'module'        // Requis pour compiler correctement dev-sw.js
+      },
       manifest: {
-        name: 'Esat-Hub Scolaire',
+        name: 'EsatHub',
         short_name: 'EsatHub',
-        description: 'Plateforme ESAT',
+        description: "Plateforme sociale de l'ESAT-TOGO",
         theme_color: '#1e3a8a',
         background_color: '#ffffff',
         display: 'standalone',
@@ -38,11 +42,6 @@ export default defineConfig({
   ],
   server: {
     allowedHosts: true,
-    historyApiFallback: true, // Aide pour les routes React
-    proxy: {
-      // Optionnel : si tu veux rediriger tes appels API proprement
-    }
+    historyApiFallback: true,
   }
 })
-
-

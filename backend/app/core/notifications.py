@@ -5,10 +5,7 @@ from uuid import UUID
 
 class NotificationType(str, Enum):
     """Types de notifications disponibles"""
-    # Posts
-    POST_GENERAL = "post.general"
-    POST_CLASS = "post.class"
-    
+
     # Commentaires
     NEW_COMMENT = "new_comment"
     COMMENT_REPLY = "comment_reply"
@@ -34,20 +31,23 @@ class NotificationContentBuilder:
     ) -> str:
         """Contenu pour un nouveau commentaire"""
         if is_reply:
-            return f"{username} a répondu à votre commentaire: {comment_preview[:50]}"
-        return f"{username} a commenté votre post ({post_title}): {comment_preview[:50]}"
+            return f"{username} a répondu à votre commentaire."
+        return f"{username} a commenté votre post."
     
     @staticmethod
     def new_post(
         username: str,
         post_title: str,
-        is_general: bool = False
+        post_type: str ,
+        is_general: bool = False,
     ) -> str:
         """Contenu pour un nouveau post"""
-        if is_general:
-            return f"{username} a fait un post général: {post_title}"
-        return f"{username} a publié dans votre classe: {post_title}"
-    
+        if post_type == "photo":
+            return f"{username} a publier une photo."
+        elif post_type == "document":
+            return f"{username} a publier un document."
+        return f"{username} a fait une publication."
+
     @staticmethod
     def status_update(new_status: str) -> str:
         """Contenu pour une mise à jour de statut"""

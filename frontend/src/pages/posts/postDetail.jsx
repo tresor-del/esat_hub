@@ -8,6 +8,7 @@ import PostActionsMenu from "../../components//posts/PostActionsMenu";
 import PostMedia from "../../components/posts/PostMedia";
 import CommentSection from "../../components/comments/CommentSection";
 import PostCard from "../../components/posts/Postcard";
+import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
 import "../../styles/CommentSection.css"
 import "../../styles/PostDetail.css"
 import "../../styles/PostMedia.css"
@@ -97,7 +98,7 @@ const PostDetail = () => {
     }
   }
 
-  if (loading) return <div className="loading">Chargement…</div>;
+
   if (error) return <p className="alert alert-error">{error}</p>;
   if (!post) return null;
 
@@ -112,7 +113,10 @@ const PostDetail = () => {
             <FiArrowLeft />
           </div>
 
-          {/* Métadonnées avec avatar */}
+          {loading ? (
+            <PostCardSkeleton />
+          ) : 
+          (
             <PostCard
               key={post.id}
               post={post}
@@ -120,6 +124,8 @@ const PostDetail = () => {
               onDelete={handleDelete}
               detail={true}
             />
+          )}
+            
             <br />
             <CommentSection
               postId={id}

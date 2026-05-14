@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import "../../styles/Auth.css"
-import logo from "../../../public/icon-180x180.png"
+import Logo from '../../components/common/Logo';
 
 
 
@@ -71,8 +71,7 @@ const Login = () => {
       <div className="auth-card login-card">
         {/* Logo */}
         <div className="auth-logo">
-          {loading ? (<img src={logo} alt="" width={60} className="spinning-logo"/>) : (<img src={logo} alt="" width={60}/>)}
-          
+          <Logo size={60} className={loading ? "spinning-logo": ""}/>          
           <div className="auth-logo-text">Esat-Hub</div>
         </div>
 

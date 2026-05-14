@@ -393,7 +393,11 @@
 @media (max-width: 768px) {
   .chat-container {
     flex-direction: row; /* Aligné pour le switch hidden/active */
-    height: 100vh
+    height: 100vh;
+  }
+
+  .chat-box-container {
+    height: 100vh !important;
   }
 
   .side-bar {

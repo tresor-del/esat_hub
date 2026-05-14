@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { register, checkPname } from '../../services/api';
 import "../../styles/Auth.css"
-import logo from "../../../public/icon-180x180.png"
+import Logo from '../../components/common/Logo';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -185,7 +185,7 @@ const Register = () => {
       <div className="auth-container register">
         <div className="auth-card register-card">
           <div className="auth-logo">
-            <img src={logo} alt="" width={60}/>
+            <Logo size={60} className={loading ? "spinning-logo": ""}/>
             <div className="auth-logo-text">Esat-Hub</div>
           </div>
 

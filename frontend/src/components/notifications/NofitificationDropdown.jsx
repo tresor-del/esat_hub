@@ -39,7 +39,6 @@ function groupNotifications(notifications) {
       } else {
         groups[key].count += 1;
         groups[key].ids.push(notif.id);
-        console.log(`Groupe ${key} → count = ${groups[key].count}, ids = ${groups[key].ids}`);
 
         if (new Date(notif.created_at) > new Date(groups[key].latest_date)) {
           groups[key].latest_date = notif.created_at;
@@ -65,7 +64,6 @@ function groupNotifications(notifications) {
   return Object.values(groups).sort(
     (a, b) => new Date(b.latest_date || b.created_at) - new Date(a.latest_date || a.created_at)
   ).map(g => {
-    console.log(`Groupe final: ${g._key} → count=${g.count}, ids=${g.ids}`);
     return g;
   });
 
@@ -122,6 +120,9 @@ const NotificationDropdown = ({ unreadCount }) => {
   const handleClick = (notif) => {
     if (notif.type === "new_comment") {
       navigate(`/post/${notif.post_id}?commentId=${notif.comment_id}`);
+    }
+    if (notif.type === "new_post") {
+      navigate(`/post/${notif.post_id}`)
     }
   };
 

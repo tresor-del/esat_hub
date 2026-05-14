@@ -183,3 +183,10 @@
 .notification-item:hover {
   background-color: #f9f9f9;
 }
+
+
+@media (max-width: 768px) {
+  .notifications-list {
+    min-height: 100vh;
+  }
+}

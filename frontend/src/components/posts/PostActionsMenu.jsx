@@ -27,7 +27,7 @@ const PostActionsMenu = ({ post, onEdit, onDelete, onToggleStatus }) => {
 
   return (
     <DropdownMenu trigger={<TriggerIcon />} align="right">
-      {isAuthor && onEdit && (
+      {(isAdmin || isAuthor) && onEdit && (
         <button
           className="post-action-btn"
           onClick={(e) => {
@@ -46,7 +46,7 @@ const PostActionsMenu = ({ post, onEdit, onDelete, onToggleStatus }) => {
         </button>
       )}
 
-      {isAuthor && onDelete && (
+      { (isAdmin || isAuthor) && onDelete && (
         <button
           className="post-action-btn"
           onClick={(e) => {

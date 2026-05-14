@@ -74,12 +74,30 @@ export const WebSocketProvider = ({ children }) => {
 
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
+        // const isAppBackground = document.visibilityState === "hidden";
+        const hasPermission = Notification.permission === "granted";
+
+        // Fonction utilitaire interne pour envoyer de façon robuste au Service Worker actif
+        const sendSystemNotification = (payload) => {
+          if (hasPermission) {
+            // Résout l'instance active, même si le contrôleur temporaire est null en dev
+            const swInstance = navigator.serviceWorker.controller;
+
+            if (swInstance) {
+              swInstance.postMessage(payload);
+            } else if (navigator.serviceWorker.ready) {
+              navigator.serviceWorker.ready.then((reg) => {
+                if (reg.active) {
+                  reg.active.postMessage(payload);
+                }
+              });
+            }
+          }
+        };
 
         // 1. GESTION DU CHAT
-        // Si les données reçues ont un sender_id, c'est un message de chat
         if (data.sender_id) {
-
-          const interlocutorId = data.sender_id === user.id ? data.recipient_id : data.sender_id
+          const interlocutorId = data.sender_id === user.id ? data.recipient_id : data.sender_id;
 
           setMessages(prev => ({
             ...prev,
@@ -89,29 +107,57 @@ export const WebSocketProvider = ({ children }) => {
           const isIncoming = data.sender_id !== user.id;
           if (isIncoming) {
             setUnreadChatsCount(prev => prev + 1);
+
+            // CORRIGÉ : Appel sécurisé sans crash de syntaxe string
+            sendSystemNotification({
+              type: "SHOW_WS_NOTIFICATION",
+              title: "Nouveau message",
+              body: data.content || "Vous avez reçu un message.",
+              url: "/chat"
+            });
           }
+
           window.dispatchEvent(new CustomEvent("CHAT_UPDATED", {
-            detail: { ...data, isIncoming } // ← on passe l'info
+            detail: { ...data, isIncoming }
           }));
 
-          return; // On stoppe ici pour ce message
+          return; // On stoppe ici pour le cas du chat
         }
 
-        // 2. GESTION DES NOTIFICATIONS
+        // 2. GESTION DES NOTIFICATIONS GLOBALES / ÉVÉNEMENTS
         if (data.recipient?.id === user?.id) {
           setNotifications(prev => {
-            if (prev.some(n => n.id === data.id)) return prev;  // déjà présente, on ignore
+            if (prev.some(n => n.id === data.id)) return prev;
             return [{ ...data, is_read: false }, ...prev];
           });
+
+          // Appel sécurisé pour les alertes globales
+          sendSystemNotification({
+            type: "SHOW_WS_NOTIFICATION",
+            title: data.title || "Nouvelle notification",
+            body: data.content || "Il y a du nouveau sur votre compte.",
+            url: "/"
+          });
         }
+
+        // 3. GESTION DES ACTIONS SPÉCIFIQUES (Commentaires, Posts)
         if (data.type === "new_comment") {
           window.dispatchEvent(new CustomEvent("NEW_COMMENT", { detail: data }));
+
+          // Appel sécurisé pour les notifications de commentaires
+          // sendSystemNotification({
+          //   type: "SHOW_WS_NOTIFICATION",
+          //   title: "Nouveau commentaire",
+          //   body: data.content || "Quelqu'un a commenté votre publication.",
+          //   url: `/post/${data.post_id}`
+          // });
         }
+
         if (data.type === "new_post") {
           window.dispatchEvent(new CustomEvent("NEW_POST", { detail: data }));
         }
-
       };
+
 
       ws.onclose = (e) => {
         if (e.code === 1008) {

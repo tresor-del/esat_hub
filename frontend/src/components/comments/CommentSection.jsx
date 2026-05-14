@@ -2,20 +2,22 @@ import React, { useEffect, useState } from "react";
 import { addComment, getComments, deleteComment, updateComment, getComment } from "../../services/api"; // Assure-toi que l'import est bon
 import { useLocation } from "react-router-dom";
 import CommentCard from "./CommentCard";
+import CommentSectionSkeleton from "../skeletons/CommentSectionSkeleton";
 import "../../styles/CommentSection.css";
 
 const CommentSection = ({ postId, user, onCommentAdded }) => {
     const [comments, setComments] = useState([]);
     const [content, setContent] = useState("");
     const [loading, setLoading] = useState(false);
+    const [loadingComment, setLoadingComment] = useState(false);
     const [error, setError] = useState("");
     const location = useLocation();
 
-    
+
     // Charger les commentaires
     const loadComments = async () => {
         try {
-            setLoading(true);
+            setLoadingComment(true);
             const result = await getComments(postId);
             // On suppose que l'API renvoie { comments: [...], total: X }
             if (result && result.comments) {
@@ -24,7 +26,7 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
         } catch (err) {
             setError("Erreur lors du chargement des commentaires");
         } finally {
-            setLoading(false);
+            setLoadingComment(false);
         }
     };
 
@@ -170,6 +172,10 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
         element.style.height = "auto"; // Réinitialise pour recalculer
         element.style.height = `${element.scrollHeight}px`; // Applique la hauteur du contenu
     };
+
+    if (loadingComment && comments.length === 0) {
+        return <CommentSectionSkeleton />;
+    }
 
     return (
         <div className="comment-section-container">

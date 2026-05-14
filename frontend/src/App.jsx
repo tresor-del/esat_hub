@@ -10,7 +10,8 @@ import {
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-import logo from "../public/logo_circle.png"
+// import logo from "../public/logo_circle.png"
+import Logo from "./components/common/Logo";
 
 
 import "./styles/UserProfile.css"
@@ -70,9 +71,7 @@ const AppRoutes = () => {
   return (
     <div className="app-splash-screen">
       <div className="splash-content">
-        {/* Nom ou logo de votre marque */}
-        <img src={logo} alt="" width={60} className="spinning-logo"/>
-        {/* Un indicateur de chargement linéaire plus moderne qu'un spinner classique */}
+        <Logo size={60} className="spinning-logo"/>
         <div className="splash-progress-bar">
           <div className="splash-progress-line"></div>
         </div>

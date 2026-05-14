@@ -27,7 +27,8 @@ async def handle_new_post(current_user, room_id, post):
             notif_content = notification_contents.new_post(
                 username=current_user.profil_name,
                 post_title=post.title,
-                is_general=True
+                is_general=True,
+                post_type=post.post_type
             )
             
         else:
@@ -35,7 +36,8 @@ async def handle_new_post(current_user, room_id, post):
             notif_content = notification_contents.new_post(
                 username=current_user.profil_name,
                 post_title=post.title,
-                is_general=True
+                is_general=True,
+                post_type=post.post_type
             )
             
 

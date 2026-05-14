@@ -2,15 +2,16 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useWebSocket } from "../../contexts/WebSocketContext";
-import UserMenuLinks from "../user/UserMenu";
+import UserMenuLinks from "../user/UserMenuLinks";
 import UserMenu from "../user/UserMenu";
 import NotificationDropdown from "../notifications/NofitificationDropdown"
 import SearchDropdown from "../search/SearchDropdown";
 import InstallPWA from "./InstallPWA";
 import { FiMenu, FiX, FiMessageCircle } from "react-icons/fi";
-import logo from "../../../public/logo_circle.png";
 import "../../styles/Navbar.css";
 import Avatar from "../ui/Avatar";
+import DropdownMenu from "../ui/DropdownMenu";
+import Logo from "./Logo";
 
 const Navbar = () => {
   const { user, isAuth } = useAuth();
@@ -25,15 +26,25 @@ const Navbar = () => {
 
   /* ── Éléments réutilisables ──────────────────── */
 
-  const Logo = (
-    <Link to="/" className="navbar-logo" onClick={closeMenu}>
-      <img src={logo} alt="esat-hub" width={isMobile ? 45 : 40} height={isMobile ? 45 : 40} />
-      {isMobile ? (
-        <h3>EsatHub</h3>
-      ) : (
-        <h2>EsatHub</h2>
+  const getLogo = (
+    <div style={{ display: "flex" }}>
+      {isMobile && (
+        <DropdownMenu trigger={<FiMenu size={22} />}>
+          <div className="user-menu">
+            <UserMenuLinks user={user} onAction={closeMenu} />
+          </div>
+        </DropdownMenu>
       )}
-    </Link>
+      <Link to="/" className="navbar-logo">
+        <Logo size={isMobile ? 45 : 40}/>
+        {/* <img src={logo} alt="esat-hub" width={isMobile ? 45 : 40} height={isMobile ? 45 : 40} /> */}
+        {isMobile ? (
+          <h3>EsatHub</h3>
+        ) : (
+          <h2>EsatHub</h2>
+        )}
+      </Link>
+    </div>
   );
 
   const ChatButton = (
@@ -79,7 +90,7 @@ const Navbar = () => {
       <div className="navbar-container">
 
         {/* Gauche : logo */}
-        {Logo}
+        {getLogo}
 
         {/* Centre : barre de recherche (prend tout l'espace disponible) */}
         <div className="navbar-search">
@@ -116,18 +127,8 @@ const Navbar = () => {
       {/* Barre supérieure */}
       <div className="navbar-container">
 
-        {/* Hamburger */}
-        {/* <button className="navbar-icon-btn" onClick={toggleMenu} aria-label="Menu">
-          {isMenuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
-        </button> */}
-
         {/* Logo */}
-        {Logo}
-
-        {/* Recherche (rétrécit si besoin) */}
-        {/* <div className="navbar-search">
-          <SearchDropdown />
-        </div> */}
+        {getLogo}
 
         {/* Cloche — toujours visible dans la barre */}
         {isAuth() && (
@@ -146,7 +147,7 @@ const Navbar = () => {
 
       </div>
 
-      {/* Drawer */}
+      {/* Drawer
       {isMenuOpen && (
         <div className="navbar-drawer">
           {isAuth() ? (
@@ -158,7 +159,7 @@ const Navbar = () => {
             AuthLinks
           )}
         </div>
-      )}
+      )} */}
 
     </nav>
   );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FiImage, FiVideo } from "react-icons/fi";
 import PostCard from "../../components/posts/Postcard";
@@ -83,23 +83,45 @@ const Home = () => {
     navigate(`/post/${post.id}`);
   };
 
+  const requestNotificationPermission = async () => {
+  // Vérifie si le navigateur prend en charge les notifications
+  if (!("Notification" in window)) {
+    console.error("Ce navigateur ne prend pas en charge les notifications.");
+    return;
+  }
+
+  // Demande la permission au système de l'appareil
+  const permission = await Notification.requestPermission();
+  
+  if (permission === "granted") {
+    console.log("Permission accordée !");
+  } else {
+    console.warn("Permission refusée par l'utilisateur.");
+  }
+};
+
+
+  useEffect(() => {
+    requestNotificationPermission();
+  }, [])
+
   return (
     <div className="container">
       <div className="main-content home">
 
         {/* Barre de création de post moderne intégrée */}
-        <div className="create-post-container" onClick={handleCreate}>
+        <div className="create-post-container">
           <div className="create-post-avatar-wrapper">
             <Avatar
               user={fullUser}
               size="medium"
-              onClick={handleUserClick}
+              onClick={() => navigate(`profile/${userAuth.id}`)}
             />
           </div>
-          <div className="create-post-input-trigger">
+          <div className="create-post-input-trigger"  onClick={handleCreate}>
             <span>Quoi de neuf {userAuth?.profil_name} ?</span>
           </div>
-          <div className="create-post-actions">
+          <div className="create-post-actions"  onClick={handleCreate}>
             <button type="button" className="action-icon-btn" title="Ajouter une image">
               <FiImage size={20} />
             </button>
