@@ -1,88 +1,71 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FiSearch, FiFilter, FiGlobe, FiLock, FiUsers, FiBook } from "react-icons/fi";
+import { FiImage, FiVideo } from "react-icons/fi";
 import PostCard from "../../components/posts/Postcard";
-import { getPost, getUserProfile, getUserRoom } from "../../services/api";
-import { getPosts, searchPosts, deletePost } from "../../services/api";
-import { updatePostStatus } from "../../services/adminApi";
+import Avatar from "../../components/ui/Avatar";
+import { getUserProfile, getPosts, deletePost } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import "../../styles/Home.css"
-
+import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
+import "../../styles/Home.css";
 
 const Home = () => {
   const navigate = useNavigate();
   const { user: userAuth } = useAuth();
-  const [filterType, setFilterType] = useState("general"); // "general" | "private" | "my_posts"
-  const [hasMore, setHasMore] = useState(true);
   const queryClient = useQueryClient();
   const postsPerPage = 10;
 
-  // Cache du profil
+  // Cache du profil (contient l'utilisateur connecté nécessaire pour l'avatar)
   const { data: fullUser } = useQuery({
     queryKey: ["userProfile", userAuth?.id],
     queryFn: () => getUserProfile(userAuth.id),
     enabled: !!userAuth?.id,
-    staleTime: Infinity, // Le profil ne change pas souvent
+    staleTime: Infinity,
   });
 
-  // Cache de la room
-  const { data: room } = useQuery({
-    queryKey: ["userRoom"],
-    queryFn: getUserRoom,
-    staleTime: 1000 * 60 * 30, // 30 minutes de cache
-  });
-
-  // LE CACHE DES POSTS 
+  // LE CACHE DES POSTS (Affiche tout)
   const {
-    data: postsData, // On récupère "data" et on le renomme "postsData"
+    data: postsData,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
     isLoading
-  } = useInfiniteQuery({ // <-- BIEN UTILISER useInfiniteQuery ici
-    queryKey: ["posts", filterType, fullUser?.user_room_id],
-    queryFn: async ({ pageParam = 0 }) => { // <-- Récupérer le pageParam ici
-      let roomId = filterType === "private" ? fullUser?.user_room_id : null;
-      let myPost = filterType === "my_posts";
-
+  } = useInfiniteQuery({
+    queryKey: ["posts"],
+    queryFn: async ({ pageParam = 0 }) => {
       const result = await getPosts({
-        skip: pageParam, // <-- Utiliser pageParam pour la pagination
+        skip: pageParam,
         limit: postsPerPage,
-        roomId,
-        myPost,
-        allPosts: false
+        allPosts: true
       });
-      return result; 
+      return result;
     },
     getNextPageParam: (lastPage, allPages) => {
-      // Si on a reçu moins de posts que la limite, c'est qu'il n'y a plus de pages
       if (!lastPage.posts || lastPage.posts.length < postsPerPage) {
         return undefined;
       }
-      // Sinon, le prochain skip est le nombre total de posts déjà chargés
       return allPages.length * postsPerPage;
     },
-    enabled: (filterType !== "private" || !!fullUser),
+    enabled: !!fullUser,
   });
 
-  // Aplatir les pages pour l'affichage (postsData contient .pages)
+  // Aplatir les pages pour l'affichage
   const posts = postsData?.pages.flatMap((page) => page.posts) || [];
 
-  /**
-    * Gérer la modification d'un poste
-    */
+  const handleCreate = () => {
+    navigate("/create");
+  };
+
+  const handleUserClick = (e) => {
+    e.stopPropagation(); // Évite la redirection vers /create lors du clic sur l'avatar
+  };
+
   const handleEdit = (post) => {
     navigate(`/edit/${post.id}`);
   };
 
-  /**
-   * Gérer la suppression d'un poste
-   */
   const handleDelete = async (post) => {
-    if (
-      !window.confirm(`Êtes-vous sûr de vouloir supprimer "${post.title}" ?`)
-    ) {
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer "${post.title}" ?`)) {
       return;
     }
 
@@ -96,77 +79,66 @@ const Home = () => {
     }
   };
 
-  /**
-   * Voir les détails d'un poste
-   */
   const handleView = (post) => {
     navigate(`/post/${post.id}`);
   };
 
-  const onToggleStatus = async (post) => {
-    const newStatus = post.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
-    try {
-      await updatePostStatus(post.id, newStatus);
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
-    } catch (error) {
-      alert("Erreur lors du changement de statut");
-    }
-  };
-
-  // Obtenir le nom de la salle si disponible
-  const roomName = room?.name || "Ma Classe";
-
   return (
     <div className="container">
       <div className="main-content home">
-        {/* Filtres améliorés */}
-        {/* <div className="post-filter-btns">
-          <button
-            className={`filter-btn ${filterType === "general" ? "active" : ""}`}
-            onClick={() => setFilterType("general")}
-          >
-            <span>Tous les posts</span>
-          </button>
 
-          <button
-            className={`filter-btn ${filterType === "private" ? "active" : ""}`}
-            onClick={() => setFilterType("private")}
-          >
-            <span>{roomName}</span>
-          </button>
-        </div> */}
+        {/* Barre de création de post moderne intégrée */}
+        <div className="create-post-container" onClick={handleCreate}>
+          <div className="create-post-avatar-wrapper">
+            <Avatar
+              user={fullUser}
+              size="medium"
+              onClick={handleUserClick}
+            />
+          </div>
+          <div className="create-post-input-trigger">
+            <span>Quoi de neuf {userAuth?.profil_name} ?</span>
+          </div>
+          <div className="create-post-actions">
+            <button type="button" className="action-icon-btn" title="Ajouter une image">
+              <FiImage size={20} />
+            </button>
+            <button type="button" className="action-icon-btn" title="Ajouter une vidéo">
+              <FiVideo size={20} />
+            </button>
+          </div>
+        </div>
 
-        {isLoading && posts?.length === 0 ? (
-          <div className="loading"><div className="spinner"></div></div>
+        {/* Liste des posts */}
+        {isLoading && posts.length === 0 ? (
+          <div className="posts-skeleton-list">
+            <PostCardSkeleton />
+            <PostCardSkeleton />
+            <PostCardSkeleton />
+          </div>
         ) : (
           <>
-            {posts?.length === 0 ? (
+            {posts.length === 0 ? (
               <div className="empty-state">
-                <h3>
-                  {filterType === "general" && "Aucun post général"}
-                  {filterType === "private" && `Aucun post dans ${roomName}`}
-                </h3>
-                <p>
-                  {filterType === "general" && "Les posts des classes n'apparaissent pas ici. Créez un post général pour le voir ici."}
-                  {filterType === "private" && "Les posts de votre salle apparaîtront ici. Créez un post pour votre salle le voir ici."}
-                </p>
+                <h3>Aucun Post pour le moment</h3>
               </div>
             ) : (
-              posts?.map((post) => (
+              posts
+              .filter((post) => post.room_id === null || post.room_id === userAuth.user_room_id)
+              .map((post) => (
                 <PostCard
                   key={post.id}
                   post={post}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
-                  onToggleStatus={onToggleStatus}
                   onView={handleView}
                 />
               ))
             )}
             {hasNextPage && (
-              <button 
-                className="btn btn-secondary" 
-                onClick={() => fetchNextPage()} 
+              <button
+                className="btn btn-secondary"
+                onClick={() => fetchNextPage()}
                 disabled={isFetchingNextPage}
               >
                 {isFetchingNextPage ? "Chargement..." : "Charger plus"}

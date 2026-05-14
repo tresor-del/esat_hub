@@ -71,7 +71,8 @@ const Login = () => {
       <div className="auth-card login-card">
         {/* Logo */}
         <div className="auth-logo">
-          <img src={logo} alt="" width={60}/>
+          {loading ? (<img src={logo} alt="" width={60} className="spinning-logo"/>) : (<img src={logo} alt="" width={60}/>)}
+          
           <div className="auth-logo-text">Esat-Hub</div>
         </div>
 

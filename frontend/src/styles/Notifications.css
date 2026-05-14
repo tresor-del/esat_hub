@@ -56,6 +56,10 @@
   color: #666;
 }
 
+.notification-time-unread {
+  background-color: #666;
+}
+
 .notification-content {
   display: flex;
   align-items: flex-start;

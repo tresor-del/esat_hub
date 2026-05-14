@@ -1,0 +1,89 @@
+/* ==========================================
+   ANIMATION ET CLASSE DE BASE DU SQUELETTE
+   ========================================== */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+
+
+/* Modificateur pour le conteneur du squelette */
+.post-card.skeleton-card {
+  cursor: default;
+  pointer-events: none;
+}
+
+.post-card.skeleton-card:hover {
+  box-shadow: none;
+  background-color: var(--bg-secondary);
+}
+
+/* ==========================================
+   ADAPTATION DES ÉLÉMENTS DE LA CARTE
+   ========================================== */
+
+/* Cercle de l'avatar de l'utilisateur */
+
+
+/* Lignes de texte factices (Titre et Meta) */
+.skeleton-title {
+  height: 18px;
+  width: 140px;
+  margin-bottom: 4px;
+}
+
+.skeleton-meta {
+  height: 12px;
+  width: 80px;
+}
+
+/* Corps de la description : 2 lignes simulant le texte */
+.skeleton-desc-line {
+  height: 14px;
+  width: 100%;
+  margin-bottom: var(--spacing-sm);
+}
+
+.skeleton-desc-line.last {
+  width: 65%;
+  margin-bottom: 0;
+}
+
+/* Zone d'image du post factice */
+.skeleton-post-image {
+  width: 100%;
+  height: 240px; /* Hauteur moderne standard pour un média */
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Boutons d'action factices en bas */
+.skeleton-action-btn {
+  height: 32px;
+  width: 85px;
+  border-radius: 50px;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+@media (max-width: 768px) {
+  .post-card.skeleton-card {
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 500px) {
+  .post-card.skeleton-card {
+    width: 100%;
+  }
+  .skeleton-post-image {
+    height: 180px; /* Plus petite hauteur sur mobile */
+  }
+}

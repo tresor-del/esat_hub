@@ -28,8 +28,8 @@ async def handle_new_comment_task(comment_id: UUID, sender_id: UUID):
             recipient_id = parent_comment.user_id
             is_reply = True
 
-        # if recipient_id == sender_id:
-        #     return
+        if recipient_id == sender_id:
+            return
 
         content = notification_contents.new_comment(
             username=sender.profil_name,
@@ -51,5 +51,10 @@ async def handle_new_comment_task(comment_id: UUID, sender_id: UUID):
         )
 
         await notif_service.send_notification(notif_data)
-        await ws_manager.broadcast(notif_data.model_dump(mode="json"))
+        await ws_manager.broadcast({
+            "type": "new_comment",
+            "post_id": str(post.id),
+            "comment_id": str(comment.id),
+            "sender": notif_data.model_dump(mode="json")["sender"]
+        })
         

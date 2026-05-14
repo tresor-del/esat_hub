@@ -14,44 +14,74 @@ import "../../styles/Notifications.css";
  * puis trie par date décroissante.
  */
 function groupNotifications(notifications) {
+
+  // Objet vide qui va servir de dictionnaire
   const groups = {};
 
   notifications.forEach((notif) => {
-    const key = `${notif.type}-${notif.post_id}`;
 
-    if (!groups[key]) {
+    if (notif.type === "new_comment") {
+
+      // Clé unique pour chaque dictionnaire
+      const key = `${notif.type}-${notif.post_id}`;
+
+      // créer le groupe s'il n'existe pas avec des champs suplémentaires
+      if (!groups[key]) {
+        groups[key] = {
+          ...notif,
+          count: 1,
+          latest_date: notif.created_at,
+          latest_author: notif.sender?.profil_name,
+          latest_sender: notif.sender,
+          ids: [notif.id],
+          _key: key
+        };
+      } else {
+        groups[key].count += 1;
+        groups[key].ids.push(notif.id);
+        console.log(`Groupe ${key} → count = ${groups[key].count}, ids = ${groups[key].ids}`);
+
+        if (new Date(notif.created_at) > new Date(groups[key].latest_date)) {
+          groups[key].latest_date = notif.created_at;
+          groups[key].latest_author = notif.sender?.profil_name;
+          groups[key].latest_sender = notif.sender;
+        }
+      }
+
+
+
+    } else {
+      const key = `${notif.type}-${notif.created_at}`;
       groups[key] = {
         ...notif,
-        count: 1,
-        latest_date: notif.created_at,
-        latest_author: notif.sender?.username,
-        latest_sender: notif.sender,
         ids: [notif.id],
-      };
-    } else {
-      groups[key].count += 1;
-      groups[key].ids.push(notif.id);
-
-      if (new Date(notif.created_at) > new Date(groups[key].latest_date)) {
-        groups[key].latest_date   = notif.created_at;
-        groups[key].latest_author = notif.sender?.username;
-        groups[key].latest_sender = notif.sender;
+        _key: key
       }
+
     }
   });
 
+  // on transforme le dictionnaire en tableau puis on le trie du plus recent au plus ancien
   return Object.values(groups).sort(
-    (a, b) => new Date(b.latest_date) - new Date(a.latest_date)
-  );
+    (a, b) => new Date(b.latest_date || b.created_at) - new Date(a.latest_date || a.created_at)
+  ).map(g => {
+    console.log(`Groupe final: ${g._key} → count=${g.count}, ids=${g.ids}`);
+    return g;
+  });
+
 }
 
 /**
  * Construit le texte d'une notification groupée.
  */
 function buildNotifText(notif) {
-  if (notif.count === 1) return notif.content;
-  if (notif.count === 2) return `${notif.latest_author} et 1 autre personne ont commenté votre post`;
-  return `${notif.latest_author} et ${notif.count - 1} personnes ont commenté votre post`;
+  if (notif.type === "new_comment") {
+    if (notif.count === 1) return notif.content;
+    if (notif.count === 2) return `${notif.latest_author} et 1 autre personne ont commenté votre post`;
+    return `${notif.latest_author} et ${notif.count - 1} personnes ont commenté votre post`;
+  } else {
+    return notif.content;
+  }
 }
 
 /* ─────────────────────────────────────────────── */
@@ -79,6 +109,8 @@ const NotificationDropdown = ({ unreadCount }) => {
   const handleDelete = async (notifIds) => {
     if (!window.confirm("Voulez-vous supprimer cette notification ?")) return;
     try {
+
+      // envoie toutes les requêtes en parallèle
       await Promise.all(notifIds.map((id) => deleteNotif(id)));
       removeNotifications(notifIds);
     } catch (error) {
@@ -88,7 +120,9 @@ const NotificationDropdown = ({ unreadCount }) => {
 
   /* Naviguer vers le post ciblé */
   const handleClick = (notif) => {
-    navigate(`/post/${notif.post_id}?commentId=${notif.comment_id}`);
+    if (notif.type === "new_comment") {
+      navigate(`/post/${notif.post_id}?commentId=${notif.comment_id}`);
+    }
   };
 
   /* ── Contenu de la liste ── */
@@ -99,8 +133,8 @@ const NotificationDropdown = ({ unreadCount }) => {
       ) : (
         <ul className="notifications-list">
           {grouped.map((notif) => {
-            const key        = `${notif.type}-${notif.post_id}`;
-            const isUnread   = notifications.some(
+            const key = notif._key;
+            const isUnread = notifications.some(
               (n) => notif.ids.includes(n.id) && !n.is_read
             );
             const senderUser = notif.count === 1 ? notif.sender : notif.latest_sender;

@@ -9,9 +9,11 @@ import { formatRelativeDate } from '../../utils/dateFormatter';
 import { useRef, useEffect } from 'react';
 import Avatar from '../ui/Avatar';
 import "../../styles/Search.css"
+import { useAuth } from '../../contexts/AuthContext';
 
 const SearchDropdown = () => {
   const [results, setResults] = useState([]);
+  const { user } = useAuth;
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
   const searchRef = useRef(null);
@@ -59,7 +61,7 @@ const SearchDropdown = () => {
   return (
     <div className="search-dropdown-wrapper" ref={searchRef}>
       {/* L'input est ici, indépendant du dropdown */}
-      <SearchFilters onSearch={handleSearch} compact={true} />
+      <SearchFilters onSearch={handleSearch} compact={true} user={user} />
 
       {/* Le menu ne s'affiche que s'il y a une query */}
       {query.length > 0 && (

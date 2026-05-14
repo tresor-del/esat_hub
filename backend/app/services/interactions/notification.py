@@ -50,9 +50,10 @@ class NotificationService:
         print(f"Envoi de notifications en bulk: {notification_type} à {len(recipients)} destinataires")
         for recipient in recipients:
             print(f"Destinataire: {recipient.id}")
-            # if sender and recipient.id == sender.id:
-            #     print(f"Saut de l'expéditeur {recipient.id}")
-            #     continue
+
+            if sender and recipient.id == sender.id:
+                continue
+            
             print(f"Envoi à {recipient.id}")
             try:
                 recipient_data = UserResponse(

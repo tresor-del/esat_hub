@@ -8,6 +8,7 @@ import { markMessagesAsReadApi } from '../../services/chatApi';
 import Avatar from '../../components/ui/Avatar';
 import ChatBox from '../../components/chat/ChatBox';
 import "../../styles/Chat.css"
+import logo from "../../../public/logo_circle.png"
 import { getRecentChat } from '../../services/chatApi';
 import { set } from 'date-fns';
 
@@ -20,7 +21,7 @@ const ChatPage = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [view, setView] = useState("recent")
     const [recentChats, setRecentChats] = useState([]);
-    const [loadingRecentChats, setLoadingRecentChats] = useState(false);
+    const [loadingRecentChats, setLoadingRecentChats] = useState(true);
     const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
     const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -146,7 +147,8 @@ const ChatPage = () => {
 
             {/* SIDEBAR : Recherche et Contacts */}
             <div className={`side-bar ${isMobileView && isChatOpen ? 'hidden' : ''}`}>
-                <div >
+                <div className='page-name' >
+                    <img src={logo} alt="" width={60} onClick={() => navigate("/")} />
                     <h1>Inbox</h1>
                 </div>
 
@@ -166,43 +168,60 @@ const ChatPage = () => {
                 </div>
                 {view === 'recent' && (
                     <div className="contacts-list">
-                        {recentChats.length > 0 ? (
-                            loadingRecentChats ? (
-                                <div style={{ margin: 'auto', textAlign: 'center', color: '#888' }}>
-                                    <div className="spinner"></div>
-                                </div>
-                            ) : (
-                                recentChats.map(u => (
-                                    <div
-                                        key={u.user?.id}
-                                        onClick={() => handleSelectRecipient(u.user)}
-                                        // La classe 'active' gérera le changement de background color
-                                        className={`contact-list-item 
-                        ${activeRecipient?.id === u.user?.id ? 'active' : ''}
-                        ${u.unread_count > 0 ? 'unread' : ''}
-                        `}
-                                    >
-                                        <Avatar user={u.user} />
+                        {loadingRecentChats ? (
+                            <>
+                                {/* Génère 4 lignes de squelettes de contacts en boucle */}
+                                {Array(4).fill(0).map((_, index) => (
+                                    <div key={index} className="contact-list-item chat-skeleton-card">
+                                        {/* Avatar Squelette */}
+                                        <div className="chat-skeleton-avatar chat-skeleton-blink" />
+
                                         <div className="contact-info">
                                             <div className="contact-header">
-                                                <span className="contact-name">{u.user.profil_name}</span>
-                                                {/* Affichage de l'heure du dernier message */}
-                                                <span className="contact-time">{formatTime(u.last_message_timestamp)}</span>
+                                                {/* Nom Squelette */}
+                                                <div className="chat-skeleton-name chat-skeleton-blink" />
+                                                {/* Heure Squelette */}
+                                                <div className="chat-skeleton-time chat-skeleton-blink" />
                                             </div>
-                                            <div className='content-u'>
-                                                {/* Aperçu du message */}
-                                                <p className="contact-preview">
-                                                    {u.last_message_content || "Aucun message"}
-                                                </p>
-                                                {u.unread_count > 0 && (<span className='unread-msg-badge'>{u.unread_count}</span>)}
+                                            <div className='content-u' style={{ marginTop: '8px' }}>
+                                                {/* Aperçu du Message Squelette */}
+                                                <div className="chat-skeleton-preview chat-skeleton-blink" />
                                             </div>
-
                                         </div>
                                     </div>
-                                ))
-                            )
+                                ))}
+                            </>
                         ) : (
-                            <p className='empty-text'>Aucune conversation récente</p>
+                            <>
+                                {recentChats.length > 0 ? (
+                                    recentChats.map(u => (
+                                        <div
+                                            key={u.user?.id}
+                                            onClick={() => handleSelectRecipient(u.user)}
+                                            className={`contact-list-item 
+                                ${activeRecipient?.id === u.user?.id ? 'active' : ''}
+                                ${u.unread_count > 0 ? 'unread' : ''}
+                            `}
+                                        >
+                                            <Avatar user={u.user} />
+                                            <div className="contact-info">
+                                                <div className="contact-header">
+                                                    <span className="contact-name">{u.user.profil_name}</span>
+                                                    <span className="contact-time">{formatTime(u.last_message_timestamp)}</span>
+                                                </div>
+                                                <div className='content-u'>
+                                                    <p className="contact-preview">
+                                                        {u.last_message_content || "Aucun message"}
+                                                    </p>
+                                                    {u.unread_count > 0 && (<span className='unread-msg-badge'>{u.unread_count}</span>)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className='empty-text'>Aucune conversation récente</p>
+                                )}
+                            </>
                         )}
                     </div>
                 )}

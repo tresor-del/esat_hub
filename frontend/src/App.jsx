@@ -10,6 +10,7 @@ import {
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import logo from "../public/logo_circle.png"
 
 
 import "./styles/UserProfile.css"
@@ -66,8 +67,19 @@ const AppRoutes = () => {
   }, [logout, navigate])
 
   if (loading) {
-    return <div className="spinner"></div>;
-  }
+  return (
+    <div className="app-splash-screen">
+      <div className="splash-content">
+        {/* Nom ou logo de votre marque */}
+        <img src={logo} alt="" width={60} className="spinning-logo"/>
+        {/* Un indicateur de chargement linéaire plus moderne qu'un spinner classique */}
+        <div className="splash-progress-bar">
+          <div className="splash-progress-line"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
   return (
 
@@ -86,6 +98,8 @@ const AppRoutes = () => {
             element={isAuth() ? <Navigate to="/" replace /> : <Register />}
           />
           <Route path="/confirm-email" element={<ConfirmEmail />} />
+          <Route path="/chat" element={<ChatPage />} />
+
         </Route>
 
 
@@ -105,7 +119,6 @@ const AppRoutes = () => {
           <Route path="/room" element={<Room />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/" element={<Home />} />
-          <Route path="/chat" element={<ChatPage />} />
         </Route>
 
 

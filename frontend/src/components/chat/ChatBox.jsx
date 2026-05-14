@@ -5,13 +5,15 @@ import { FiArrowLeft } from 'react-icons/fi';
 import "../../styles/Chat.css";
 import { getChatHistory, markMessagesAsReadApi } from '../../services/chatApi';
 import EmojiPicker from 'emoji-picker-react';
+import { useNavigate } from 'react-router-dom';
 
 const ChatBox = ({ recipient, onClose, isMobile }) => {
     const { unreadChatsCount, messages, sendMessage, user } = useWebSocket();
     const [text, setText] = useState("");
     const [localHistory, setLocalHistory] = useState([]);
-    const [loadingHistory, setLoadingHistory] = useState(false);
+    const [loadingHistory, setLoadingHistory] = useState(true);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const navigate = useNavigate();
 
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
@@ -114,14 +116,16 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
 
     return (
         <div className='chat-box-container'>
-            {isMobile && (
                 <div className='chat-box-header-m'>
                     <button className='chat-close-btn' onClick={onClose}>
-                        <FiArrowLeft /> Retour
+                        <FiArrowLeft />
                     </button>
+                    <div className="a" onClick={() => navigate(`/profile/${recipient.id}`)}>
+
+                    <Avatar user={recipient} />
                     <span>{recipient.profil_name}</span>
+                    </div>
                 </div>
-            )}
 
             <div className='chat-list'>
 

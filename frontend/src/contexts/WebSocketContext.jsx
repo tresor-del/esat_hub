@@ -26,6 +26,7 @@ export const WebSocketProvider = ({ children }) => {
       const result = await getNotifications();
       if (result?.notifications) {
         setNotifications(prev => {
+          console.log("notifications avant merge:", prev.map(n => n.id));
           const existingIds = new Set(prev.map(n => n.id));
           const uniqueFromDb = result.notifications.filter(n => !existingIds.has(n.id));
           return [...prev, ...uniqueFromDb];
@@ -98,7 +99,10 @@ export const WebSocketProvider = ({ children }) => {
 
         // 2. GESTION DES NOTIFICATIONS
         if (data.recipient?.id === user?.id) {
-          setNotifications(prev => [{ ...data, is_read: false }, ...prev]);
+          setNotifications(prev => {
+            if (prev.some(n => n.id === data.id)) return prev;  // déjà présente, on ignore
+            return [{ ...data, is_read: false }, ...prev];
+          });
         }
         if (data.type === "new_comment") {
           window.dispatchEvent(new CustomEvent("NEW_COMMENT", { detail: data }));
@@ -119,11 +123,11 @@ export const WebSocketProvider = ({ children }) => {
     };
 
     // Stocke createWebSocket dans le ref pour y accéder ailleurs
-  createWebSocketRef.current = createWebSocket;
+    createWebSocketRef.current = createWebSocket;
 
-  loadNotifications();
-  loadInitialUnread();
-  createWebSocket(token);
+    loadNotifications();
+    loadInitialUnread();
+    createWebSocket(token);
 
     return () => {
       wsRef.current?.close();
@@ -131,16 +135,16 @@ export const WebSocketProvider = ({ children }) => {
   }, [user?.id]);
 
   // Écoute TOKEN_REFRESHED quand une requete http déclenche le refresh token
-useEffect(() => {
-  const handleTokenRefresh = (event) => {
-    const newToken = event.detail.token;
-    if (createWebSocketRef.current) {
-      createWebSocketRef.current(newToken);
-    }
-  };
-  window.addEventListener("TOKEN_REFRESHED", handleTokenRefresh);
-  return () => window.removeEventListener("TOKEN_REFRESHED", handleTokenRefresh);
-}, []);
+  useEffect(() => {
+    const handleTokenRefresh = (event) => {
+      const newToken = event.detail.token;
+      if (createWebSocketRef.current) {
+        createWebSocketRef.current(newToken);
+      }
+    };
+    window.addEventListener("TOKEN_REFRESHED", handleTokenRefresh);
+    return () => window.removeEventListener("TOKEN_REFRESHED", handleTokenRefresh);
+  }, []);
 
   // FONCTION POUR ENVOYER UN MESSAGE DE CHAT
   const sendMessage = (recipientId, content) => {
@@ -186,37 +190,37 @@ useEffect(() => {
 
   // Ping périodique pour garder le ws en vie 
   useEffect(() => {
-  if (!user) return;
+    if (!user) return;
 
-  const interval = setInterval(async () => {
-    // Vérifie si le token va bientôt expirer
-    const token = localStorage.getItem("access_token");
-    if (!token) return;
+    const interval = setInterval(async () => {
+      // Vérifie si le token va bientôt expirer
+      const token = localStorage.getItem("access_token");
+      if (!token) return;
 
-    const { exp } = JSON.parse(atob(token.split('.')[1]));
-    const expiresIn = exp * 1000 - Date.now();
+      const { exp } = JSON.parse(atob(token.split('.')[1]));
+      const expiresIn = exp * 1000 - Date.now();
 
-    // Si moins de 5 minutes restantes, refresh proactif
-    if (expiresIn < 5 * 60 * 1000) {
-      try {
-        const refreshToken = localStorage.getItem("refresh_token");
-        const res = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-          refresh_token: refreshToken
-        });
-        localStorage.setItem("access_token", res.data.access_token);
-        localStorage.setItem("refresh_token", res.data.refresh_token);
-        // TOKEN_REFRESHED va reconnecter le WS automatiquement
-        window.dispatchEvent(new CustomEvent("TOKEN_REFRESHED", {
-          detail: { token: res.data.access_token }
-        }));
-      } catch (e) {
-        window.dispatchEvent(new CustomEvent("app:logout", { detail: { reason: "unauthorized" } }));
+      // Si moins de 5 minutes restantes, refresh proactif
+      if (expiresIn < 5 * 60 * 1000) {
+        try {
+          const refreshToken = localStorage.getItem("refresh_token");
+          const res = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+            refresh_token: refreshToken
+          });
+          localStorage.setItem("access_token", res.data.access_token);
+          localStorage.setItem("refresh_token", res.data.refresh_token);
+          // TOKEN_REFRESHED va reconnecter le WS automatiquement
+          window.dispatchEvent(new CustomEvent("TOKEN_REFRESHED", {
+            detail: { token: res.data.access_token }
+          }));
+        } catch (e) {
+          window.dispatchEvent(new CustomEvent("app:logout", { detail: { reason: "unauthorized" } }));
+        }
       }
-    }
-  }, 5 * 60 * 1000); // vérifie toutes les minutes
+    }, 5 * 60 * 1000); // vérifie toutes les minutes
 
-  return () => clearInterval(interval);
-}, [user]);
+    return () => clearInterval(interval);
+  }, [user]);
 
 
   return (

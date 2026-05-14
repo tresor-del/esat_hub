@@ -3,7 +3,7 @@
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  margin-bottom: var(--spacing-md);
+  /* margin-bottom: var(--spacing-md); */
   overflow: hidden;
   transition: box-shadow 0.2s;
   align-items: flex-end;
@@ -134,10 +134,6 @@
   border-radius: 50px;
 }
 
-.post-action-btn .pab-i{
-  font-size: 1.2rem;
-}
-
 .post-for-home {
   margin-top: auto !important;
 }
@@ -152,6 +148,15 @@
   display: flex;
   max-width: 600px;
 }
+
+.post-action {
+  margin-top: 0.8rem;
+}
+
+.post-action-btn {
+  font-size: 0.8rem;
+}
+
 
 }
 

@@ -15,6 +15,9 @@ const PostMedia = ({ post, bust, size = "small" }) => {
   const [pdfError, setPdfError] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  
+  // ÉTAT DE CHARGEMENT DE L'IMAGE
+  const [isImageLoading, setIsImageLoading] = useState(true);
 
   const effectiveBust = bust || localStorage.getItem(`post_bust_${post.id}`);
 
@@ -84,31 +87,46 @@ const PostMedia = ({ post, bust, size = "small" }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleImageLoad = (e) => {
-      const { naturalWidth, naturalHight, clientWidth } = e.target;
+      setIsImageLoading(false); // Désactive le squelette dès le chargement complet
+      const { naturalWidth, clientWidth } = e.target;
       if (naturalWidth > clientWidth) {
         setIsNarrow(true);
       }
-    }
+    };
 
     return (
       <div className={`post-media photo ${size}`}>
         {!imageError ? (
-          <div className={`photo-wrapper ${isNarrow ? 'has-blur-bg' : ''}`} style={isNarrow ? { backgroundImage: `url(${imageUrl})` } : {}}>
-            <div className="blur-overlay"></div>
-            <img
-              src={imageUrl}
-              alt={post.title}
-              className="photo-image"
-              onError={() => setImageError(true)}
-              onLoad={handleImageLoad}
-              onClick={() => setIsModalOpen(true)} // Ouvre au clic
-              style={{ cursor: 'zoom-in' }}
+          <div className="photo-container-relative" style={{ position: "relative", width: "100%" }}>
+            
+            {/* SQUELETTE EN ATTENTE DU CHARGEMENT */}
+            {isImageLoading && (
+              <div className="photo-skeleton skeleton-blink" />
+            )}
 
-            />
-
-
+            {/* LE WRAPPER ET L'IMAGE RESTE MASQUÉS JUSQU'AU CHARGEMENT */}
+            <div 
+              className={`photo-wrapper ${isNarrow ? 'has-blur-bg' : ''}`} 
+              style={{
+                display: isImageLoading ? "none" : "block",
+                backgroundImage: isNarrow ? `url(${imageUrl})` : "none"
+              }}
+            >
+              <div className="blur-overlay"></div>
+              <img
+                src={imageUrl}
+                alt={post.title}
+                className="photo-image"
+                onError={() => {
+                  setImageError(true);
+                  setIsImageLoading(false);
+                }}
+                onLoad={handleImageLoad}
+                onClick={() => setIsModalOpen(false || true)}
+                style={{ cursor: 'zoom-in' }}
+              />
+            </div>
           </div>
-
         ) : (
           <div className="photo-error">
             <span>🖼️</span>
@@ -124,13 +142,11 @@ const PostMedia = ({ post, bust, size = "small" }) => {
           />
         )}
       </div>
-
     );
   }
 
   // ==================== DOCUMENTS PDF ====================
   if (post.post_type === "document") {
-    // Gestion erreur
     if (pdfError) {
       return (
         <div className={`pdf-fallback ${size}`}>
@@ -148,7 +164,6 @@ const PostMedia = ({ post, bust, size = "small" }) => {
       );
     }
 
-    // Chargement
     if (loading || !pdfBlobUrl) {
       return (
         <div className={`pdf-loading ${size}`}>
@@ -158,12 +173,8 @@ const PostMedia = ({ post, bust, size = "small" }) => {
       );
     }
 
-    // Affichage PDF
     return (
       <div className={`pdf-viewer ${size}`}>
-
-
-        {/* Conteneur PDF centré */}
         <div className="pdf-container">
           <Document
             file={pdfBlobUrl}
@@ -171,7 +182,7 @@ const PostMedia = ({ post, bust, size = "small" }) => {
             onLoadError={() => setPdfError(true)}
           >
             <Page
-              pageNumber={currentPage}  // ← Changez 1 par currentPage
+              pageNumber={currentPage}
               width={config.width}
               renderTextLayer={false}
               renderAnnotationLayer={false}
@@ -179,7 +190,6 @@ const PostMedia = ({ post, bust, size = "small" }) => {
           </Document>
         </div>
 
-        {/* Badge pour version small */}
         {size === "small" && numPages > 1 && (
           <div className="pdf-badge">
             {numPages} page{numPages > 1 ? 's' : ''}
@@ -205,7 +215,6 @@ const PostMedia = ({ post, bust, size = "small" }) => {
             </a>
           </div>
         )}
-
       </div>
     );
   }

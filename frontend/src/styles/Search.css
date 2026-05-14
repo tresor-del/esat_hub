@@ -1,64 +1,173 @@
-/* Le conteneur doit avoir la même largeur que ton bloc de recherche dans la navbar */
+/* ==========================================
+   CONTENEUR PRINCIPAL DE RECHERCHE
+   ========================================== */
 .search-dropdown-wrapper {
+  display: flex;
   justify-content: center;
   align-items: center;
-  display: flex;
   position: relative;
   width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-/* Le menu de résultats */
+/* Structure de la barre (Formulaire) */
+.search-input-container, .search-input-container-chat{
+  display: flex;
+  align-items: center;
+  min-width: 500px;
+  width: 100%;
+  background-color: #f0f2f5;
+  padding: 6px 12px;
+  border-radius: 50px; /* Effet pilule moderne */
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.search-input-container-chat{
+    min-width: unset !important;
+}
+
+.search-input-container:focus-within {
+  background-color: #ffffff;
+  border-color: #0066ff;
+  box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+}
+
+/* Avatar à gauche */
+.search-avatar-prefix {
+  display: flex;
+  align-items: center;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+/* Groupe Input + Icône */
+.search-field-group {
+  position: relative;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon-inside {
+  position: absolute;
+  left: 4px;
+  color: #65676b;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.search-input-container:focus-within .search-icon-inside {
+  color: #0066ff; /* L'icône passe au bleu lors de la saisie */
+}
+
+/* L'input natif */
+.search-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 4px 4px 4px 32px; /* Espace à gauche pour l'icône */
+  font-size: 15px;
+  color: #050505;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: #65676b;
+}
+
+
+/* ==========================================
+   MENU DROPDOWN & RÉSULTATS
+   ========================================== */
 .search-dropdown-wrapper .menu-dropdown {
   position: absolute;
-  top: calc(100% + 5px); /* Juste en dessous de l'input avec un petit espace */
+  top: calc(100% + 8px);
   left: 0;
   width: 100%; 
-  
-  padding: 1rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px); /* Effet de flou moderne sous le menu */
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   z-index: 1000;
-  overflow: hidden; /* Pour que les bords arrondis s'appliquent aux items */
+  overflow: hidden;
 }
 
-/* On ajuste le container interne */
 .search-result-container {
-    width: 100%; /* On retire les 380px fixes pour laisser le parent décider */
-    max-height: 500px;
-    overflow-y: auto;
+  width: 100%;
+  max-height: 450px;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+/* Sections (Users / Publications) */
+.results-section {
+  margin-bottom: 12px;
 }
 
 .results-section h5 {
-  margin-bottom: 1rem;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #65676b;
+  padding: 8px 12px 4px 12px;
+  margin: 0;
 }
 
 .results-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 4px;
 }
 
+/* Ligne de résultat individuelle */
 .result-item {
   display: flex;
-  gap: 10px;
-  padding: 1rem;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  transition: background-color 0.2s ease;
 }
 
 .result-item:hover {
-  background-color: #ddd;
+  background-color: #f2f2f2;
   cursor: pointer;
 }
 
 .result-info {
   display: flex;
-  gap: 10px;
+  flex-direction: column; /* Aligne les textes verticalement pour plus de clarté */
+  gap: 2px;
 }
 
+.result-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #050505;
+}
+
+.result-subtitle {
+  font-size: 12px;
+  color: #65676b;
+}
+
+/* Surlignage du texte */
 .highlight {
-  background-color: rgba(0, 102, 255, 0.1); /* Bleu très léger */
-  color: #0066ff; /* Couleur de ta marque */
-  font-weight: bold;
+  background-color: rgba(0, 102, 255, 0.1);
+  color: #0066ff;
+  font-weight: 600;
   padding: 0 2px;
-  border-radius: 2px;
+  border-radius: 4px;
+}
+
+/* État vide */
+.no-results {
+  text-align: center;
+  color: #65676b;
+  font-size: 14px;
+  padding: 24px 0;
+  margin: 0;
 }

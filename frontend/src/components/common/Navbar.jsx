@@ -27,11 +27,11 @@ const Navbar = () => {
 
   const Logo = (
     <Link to="/" className="navbar-logo" onClick={closeMenu}>
-      <img src={logo} alt="esat-hub" width={isMobile ? 45 : 36} height={isMobile ? 45 : 36} />
+      <img src={logo} alt="esat-hub" width={isMobile ? 45 : 40} height={isMobile ? 45 : 40} />
       {isMobile ? (
-        <div></div>
-      ): (
-        <h3>esat-hub</h3>
+        <h3>EsatHub</h3>
+      ) : (
+        <h2>EsatHub</h2>
       )}
     </Link>
   );
@@ -43,7 +43,7 @@ const Navbar = () => {
       aria-label="Messages"
     >
       <div className="icon-with-badge navbar-icon-container ">
-        <FiMessageCircle size={30} style={{ opacity: 0.7 }}  />
+        <FiMessageCircle size={30} style={{ opacity: 0.7 }} />
         {unreadChatsCount > 0 && (
           <span className="notification-badge">{unreadChatsCount}</span>
         )}
@@ -90,7 +90,7 @@ const Navbar = () => {
         <div className="navbar-actions">
           {isAuth() ? (
             <>
-              {CreateButton}
+              {/* {CreateButton} */}
               <NotificationDropdown unreadCount={unreadCount} />
               {ChatButton}
               <UserMenu />
@@ -132,10 +132,14 @@ const Navbar = () => {
         {/* Cloche — toujours visible dans la barre */}
         {isAuth() && (
           <div className="navbar-actions">
-            {CreateButton}
+            {/* {CreateButton} */}
             {ChatButton}
             <NotificationDropdown unreadCount={unreadCount} />
-            <Avatar user={user} openModal={false} onClick={() => navigate(`/profile/${user.id}`)} />
+            {user ? (
+              <Avatar user={user} openModal={false} onClick={() => navigate(`/profile/${user.id}`)} />
+            ) : (
+              <div className="skeleton-avatar skeleton-blink" style={{ width: '32px', height: '32px' }} />
+            )}
             {/* <UserMenu /> */}
           </div>
         )}

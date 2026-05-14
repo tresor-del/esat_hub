@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { FiLock, FiGlobe } from "react-icons/fi";
+import { IoEarth } from "react-icons/io5";
 import PostAuthorInfo from "./PostAuthorInfo";
 import PostActionsMenu from "./PostActionsMenu";
 import PostMedia from "./PostMedia";
@@ -29,6 +31,8 @@ const PostCard = ({
     queryFn: () => getComments(post.id),
     staleTime: 1000 * 60,
   });
+
+  console.log(post)
 
   const commentsLength = commentsData?.total || 0;
 
@@ -101,7 +105,10 @@ const PostCard = ({
             variant="compact"
           />
 
-          <PostActionsMenu post={post} onEdit={onEdit} onDelete={onDelete} onToggleStatus={onToggleStatus} />
+          <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
+            {post.room_id ? (<FiLock />): (<IoEarth />)}
+            <PostActionsMenu post={post} onEdit={onEdit} onDelete={onDelete} onToggleStatus={onToggleStatus} />
+          </div>
         </div>
 
         {/* Titre du poste */}
@@ -126,7 +133,7 @@ const PostCard = ({
 
         <div className="post-action" >
           <span className="post-action-btn" onClick={handleCardClick}>{commentsLength} commentaires</span>
-          <span style={{ fontSize: "0.9rem" }}>{formatRelativeDate(post.created_at)}</span>
+          <span className="post-action-btn time" >{formatRelativeDate(post.created_at)}</span>
         </div>
 
       </div>
