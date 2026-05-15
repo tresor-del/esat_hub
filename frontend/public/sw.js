@@ -10,7 +10,7 @@ self.addEventListener("message", (event) => {
     const options = {
       body: event.data.body || "Vous avez reçu une notification.",
       icon: "/logo_circle.png",      // Icône affichée dans la bulle système
-      badge: "/logo_circle.png",    // Petite icône (barre d'état Android)
+      badge: "/logo_circle.jpeg",    // Petite icône (barre d'état Android)
       vibrate: [100, 50, 100],       // Vibration sur mobile
       data: {
         url: event.data.url || "/"   // URL de redirection cible
@@ -41,7 +41,7 @@ self.addEventListener("push", (event) => {
   const options = {
     body: data.body,
     icon: "/logo_circle.png",
-    badge: "/logo_circle.png",
+    badge: "/logo_circle.jpeg",
     vibrate: [100, 50, 100],
     data: {
       url: data.url || "/"
