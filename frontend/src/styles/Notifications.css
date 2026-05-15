@@ -36,6 +36,12 @@
   justify-content: space-between;
 }
 
+.notif-item-content{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .notification-item:hover {
   background-color: #ddd;
 }
@@ -146,7 +152,7 @@
   justify-content: center;
 }
 
-.notification-badge {
+/* .notification-badge {
   position: absolute;
   top: -5px;
   right: -5px;
@@ -157,7 +163,7 @@
   padding: 2px 5px;
   border-radius: 10px;
   border: 2px solid white;
-}
+} */
 
 /* Style de base pour chaque item */
 .notification-item {

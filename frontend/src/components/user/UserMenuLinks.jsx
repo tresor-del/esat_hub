@@ -39,8 +39,8 @@ export const UserMenuLinks = ({ user, isAdmin, onAction, isDesktop = false }) =>
                     <FiUser /> Profile
                 </button>
             )}
-            <button onClick={() => go("/room")}>
-                <HiOutlineHome /> Room
+            <button className="user-menu-btn" onClick={() => go("/room")}>
+                <HiOutlineHome /> {isDesktop ? "Room" : "Aller dans la salle" }
             </button>
 
             {isAdmin && (
@@ -53,7 +53,7 @@ export const UserMenuLinks = ({ user, isAdmin, onAction, isDesktop = false }) =>
                 className="user-logout-btn"
                 onClick={() => { logout(); onAction?.(); }}
             >
-                <FiLogOut /> Logout
+                <FiLogOut /> {isDesktop ? "Logout" : "Se déconnecter" }
             </button>
         </>
     );

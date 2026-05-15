@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 import { useAuth } from './AuthContext';
 import { getNotifications, markNotificationsAsRead } from '../services/api';
 import { getUnreadMsgTotal } from '../services/chatApi';
+import { sendSystemNotification } from "../services/notificationService";
 
 const wsUrl = import.meta.env.VITE_WS_BASE_URL;
 
@@ -74,26 +75,6 @@ export const WebSocketProvider = ({ children }) => {
 
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        // const isAppBackground = document.visibilityState === "hidden";
-        const hasPermission = Notification.permission === "granted";
-
-        // Fonction utilitaire interne pour envoyer de façon robuste au Service Worker actif
-        const sendSystemNotification = (payload) => {
-          if (hasPermission) {
-            // Résout l'instance active, même si le contrôleur temporaire est null en dev
-            const swInstance = navigator.serviceWorker.controller;
-
-            if (swInstance) {
-              swInstance.postMessage(payload);
-            } else if (navigator.serviceWorker.ready) {
-              navigator.serviceWorker.ready.then((reg) => {
-                if (reg.active) {
-                  reg.active.postMessage(payload);
-                }
-              });
-            }
-          }
-        };
 
         // 1. GESTION DU CHAT
         if (data.sender_id) {

@@ -8,6 +8,8 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
 import "../../styles/Home.css";
+import { sendSystemNotification } from "../../services/notificationService";
+import { se } from "date-fns/locale";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -83,27 +85,41 @@ const Home = () => {
     navigate(`/post/${post.id}`);
   };
 
-  const requestNotificationPermission = async () => {
-  // Vérifie si le navigateur prend en charge les notifications
-  if (!("Notification" in window)) {
-    console.error("Ce navigateur ne prend pas en charge les notifications.");
-    return;
-  }
+  const handleNotificationSetup = async () => {
+    // 1. Vérification du support navigateur
+    if (!("Notification" in window)) {
+      console.error("Ce navigateur ne prend pas en charge les notifications.");
+      return;
+    }
 
-  // Demande la permission au système de l'appareil
-  const permission = await Notification.requestPermission();
-  
-  if (permission === "granted") {
-    console.log("Permission accordée !");
-  } else {
-    console.warn("Permission refusée par l'utilisateur.");
-  }
-};
+    // 2. Demande de permission et attente du clic utilisateur
+    const permission = await Notification.requestPermission();
 
+    if (permission === "granted") {
+      console.log("Permission accordée !");
+
+      // 3. On attend un tout petit peu que le Service Worker soit prêt avant d'envoyer
+      if (navigator.serviceWorker) {
+        await navigator.serviceWorker.ready;
+
+        sendSystemNotification({
+          type: "SHOW_WS_NOTIFICATION",
+          title: "Bienvenue",
+          body: "Bienvenue sur l'application !",
+        });
+      }
+    } else {
+      console.warn("Permission refusée par l'utilisateur.");
+    }
+  };
 
   useEffect(() => {
-    requestNotificationPermission();
-  }, [])
+    handleNotificationSetup();
+  }, []);
+
+  const filteredPosts = posts.filter(
+    (post) => post.room_id === null || post.room_id === userAuth?.user_room_id
+  );
 
   return (
     <div className="container">
@@ -118,10 +134,10 @@ const Home = () => {
               onClick={() => navigate(`profile/${userAuth.id}`)}
             />
           </div>
-          <div className="create-post-input-trigger"  onClick={handleCreate}>
+          <div className="create-post-input-trigger" onClick={handleCreate}>
             <span>Quoi de neuf {userAuth?.profil_name} ?</span>
           </div>
-          <div className="create-post-actions"  onClick={handleCreate}>
+          <div className="create-post-actions" onClick={handleCreate}>
             <button type="button" className="action-icon-btn" title="Ajouter une image">
               <FiImage size={20} />
             </button>
@@ -132,7 +148,7 @@ const Home = () => {
         </div>
 
         {/* Liste des posts */}
-        {isLoading && posts.length === 0 ? (
+        {isLoading ? (
           <div className="posts-skeleton-list">
             <PostCardSkeleton />
             <PostCardSkeleton />
@@ -140,22 +156,21 @@ const Home = () => {
           </div>
         ) : (
           <>
-            {posts.length === 0 ? (
+            {filteredPosts.length === 0 ? (
               <div className="empty-state">
                 <h3>Aucun Post pour le moment</h3>
               </div>
             ) : (
-              posts
-              .filter((post) => post.room_id === null || post.room_id === userAuth.user_room_id)
-              .map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onView={handleView}
-                />
-              ))
+              filteredPosts
+                .map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onView={handleView}
+                  />
+                ))
             )}
             {hasNextPage && (
               <button

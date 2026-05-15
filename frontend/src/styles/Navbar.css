@@ -131,8 +131,8 @@
   background-color: var(--reddit-orange);
   color: white;
   font-size: 10px;
-  min-width: 16px;
-  height: 16px;
+  min-width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;

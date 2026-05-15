@@ -25,7 +25,7 @@ const PostAuthorInfo = ({
   };
 
   // Format name: profil_name > username > first_name + last_name
-  const displayName = user?.profil_name || user?.username || `${user?.first_name || ''} ${user?.last_name || ''}`.trim();
+  const displayName = user?.profil_name
 
   // Compact variant - just avatar and name
   if (variant === "compact") {

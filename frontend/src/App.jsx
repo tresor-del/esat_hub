@@ -83,6 +83,8 @@ const AppRoutes = () => {
               element={isAuth() ? <Navigate to="/" replace /> : <Register />}
             />
             <Route path="/confirm-email" element={<ConfirmEmail />} />
+            <Route path="/chat" element={<ChatPage />} />
+
           </Route>
 
           <Route
@@ -100,7 +102,6 @@ const AppRoutes = () => {
             <Route path="/profile/edit" element={<ProfileEdit />} />
             <Route path="/room" element={<Room />} />
             <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/chat" element={<ChatPage />} />
           </Route>
 
           <Route

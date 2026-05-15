@@ -100,8 +100,6 @@ const PostDetail = () => {
 
 
   if (error) return <p className="alert alert-error">{error}</p>;
-  if (!post) return null;
-
 
   return (
     <div className="post-detail-container container">

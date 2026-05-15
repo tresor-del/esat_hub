@@ -11,6 +11,8 @@ import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../../components/ui/Avatar";
 import PostCard from "../../components/posts/Postcard";
 import PostAuthorInfo from "../../components/posts/PostAuthorInfo";
+import ProfileSkeleton from "../../components/skeletons/ProfileSkeleton";
+import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
 
 const UserProfile = () => {
   const { id } = useParams();
@@ -32,12 +34,12 @@ const UserProfile = () => {
   const { data: profile, isLoading, error } = useQuery({
     queryKey: ["userProfile", id],
     queryFn: () => isOwnProfile ? Promise.resolve(currentUser) : getUserProfile(id),
-    staleTime: isOwnProfile ? Infinity : 1000 * 60 * 5, 
+    staleTime: isOwnProfile ? Infinity : 1000 * 60 * 5,
     enabled: !!id,
   });
 
   // Posts
-  const { data: postsData } = useQuery({
+  const { data: postsData, isLoading: postsLoading } = useQuery({
     queryKey: ["userPosts", id],
     queryFn: () => getPosts({ user_id: id }),
     staleTime: 1000 * 60,
@@ -103,8 +105,8 @@ const UserProfile = () => {
 
   if (isLoading) {
     return (
-      <div className="container" style={{ padding: "40px 20px", textAlign: "center" }}>
-        <div className="loading">Chargement du profil...</div>
+      <div >
+        <ProfileSkeleton />
       </div>
     );
   }
@@ -116,6 +118,10 @@ const UserProfile = () => {
       </div>
     );
   }
+
+  const filteredPosts = posts.filter(
+    (post) => post.room_id === null || post.room_id === currentUser?.user_room_id
+  );
 
   return (
     <div className="profile-container">
@@ -132,66 +138,77 @@ const UserProfile = () => {
                 <div className="u-i">
                   <Avatar user={profile} size="large" />
                   <div className="ui-items">
-                    <span style={{fontWeight: "bold"}}>{profile.profil_name}</span>
-                    <span style={{color: "#777"}}>{profile.username}</span>
+                    <span style={{ fontWeight: "bold" }}>{profile.profil_name}</span>
+                    <span style={{ color: "#777" }}>{profile.username}</span>
                   </div>
                 </div>
-              ):
-              (
-                <Avatar user={profile} size="xlarge" />
-                
-              )}
-              
+              ) :
+                (
+                  <Avatar user={profile} size="xlarge" />
+
+                )}
+
             </div>
 
             <div className="profile-meta">
-              
-                  {isOwnProfile && (
-                    <button
-                      className="btn btn-secondary profile-edit-btn"
-                      onClick={() => navigate('/profile/edit')}
-                      style={{ marginBottom: '16px' }}
-                    >
-                      <FiEdit2 size={16} style={{ marginRight: '8px' }} />
-                      Modifier le profil
-                    </button>
-                  )}
+
+              {isOwnProfile && (
+                <button
+                  className="btn btn-secondary profile-edit-btn"
+                  onClick={() => navigate('/profile/edit')}
+                  style={{ marginBottom: '16px' }}
+                >
+                  <FiEdit2 size={16} style={{ marginRight: '8px' }} />
+                  Modifier le profil
+                </button>
+              )}
 
               {isMobile ? (
                 <div></div>
-              ):
-              (
-              <div className="profile-name">
-                <h2 >{profile.profil_name}</h2>
-                <span>{profile.username}</span>
-              </div>
-              )}
+              ) :
+                (
+                  <div className="profile-name">
+                    <h2 >{profile.profil_name}</h2>
+                    <span>{profile.username}</span>
+                  </div>
+                )}
 
 
               <div className="info">
                 <div className="profile-meta-item">
-                  <FiUser size={16} />
-                  <span>{profile.last_name} {profile.first_name}</span>
+                  <span className="label">Nom: </span>
+                  <span>{(profile.last_name).toUpperCase()} {profile.first_name}</span>
                 </div>
 
                 <div className="profile-meta-item">
-                  <FiMail size={16} />
+                  <span className="label">Email: </span>
                   <span>{profile.email}</span>
                 </div>
 
                 <div className="profile-meta-item">
-                  <MdOutlineDomainVerification size={16} />
-                  <span>{profile.domain}-{profile.major}</span>
+                  <span className="label">Domaine:</span>
+                  <span>{profile.domain}</span>
                 </div>
 
                 <div className="profile-meta-item">
-                  <TbSchool size={16} />
-                  <span>{profile.level}-{profile.year}</span>
+                  <span className="label">Spécialité:</span>
+                  <span>{profile.major}</span>
                 </div>
+
+                <div className="profile-meta-item">
+                  <span className="label">Cycle :</span>
+                  <span>{profile.level}</span>
+                </div>
+
+                <div className="profile-meta-item">
+                  <span className="label">Année:</span>
+                  <span>{profile.year}</span>
+                </div>
+
                 {isMobile ? (
                   // Version mobile compacte du QR code
                   <div>
-                    
+
                   </div>
                 ) : (
                   // Version desktop normale
@@ -204,7 +221,7 @@ const UserProfile = () => {
                     /> */}
                   </div>
                 )}
-                
+
               </div>
             </div>
 
@@ -215,14 +232,24 @@ const UserProfile = () => {
 
             {/* Liste des posts */}
             <div className="profile-posts">
+              {postsLoading ? (
+                <div>
+                  <PostCardSkeleton />
+                  <PostCardSkeleton />
+                  <PostCardSkeleton />
+                </div>
 
-              {posts.length === 0 ? (
+              ) : filteredPosts.length === 0 ? (
+                /* 2. Le chargement est fini ET il n'y a vraiment aucun post */
                 <div className="empty-state card">
-                  <p> <span style={{fontWeight: "bold"}}>{profile.profil_name} </span> n'a aucun post pour l'instant.</p>
+                  <p>
+                    <span style={{ fontWeight: "bold" }}>{profile?.profil_name}</span> n'a aucun post pour l'instant.
+                  </p>
                 </div>
               ) : (
+                /* 3. Le chargement est fini ET il y a des posts à afficher */
                 <div className="posts-grid">
-                  {(isMobile ? posts.slice(0, 3) : posts).map((post) => (
+                  {(isMobile ? filteredPosts.slice(0, 3) : filteredPosts).map((post) => (
                     <PostCard
                       key={post.id}
                       post={post}
@@ -230,6 +257,8 @@ const UserProfile = () => {
                       variant={isMobile ? "compact" : "list"}
                     />
                   ))}
+
+                  {/* Bouton Voir plus pour le mode mobile */}
                   {isMobile && posts.length > 3 && (
                     <div className="load-more-mobile" style={{ textAlign: 'center', padding: '16px' }}>
                       <button className="btn btn-secondary" onClick={() => navigate(`/profile/${id}/posts`)}>
@@ -240,6 +269,7 @@ const UserProfile = () => {
                 </div>
               )}
             </div>
+
           </div>
         </div>
 

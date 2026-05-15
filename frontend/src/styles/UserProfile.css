@@ -85,10 +85,15 @@
   gap: 8px;
   font-size: 14px;
   color: #666;
+  font-size: 1rem;
 }
 
 .profile-meta-item svg {
   flex-shrink: 0;
+}
+
+.profile-meta-item .label {
+  font-weight: 700;
 }
 
 /* Statistiques */

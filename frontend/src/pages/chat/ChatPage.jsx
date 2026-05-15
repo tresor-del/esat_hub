@@ -10,6 +10,7 @@ import ChatBox from '../../components/chat/ChatBox';
 import "../../styles/Chat.css"
 import { getRecentChat } from '../../services/chatApi';
 import { set } from 'date-fns';
+import Logo from '../../components/common/Logo';
 
 const ChatPage = () => {
     const { unreadChatsCount, refreshUnreadCount, messages } = useWebSocket();
@@ -153,7 +154,10 @@ const ChatPage = () => {
             {/* SIDEBAR : Recherche et Contacts */}
             <div className={`side-bar ${isMobileView && isChatOpen ? 'hidden' : ''}`}>
                 <div className='page-name' >
-                    <img src={logo} alt="" width={60} onClick={() => navigate("/")} />
+                    <div onClick={() => navigate("/")}>
+                        <Logo size={60} />
+                    </div>
+                    {/* <img src={logo} alt="" width={60} onClick={() => navigate("/")} /> */}
                     <h1>Inbox</h1>
                 </div>
 
