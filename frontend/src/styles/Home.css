@@ -58,6 +58,80 @@
     gap: 0.5rem;
 }
 
+/* Conteneur principal prenant tout l'espace restant */
+.empty-state-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh; /* Occupe la majeure partie de la hauteur d'écran */
+  width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+}
+
+/* Carte centrale style Facebook / Réseau Social */
+.empty-state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+/* Cercle gris autour de l'icône */
+.empty-state-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background-color: #f0f2f5; /* Gris clair style Facebook */
+  border-radius: 50%;
+  margin-bottom: 16px;
+}
+
+/* Icône centrale */
+.empty-state-icon {
+  color: #65676b; /* Couleur de texte secondaire neutre */
+}
+
+/* Titre principal */
+.empty-state-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 8px 0;
+  font-family: sans-serif;
+}
+
+/* Sous-texte descriptif */
+.empty-state-subtitle {
+  font-size: 0.95rem;
+  color: #65676b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Mode sombre optionnel : Si votre application gère le dark mode */
+@media (prefers-color-scheme: dark) {
+  .empty-state-icon-wrapper {
+    background-color: #242526;
+  }
+  .empty-state-icon {
+    color: #b0b3b8;
+  }
+  .empty-state-title {
+    color: #111;
+  }
+  .empty-state-subtitle {
+    color: #b0b3b8;
+  }
+}
+
+
 
 @media (max-width: 768px) {
 

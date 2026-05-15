@@ -9,8 +9,8 @@ self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SHOW_WS_NOTIFICATION") {
     const options = {
       body: event.data.body || "Vous avez reçu une notification.",
-      icon: "/icon-180x180.png",      // Icône affichée dans la bulle système
-      badge: "/icon-180x180.png",    // Petite icône (barre d'état Android)
+      icon: "/logo_circle.png",      // Icône affichée dans la bulle système
+      badge: "/logo_circle.png",    // Petite icône (barre d'état Android)
       vibrate: [100, 50, 100],       // Vibration sur mobile
       data: {
         url: event.data.url || "/"   // URL de redirection cible
@@ -40,8 +40,8 @@ self.addEventListener("push", (event) => {
 
   const options = {
     body: data.body,
-    icon: "/icon-180x180.png",
-    badge: "/icon-180x180.png",
+    icon: "/logo_circle.png",
+    badge: "/logo_circle.png",
     vibrate: [100, 50, 100],
     data: {
       url: data.url || "/"

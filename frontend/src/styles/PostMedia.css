@@ -7,7 +7,7 @@
 }
 
 .photo-wrapper {
-  display: flex;
+  display: flex !important;
   justify-content: center;
   align-items: center;
   background-color: #f5f5f5;

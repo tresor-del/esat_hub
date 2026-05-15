@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FiImage, FiVideo } from "react-icons/fi";
+import { FiImage, FiVideo, FiInbox } from "react-icons/fi";
 import PostCard from "../../components/posts/Postcard";
 import Avatar from "../../components/ui/Avatar";
 import { getUserProfile, getPosts, deletePost } from "../../services/api";
@@ -31,7 +31,8 @@ const Home = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    isLoading
+    isLoading,
+    isFetching,
   } = useInfiniteQuery({
     queryKey: ["posts"],
     queryFn: async ({ pageParam = 0 }) => {
@@ -48,7 +49,7 @@ const Home = () => {
       }
       return allPages.length * postsPerPage;
     },
-    enabled: !!fullUser,
+    // enabled: !!fullUser,
   });
 
   // Aplatir les pages pour l'affichage
@@ -86,6 +87,12 @@ const Home = () => {
   };
 
   const handleNotificationSetup = async () => {
+
+    const hasSeenWelcome = localStorage.getItem(`welcome_notif_sent_${userAuth?.id}`);
+    if (hasSeenWelcome) {
+      return; // On stoppe tout si déjà envoyé
+    }
+
     // 1. Vérification du support navigateur
     if (!("Notification" in window)) {
       console.error("Ce navigateur ne prend pas en charge les notifications.");
@@ -104,9 +111,11 @@ const Home = () => {
 
         sendSystemNotification({
           type: "SHOW_WS_NOTIFICATION",
-          title: "Bienvenue",
-          body: "Bienvenue sur l'application !",
+          title: `${userAuth?.profil_name}`,
+          body: `Bienvenue sur EsatHub!`,
         });
+
+        localStorage.setItem(`welcome_notif_sent_${userAuth?.id}`, "true");
       }
     } else {
       console.warn("Permission refusée par l'utilisateur.");
@@ -148,7 +157,7 @@ const Home = () => {
         </div>
 
         {/* Liste des posts */}
-        {isLoading ? (
+        {isLoading || (posts.length === 0 && isFetching) ? (
           <div className="posts-skeleton-list">
             <PostCardSkeleton />
             <PostCardSkeleton />
@@ -157,8 +166,16 @@ const Home = () => {
         ) : (
           <>
             {filteredPosts.length === 0 ? (
-              <div className="empty-state">
-                <h3>Aucun Post pour le moment</h3>
+              <div className="empty-state-container">
+                <div className="empty-state-card">
+                  <div className="empty-state-icon-wrapper">
+                    <FiInbox size={48} className="empty-state-icon" />
+                  </div>
+                  <h3 className="empty-state-title">Aucun post pour le moment</h3>
+                  <p className="empty-state-subtitle">
+                    Les publications s'afficheront ici.
+                  </p>
+                </div>
               </div>
             ) : (
               filteredPosts

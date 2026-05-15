@@ -147,7 +147,7 @@ const NotificationDropdown = ({ unreadCount }) => {
                 onClick={() => handleClick(notif)}
               >
                 <div className="notif-item-content">
-                  <Avatar user={senderUser} size="medium" />
+                  <Avatar user={senderUser} size="large" />
                 <p className="notification-text">{buildNotifText(notif)}</p>
 
                 </div>

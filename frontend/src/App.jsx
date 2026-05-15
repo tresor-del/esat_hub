@@ -30,6 +30,10 @@ const ProfileEdit = lazy(() => import("./pages/profile/ProfileEdit"));
 const Room = lazy(() => import("./pages/room/Room"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const ChatPage = lazy(() => import("./pages/chat/ChatPage"));
+const About = lazy(() => import("./pages/legal/About"));
+const Privacy = lazy(() => import("./pages/legal/Privacy"));
+const Terms = lazy(() => import("./pages/legal/Terms"));
+
 
 const queryClient = new QueryClient();
 
@@ -55,7 +59,7 @@ const AppRoutes = () => {
     return (
       <div className="app-splash-screen">
         <div className="splash-content">
-          <Logo size={60} className="spinning-logo"/>
+          <Logo size={60} className="spinning-logo" />
           <div className="splash-progress-bar">
             <div className="splash-progress-line"></div>
           </div>
@@ -102,6 +106,9 @@ const AppRoutes = () => {
             <Route path="/profile/edit" element={<ProfileEdit />} />
             <Route path="/room" element={<Room />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
           </Route>
 
           <Route

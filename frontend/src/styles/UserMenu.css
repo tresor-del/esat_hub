@@ -41,4 +41,7 @@
     .mobile-message-btn {
     display: flex !important;
 }
+.user-menu button {
+    font-size: 1.5rem;
+}
 }

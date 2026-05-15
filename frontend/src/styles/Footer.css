@@ -1,0 +1,90 @@
+/* Structure globale */
+.site-footer {
+  background-color: #ffffff;
+  border-top: 1px solid #e4e6eb;
+  padding: 24px 16px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: auto; /* Force le footer en bas si le parent est un Flexbox vertical */
+}
+
+/* Alignement Flexbox responsive */
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 20px;
+}
+
+/* Textes de la marque */
+.footer-brand h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.1rem;
+  color: #050505;
+}
+
+.footer-brand p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #65676b;
+}
+
+/* Liens de navigation */
+.footer-links {
+  display: flex;
+  gap: 16px;
+}
+
+.footer-link {
+  font-size: 0.9rem;
+  color: #65676b;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+  color: #0056b3; /* Ou votre couleur primaire principale */
+}
+
+/* Icônes réseaux sociaux */
+.footer-socials {
+  display: flex;
+  gap: 12px;
+}
+
+.footer-socials a {
+  color: #65676b;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.footer-socials a:hover {
+  color: #050505;
+  transform: translateY(-2px);
+}
+
+/* Media Query pour mobiles */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    text-align: center;
+  }
+  .footer-links {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+/* Mode sombre */
+/* @media (prefers-color-scheme: dark) {
+  .site-footer {
+    background-color: #18191a;
+    border-top-color: #2f3031;
+  }
+  .footer-brand h3 { color: #e4e6eb; }
+  .footer-brand p, .footer-link { color: #b0b3b8; }
+  .footer-socials a { color: #b0b3b8; }
+  .footer-socials a:hover { color: #ffffff; }
+} */
