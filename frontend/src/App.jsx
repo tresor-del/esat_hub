@@ -129,9 +129,7 @@ function App() {
       <Router>
         <AuthProvider>
           <AppRoutes />
-          <Suspense fallback={null}>
-            <UpdateBanner />
-          </Suspense>
+
         </AuthProvider>
       </Router>
     </QueryClientProvider>
