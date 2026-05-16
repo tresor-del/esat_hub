@@ -2,6 +2,19 @@ import { precacheAndRoute } from 'workbox-precaching';
 precacheAndRoute(self.__WB_MANIFEST || []);
 
 // =========================================================================
+// MISE À JOUR EN ARRIÈRE-PLAN : Activation immédiate du nouveau code
+// =========================================================================
+self.addEventListener('install', () => {
+  // Force le nouveau service worker à s'installer immédiatement
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  // Prend le contrôle des clients (pages) immédiatement sans attendre un rechargement
+  event.waitUntil(self.clients.claim());
+});
+
+// =========================================================================
 // 1. ÉCOUTEUR INDISPENSABLE POUR LES WEBSOCKETS (postMessage de React)
 // =========================================================================
 self.addEventListener("message", (event) => {

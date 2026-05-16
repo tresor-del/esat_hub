@@ -33,6 +33,7 @@ const ChatPage = lazy(() => import("./pages/chat/ChatPage"));
 const About = lazy(() => import("./pages/legal/About"));
 const Privacy = lazy(() => import("./pages/legal/Privacy"));
 const Terms = lazy(() => import("./pages/legal/Terms"));
+const UpdateBanner = lazy(() => import("./components/common/UpdateBanner") )
 
 
 const queryClient = new QueryClient();
@@ -128,6 +129,9 @@ function App() {
       <Router>
         <AuthProvider>
           <AppRoutes />
+          <Suspense fallback={null}>
+            <UpdateBanner />
+          </Suspense>
         </AuthProvider>
       </Router>
     </QueryClientProvider>
