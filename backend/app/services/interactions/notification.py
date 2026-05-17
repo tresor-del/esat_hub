@@ -33,6 +33,13 @@ class NotificationService:
                         title=title,
                         body=body,
                     ),
+                    android=messaging.AndroidConfig(
+                        priority="high",  
+                        notification=messaging.AndroidNotification(
+                            priority="high",  
+                            sound="default",  
+                        ),
+                    ),
                     token=device.device_token,
                 )
                 try:
