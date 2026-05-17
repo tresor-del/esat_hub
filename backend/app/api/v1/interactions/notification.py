@@ -16,40 +16,57 @@ from app.models.user_device import DeviceRegistration
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 
-@router.post("/register", status_code=status.HTTP_200_OK)
-async def register_device(request: Request, payload: DeviceRegistration, db: Session = Depends(get_db)):
-    body = await request.body()
-    print(f"--- CORPS BRUT REÇU DE KODULAR : {body.decode('utf-8')} ---")
+# @router.post("/register", status_code=status.HTTP_200_OK)
+# async def register_device(request: Request, payload: DeviceRegistration, db: Session = Depends(get_db)):
+#     body = await request.body()
+#     print(f"--- CORPS BRUT REÇU DE KODULAR : {body.decode('utf-8')} ---")
     
     
-    try:
-        # On cherche si cet appareil existe déjà
-        existing_device = db.query(UserDevice).filter(UserDevice.device_token == payload.device_token).first()
+#     try:
+#         # On cherche si cet appareil existe déjà
+#         existing_device = db.query(UserDevice).filter(UserDevice.device_token == payload.device_token).first()
         
-        if existing_device:
-            # Si l'appareil existe déjà, on met juste à jour l'utilisateur (Pas de message de bienvenue)
-            existing_device.user_id = payload.user_id
-            db.commit()
-            print(f"Jeton mis à jour pour l'utilisateur : {payload.user_id}")
-        else:
-            # C'EST UN NOUVEL APPAREIL : On l'enregistre et on l'accueille !
-            new_device = UserDevice(
-                user_id=payload.user_id,
-                device_token=payload.device_token
-            )
-            db.add(new_device)
-            db.commit() # On commit d'abord pour valider l'enregistrement
-            print(f"Nouvel appareil enregistré pour l'utilisateur : {payload.user_id}")
+#         if existing_device:
+#             # Si l'appareil existe déjà, on met juste à jour l'utilisateur (Pas de message de bienvenue)
+#             existing_device.user_id = payload.user_id
+#             db.commit()
+#             print(f"Jeton mis à jour pour l'utilisateur : {payload.user_id}")
+#         else:
+#             # C'EST UN NOUVEL APPAREIL : On l'enregistre et on l'accueille !
+#             new_device = UserDevice(
+#                 user_id=payload.user_id,
+#                 device_token=payload.device_token
+#             )
+#             db.add(new_device)
+#             db.commit() # On commit d'abord pour valider l'enregistrement
+#             print(f"Nouvel appareil enregistré pour l'utilisateur : {payload.user_id}")
             
-        return {"status": "success", "message": "Appareil synchronisé avec succès"}
+#         return {"status": "success", "message": "Appareil synchronisé avec succès"}
+        
+#     except Exception as e:
+#         db.rollback()
+#         raise HTTPException(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             detail=f"Erreur lors de l'enregistrement de l'appareil : {str(e)}"
+#         )
+
+@router.post("/register", status_code=status.HTTP_200_OK)
+async def register_device(request: Request): # 💡 On a enlevé payload: DeviceRegistration
+    try:
+        # 1. On récupère le contenu brut envoyé par le téléphone
+        body = await request.body()
+        raw_json = body.decode('utf-8')
+        
+        # 2. On l'affiche de force dans la console
+        print("\n" + "="*40)
+        print(f"👉 TEXTE BRUT REÇU DE KODULAR : {raw_json}")
+        print("="*40 + "\n")
+        
+        return {"status": "debug_mode"}
         
     except Exception as e:
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Erreur lors de l'enregistrement de l'appareil : {str(e)}"
-        )
-
+        print(f"Erreur lors de la lecture du body : {e}")
+        return {"status": "error"}
 
 @router.get("/me/all")
 def get_all_notifications(
