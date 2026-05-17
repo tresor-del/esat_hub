@@ -2,6 +2,10 @@ from typing import List
 from uuid import UUID
 from sqlalchemy.orm import Session
 
+from firebase_admin import messaging  
+from app.db.schemas.user_device import UserDevice 
+
+
 from app.db.schemas.notification import Notification
 from app.models.notifications import NotificationResponse, NotificationListResponse, NotificationResponseUser
 from app.models.user import UserResponse
@@ -12,6 +16,37 @@ class NotificationService:
 
     def __init__(self, db: Session):
         self._db = db
+
+    def _send_firebase_push(self, recipient_id: UUID, title: str, body: str) -> None:
+        """Méthode interne pour pousser une bannière Android via Firebase Cloud Messaging."""
+        try:
+            # 1. On cherche tous les appareils enregistrés par Kodular pour cet utilisateur
+            devices = self._db.query(UserDevice).filter(UserDevice.user_id == recipient_id).all()
+            
+            if not devices:
+                return  # L'utilisateur n'utilise pas l'app mobile ou n'a pas encore de token
+                
+            # 2. On envoie la bannière à chaque téléphone trouvé
+            for device in devices:
+                message = messaging.Message(
+                    notification=messaging.Notification(
+                        title=title,
+                        body=body,
+                    ),
+                    token=device.device_token,
+                )
+                try:
+                    response = messaging.send(message)
+                    print(f"FCM : Bannière envoyée avec succès au token {device.device_token[:10]}...")
+                except Exception as fcm_err:
+                    print(f"FCM : Erreur d'envoi pour le token {device.device_token[:10]}... : {fcm_err}")
+                    # Si l'application a été désinstallée, Firebase renvoie une erreur. On nettoie la DB.
+                    self._db.delete(device)
+                    self._db.commit()
+                    
+        except Exception as e:
+            print(f"Erreur globale lors du traitement FCM : {e}")
+
     
     async def send_notification(self, data: NotificationResponse) -> None:
         try:
@@ -30,6 +65,26 @@ class NotificationService:
             print(f"Notification enregistrée en base: {data_in_db.id}")
             await ws_manager.send_personal_notification(notif_data)
             print("notification envoyé au manager")
+
+            title_mapping = {
+                "chat": "Nouveau message",
+                "new_comment": "Nouveau commentaire",
+                "new_post": "Nouveau post",
+                "COMMENTAIRE_SUPPRIMÉ": "Commentaire supprimé",
+                "POST_SUPPRIMÉ": "Post supprimé",
+                "POST_STATUS_UPDATE": "Status du post mis à jour",
+                "ROLE_UPDATE": "Role mis à jour",
+                "ACCOUNT_DELETED": "Status mis à jour",
+            }
+
+            notif_title = title_mapping.get(data_in_db.type, "Nouvelle notification")
+            
+            # On déclenche l'envoi Firebase de manière non-bloquante
+            self._send_firebase_push(
+                recipient_id=data_in_db.recipient_id,
+                title=notif_title,
+                body=data_in_db.content
+            )
             
 
         except Exception as e:

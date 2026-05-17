@@ -11,6 +11,7 @@ from app.core.logging import setup_logging
 from app.db.database import Base, engine
 from app.core.config import settings
 from app.core.limiter import limiter
+from app.core.firebase import init_firebase
 
 
 setup_logging()
@@ -20,6 +21,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Connexion à l'api...")
+    init_firebase()
     yield
     logger.info("Fermerture des connexions...")
     # à la création de engine, l'app crée une pool pour et stock des tuyaux ouverts vers la base de données. 

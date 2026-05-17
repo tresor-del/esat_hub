@@ -5,3 +5,6 @@ __pycache__/
 *$py.classuploads/
 
 uploads/
+
+firebase-credentials.json
+

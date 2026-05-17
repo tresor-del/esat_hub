@@ -26,6 +26,7 @@ slowapi = ">=0.1.9,<0.2.0"
 cloudinary = ">=1.44.2,<2.0.0"
 requests = "^2.34.0"
 alembic-postgresql-enum = "^1.10.0"
+firebase-admin = "^7.4.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=9.0.2,<10.0.0"

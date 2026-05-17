@@ -64,6 +64,11 @@ export const WebSocketProvider = ({ children }) => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
 
+     if (window.AppInventor && user?.id) { 
+      console.log("Transmission de l'UUID de l'utilisateur à Kodular :", user.id); 
+      window.AppInventor.setWebViewString(String(user.id)); 
+    }
+    
     shouldReconnect.current = true;
 
     const createWebSocket = (wsToken) => {

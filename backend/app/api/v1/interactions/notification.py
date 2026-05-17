@@ -2,14 +2,62 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from sqlalchemy.orm import Session
+
 from app.api.deps.auth import get_current_user
 from app.api.deps.services import get_notification_service
 from app.db.schemas.user import User
 from app.services.interactions.notification import NotificationService
 from app.models.message import Message
+from app.api.deps.db import get_db
+from app.db.schemas.user_device import UserDevice
+from app.models.user_device import DeviceRegistration
 
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
+
+@router.post("/notifications/register", status_code=status.HTTP_200_OK)
+async def register_device(payload: DeviceRegistration, db: Session = Depends(get_db)):
+    try:
+        # On cherche si cet appareil existe déjà
+        existing_device = db.query(UserDevice).filter(UserDevice.device_token == payload.device_token).first()
+        
+        if existing_device:
+            # Si l'appareil existe déjà, on met juste à jour l'utilisateur (Pas de message de bienvenue)
+            existing_device.user_id = payload.user_id
+            db.commit()
+            print(f"Jeton mis à jour pour l'utilisateur : {payload.user_id}")
+        else:
+            # C'EST UN NOUVEL APPAREIL : On l'enregistre et on l'accueille !
+            new_device = UserDevice(
+                user_id=payload.user_id,
+                device_token=payload.device_token
+            )
+            db.add(new_device)
+            db.commit() # On commit d'abord pour valider l'enregistrement
+            print(f"Nouvel appareil enregistré pour l'utilisateur : {payload.user_id}")
+            
+            # ── ENVOI DU MESSAGE DE BIENVENUE NATIVE MOBIL ─────────────────
+            # Initialisation de ton service de notification
+            notif_service = NotificationService(db)
+            
+            # Déclenchement de la bannière push instantanée via Firebase
+            notif_service._send_firebase_push(
+                recipient_id=payload.user_id,
+                title="Bienvenue sur l'application EsatHub !",
+                body="Ravi de vous compter parmi nous."
+            )
+            # ───────────────────────────────────────────────────────────────
+            
+        return {"status": "success", "message": "Appareil synchronisé avec succès"}
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors de l'enregistrement de l'appareil : {str(e)}"
+        )
+
 
 @router.get("/me/all")
 def get_all_notifications(

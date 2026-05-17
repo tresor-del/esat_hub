@@ -123,6 +123,10 @@ const Home = () => {
   };
 
   useEffect(() => {
+    if (window.AppInventor) {
+      console.log("Mode Kodular détecté : Configuration des notifications ignorée sur le web.");
+      return; 
+    }
     handleNotificationSetup();
   }, []);
 
