@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from sqlalchemy.orm import Session
 
@@ -17,7 +17,11 @@ from app.models.user_device import DeviceRegistration
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 
 @router.post("/register", status_code=status.HTTP_200_OK)
-async def register_device(payload: DeviceRegistration, db: Session = Depends(get_db)):
+async def register_device(request: Request, payload: DeviceRegistration, db: Session = Depends(get_db)):
+    body = await request.body()
+    print(f"--- CORPS BRUT REÇU DE KODULAR : {body.decode('utf-8')} ---")
+    
+    
     try:
         # On cherche si cet appareil existe déjà
         existing_device = db.query(UserDevice).filter(UserDevice.device_token == payload.device_token).first()
