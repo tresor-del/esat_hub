@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
     engine.dispose()
     
 
-app = FastAPI(title=settings.APP_NAME)
+app = FastAPI(title=settings.APP_NAME, lifespan=lifespan)
 
 # Configuration CORS - Restreint pour la production
 def get_cors_origins():
