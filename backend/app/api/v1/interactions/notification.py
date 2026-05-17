@@ -16,7 +16,7 @@ from app.models.user_device import DeviceRegistration
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 
-@router.post("/notifications/register", status_code=status.HTTP_200_OK)
+@router.post("/register", status_code=status.HTTP_200_OK)
 async def register_device(payload: DeviceRegistration, db: Session = Depends(get_db)):
     try:
         # On cherche si cet appareil existe déjà
@@ -36,18 +36,6 @@ async def register_device(payload: DeviceRegistration, db: Session = Depends(get
             db.add(new_device)
             db.commit() # On commit d'abord pour valider l'enregistrement
             print(f"Nouvel appareil enregistré pour l'utilisateur : {payload.user_id}")
-            
-            # ── ENVOI DU MESSAGE DE BIENVENUE NATIVE MOBIL ─────────────────
-            # Initialisation de ton service de notification
-            notif_service = NotificationService(db)
-            
-            # Déclenchement de la bannière push instantanée via Firebase
-            notif_service._send_firebase_push(
-                recipient_id=payload.user_id,
-                title="Bienvenue sur l'application EsatHub !",
-                body="Ravi de vous compter parmi nous."
-            )
-            # ───────────────────────────────────────────────────────────────
             
         return {"status": "success", "message": "Appareil synchronisé avec succès"}
         

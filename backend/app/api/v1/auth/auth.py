@@ -10,7 +10,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.core.config import settings
 from app.api.deps.db import get_db
-from app.api.deps.services import get_admin_service, get_auth_service, get_email_service, get_room_service
+from app.api.deps.services import get_admin_service, get_auth_service, get_email_service, get_notification_service, get_room_service
 from app.models.token import Token
 from app.db.security import create_access_token, create_refresh_token, hash_password
 from app.models.user import UserCreate, UserInDatabase
@@ -28,6 +28,7 @@ from app.tasks.notifications import send_notification_task
 from app.tasks.mail import send_verification_task, resend_verification_task
 from app.models.notifications import NotificationResponse
 from app.services.admin.manager import AdminService
+from app.services.interactions.notification import NotificationService
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,8 @@ router = APIRouter()
 @router.post("/token", response_model=Token)
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    notif_service: NotificationService = Depends(get_notification_service)
 ):
     user = authenticate_user(db=db, username=form_data.username, password=form_data.password)
     
@@ -49,6 +51,17 @@ def login(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail="Please verify your email before logging in."
         )
+
+    try:
+        notif_service._send_firebase_push(
+            recipient_id=user.id,  # L'UUID de l'utilisateur qui vient de se connecter
+            title=f"Bonjour {user.profil_name}",
+            body="Bienvenue sur EsatHub."
+        )
+    except Exception as push_err:
+        # On capture l'erreur pour éviter de bloquer la connexion de l'utilisateur si FCM échoue
+        print(f"Impossible d'envoyer la notification de connexion : {push_err}")
+
     
     access_token = create_access_token(
         data={"sub": str(user.id)},
