@@ -76,7 +76,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     admin_service = get_admin_service()
                     
                     # 2. Construction du profil minimal du destinataire requis par ton schéma
-                    recip = admin_service.get_user_by_id(msg_in.recipient_id)
+                    recip = admin_service.users.get_user_by_id(msg_in.recipient_id)
                     recipient_profile = admin_service.create_user_response(recip)
 
                     # Construction du profil minimal de l'expéditeur
