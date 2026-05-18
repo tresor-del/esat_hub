@@ -17,57 +17,57 @@ class NotificationService:
     def __init__(self, db: Session):
         self._db = db
 
-def send_firebase_push(self, recipient_id: UUID, title: str, body: str) -> None:
-    """Méthode interne pour pousser une bannière Android via Firebase Cloud Messaging."""
-    try:
-        # 1. On cherche UNIQUEMENT les appareils qui ont un token valide, non vide et non nul
-        devices = self._db.query(UserDevice).filter(
-            UserDevice.user_id == recipient_id,
-            UserDevice.device_token != None,
-            UserDevice.device_token != ""
-        ).all()
-        
-        print(f"FCM : Nombre d'appareils valides trouvés pour l'envoi : {len(devices)}")
-        
-        if not devices:
-            print("ℹFCM : Aucun appareil avec un jeton valide trouvé en base de données.")
-            return
+    def send_firebase_push(self, recipient_id: UUID, title: str, body: str) -> None:
+        """Méthode interne pour pousser une bannière Android via Firebase Cloud Messaging."""
+        try:
+            # 1. On cherche UNIQUEMENT les appareils qui ont un token valide, non vide et non nul
+            devices = self._db.query(UserDevice).filter(
+                UserDevice.user_id == recipient_id,
+                UserDevice.device_token != None,
+                UserDevice.device_token != ""
+            ).all()
             
-        # 2. On envoie la bannière à chaque téléphone trouvé
-        for device in devices:
-            # Sécurité supplémentaire juste avant la construction du message
-            if not device.device_token or device.device_token.strip() == "":
-                print("Sécurité : Jeton vide détecté dans la boucle, ignoré.")
-                continue
+            print(f"FCM : Nombre d'appareils valides trouvés pour l'envoi : {len(devices)}")
+            
+            if not devices:
+                print("ℹFCM : Aucun appareil avec un jeton valide trouvé en base de données.")
+                return
                 
-            print(f"FCM : Tentative d'envoi au token : {device.device_token[:15]}...")
-            
-            message = messaging.Message(
-                notification=messaging.Notification(
-                    title=title,
-                    body=body,
-                ),
-                android=messaging.AndroidConfig(
-                    priority="high",  
-                    notification=messaging.AndroidNotification(
-                        priority="high",  
-                        sound="default",  
+            # 2. On envoie la bannière à chaque téléphone trouvé
+            for device in devices:
+                # Sécurité supplémentaire juste avant la construction du message
+                if not device.device_token or device.device_token.strip() == "":
+                    print("Sécurité : Jeton vide détecté dans la boucle, ignoré.")
+                    continue
+                    
+                print(f"FCM : Tentative d'envoi au token : {device.device_token[:15]}...")
+                
+                message = messaging.Message(
+                    notification=messaging.Notification(
+                        title=title,
+                        body=body,
                     ),
-                ),
-                token=device.device_token,
-            )
-            
-            try:
-                response = messaging.send(message)
-                print(f"FCM : Bannière envoyée avec succès ! ID: {response}")
-            except Exception as fcm_err:
-                print(f"FCM : Erreur d'envoi pour le token {device.device_token[:10]}... : {fcm_err}")
-                # Nettoyage automatique de la base si le token n'est plus reconnu par Firebase
-                self._db.delete(device)
-                self._db.commit()
+                    android=messaging.AndroidConfig(
+                        priority="high",  
+                        notification=messaging.AndroidNotification(
+                            priority="high",  
+                            sound="default",  
+                        ),
+                    ),
+                    token=device.device_token,
+                )
                 
-    except Exception as e:
-        print(f"Erreur globale lors du traitement FCM : {e}")
+                try:
+                    response = messaging.send(message)
+                    print(f"FCM : Bannière envoyée avec succès ! ID: {response}")
+                except Exception as fcm_err:
+                    print(f"FCM : Erreur d'envoi pour le token {device.device_token[:10]}... : {fcm_err}")
+                    # Nettoyage automatique de la base si le token n'est plus reconnu par Firebase
+                    self._db.delete(device)
+                    self._db.commit()
+                    
+        except Exception as e:
+            print(f"Erreur globale lors du traitement FCM : {e}")
 
 
     

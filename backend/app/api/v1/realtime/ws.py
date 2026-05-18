@@ -3,6 +3,7 @@ from uuid import UUID
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
+from websockets import ConnectionClosedError
 
 from app.core.config import settings
 from app.services.realtime.ws_manager import ws_manager
@@ -40,6 +41,11 @@ async def websocket_endpoint(websocket: WebSocket):
 
     # 2. On accepte la connexion et l'enregistre
     await ws_manager.connect(user_id, websocket)
+    notif_service = get_notification_service()
+                    
+    from app.api.deps.services import get_admin_service
+
+    admin_service = get_admin_service()
     
     try:
         while True:
@@ -53,7 +59,8 @@ async def websocket_endpoint(websocket: WebSocket):
                 msg_in = MessageCreate(**msg_json)
                 
                 # Récupération d'une session de DB à la volée
-                db = next(get_db())
+                db_gen = get_db()
+                db = next(db_gen)
                 try:
                     # Enregistrement du message de chat en base de données
                     saved_msg = save_message(db, user_id, msg_in)
@@ -69,11 +76,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     
                     # ── BRANCHEMENT DU SERVICE DE NOTIFICATION POUR LE MOBILE ── 
                     # 1. Initialisation du service avec la session DB actuelle
-                    notif_service = get_notification_service()
                     
-                    from app.api.deps.services import get_admin_service
-
-                    admin_service = get_admin_service()
                     
                     # 2. Construction du profil minimal du destinataire requis par ton schéma
                     recip = admin_service.users.get_user_by_id(msg_in.recipient_id)
@@ -97,7 +100,12 @@ async def websocket_endpoint(websocket: WebSocket):
                     await notif_service.send_notification(notification_payload)
                     
                 finally:
-                    db.close()
+                    try:
+                        next(db_gen)       # déclenche le finally du générateur proprement
+                    except StopIteration:
+                        pass 
                     
-    except WebSocketDisconnect:
+    except (WebSocketDisconnect, ConnectionClosedError, Exception):
+        pass
+    finally:
         ws_manager.disconnect(user_id)
