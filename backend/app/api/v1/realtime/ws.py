@@ -45,7 +45,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     
     from app.api.deps.services import get_admin_service
 
-    admin_service = get_admin_service()
+    admin_service = await get_admin_service()
     
     try:
         while True:
