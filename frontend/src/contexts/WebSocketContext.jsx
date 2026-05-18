@@ -64,11 +64,11 @@ export const WebSocketProvider = ({ children }) => {
     const token = localStorage.getItem("access_token");
     if (!token) return;
 
-     if (window.AppInventor && user?.id) { 
-      console.log("Transmission de l'UUID de l'utilisateur à Kodular :", user.id); 
-      window.AppInventor.setWebViewString(String(user.id)); 
+    if (window.AppInventor && user?.id) {
+      console.log("Transmission de l'UUID de l'utilisateur à Kodular :", user.id);
+      window.AppInventor.setWebViewString(String(user.id));
     }
-    
+
     shouldReconnect.current = true;
 
     const createWebSocket = (wsToken) => {
@@ -152,6 +152,17 @@ export const WebSocketProvider = ({ children }) => {
           return;
         }
       };
+
+      // Reconnexion automatique après 3 secondes
+      if (shouldReconnect.current) {
+        setTimeout(() => {
+          const token = localStorage.getItem("access_token");
+          if (token && createWebSocketRef.current) {
+            console.log("🔄 Reconnexion WebSocket...");
+            createWebSocketRef.current(token);
+          }
+        }, 3000);
+      }
     };
 
     // Stocke createWebSocket dans le ref pour y accéder ailleurs
@@ -184,7 +195,7 @@ export const WebSocketProvider = ({ children }) => {
       const payload = {
         recipient_id: recipientId,
         message: content
-      };
+      }
 
       // On l'envoie au serveur via le socket unique
       wsRef.current.send(JSON.stringify(payload));
@@ -202,6 +213,8 @@ export const WebSocketProvider = ({ children }) => {
         ...prev,
         [recipientId]: [...(prev[recipientId] || []), myMsg]
       }));
+    } else {
+      console.warn("WebSocket non connecté, message non envoyé");
     }
   };
 
