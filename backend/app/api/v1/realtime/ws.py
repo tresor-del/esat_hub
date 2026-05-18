@@ -80,7 +80,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     recipient_profile = admin_service.create_user_response(recip)
 
                     # Construction du profil minimal de l'expéditeur
-                    sender_profile = admin_service.create_user_response(admin_service.get_user_by_id(user_id))
+                    sender_profile = admin_service.create_user_response(admin_service.users.get_user_by_id(user_id))
 
                     # 3. Création de l'objet de notification type "chat"
                     notification_payload = NotificationResponse(

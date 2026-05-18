@@ -17,7 +17,7 @@ class NotificationService:
     def __init__(self, db: Session):
         self._db = db
 
-def _send_firebase_push(self, recipient_id: UUID, title: str, body: str) -> None:
+def send_firebase_push(self, recipient_id: UUID, title: str, body: str) -> None:
     """Méthode interne pour pousser une bannière Android via Firebase Cloud Messaging."""
     try:
         # 1. On cherche UNIQUEMENT les appareils qui ont un token valide, non vide et non nul
@@ -103,7 +103,7 @@ def _send_firebase_push(self, recipient_id: UUID, title: str, body: str) -> None
             notif_title = title_mapping.get(data_in_db.type, "Nouvelle notification")
             
             # On déclenche l'envoi Firebase de manière non-bloquante
-            self._send_firebase_push(
+            self.send_firebase_push(
                 recipient_id=data_in_db.recipient_id,
                 title=notif_title,
                 body=data_in_db.content
