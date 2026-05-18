@@ -53,7 +53,7 @@ def login(
         )
 
     try:
-        notif_service._send_firebase_push(
+        notif_service.send_firebase_push(
             recipient_id=user.id,  # L'UUID de l'utilisateur qui vient de se connecter
             title=f"Bonjour {user.profil_name}",
             body="Bienvenue sur EsatHub."
