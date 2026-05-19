@@ -1,3 +1,4 @@
+import asyncio
 from typing import List
 from uuid import UUID
 from sqlalchemy.orm import Session
@@ -103,10 +104,13 @@ class NotificationService:
             notif_title = title_mapping.get(data_in_db.type, "Nouvelle notification")
             
             # On déclenche l'envoi Firebase de manière non-bloquante
-            self.send_firebase_push(
-                recipient_id=data_in_db.recipient_id,
-                title=notif_title,
-                body=data_in_db.content
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(
+                None,                    # utilise le thread pool par défaut
+                self.send_firebase_push, # la fonction bloquante
+                data_in_db.recipient_id, # argument 1
+                notif_title,             # argument 2
+                data_in_db.content       # argument 3
             )
             
 

@@ -17,6 +17,7 @@ export const WebSocketProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [messages, setMessages] = useState({});
   const wsRef = useRef(null);
+  const reconnectTimeout = useRef(null);
   const shouldReconnect = useRef(true);
   const [unreadChatsCount, setUnreadChatsCount] = useState(0);
 
@@ -151,18 +152,19 @@ export const WebSocketProvider = ({ children }) => {
           shouldReconnect.current = false;
           return;
         }
+
+        // Reconnexion automatique après 3 secondes
+        if (shouldReconnect.current) {
+          setTimeout(() => {
+            const token = localStorage.getItem("access_token");
+            if (token && createWebSocketRef.current) {
+              console.log("🔄 Reconnexion WebSocket...");
+              createWebSocketRef.current(token);
+            }
+          }, 3000);
+        }
       };
 
-      // Reconnexion automatique après 3 secondes
-      if (shouldReconnect.current) {
-        setTimeout(() => {
-          const token = localStorage.getItem("access_token");
-          if (token && createWebSocketRef.current) {
-            console.log("🔄 Reconnexion WebSocket...");
-            createWebSocketRef.current(token);
-          }
-        }, 3000);
-      }
     };
 
     // Stocke createWebSocket dans le ref pour y accéder ailleurs
@@ -173,6 +175,8 @@ export const WebSocketProvider = ({ children }) => {
     createWebSocket(token);
 
     return () => {
+      shouldReconnect.current = false;
+      clearTimeout(reconnectTimeout.current);
       wsRef.current?.close();
     };
   }, [user?.id]);
