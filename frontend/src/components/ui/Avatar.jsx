@@ -19,6 +19,7 @@
     const sizes = {
       small: 32,
       medium: 40,
+      smlarge: 60,
       large: 80,
       xlarge: 200
     };

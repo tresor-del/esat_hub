@@ -52,7 +52,7 @@ async def websocket_endpoint(websocket: WebSocket):
             # 3. Écoute des données entrantes du client
             data = await websocket.receive_text()
             msg_json = json.loads(data)
-            print("message: ", msg_json)
+            # print("message: ", msg_json)
 
             # Si le JSON contient un 'recipient_id', c'est du chat !
             if "recipient_id" in msg_json:
@@ -98,6 +98,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     
                     # 4. Envoi au service : il l'enregistre en DB et déclenche l'envoi Firebase Cloud Messaging !
                     await notif_service.send_notification(notification_payload)
+                    # print("fcm envoyé")
                     
                 finally:
                     try:

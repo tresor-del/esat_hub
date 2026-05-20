@@ -18,7 +18,7 @@ class NotificationService:
     def __init__(self, db: Session):
         self._db = db
 
-    def send_firebase_push(self, recipient_id: UUID, title: str, body: str) -> None:
+    def send_firebase_push(self, recipient_id: UUID, title: str, body: str, url: str = None) -> None:
         """Méthode interne pour pousser une bannière Android via Firebase Cloud Messaging."""
         try:
             # 1. On cherche UNIQUEMENT les appareils qui ont un token valide, non vide et non nul
@@ -55,6 +55,22 @@ class NotificationService:
                             sound="default",  
                         ),
                     ),
+                    webpush=messaging.WebpushConfig(
+                        notification=messaging.WebpushNotification(
+                            title=title,
+                            body=body,
+                            icon="/icon-192x192.png", # Aligné avec votre vite.config.js
+                            badge="/badge-72.png",
+                        ),
+                        data={
+                            "url": "/notifications" 
+                        }
+                    ),
+                    data={
+                        "title": title,
+                        "body": body,
+                        "url": url
+                    },
                     token=device.device_token,
                 )
                 
@@ -69,8 +85,6 @@ class NotificationService:
                     
         except Exception as e:
             print(f"Erreur globale lors du traitement FCM : {e}")
-
-
     
     async def send_notification(self, data: NotificationResponse) -> None:
         try:
@@ -108,12 +122,11 @@ class NotificationService:
             await loop.run_in_executor(
                 None,                    # utilise le thread pool par défaut
                 self.send_firebase_push, # la fonction bloquante
-                data_in_db.recipient_id, # argument 1
-                notif_title,             # argument 2
-                data_in_db.content       # argument 3
+                data_in_db.recipient_id, 
+                notif_title,             
+                data_in_db.content, 
             )
             
-
         except Exception as e:
             # On log l'erreur mais on ne bloque pas la réponse API
             # La notification n'est pas critiquement bloquante

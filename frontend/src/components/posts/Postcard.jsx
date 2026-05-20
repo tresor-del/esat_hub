@@ -32,8 +32,6 @@ const PostCard = ({
     staleTime: 1000 * 60,
   });
 
-  console.log(post)
-
   const commentsLength = commentsData?.total || 0;
 
   useEffect(() => {
@@ -42,17 +40,6 @@ const PostCard = ({
     // fetchCount()
     return () => window.removeEventListener("resize", handResize);
   }, []);
-
-
-
-  // const fetchCount = async () => {
-  //   try {
-  //     const result = await getComments(post.id)
-  //     setCommentLength(result.total)
-  //   } catch (error) {
-  //     setCommentLength(0)
-  //   }
-  // }
 
   const toggleReadMore = (e) => {
     e.stopPropagation();
@@ -74,21 +61,6 @@ const PostCard = ({
       }
     }
   };
-
-  // const getPostUserProfile = async(userId) => {
-  //   try {
-  //     const user = await getUserProfile(userId);
-  //     if (user) {
-  //       setUser(user);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   getPostUserProfile(post.user?.id)
-  // }, [post])
 
 
   return (

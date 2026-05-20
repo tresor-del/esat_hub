@@ -1,10 +1,10 @@
-name: Keep Alive Render
-on:
-  schedule:
-    - cron: '*/10 * * * *'
-jobs:
-  ping:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Ping Render App
-        run: curl -s https://esat-hub.onrender.com
+# name: Keep Alive Render
+# on:
+#   schedule:
+#     - cron: '*/10 * * * *'
+# jobs:
+#   ping:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Ping Render App
+#         run: curl -s https://esat-hub.onrender.com

@@ -8,7 +8,7 @@ import Logo from '../../components/common/Logo';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
 
   // États du formulaire
   const [formData, setFormData] = useState({
@@ -53,6 +53,14 @@ const Login = () => {
 
       if (result.success) {
         // Connexion réussie - rediriger vers la page d'accueil
+        const token = await requestNotificationPermission();
+        if (token) {
+          await axios.post("/api/v1/notifications/devices/register", {
+            user_id: user.id,
+            device_token: token,
+            platform: "web"
+          });
+        }
         navigate('/');
       } else {
         // Afficher l'erreur
@@ -71,7 +79,7 @@ const Login = () => {
       <div className="auth-card login-card">
         {/* Logo */}
         <div className="auth-logo">
-          <Logo size={60} className={loading ? "spinning-logo": ""}/>          
+          <Logo size={60} className={loading ? "spinning-logo" : ""} />
           <div className="auth-logo-text">Esat-Hub</div>
         </div>
 
@@ -83,8 +91,8 @@ const Login = () => {
           <div className="alert alert-error">
             {error}
           </div>
-          
-          
+
+
         )}
 
         {/* Formulaire de connexion */}

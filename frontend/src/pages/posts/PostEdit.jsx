@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { FiUpload, FiX } from "react-icons/fi";
 import { getPost, getPostFileUrl, updatePost } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
+import "../../styles/Auth.css"
 
 const PostEdit = () => {
   const { id } = useParams();
@@ -244,8 +245,8 @@ const PostEdit = () => {
   }
 
   return (
-    <div className="container">
-      <div className="card" style={{ minWidth: "800px", margin: "0 auto" }}>
+    <div className="post-create-container">
+      <div className="card auth-card " >
         <div className="card-header">
           <h2 className="card-title">Modifier le post</h2>
         </div>

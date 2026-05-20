@@ -152,7 +152,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  /* padding: 20px; */
   overflow-x: auto;
 }
 
@@ -360,4 +360,98 @@
 
 .post-media.photo.large .photo-skeleton {
   height: 450px;
+}
+
+/* =========================================================================
+   STYLE DE L'APERÇU IMAGE DU PDF (FIL D'ACTUALITÉ)
+   ========================================================================= */
+
+/* 1. Le conteneur cliquable : crée un cadre propre et fixe */
+.pdf-preview-clickable {
+  position: relative;
+  width: 100%;
+  cursor: pointer;
+  overflow: hidden;
+  background-color: #f1f5f9;
+  max-height: 400px;
+  /* border: 1px solid #e2e8f0; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+}
+
+/* Effet de soulèvement au survol */
+.pdf-preview-clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.1), 0 4px 6px -4px rgba(30, 58, 138, 0.1);
+}
+
+/* 2. L'image de la page 1 : elle doit remplir le cadre sans se déformer */
+.pdf-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Remplit proprement l'espace comme une miniature pro */
+  display: block;
+  transition: filter 0.25s ease;
+}
+
+/* 3. Le voile de survol (Overlay) */
+.pdf-preview-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(30, 58, 138, 0.4); /* Bleu EsatHub translucide */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0; /* Masqué par défaut */
+  transition: opacity 0.25s ease;
+  z-index: 2;
+  width: 100%;
+}
+
+/* Déclenchement des effets au survol */
+.pdf-preview-clickable:hover .pdf-preview-overlay {
+  opacity: 1; /* Rend le voile visible */
+}
+
+.pdf-preview-clickable:hover .pdf-preview-img {
+  filter: blur(2px) brightness(0.85); /* Floute légèrement l'arrière-plan */
+}
+
+/* 4. La bulle de texte centrale */
+.pdf-preview-overlay span {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+  background: #0f172a; /* Fond ardoise foncé pour un fort contraste */
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(10px);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pdf-preview-clickable:hover .pdf-preview-overlay span {
+  transform: translateY(0); /* Petit effet de montée dynamique du texte */
+}
+
+/* Adaptation pour les petits écrans de smartphones */
+@media (max-width: 480px) {
+  .pdf-preview-clickable {
+    max-width: 100%; /* Prend toute la largeur disponible sur mobile */
+    height: 200px;   /* Hauteur légèrement réduite pour les petits écrans */
+  }
+  
+  .pdf-preview-overlay {
+    opacity: 1; /* Laisse l'icône visible sur mobile puisqu'il n'y a pas de survol souris */
+    background: rgba(15, 23, 42, 0.15); /* Voile beaucoup plus discret */
+  }
+  
+  .pdf-preview-overlay span {
+    transform: translateY(0);
+    font-size: 12px;
+    padding: 6px 12px;
+  }
 }

@@ -36,6 +36,13 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+window.deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  window.deferredPrompt = e;
+  console.log("✅ PWA prête à être installée !");
+});
+
 // Créer le root et monter l'application
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

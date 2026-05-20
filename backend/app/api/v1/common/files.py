@@ -2,7 +2,7 @@ from pathlib import Path
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
 
 from sqlalchemy.orm import Session
 from app.api.deps.auth import get_current_user
@@ -44,12 +44,15 @@ async def download_file(
     #     media_type=db_post.mime_type
     # )
 
-    return StreamingResponse(
-        file_service.stream_file(post.file_path), 
-        media_type=post.mime_type or "application/octet-stream"
-    )
+    if not post.file_path:
+        raise HTTPException(status_code=404, detail="Lien du fichier introuvable")
+        
+    return RedirectResponse(url=post.file_path)
 
-
+    # return StreamingResponse(
+    #     file_service.stream_file(post.file_path), 
+    #     media_type=post.mime_type or "application/octet-stream"
+    # )
 
 @router.post("/users/me/avatar")
 async def upload_avatar(

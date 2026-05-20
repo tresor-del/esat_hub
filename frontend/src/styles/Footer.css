@@ -5,7 +5,7 @@
   padding: 24px 16px;
   width: 100%;
   box-sizing: border-box;
-  margin-top: auto; /* Force le footer en bas si le parent est un Flexbox vertical */
+  margin-top: 1rem; /* Force le footer en bas si le parent est un Flexbox vertical */
 }
 
 /* Alignement Flexbox responsive */

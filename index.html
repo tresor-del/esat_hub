@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="frontend/public/logo_circle.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ESAT-HUB | Plateforme de gestion d'activités scolaires</title>
+    <style>
+        :root {
+            --bg: #07182f;
+            --bg-soft: #0f2b4a;
+            --accent: #3c9cff;
+            --accent-soft: #0ea5e9;
+            --surface: rgba(255, 255, 255, 0.08);
+            --text: #e6f1ff;
+            --muted: #9bb4d4;
+            --shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+            background: radial-gradient(circle at top left, rgba(60, 156, 255, 0.35), transparent 25%),
+                radial-gradient(circle at bottom right, rgba(222, 97, 255, 0.2), transparent 22%),
+                linear-gradient(180deg, #07182f 0%, #061423 100%);
+            color: var(--text);
+        }
+
+        body {
+            line-height: 1.6;
+            padding: 0 24px;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 0 96px;
+        }
+
+        header {
+            display: grid;
+            gap: 20px;
+            padding: 24px 0 40px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .logo-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--accent);
+            width: fit-content;
+            font-size: 0.95rem;
+        }
+
+        .badge.private {
+            background: rgba(220, 38, 38, 0.15);
+            border-color: rgba(220, 38, 38, 0.4);
+            color: #ff6b6b;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2.8rem, 4vw, 4.8rem);
+            letter-spacing: -0.05em;
+        }
+
+        p.lead {
+            max-width: 760px;
+            font-size: 1.16rem;
+            color: var(--muted);
+        }
+
+        .hero-actions {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .button.primary {
+            color: #fff;
+            background: linear-gradient(135deg, #3c9cff 0%, #16a34a 100%);
+            box-shadow: 0 18px 35px rgba(60, 156, 255, 0.18);
+        }
+
+        .button.secondary {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        section.cards {
+            display: grid;
+            gap: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+
+        article.card {
+            padding: 28px;
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        article.card h2 {
+            margin-top: 0;
+            margin-bottom: 14px;
+            font-size: 1.35rem;
+        }
+
+        .card p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .features {
+            display: grid;
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        .feature {
+            display: grid;
+            gap: 10px;
+            padding: 24px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .feature strong {
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .feature span {
+            color: var(--muted);
+        }
+
+        .grid-3 {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .footer {
+            padding-top: 80px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .footer a {
+            color: var(--accent-soft);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 700px) {
+            .page {
+                padding-top: 32px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page">
+        <header>
+            <div class="logo-section">
+                <img class="logo-img" src="frontend/public/logo_circle.png" alt="ESAT-HUB Logo" />
+                <span class="badge">ESAT-HUB • Web & Mobile Platform</span>
+            </div>
+            <h1>A modern platform for school activities, chat, and project management.</h1>
+            <p class="lead">
+                ESAT-HUB centralizes communication, news sharing, room management, and real-time notifications for students and staff at ESAT-Togo.
+                Powered by a decoupled architecture (FastAPI, React PWA, PostgreSQL), it provides a robust foundation for collaborative and educational experiences.
+            </p>
+            <div class="hero-actions">
+                <a class="button primary" href="https://github.com" target="_blank">View source code</a>
+            </div>
+        </header>
+
+        <section class="features" style="margin-top: 48px; margin-bottom: 48px;">
+            <div class="feature">
+                <strong>Social feed & posts</strong>
+                <span>Publish content, comment, and share academic achievements.</span>
+            </div>
+            <div class="feature">
+                <strong>Chat & WebSocket</strong>
+                <span>Instant messaging and real-time notifications for seamless communication.</span>
+            </div>
+            <div class="feature">
+                <strong>Administration</strong>
+                <span>Dedicated dashboards and routes for user, statistics, and space management.</span>
+            </div>
+        </section>
+
+        <section class="tech-stack" style="margin-bottom: 48px;">
+            <h2>Technical Architecture</h2>
+            <div class="tech-grid" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <span class="badge tech">Backend : FastAPI (Python)</span>
+                <span class="badge tech">Frontend : React (Vite.js)</span>
+                <span class="badge tech">Database : PostgreSQL</span>
+                <span class="badge tech">Real-Time : WebSockets</span>
+                <span class="badge tech">Notifications : Firebase (FCM) & VAPID</span>
+                <span class="badge tech">Mobile / PWA : Workbox & Service Workers</span>
+                <span class="badge tech">Media Storage : Cloudinary API</span>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>Created by <a href="https://github.com" target="_blank">Trésor</a></p>
+            <p><a href="https://github.com" target="_blank">View project on GitHub</a></p>
+        </footer>
+    </main>
+</body>
+
+
+</html>

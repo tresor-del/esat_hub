@@ -53,12 +53,6 @@ export const WebSocketProvider = ({ children }) => {
     }
   };
 
-  // useEffect(() => {
-  //   if (user) {
-
-  //   }
-  // }, [user]);
-
   const createWebSocketRef = useRef(null);
 
   useEffect(() => {
@@ -73,6 +67,12 @@ export const WebSocketProvider = ({ children }) => {
     shouldReconnect.current = true;
 
     const createWebSocket = (wsToken) => {
+      // ── SÉCURITÉ : Si un socket est déjà OUVERT ou en cours de CONNEXION, on ne fait rien
+      if (wsRef.current && (wsRef.current.readyState === WebSocket.OPEN || wsRef.current.readyState === WebSocket.CONNECTING)) {
+        console.log("WebSocket déjà actif ou en cours de connexion. Annulation.");
+        return;
+      }
+
       if (wsRef.current) wsRef.current.close();
 
       // On garde l'URL globale d'origine
@@ -131,13 +131,6 @@ export const WebSocketProvider = ({ children }) => {
         if (data.type === "new_comment") {
           window.dispatchEvent(new CustomEvent("NEW_COMMENT", { detail: data }));
 
-          // Appel sécurisé pour les notifications de commentaires
-          // sendSystemNotification({
-          //   type: "SHOW_WS_NOTIFICATION",
-          //   title: "Nouveau commentaire",
-          //   body: data.content || "Quelqu'un a commenté votre publication.",
-          //   url: `/post/${data.post_id}`
-          // });
         }
 
         if (data.type === "new_post") {

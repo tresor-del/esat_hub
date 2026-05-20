@@ -18,21 +18,13 @@ class ConnexionManager:
         self.active_connections.pop(user_id, None)
 
     async def send_personal_notification(self, data):
-        print("active_connections:", self.active_connections)  # qui est connecté ?
-        print("data reçue:", data)  # quelle structure ?
         recipient_id = data.get("recipient").get("id")
-        print("recipient_id cherché:", recipient_id)
         websocket = self.active_connections.get(UUID(recipient_id))
-        print("ws: ", websocket)
         if websocket:
             await websocket.send_json(jsonable_encoder(data))
     
     async def send_message(self, recipient_id: UUID, data):
-        print("active_connections:", self.active_connections)  # qui est connecté ?
-        print("data reçue:", data)  # quelle structure ?
-        print("recipient_id cherché:", recipient_id)
         websocket = self.active_connections.get(recipient_id)
-        print("ws: ", websocket)
         if websocket:
             await websocket.send_json(jsonable_encoder(data))
     

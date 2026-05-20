@@ -212,7 +212,7 @@ const ChatPage = () => {
                                 ${u.unread_count > 0 ? 'unread' : ''}
                             `}
                                         >
-                                            <Avatar user={u.user} />
+                                            <Avatar user={u.user} size="smlarge" />
                                             <div className="contact-info">
                                                 <div className="contact-header">
                                                     <span className="contact-name">{u.user.profil_name}</span>

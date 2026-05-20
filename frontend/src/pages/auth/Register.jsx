@@ -196,6 +196,9 @@ const Register = () => {
             <p style={{ marginTop: '8px' }}>
               Votre compte doit être confirmer par un admin avant de vous connecter
             </p>
+            <p>
+              Username: {formData.profilName}@esat_togo
+            </p>
           </div>
 
           <div>
@@ -215,7 +218,8 @@ const Register = () => {
       <div className="auth-card register-card">
         {/* Logo */}
         <div className="auth-logo">
-          <img src={logo} alt="" width={60}/>
+          
+          <Logo size={60} className={loading ? "spinning-logo": ""} />
           <div className="auth-logo-text">Esat-Hub</div>
         </div>
 
