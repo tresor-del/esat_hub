@@ -1,183 +1,37 @@
-.post-filter-btns {
-    display: flex;
-    gap: 12px;
-    background-color: white;
-    width: 100%;
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.post-filter-btns .filter-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    background-color: #f9fafb;
-    border: 2px solid transparent;
-    border-radius: 12px;
-    padding: 16px 12px;
-    cursor: pointer;
-    position: relative;
-    color: #6b7280;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.post-filter-btns .filter-btn:hover {
-    background-color: #f3f4f6;
-    border-color: #e5e7eb;
-}
-
-.post-filter-btns .filter-btn.active {
-    background-color: #eff6ff;
-    border-color: #3b82f6;
-    color: #1d4ed8;
-}
-
-.post-filter-btns .filter-icon {
-    font-size: 24px;
-    margin-bottom: 4px;
-}
-
-.post-filter-btns .filter-btn span:first-of-type {
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.post-filter-btns .filter-desc {
-    font-size: 11px;
-    opacity: 0.8;
-    font-weight: 400;
-}
+/* Home page styling - ESAT Hub Premium */
 
 .home {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-/* Conteneur principal prenant tout l'espace restant */
-.empty-state-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh; /* Occupe la majeure partie de la hauteur d'écran */
-  width: 100%;
-  padding: 24px;
-  box-sizing: border-box;
-  background-color: #ffffff;
-}
-
-/* Carte centrale style Facebook / Réseau Social */
-.empty-state-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  max-width: 400px;
+  gap: 20px;
+  padding-bottom: 40px;
   width: 100%;
 }
 
-/* Cercle gris autour de l'icône */
-.empty-state-icon-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 80px;
-  background-color: #f0f2f5; /* Gris clair style Facebook */
-  border-radius: 50%;
-  margin-bottom: 16px;
-}
-
-/* Icône centrale */
-.empty-state-icon {
-  color: #65676b; /* Couleur de texte secondaire neutre */
-}
-
-/* Titre principal */
-.empty-state-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #111;
-  margin: 0 0 8px 0;
-  font-family: sans-serif;
-}
-
-/* Sous-texte descriptif */
-.empty-state-subtitle {
-  font-size: 0.95rem;
-  color: #65676b;
-  margin: 0;
-  line-height: 1.4;
-}
-
-/* Mode sombre optionnel : Si votre application gère le dark mode */
-@media (prefers-color-scheme: dark) {
-  .empty-state-icon-wrapper {
-    background-color: #242526;
-  }
-  .empty-state-icon {
-    color: #b0b3b8;
-  }
-  .empty-state-title {
-    color: #111;
-  }
-  .empty-state-subtitle {
-    color: #b0b3b8;
-  }
-}
-
-
-
-@media (max-width: 768px) {
-
-    .post-filter-btns {
-        width: 600px;
-    }
-
-}
-
-@media (max-width: 500px) {
-
-.post-filter-btns .filter-btn {
-    border: 1px solid transparent;
-    border-radius: 12px;
-    padding: 8px 6px;
-    width: 100%;
-}
-
-    .post-filter-btns {
-        /* min-width: 400px; */
-        width: 100%;
-        border-radius: unset;
-    }
-
-
-}
-
+/* Post creation bar */
 .create-post-container {
   display: flex;
   align-items: center;
   gap: 16px;
-  background-color: #ffffff;
-  padding: 7px 10px;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 16px 20px;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-  border: 1px solid #f0f2f5;
+  transition: var(--transition-smooth);
+  border: 1px solid var(--border-color);
   width: 100%;
   max-width: 680px;
+  margin: 0 auto 10px auto;
 }
 
 .create-post-container:hover {
-  background-color: #fafafa;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
+  background-color: var(--bg-secondary);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+  border-color: hsla(243, 75%, 59%, 0.3);
 }
 
 .create-post-avatar-wrapper {
@@ -188,37 +42,177 @@
 
 .create-post-input-trigger {
   flex-grow: 1;
-  background-color: #f0f2f5;
-  padding: 12px 18px;
-  border-radius: 24px;
-  color: #65676b;
+  background-color: var(--bg-hover);
+  padding: 12px 20px;
+  border-radius: 30px;
+  color: var(--text-secondary);
   font-size: 15px;
+  font-weight: 500;
+  transition: var(--transition-smooth);
+  border: 1px solid transparent;
 }
 
 .create-post-container:hover .create-post-input-trigger {
-  background-color: #e4e6eb;
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
 }
 
 .create-post-actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
 }
 
 .action-icon-btn {
   background: none;
   border: none;
-  padding: 8px;
+  padding: 10px;
   border-radius: 50%;
-  color: #bcc0c4;
+  color: var(--text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: var(--transition-smooth);
 }
 
 .action-icon-btn:hover {
-  background-color: #f0f2f5;
-  color: #007bff;
+  background-color: var(--brand-primary-light);
+  color: var(--brand-primary);
+  transform: scale(1.08);
+}
+
+/* Filter Buttons */
+.post-filter-btns {
+  display: flex;
+  gap: 16px;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  width: 100%;
+  padding: 16px;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  margin-bottom: 10px;
+}
+
+.post-filter-btns .filter-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--bg-primary);
+  border: 2px solid transparent;
+  border-radius: var(--border-radius-md);
+  padding: 16px 12px;
+  cursor: pointer;
+  position: relative;
+  color: var(--text-secondary);
+  font-weight: 600;
+  transition: var(--transition-smooth);
+}
+
+.post-filter-btns .filter-btn:hover {
+  background-color: var(--bg-hover);
+  transform: translateY(-2px);
+}
+
+.post-filter-btns .filter-btn.active {
+  background-color: var(--brand-primary-light);
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
+.post-filter-btns .filter-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.post-filter-btns .filter-btn span:first-of-type {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.post-filter-btns .filter-desc {
+  font-size: 11px;
+  opacity: 0.8;
+  font-weight: 400;
+}
+
+/* Empty state */
+.empty-state-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 45vh;
+  width: 100%;
+  padding: 30px;
+  box-sizing: border-box;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+.empty-state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.empty-state-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  height: 90px;
+  background-color: var(--brand-primary-light);
+  border-radius: 50%;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.empty-state-icon {
+  color: var(--brand-primary);
+}
+
+.empty-state-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 10px 0;
+}
+
+.empty-state-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.posts-skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .post-filter-btns {
+    width: 100%;
+    gap: 8px;
+    padding: 12px;
+  }
+  .post-filter-btns .filter-btn {
+    padding: 12px 8px;
+  }
 }

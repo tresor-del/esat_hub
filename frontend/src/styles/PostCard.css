@@ -1,25 +1,30 @@
+/* PostCard styling - ESAT Hub Premium */
+
 .post-card {
   display: flex;
-  background-color: var(--bg-secondary);
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  /* margin-bottom: var(--spacing-md); */
+  border-radius: var(--border-radius-lg);
   overflow: hidden;
-  transition: box-shadow 0.2s;
-  align-items: flex-end;
-  width: 500px;
+  transition: var(--transition-smooth);
+  width: 100%;
+  max-width: 680px;
+  box-shadow: var(--shadow-sm);
+  margin: 0 auto;
 }
 
 .post-card:hover {
   box-shadow: var(--shadow-md);
-  cursor: pointer;
-  background-color: var(--bg-hover);
+  transform: translateY(-2px);
+  border-color: hsla(243, 75%, 59%, 0.2);
 }
 
 /* Contenu du post */
 .post-content {
   flex: 1;
-  padding: var(--spacing-md);
+  padding: 24px;
   display: flex;
   flex-direction: column;
 }
@@ -30,7 +35,7 @@
   align-items: center;
   justify-content: space-between;
   color: var(--text-secondary);
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 16px;
 }
 
 .post-meta .menu-button {
@@ -38,20 +43,33 @@
   border: none;
   color: var(--text-secondary);
   font-size: 1.5rem;
+  transition: var(--transition-smooth);
+  padding: 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.post-meta .menu-button:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .post-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: var(--spacing-sm);
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 12px;
   color: var(--text-primary);
-
+  line-height: 1.4;
 }
 
 .user-cell {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 12px;
 }
 
 .user-cell .user-info {
@@ -60,19 +78,21 @@
 }
 
 .user-cell .user-info .user-name {
-  font-weight: bold;
-  color: #444;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
 }
 
 .user-cell .user-info .user-username {
-  opacity: 0.7;
-  font-size: 15px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  opacity: 0.85;
 }
 
 .post-user-info {
   display: flex;
-  align-items: start;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
 }
 
 .post-user {
@@ -93,8 +113,9 @@
   width: 100%;
   max-width: 100%;
   color: var(--text-secondary);
-  margin-bottom: var(--spacing-md);
-  line-height: 1.5;
+  margin-bottom: 16px;
+  line-height: 1.6;
+  font-size: 0.95rem;
   word-break: break-word;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
@@ -112,14 +133,15 @@
 }
 
 .read-more-btn {
-  color: var(--primary-color, #007bff); /* Ta couleur principale */
+  color: var(--brand-primary);
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
   margin-left: 5px;
-  display: inline-block;
+  transition: var(--transition-smooth);
 }
 
 .read-more-btn:hover {
+  color: var(--brand-primary-hover);
   text-decoration: underline;
 }
 
@@ -133,26 +155,27 @@
 }
 
 .post-action {
-  margin-top: 1rem;
+  margin-top: 16px;
   display: flex;
-  gap: var(--spacing-md);
+  gap: 16px;
   justify-content: space-between;
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
 }
 
 .post-action-btn {
   background: none;
   border: none;
   cursor: pointer;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: 8px 16px;
   color: var(--text-secondary);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  border-radius: var(--border-radius);
-  transition: background-color 0.2s;
-  border-radius: 50px;
+  gap: 8px;
+  border-radius: 30px;
+  transition: var(--transition-smooth);
 }
 
 .post-for-home {
@@ -160,31 +183,20 @@
 }
 
 .post-action-btn:hover {
-  background-color: var(--bg-primary);
+  background-color: var(--brand-primary-light);
+  color: var(--brand-primary);
 }
 
 @media (max-width: 768px) {
-
-.post-card {
-  display: flex;
-  max-width: 600px;
-}
-
-.post-action {
-  margin-top: 0.8rem;
-}
-
-.post-action-btn {
-  font-size: 0.8rem;
-}
-
-
-}
-
-@media (max-width: 500px) {
-
-.post-card {
-  display: flex;
-  width: 100%;
-}
+  .post-card {
+    max-width: 100%;
+    border-radius: var(--border-radius-md);
+  }
+  .post-content {
+    padding: 16px;
+  }
+  .post-action-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
 }

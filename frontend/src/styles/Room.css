@@ -1,3 +1,5 @@
+/* Room study groups styling - ESAT Hub Premium */
+
 .room-container {
     display: flex;
     width: 100%;
@@ -6,21 +8,24 @@
 }
 
 .room-left {
-    max-width: 250px;
+    width: 280px;
+    min-width: 280px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
+    gap: 32px;
     border-right: 1px solid var(--border-color);
-    padding: var(--spacing-lg);
-    background-color: var(--bg-secondary);
+    padding: 24px;
+    background: var(--bg-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 .room-right {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: var(--spacing-xl);
+    padding: 32px;
     background-color: var(--bg-primary);
     overflow: auto;
 }
@@ -28,22 +33,52 @@
 .room-btns {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: 12px;
     width: 100%;
 }
 
 .room-name {
     text-align: center;
+    margin-bottom: 8px;
+}
+
+.room-name h3 {
+    font-family: 'Outfit', sans-serif;
     font-size: 1.5rem;
-    font-weight: bold;
+    font-weight: 800;
     color: var(--text-primary);
-    margin-bottom: var(--spacing-md);
+    background: var(--brand-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .room-btns .btn {
     width: 100%;
     justify-content: flex-start;
-    gap: 10px;
+    gap: 12px;
+    padding: 12px 20px;
+    font-weight: 700;
+    border-radius: var(--border-radius);
+    transition: var(--transition-smooth);
+    border: 1px solid transparent;
+}
+
+.room-btns .btn-primary {
+    background: var(--brand-gradient);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.room-btns .btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+.room-btns .btn-secondary:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    transform: translateY(-1px);
 }
 
 /* User Cell Compact - for room members table */
@@ -60,14 +95,14 @@
 }
 
 .user-cell .user-name {
-    font-weight: 500;
-    color: #1a1a2e;
+    font-weight: 600;
+    color: var(--text-primary);
     font-size: 14px;
 }
 
 .user-cell .user-username {
     font-size: 13px;
-    color: #6b7280;
+    color: var(--text-secondary);
 }
 
 /* Loading and Error States */
@@ -76,25 +111,27 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 100%;
     font-size: 1.2rem;
+    font-weight: 600;
     color: var(--text-secondary);
 }
 
 .room-error {
-    color: #dc3545;
+    color: #ef4444;
 }
 
 /* Users View */
 .room-users-view {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-lg);
+    gap: 24px;
 }
 
 .users-header h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
     color: var(--text-primary);
     margin: 0;
 }
@@ -102,15 +139,21 @@
 .users-search {
     display: flex;
     align-items: center;
-    background: white;
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 12px 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-radius: var(--border-radius);
+    padding: 14px 20px;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-smooth);
+}
+
+.users-search:focus-within {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px hsla(243, 75%, 59%, 0.15);
 }
 
 .users-search .search-icon {
-    color: #9ca3af;
+    color: var(--text-secondary);
     margin-right: 12px;
     font-size: 18px;
 }
@@ -121,19 +164,22 @@
     outline: none;
     font-size: 14px;
     background: transparent;
+    color: var(--text-primary);
 }
 
 .search-results-info {
     font-size: 14px;
-    color: #6b7280;
-    padding: 8px 0;
+    color: var(--text-secondary);
+    padding: 4px 0;
 }
 
 /* Users Table */
 .users-table-container {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    background: var(--bg-card);
+    backdrop-filter: blur(12px);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
     overflow: hidden;
 }
 
@@ -144,22 +190,22 @@
 
 .users-table th,
 .users-table td {
-    padding: 16px;
+    padding: 18px 24px;
     text-align: left;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .users-table th {
-    background: #f9fafb;
-    font-weight: 600;
+    background: var(--bg-hover);
+    font-weight: 700;
     font-size: 12px;
     text-transform: uppercase;
-    color: #6b7280;
+    color: var(--text-secondary);
     letter-spacing: 0.05em;
 }
 
 .users-table tr:hover {
-    background: #f9fafb;
+    background: var(--bg-hover);
 }
 
 .users-table tr:last-child td {
@@ -167,115 +213,65 @@
 }
 
 .user-row {
-    transition: background-color 0.2s ease;
-}
-
-/* User Cell */
-.user-cell {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.user-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #e5e7eb;
-}
-
-.user-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.user-name {
-    font-weight: 500;
-    color: #1a1a2e;
-}
-
-.user-username {
-    font-size: 13px;
-    color: #6b7280;
-}
-
-/* Email Cell */
-.email-cell {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #4b5563;
-}
-
-.cell-icon {
-    color: #9ca3af;
-    font-size: 16px;
+    transition: var(--transition-smooth);
 }
 
 /* Badges */
 .domain-badge,
 .year-badge {
     display: inline-block;
-    padding: 4px 12px;
-    border-radius: 16px;
+    padding: 6px 14px;
+    border-radius: 20px;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .domain-badge {
-    background: #dbeafe;
-    color: #1e40af;
+    background: var(--brand-primary-light);
+    color: var(--brand-primary);
 }
 
 .year-badge {
-    background: #e5e7eb;
-    color: #374151;
+    background: var(--bg-hover);
+    color: var(--text-secondary);
 }
 
 .status-badge {
     display: inline-block;
-    padding: 4px 12px;
-    border-radius: 16px;
+    padding: 6px 14px;
+    border-radius: 20px;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .status-badge.status-active {
-    background: #d1fae5;
-    color: #065f46;
+    background: #ecfdf5;
+    color: #047857;
 }
 
 .status-badge.status-inactive {
-    background: #fee2e2;
-    color: #991b1b;
+    background: #fef2f2;
+    color: #b91c1c;
 }
 
 .status-badge.status-pending {
-    background: #fef3c7;
-    color: #92400e;
+    background: #fffbeb;
+    color: #b45309;
 }
 
 /* No Results */
 .no-results {
     text-align: center;
-    padding: 40px 20px !important;
-    color: #6b7280;
+    padding: 48px 24px !important;
+    color: var(--text-secondary);
+    font-weight: 500;
 }
 
 /* Posts View */
 .room-posts-view {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-}
-
-.posts-header h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
+    gap: 20px;
 }
 
 .posts-loading,
@@ -284,32 +280,45 @@
     justify-content: center;
     align-items: center;
     padding: 60px 20px;
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 15px;
+    background: var(--bg-card);
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
 }
 
 .room-posts {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 20px;
+    align-items: center;
+    width: 100%;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .room-container {
         flex-direction: column;
-    }
-
-    .room-right {
-        padding: unset;
-        margin-top: 1rem;
+        height: auto;
     }
 
     .room-left {
+        width: 100%;
         min-width: 100%;
         border-right: none;
         border-bottom: 1px solid var(--border-color);
-        gap: 1rem;
+        gap: 16px;
+        padding: 20px;
+    }
+
+    .room-right {
+        padding: 16px;
+    }
+
+    .room-btns {
+        flex-direction: row;
+        gap: 10px;
     }
 
     .users-table-container {
@@ -319,79 +328,4 @@
     .users-table {
         min-width: 600px;
     }
-
-    .room-btns {
-        display: flex;
-        flex-direction: row;
-        gap: var(--spacing-sm);
-        width: 100%;
-    }
-
-    .room-posts-view {
-        gap: 0.5rem;
-    }
-.room-users-view {
-    padding: 1rem;
-}
-}
-
-.room-users {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    gap: var(--spacing-md);
-}
-
-.room-users .user {
-    padding: 1rem;
-    border-radius: 20px;
-    display: flex;
-    justify-content: space-between;
-}
-
-.room-users .user:hover {
-    background-color: #999;
-
-}
-
-.room-posts {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
-    align-items: center;
-}
-
-.room-chat {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: var(--spacing-md);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background-color: var(--bg-secondary);
-    margin-bottom: var(--spacing-md);
-}
-
-.chat-message {
-    margin-bottom: var(--spacing-sm);
-    padding: var(--spacing-sm);
-    background-color: var(--bg-hover);
-    border-radius: var(--border-radius);
-}
-
-.chat-input {
-    display: flex;
-    gap: var(--spacing-sm);
-}
-
-.chat-input input {
-    flex: 1;
-    padding: var(--spacing-sm);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
 }

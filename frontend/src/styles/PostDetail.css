@@ -1,32 +1,47 @@
+/* PostDetail styling - ESAT Hub Premium */
+
 .post-detail-container {
-  width: 700px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
 }
 
-.post-detail-card{
+.post-detail-card {
   width: 100%;
   border: none !important;
+  background: transparent !important;
 }
 
-
-.return-to-post-btn{
-  display: flex;
+.return-to-post-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
+  gap: 8px;
+  margin-bottom: 24px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-secondary);
   cursor: pointer;
+  transition: var(--transition-smooth);
+  align-self: flex-start;
+  padding: 8px 16px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 30px;
+  box-shadow: var(--shadow-sm);
 }
 
+.return-to-post-btn:hover {
+  color: var(--brand-primary);
+  transform: translateX(-4px);
+  border-color: var(--brand-primary);
+  box-shadow: var(--shadow-md);
+}
 
-@media (max-width: 500px) {
-  .post-title {
-    font-size: 15px;
+@media (max-width: 768px) {
+  .post-detail-container {
+    padding: 16px 12px;
   }
-.post-detail-container {
-  width:unset;
 }
-}
-
