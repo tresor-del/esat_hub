@@ -22,7 +22,7 @@ const UserMenu = ({ onAction }) => {
 
   return (
     <DropdownMenu
-      trigger={<Avatar user={user} openModal={false} />}
+      trigger={<Avatar user={user} openModal={false} data-step="6"  />}
       align="right"
       title="Mon compte"
     >

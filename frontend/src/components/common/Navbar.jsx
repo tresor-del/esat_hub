@@ -52,6 +52,8 @@ const Navbar = () => {
       className="navbar-icon-btn "
       onClick={() => { navigate("/chat"); closeMenu(); }}
       aria-label="Messages"
+      data-step="2"
+      data-intro="Accedez au chat ici !"
     >
       <div className="icon-with-badge navbar-icon-container ">
         <FiMessageCircle size={30} style={{ opacity: 0.7 }} />
@@ -137,7 +139,7 @@ const Navbar = () => {
             {ChatButton}
             <NotificationDropdown unreadCount={unreadCount} />
             {user ? (
-              <Avatar user={user} openModal={false} onClick={() => navigate(`/profile/${user.id}`)} />
+              <Avatar user={user} openModal={false} onClick={() => navigate(`/profile/${user.id}`)} data-step="5"  />
             ) : (
               <div className="skeleton-avatar skeleton-blink" style={{ width: '32px', height: '32px' }} />
             )}

@@ -10,6 +10,10 @@ import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
 import "../../styles/Home.css";
 import { sendSystemNotification } from "../../services/notificationService";
 import { se } from "date-fns/locale";
+import UserTour from "../../components/common/Usertour";
+
+import introJs from "intro.js";
+import "intro.js/introjs.css";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -52,8 +56,63 @@ const Home = () => {
     // enabled: !!fullUser,
   });
 
-  // Aplatir les pages pour l'affichage
   const posts = postsData?.pages.flatMap((page) => page.posts) || [];
+  const filteredPosts = posts.filter(
+    (post) => post.room_id === null || post.room_id === userAuth?.user_room_id
+  );
+
+  const startTour = () => {
+    // Force la réinitialisation pour vos tests en local
+    // localStorage.removeItem("esathub_tour_seen");
+
+    if (localStorage.getItem("esathub_tour_seen") === "true") return;
+
+    const tour = introJs();
+    tour.setOptions({
+      steps: [
+        {
+          element: '[data-step="1"]', 
+          intro: "Utilisez cette session pour créer des publications",
+          position: "bottom"
+        }
+      ],
+      initialStep: 0,
+      nextLabel: 'Next ▶',
+      prevLabel: '◀ Back',
+      doneLabel: 'Got it! ',
+      showBullets: true,
+      exitOnOverlayClick: false,
+      exitOnEsc: true
+    });
+
+    tour.onexit(() => {
+      localStorage.setItem("esathub_tour_seen", "true");
+    });
+
+    tour.start();
+  };
+
+  useEffect(() => {
+    const initHome = async () => {
+      if (!window.AppInventor) {
+        await handleNotificationSetup();
+      }
+
+      // On attend que le chargement soit fini ET que les posts soient affichés
+      if (!isLoading && filteredPosts.length > 0) {
+        const timer = setTimeout(() => {
+          startTour();
+        }, 1200); // 1,2 seconde de délai pour laisser le DOM respirer
+
+        return () => clearTimeout(timer);
+      }
+    };
+
+    initHome();
+  }, [isLoading, filteredPosts.length]); // S'exécute dès que les données arrivent
+
+
+  // Aplatir les pages pour l'affichage
 
   const handleCreate = () => {
     navigate("/create");
@@ -125,21 +184,21 @@ const Home = () => {
   useEffect(() => {
     if (window.AppInventor) {
       console.log("Mode Kodular détecté : Configuration des notifications ignorée sur le web.");
-      return; 
+      return;
     }
     handleNotificationSetup();
   }, []);
 
-  const filteredPosts = posts.filter(
-    (post) => post.room_id === null || post.room_id === userAuth?.user_room_id
-  );
+
 
   return (
     <div className="container">
       <div className="main-content home">
 
+        {!isLoading && filteredPosts.length > 0 && <UserTour />}
+
         {/* Barre de création de post moderne intégrée */}
-        <div className="create-post-container">
+        <div className="create-post-container" data-step="1" data-intro="Créez des posts ici !">
           <div className="create-post-avatar-wrapper">
             <Avatar
               user={fullUser}

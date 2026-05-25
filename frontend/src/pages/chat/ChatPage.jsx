@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import SearchFilters from '../../components/ui/SearchFilters';
 import { FiArrowLeft } from 'react-icons/fi';
 import { searchPosts } from '../../services/api';
-import { markMessagesAsReadApi } from '../../services/chatApi';
+import { getAllUsers, markMessagesAsReadApi } from '../../services/chatApi';
 import Avatar from '../../components/ui/Avatar';
 import ChatBox from '../../components/chat/ChatBox';
 import "../../styles/Chat.css"
@@ -24,6 +24,8 @@ const ChatPage = () => {
     const [loadingRecentChats, setLoadingRecentChats] = useState(true);
     const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
     const [isChatOpen, setIsChatOpen] = useState(false);
+    const [allUsers, setAllUsers] = useState([]);
+    const [loadingUsers, setLoadingUsers] = useState(true);
 
     const navigate = useNavigate()
 
@@ -34,13 +36,27 @@ const ChatPage = () => {
             try {
                 const data = await getRecentChat();
                 setRecentChats(data || []);
-                console.log("Recent:", data)
             } catch (error) {
                 console.error("Erreur chargement récents:", error);
             } finally {
                 setLoadingRecentChats(false);
             }
         };
+
+        const getAll = async () => {
+            try {
+                setLoadingUsers(true)
+                const data = await getAllUsers();
+                setAllUsers(data || []);
+            } catch (error) {
+                console.error("Erreur lors de la reception des users:", error);
+
+            } finally {
+                setLoadingUsers(false)
+            }
+        }
+
+        getAll();
         loadRecent();
     }, []);
 
@@ -113,7 +129,6 @@ const ChatPage = () => {
         }
     };
 
-
     const handleCloseChat = () => {
         setIsChatOpen(false);
         setActiveRecipient(null);
@@ -180,7 +195,7 @@ const ChatPage = () => {
                         {loadingRecentChats ? (
                             <>
                                 {/* Génère 4 lignes de squelettes de contacts en boucle */}
-                                {Array(4).fill(0).map((_, index) => (
+                                {Array(8).fill(0).map((_, index) => (
                                     <div key={index} className="contact-list-item chat-skeleton-card">
                                         {/* Avatar Squelette */}
                                         <div className="chat-skeleton-avatar chat-skeleton-blink" />
@@ -241,24 +256,54 @@ const ChatPage = () => {
                             <SearchFilters onSearch={handleSearch} chat={true} />
                         </div>
                         <div className="contacts-list">
-                            {searchResults.length > 0 ? (
-                                // Résultats de recherche
-                                searchResults.map(u => (
-                                    <div
-                                        key={u.id}
-                                        onClick={() => { handleSelectRecipient(u); setSearchQuery(""); }}
-                                        className='contact-list-item'
-                                    >
-                                        <Avatar user={u} /> {u.profil_name}
-                                    </div>
-                                ))
+                            {loadingUsers ? (
+                                <>
+                                    {/* Génère 8 lignes de squelettes de contacts en boucle */}
+                                    {Array(8).fill(0).map((_, index) => (
+                                        <div key={index} className="contact-list-item chat-skeleton-card">
+                                            {/* Avatar Squelette */}
+                                            <div className="chat-skeleton-avatar chat-skeleton-blink" />
+
+                                            <div className="contact-info">
+                                                <div className="contact-header">
+                                                    {/* Nom Squelette */}
+                                                    <div className="chat-skeleton-name chat-skeleton-blink" />
+                                                    {/* Heure Squelette */}
+                                                    <div className="chat-skeleton-time chat-skeleton-blink" />
+                                                </div>
+                                                <div className='content-u' style={{ marginTop: '8px' }}>
+                                                    {/* Aperçu du Message Squelette */}
+                                                    <div className="chat-skeleton-preview chat-skeleton-blink" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </>
                             ) : (
-                                // Ici tu pourrais lister tes conversations récentes
-                                <p className='empty-text'>Aucun utilisateur trouvé</p>
+                                <>
+                                    {(searchResults.length > 0 ? searchResults : allUsers).length > 0 ? (
+                                        (searchResults.length > 0 ? searchResults : allUsers).map(u => (
+                                            <div
+                                                key={u.id}
+                                                onClick={() => { handleSelectRecipient(u); setSearchQuery(""); }}
+                                                className='contact-list-item'
+                                            >
+                                                <Avatar user={u} />
+                                                <div className="contact-info">
+                                                    <div className="contact-header">
+
+                                                        <span className="contact-name">{u.profil_name}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className='empty-text'>Aucun utilisateur trouvé</p>
+                                    )}
+                                </>
                             )}
                         </div>
                     </div>
-
                 )}
 
             </div>
