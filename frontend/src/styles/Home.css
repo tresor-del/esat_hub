@@ -1,61 +1,61 @@
 .post-filter-btns {
-    display: flex;
-    gap: 12px;
-    background-color: white;
-    width: 100%;
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  gap: 12px;
+  background-color: white;
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .post-filter-btns .filter-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    background-color: #f9fafb;
-    border: 2px solid transparent;
-    border-radius: 12px;
-    padding: 16px 12px;
-    cursor: pointer;
-    position: relative;
-    color: #6b7280;
-    font-weight: 500;
-    transition: all 0.2s ease;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background-color: #f9fafb;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 16px 12px;
+  cursor: pointer;
+  position: relative;
+  color: #6b7280;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .post-filter-btns .filter-btn:hover {
-    background-color: #f3f4f6;
-    border-color: #e5e7eb;
+  background-color: #f3f4f6;
+  border-color: #e5e7eb;
 }
 
 .post-filter-btns .filter-btn.active {
-    background-color: #eff6ff;
-    border-color: #3b82f6;
-    color: #1d4ed8;
+  background-color: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
 }
 
 .post-filter-btns .filter-icon {
-    font-size: 24px;
-    margin-bottom: 4px;
+  font-size: 24px;
+  margin-bottom: 4px;
 }
 
 .post-filter-btns .filter-btn span:first-of-type {
-    font-size: 14px;
-    font-weight: 600;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .post-filter-btns .filter-desc {
-    font-size: 11px;
-    opacity: 0.8;
-    font-weight: 400;
+  font-size: 11px;
+  opacity: 0.8;
+  font-weight: 400;
 }
 
 .home {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 /* Conteneur principal prenant tout l'espace restant */
@@ -63,7 +63,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 60vh; /* Occupe la majeure partie de la hauteur d'écran */
+  min-height: 60vh;
+  /* Occupe la majeure partie de la hauteur d'écran */
   width: 100%;
   padding: 24px;
   box-sizing: border-box;
@@ -88,14 +89,16 @@
   justify-content: center;
   width: 80px;
   height: 80px;
-  background-color: #f0f2f5; /* Gris clair style Facebook */
+  background-color: #f0f2f5;
+  /* Gris clair style Facebook */
   border-radius: 50%;
   margin-bottom: 16px;
 }
 
 /* Icône centrale */
 .empty-state-icon {
-  color: #65676b; /* Couleur de texte secondaire neutre */
+  color: #65676b;
+  /* Couleur de texte secondaire neutre */
 }
 
 /* Titre principal */
@@ -120,12 +123,15 @@
   .empty-state-icon-wrapper {
     background-color: #242526;
   }
+
   .empty-state-icon {
     color: #b0b3b8;
   }
+
   .empty-state-title {
     color: #111;
   }
+
   .empty-state-subtitle {
     color: #b0b3b8;
   }
@@ -135,26 +141,30 @@
 
 @media (max-width: 768px) {
 
-    .post-filter-btns {
-        width: 600px;
-    }
+  .post-filter-btns {
+    width: 600px;
+  }
 
 }
 
 @media (max-width: 500px) {
 
-.post-filter-btns .filter-btn {
+  .post-filter-btns .filter-btn {
     border: 1px solid transparent;
     border-radius: 12px;
     padding: 8px 6px;
     width: 100%;
-}
+  }
 
-    .post-filter-btns {
-        /* min-width: 400px; */
-        width: 100%;
-        border-radius: unset;
-    }
+  .post-filter-btns {
+    /* min-width: 400px; */
+    width: 100%;
+    border-radius: unset;
+  }
+
+  .create-post-input-trigger {
+    padding: 6px 9px !important;
+  }
 
 
 }

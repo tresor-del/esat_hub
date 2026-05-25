@@ -196,3 +196,9 @@
     min-height: 100vh;
   }
 }
+
+@media (max-width: 500px) {
+  .notifications-list {
+  width: unset;
+}
+}

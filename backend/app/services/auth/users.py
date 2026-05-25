@@ -86,7 +86,7 @@ class AuthService:
     
     def get_all_users(self) -> list[User]:
         """Récupère tous les utilisateurs"""
-        return self._db.query(User).all()
+        return self._db.query(User).filter(User.status == UserStatus.ACTIVE).all()
     
     def get_users_by_room_id(self, room_id: uuid.UUID) -> list[User]:
         """Récupère tous les utilisateurs d'une salle spécifique"""

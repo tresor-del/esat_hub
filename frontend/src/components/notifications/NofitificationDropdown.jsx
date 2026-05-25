@@ -172,6 +172,7 @@ const NotificationDropdown = ({ unreadCount }) => {
     <div
       className="notification-trigger navbar-icon-container"
       onClick={() => badgeCount > 0 && markAsRead()}
+      data-step="3" 
     >
       <HiOutlineBell className="navbar-icon" size={30} style={{ opacity: 0.7 }} />
       {badgeCount > 0 && (

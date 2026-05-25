@@ -32,6 +32,15 @@ def update_current_user_profile(
     updated_user = user_service.update_user(current_user.id, user_update)
     return updated_user
 
+@router.get("/all")
+def get_all_users(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    user_service = Depends(get_auth_service)
+):
+    users = user_service.get_all_users()
+    return users
+
 @router.get("/{user_id}")
 def get_user_profil(
     user_id: uuid.UUID,  
@@ -45,4 +54,6 @@ def get_user_profil(
     if not user:
         raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
     return user
+
+
 

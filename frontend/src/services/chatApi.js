@@ -19,3 +19,8 @@ export const markMessagesAsReadApi = async (recipientId) => {
     const response = await api.put(`/chat/read/${recipientId}`)
     return response.data
 }
+
+export const getAllUsers  = async () => {
+    const response = await api.get(`/users/all`)
+    return response.data
+}

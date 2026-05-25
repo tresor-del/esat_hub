@@ -91,6 +91,7 @@
 .chat-list::-webkit-scrollbar {
   width: 6px;
 }
+
 .contact-list-container::-webkit-scrollbar-thumb,
 .chat-list::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.1);
@@ -102,7 +103,8 @@
   align-items: center;
   padding: 12px 15px;
   cursor: pointer;
-  background: #f0f7ff; /* Ton bleu initial */
+  background: #f0f7ff;
+  /* Ton bleu initial */
   transition: background 0.2s;
   border-bottom: 1px solid #f0f0f0;
 }
@@ -112,7 +114,8 @@
 }
 
 .contact-list-item.active {
-  background-color: #ebebeb !important; /* Ton gris initial pour l'élément actif */
+  background-color: #ebebeb !important;
+  /* Ton gris initial pour l'élément actif */
 }
 
 .contact-info {
@@ -155,13 +158,15 @@
 }
 
 .contact-list-item.unread .contact-time {
-  color: #25D366; /* Vert WhatsApp original */
+  color: #25D366;
+  /* Vert WhatsApp original */
   font-weight: bold;
 }
 
 .unread-msg-badge,
 .unread-badge {
-  background-color: #25D366; /* Conservé en vert selon votre dernière classe */
+  background-color: #25D366;
+  /* Conservé en vert selon votre dernière classe */
   color: white;
   font-size: 0.7rem;
   font-weight: bold;
@@ -270,14 +275,14 @@
   font-size: 0.75rem;
   color: #555;
   text-transform: capitalize;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
 }
 
 /* ==========================================
    FORMULAIRE D'ENVOI ET POPOVER ÉMOJI
    ========================================== */
 .chat-form {
-  position: relative; /* Sécurise l'affichage absolu du sélecteur */
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -287,7 +292,7 @@
 }
 
 /* Positionnement dynamique de la boîte EmojiPicker */
-.chat-form > div {
+.chat-form>div {
   position: absolute;
   bottom: 75px;
   left: 15px;
@@ -301,7 +306,7 @@
   flex: 1;
   padding: 10px 16px;
   border: 1px solid #ccc;
-  border-radius: 20px; /* Devient arrondi pour être moderne */
+  border-radius: 20px;
   outline: none;
   font-size: 0.95rem;
   transition: border-color 0.2s;
@@ -392,7 +397,8 @@
    ========================================== */
 @media (max-width: 768px) {
   .chat-container {
-    flex-direction: row; /* Aligné pour le switch hidden/active */
+    flex-direction: row;
+    /* Aligné pour le switch hidden/active */
     height: 100vh;
   }
 
@@ -424,6 +430,18 @@
   } */
 }
 
+@media (max-width: 500px) {
+  .chat-input {
+    font-size: 0.8rem;
+  }
+
+  .chat-form {
+    gap: 5px;
+    padding: 10px;
+  }
+
+}
+
 
 /* ==========================================
    ANIMATION ET FORMES DU SQUELETTE DE CHAT
@@ -432,6 +450,7 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }

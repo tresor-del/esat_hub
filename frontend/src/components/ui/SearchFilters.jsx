@@ -28,6 +28,7 @@ const SearchFilters = ({
               className="search-input"
               placeholder="Rechercher sur Esat-Hub ..."
               onChange={(e) => onSearch(e.target.value)}
+              data-step="4" 
             />
           </div>
 
