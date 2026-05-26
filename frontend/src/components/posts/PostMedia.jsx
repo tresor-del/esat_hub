@@ -23,6 +23,8 @@ const PostMedia = ({ post, bust, size = "small" }) => {
   const [imageError, setImageError] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [isNarrow, setIsNarrow] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // ÉTAT DE CHARGEMENT DE L'IMAGE
   const [isImageLoading, setIsImageLoading] = useState(true);
@@ -38,9 +40,12 @@ const PostMedia = ({ post, bust, size = "small" }) => {
 
   const config = dimensions[size] || dimensions.normal;
 
-  // Reset page quand le document change
+  // Reset les états quand le post change
   useEffect(() => {
     setCurrentPage(1);
+    setIsModalOpen(false);
+    setIsNarrow(false);
+    setIsImageLoading(true);
   }, [post.id]);
 
   const getDownloadUrl = (url) => {
@@ -114,9 +119,6 @@ const PostMedia = ({ post, bust, size = "small" }) => {
   if (post.post_type === "photo") {
     const imageUrl = getPostFileUrl(post, effectiveBust);
 
-    const [isNarrow, setIsNarrow] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
     const handleImageLoad = (e) => {
       setIsImageLoading(false); // Désactive le squelette dès le chargement complet
       const { naturalWidth, clientWidth } = e.target;
@@ -153,7 +155,7 @@ const PostMedia = ({ post, bust, size = "small" }) => {
                   setIsImageLoading(false);
                 }}
                 onLoad={handleImageLoad}
-                onClick={() => setIsModalOpen(false || true)}
+                onClick={() => setIsModalOpen(true)}
                 style={{ cursor: 'zoom-in' }}
               />
             </div>
@@ -297,7 +299,7 @@ const PostMedia = ({ post, bust, size = "small" }) => {
                   onLoadSuccess={({ numPages }) => setNumPages(numPages)}
                   onLoadError={() => setPdfError(true)}
                   options={{
-                    cMapUrl: `https://unpkg.com{pdfjs.version}/cmaps/`,
+                    cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
                     cMapPacked: true,
                   }}
                 >

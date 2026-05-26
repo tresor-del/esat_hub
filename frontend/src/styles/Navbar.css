@@ -153,13 +153,13 @@
 }
 
 .navbar-icon-container {
-  background-color:  #e7e7e7;
+  background-color: var(--icon-bg);
   border-radius: 50% !important;
   padding: 4px;
 }
 
 .navbar-icon-container:hover {
-  background-color: #cacaca
+  background-color: var(--icon-bg-hover);
 }
 
 /* ── Trigger notification ────────────────────── */

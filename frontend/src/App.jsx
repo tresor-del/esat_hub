@@ -1,4 +1,4 @@
-import React, { useEffect, lazy, Suspense } from "react";
+import React, { useEffect, lazy, Suspense, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Logo from "./components/common/Logo";
+import WelcomeModal from "./components/common/WelcomeModal";
 
 import "./styles/UserProfile.css";
 import "./App.css";

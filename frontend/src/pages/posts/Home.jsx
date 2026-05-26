@@ -61,51 +61,12 @@ const Home = () => {
     (post) => post.room_id === null || post.room_id === userAuth?.user_room_id
   );
 
-  const startTour = () => {
-    // Force la réinitialisation pour vos tests en local
-    // localStorage.removeItem("esathub_tour_seen");
-
-    if (localStorage.getItem("esathub_tour_seen") === "true") return;
-
-    const tour = introJs();
-    tour.setOptions({
-      steps: [
-        {
-          element: '[data-step="1"]', 
-          intro: "Utilisez cette session pour créer des publications",
-          position: "bottom"
-        }
-      ],
-      initialStep: 0,
-      nextLabel: 'Next ▶',
-      prevLabel: '◀ Back',
-      doneLabel: 'Got it! ',
-      showBullets: true,
-      exitOnOverlayClick: false,
-      exitOnEsc: true
-    });
-
-    tour.onexit(() => {
-      localStorage.setItem("esathub_tour_seen", "true");
-    });
-
-    tour.start();
-  };
-
   useEffect(() => {
     const initHome = async () => {
       if (!window.AppInventor) {
         await handleNotificationSetup();
       }
 
-      // On attend que le chargement soit fini ET que les posts soient affichés
-      if (!isLoading && filteredPosts.length > 0) {
-        const timer = setTimeout(() => {
-          startTour();
-        }, 1200); // 1,2 seconde de délai pour laisser le DOM respirer
-
-        return () => clearTimeout(timer);
-      }
     };
 
     initHome();
