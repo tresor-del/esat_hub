@@ -2,6 +2,7 @@
 :root {
   /* Couleurs principales */
   --reddit-orange: #ff4500;
+  --reddit-orange-hover: #e63e00;
   --reddit-blue: #0079d3;
   --reddit-dark-blue: #0066b3;
 
@@ -9,19 +10,60 @@
   --bg-primary: #dae0e6;
   --bg-secondary: #ffffff;
   --bg-hover: #f6f7f8;
+  --bg-light: #f0f0f0;
+  --bg-lighter: #f5f5f5;
+  --bg-lightest: #fafafa;
+  --bg-light-blue: #f0f7ff;
+  --bg-light-blue-alt: #eff6ff;
+  --bg-dark: #242526;
+  --bg-dark-alt: #1e293b;
+  --bg-dark-slate: #0f172a;
 
   /* Couleurs de texte */
   --text-primary: #1c1c1c;
   --text-secondary: #7c7c7c;
   --text-light: #ffffff;
+  --text-muted: #999;
+  --text-muted-dark: #666;
+  --text-muted-darker: #333;
+  --text-muted-light: #b0b3b8;
+  --text-slate: #94a3b8;
 
   /* Bordures */
   --border-color: #ccc;
+  --border-color-light: #e0e0e0;
+  --border-color-lighter: #e5e7eb;
+  --border-color-lightest: #eee;
+  --border-color-dark: #ddd;
+  --border-color-darker: #d7dadc;
   --border-radius: 4px;
 
   /* Ombres */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 10px 15px -3px rgba(30, 58, 138, 0.1);
+  --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.3);
+
+  /* Couleurs status */
+  --success: #2e7d32;
+  --error: #d32f2f;
+  --warning: #e63e00;
+  --info: #007bff;
+  --danger: #e53e3e;
+  --success-light: #e8f5e9;
+  --error-light: #fee;
+  --info-light: #f0f7ff;
+  --info-light-alt: #f9f9f9;
+
+  /* Couleurs supplémentaires */
+  --overlay-dark: rgba(0, 0, 0, 0.7);
+  --overlay-darker: rgba(0, 0, 0, 0.9);
+  --overlay-light: rgba(0, 0, 0, 0.1);
+  --green-whatsapp: #25D366;
+  --red-error: rgb(202, 21, 21);
+  --icon-bg: #e7e7e7;
+  --icon-bg-hover: #cacaca;
 
   /* Espacement */
   --spacing-xs: 4px;

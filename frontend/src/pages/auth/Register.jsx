@@ -346,10 +346,10 @@ const Register = () => {
               <option value="CYBERSECURITE">Cybersécurité</option>
               <option value="GENIE LOGICIEL">Génie Logiciel</option>
               <option value="DATA SCIENCE">Data Science</option>
-              <option value="RESEAU ET TELECOMS">Réseau et Télécommunication</option>
+              <option value="RESEAUX & TELECOMS">Réseau et Télécommunication</option>
               <option value="SYSTEMES EMBARQUES">Systèmes Embarqués</option>
               <option value="MAINTENANCE AERONAUTIQUE">Maintenance Aéronautique</option>
-              <option value="CONCEPTION AEROSPACIAL">Conception Aérospaciale</option>
+              <option value="CONCEPTION AEROSPATIALE">Conception Aérospaciale</option>
             </select>
           </div>
 

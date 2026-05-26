@@ -159,8 +159,8 @@ def register(
     room_service: RoomService = Depends(get_room_service)
 ):
 
-    if auth_service.check_duplicated_email(user_in.email):
-        raise HTTPException(400, "Email already registered")
+    # if auth_service.check_duplicated_email(user_in.email):
+    #     raise HTTPException(400, "Email already registered")
     
     if auth_service.check_duplicated_profil_name(user_in.profil_name):
         raise HTTPException(400, "User with this profil name already exists")

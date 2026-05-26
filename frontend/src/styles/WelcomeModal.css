@@ -1,0 +1,207 @@
+/* Welcome Modal Styles */
+
+.welcome-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--overlay-dark);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.welcome-modal-content {
+  position: relative;
+  background: linear-gradient(135deg, var(--reddit-blue) 0%, var(--reddit-dark-blue) 100%);
+  border-radius: 20px;
+  padding: 60px 50px 40px;
+  max-width: 450px;
+  width: 90%;
+  color: var(--text-light);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease-out;
+  text-align: center;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.welcome-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 24px;
+  color: var(--text-light);
+  transition: all 0.2s;
+}
+
+.welcome-modal-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.welcome-modal-body {
+  margin-bottom: 30px;
+}
+
+.welcome-modal-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: bounce 0.6s ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.welcome-modal-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  line-height: 1.3;
+}
+
+.welcome-modal-description {
+  font-size: 16px;
+  line-height: 1.6;
+  opacity: 0.95;
+  margin: 0;
+}
+
+/* Dots Indicator */
+.welcome-modal-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 30px;
+}
+
+.welcome-modal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.welcome-modal-dot.active {
+  background: var(--text-light);
+  width: 30px;
+  border-radius: 5px;
+}
+
+.welcome-modal-dot:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* Actions */
+.welcome-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.welcome-modal-btn {
+  padding: 12px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  flex: 1;
+  max-width: 180px;
+}
+
+.welcome-modal-btn.skip {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text-light);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.welcome-modal-btn.skip:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.welcome-modal-btn.next {
+  background: var(--reddit-orange);
+  color: var(--text-light);
+}
+
+.welcome-modal-btn.next:hover {
+  background: var(--reddit-orange-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.welcome-modal-btn.next:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .welcome-modal-content {
+    padding: 40px 30px 30px;
+    border-radius: 16px;
+  }
+
+  .welcome-modal-icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+  }
+
+  .welcome-modal-title {
+    font-size: 22px;
+  }
+
+  .welcome-modal-description {
+    font-size: 14px;
+  }
+
+  .welcome-modal-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .welcome-modal-btn {
+    max-width: none;
+  }
+}
