@@ -1,314 +1,677 @@
 /* ==========================================
-   STRUCTURE GLOBALE (RESPONSIVE)
+   CHAT.CSS — Design System & Variables
    ========================================== */
-.chat-container {
-  display: flex !important;
-  height: 100vh !important;
-  overflow: hidden;
-  width: 100%;
-}
+:root {
+  --chat-font: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --sidebar-w: 360px;
 
-/* Panneau latéral */
-.side-bar {
-  width: 300px;
-  min-width: 300px;
-  border-right: 1px solid #ddd;
-  padding: 10px;
-  background-color: #fff;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  height: 100%;
-  box-sizing: border-box;
-}
+  /* Palette */
+  --col-bg-app: #f0f2f5;
+  --col-bg-sidebar: #ffffff;
+  --col-bg-chat: #efeae2;
+  --col-bg-form: #f0f2f5;
+  --col-bubble-out: #d9fdd3;
+  --col-bubble-in: #ffffff;
+  --col-text-primary: #111b21;
+  --col-text-secondary: #54656f;
+  --col-text-muted: #667781;
+  --col-accent-green: #00a884;
+  --col-unread: #22c55e;
+  --col-accent-blue: #0084ff;
+  --col-border: #e9edef;
+  --col-hover: #f5f6f7;
+  --col-active-item: #efeae2;
+  --col-skeleton-base: #f0f2f5;
+  --col-skeleton-shine: #e3e6e9;
 
-/* Zone d'affichage des messages */
-.chat-zone {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100vh !important;
+  /* Radius */
+  --radius-bubble-out: 14px 2px 14px 14px;
+  --radius-bubble-in: 2px 14px 14px 14px;
+  --radius-input: 22px;
+  --radius-btn: 50%;
+  --radius-badge: 10px;
+
+  /* Shadows */
+  --shadow-bubble: 0 1px 2px rgba(0,0,0,0.10);
+  --shadow-header: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-emoji: 0 6px 24px rgba(0,0,0,0.14);
 }
 
 /* ==========================================
-   COMPOSANTS DE NAVIGATION & RECHERCHE
+   1. STRUCTURE GLOBALE
    ========================================== */
+.chat-container {
+  display: flex;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+  width: 100%;
+  background-color: var(--col-bg-app);
+  font-family: var(--chat-font);
+}
+
+/* ==========================================
+   2. SIDEBAR — DESKTOP
+   ========================================== */
+.side-bar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  border-right: 1px solid var(--col-border);
+  background-color: var(--col-bg-sidebar);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* --- En-tête sidebar --- */
 .page-name {
   display: flex;
   align-items: center;
+  padding: 14px 16px 10px 16px;
+  gap: 10px;
+  min-height: 60px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--col-border);
 }
 
-.new-view {
+.page-name h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--col-text-primary);
+  flex: 1;
+  letter-spacing: -0.3px;
+}
+
+.header-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-icon-btn {
+  background: transparent;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-btn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--col-text-secondary);
+  font-size: 1.05rem;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.action-icon-btn:hover {
+  background-color: var(--col-hover);
+  color: var(--col-text-primary);
+}
+
+.action-icon-btn.active {
+  color: var(--col-accent-green);
+}
+
+/* --- Barre de recherche animée (slide) --- */
+.search-slide-wrapper {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s ease;
+  opacity: 0;
+}
+
+.search-slide-wrapper.open {
+  max-height: 72px;
+  opacity: 1;
+}
+
+.search-slide-inner {
+  padding: 8px 16px 10px 16px;
+}
+
+/* --- Barre utilisateurs actifs (Stories) --- */
+.active-users-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 12px 16px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--col-border);
+  scrollbar-width: none;
+}
+
+.active-users-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.active-user-item-mock {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-}
-
-.new-view .search {
-  margin-top: 1rem;
-}
-
-.go-back-btn {
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: var(--col-text-muted);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.chat-filter {
-  width: 100% !important;
-  align-items: center;
-}
-
-.search-filter-btns {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.search-filter-btns .btn {
-  padding: 5px 10px;
-  border-radius: 8px;
-  width: 100%;
-  cursor: pointer;
-}
-
-.empty-text {
-  color: #999;
+  min-width: 52px;
   text-align: center;
+  transition: opacity 0.15s;
 }
 
-/* ==========================================
-   LISTE DES CONTACTS (COLORIMÉTRIE D'ORIGINE)
-   ========================================== */
-.contact-list-container {
+.active-user-item-mock:hover {
+  opacity: 0.85;
+}
+
+.active-user-item-mock span {
+  max-width: 52px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.avatar-wrapper-online {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.active-user-item-mock:hover .avatar-wrapper-online {
+  transform: scale(1.1);
+}
+
+.mock-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-btn);
+  background-color: #fce4ec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  border: 2px solid var(--col-bg-sidebar);
+  box-sizing: border-box;
+}
+
+.online-indicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 11px;
+  height: 11px;
+  background-color: var(--col-unread);
+  border: 2px solid var(--col-bg-sidebar);
+  border-radius: var(--radius-btn);
+}
+
+/* --- Section title --- */
+.sidebar-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px 4px 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--col-text-secondary);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.close-new-view-btn {
+  color: var(--col-accent-blue);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  transition: opacity 0.15s;
+}
+
+.close-new-view-btn:hover {
+  opacity: 0.7;
+}
+
+.new-view-search-wrapper {
+  padding: 0 16px 8px 16px;
+}
+
+/* --- Liste des contacts --- */
+.contacts-list {
   flex: 1;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.12) transparent;
 }
 
-/* Affinage esthétique du scrollbar sans changer les couleurs */
-.contact-list-container::-webkit-scrollbar,
-.chat-list::-webkit-scrollbar {
-  width: 6px;
-}
-.contact-list-container::-webkit-scrollbar-thumb,
-.chat-list::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.1);
+.contacts-list::-webkit-scrollbar { width: 4px; }
+.contacts-list::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.12);
   border-radius: 4px;
 }
 
 .contact-list-item {
   display: flex;
   align-items: center;
-  padding: 12px 15px;
+  padding: 10px 16px;
   cursor: pointer;
-  background: #f0f7ff; /* Ton bleu initial */
-  transition: background 0.2s;
-  border-bottom: 1px solid #f0f0f0;
+  background: var(--col-bg-sidebar);
+  transition: background 0.12s;
+  position: relative;
 }
 
-.contact-list-item:hover {
-  background-color: #f5f5f5;
+.contact-list-item::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: calc(100% - 74px);
+  border-bottom: 0.5px solid var(--col-border);
 }
 
-.contact-list-item.active {
-  background-color: #ebebeb !important; /* Ton gris initial pour l'élément actif */
-}
+.contact-list-item:hover { background-color: var(--col-hover); }
+.contact-list-item.active { background-color: var(--col-active-item) !important; }
 
 .contact-info {
   flex: 1;
-  margin-left: 12px;
+  margin-left: 11px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
-.contact-header,
-.contact-footer {
+.contact-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
+  gap: 6px;
 }
 
 .contact-name {
-  font-weight: 600;
-  color: #333;
+  font-weight: 500;
+  color: var(--col-text-primary);
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
 }
 
 .contact-time {
-  font-size: 0.75rem;
-  color: #888;
+  font-size: 0.72rem;
+  color: var(--col-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.contact-preview,
-.last-message-preview {
-  font-size: 0.85rem;
-  color: #666;
+.content-u {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.contact-preview {
+  font-size: 0.83rem;
+  color: var(--col-text-muted);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
 }
 
-/* États de non-lecture spécifiques */
-.contact-list-item.unread .contact-preview {
+/* États non lus */
+.contact-list-item.unread .contact-name {
   font-weight: 700;
-  color: #111;
+}
+
+.contact-list-item.unread .contact-preview {
+  font-weight: 600;
+  color: var(--col-text-primary);
 }
 
 .contact-list-item.unread .contact-time {
-  color: #25D366; /* Vert WhatsApp original */
-  font-weight: bold;
+  color: var(--col-unread);
+  font-weight: 600;
 }
 
-.unread-msg-badge,
-.unread-badge {
-  background-color: #25D366; /* Conservé en vert selon votre dernière classe */
-  color: white;
+.unread-msg-badge {
+  background-color: var(--col-unread);
+  color: #fff;
   font-size: 0.7rem;
-  font-weight: bold;
-  min-width: 18px;
-  height: 18px;
-  border-radius: 50%;
+  font-weight: 700;
+  min-width: 19px;
+  height: 19px;
+  border-radius: var(--radius-badge);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2px;
+  padding: 2px 4px;
   box-sizing: border-box;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
-/* Gestion du badge d'alerte rouge si utilisé */
-.unread-badge {
-  background-color: #e53e3e;
-  padding: 2px 7px;
-  font-size: 12px;
+.search-result-name {
+  margin-left: 11px;
+  font-weight: 500;
+  color: var(--col-text-primary);
+  font-size: 0.95rem;
+}
+
+.empty-text {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--col-text-muted);
+  font-size: 0.88rem;
 }
 
 /* ==========================================
-   ZONE DE DISCUSSION & BULLES (STYLE ORIGINAL)
+   3. ZONE DE CHAT — DESKTOP
+   ========================================== */
+.chat-zone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--col-bg-chat);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Écran vide */
+.chat-zone-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  background-color: var(--col-bg-chat);
+  gap: 8px;
+}
+
+.chat-zone-empty .empty-icon {
+  font-size: 52px;
+  margin-bottom: 4px;
+  filter: grayscale(0.2);
+}
+
+.chat-zone-empty h3 {
+  color: var(--col-text-secondary);
+  font-weight: 500;
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.chat-zone-empty p {
+  color: var(--col-text-muted);
+  font-size: 0.88rem;
+  margin: 0;
+  max-width: 260px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ==========================================
+   4. CHATBOX — EN-TÊTE (TOPBAR)
    ========================================== */
 .chat-box-container {
   display: flex;
   flex-direction: column;
   height: 100%;
   width: 100%;
+  background-color: var(--col-bg-chat);
 }
 
+.chat-box-header-m {
+  display: flex;
+  align-items: center;
+  padding: 0 12px 0 10px;
+  gap: 8px;
+  background-color: var(--col-bg-sidebar);
+  border-bottom: 1px solid var(--col-border);
+  height: 60px;
+  min-height: 60px;
+  box-sizing: border-box;
+  box-shadow: var(--shadow-header);
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.chat-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--col-text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-btn);
+  transition: background-color 0.15s;
+  flex-shrink: 0;
+}
+
+.chat-close-btn:hover {
+  background-color: var(--col-hover);
+  color: var(--col-text-primary);
+}
+
+.chat-header-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.chat-header-name-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.chat-header-name-group .chat-header-name {
+  font-weight: 600;
+  color: var(--col-text-primary);
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-header-name-group .chat-header-status {
+  font-size: 0.72rem;
+  color: var(--col-unread);
+  font-weight: 500;
+}
+
+/* Actions à droite du header (téléphone, vidéo, info) */
+.chat-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.chat-header-action-btn {
+  background: transparent;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-btn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--col-text-secondary);
+  font-size: 1.05rem;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.chat-header-action-btn:hover {
+  background-color: var(--col-hover);
+  color: var(--col-text-primary);
+}
+
+/* Masqué sur mobile */
+.desktop-only {
+  display: flex;
+}
+
+/* ==========================================
+   5. FIL DES MESSAGES
+   ========================================== */
 .chat-list {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 12px 5%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 3px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.12) transparent;
+}
+
+.chat-list::-webkit-scrollbar { width: 4px; }
+.chat-list::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.12);
+  border-radius: 4px;
 }
 
 .chat-message-wrapper {
-  margin: 0;
   display: flex;
-  max-width: 70%;
+  flex-direction: column;
+  max-width: 62%;
   width: fit-content;
 }
 
 .chat-message-wrapper.incoming {
-  justify-content: flex-start;
   align-self: flex-start;
 }
 
 .chat-message-wrapper.outgoing {
-  justify-content: flex-end;
   align-self: flex-end;
 }
 
 .chat-message-bubble {
-  padding: 10px 14px;
+  padding: 7px 10px 5px 11px;
   word-break: break-word;
-  background-clip: padding-box;
-  line-height: 1.5;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  line-height: 1.45;
+  box-shadow: var(--shadow-bubble);
   white-space: pre-wrap;
+  font-size: 0.91rem;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 0;
+  min-width: 60px;
 }
 
 .incoming .chat-message-bubble {
-  background-color: #f1f3f5;
-  color: #111;
-  border-radius: 18px 18px 18px 4px;
+  background-color: var(--col-bubble-in);
+  color: var(--col-text-primary);
+  border-radius: var(--radius-bubble-in);
 }
 
-/* Bulle bleue d'origine */
 .outgoing .chat-message-bubble {
-  background-color: #007bff;
-  color: #fff;
-  border-radius: 18px 18px 4px 18px;
+  background-color: var(--col-bubble-out);
+  color: var(--col-text-primary);
+  border-radius: var(--radius-bubble-out);
+}
+
+.chat-message-text {
+  color: var(--col-text-primary);
+  flex: 1;
+  margin-right: 6px;
+}
+
+.chat-message-meta {
+  display: flex;
+  align-items: flex-end;
+  align-self: flex-end;
+  padding-bottom: 1px;
+  flex-shrink: 0;
 }
 
 .chat-message-time {
-  font-size: 10px;
-  /* color: #888; */
-  margin-top: 2px;
-  display: flex;
-  width: 100%;
-}
-
-.incoming .chat-message-time {
-  justify-content: flex-start;
+  font-size: 0.63rem;
+  color: var(--col-text-muted);
+  user-select: none;
+  white-space: nowrap;
 }
 
 .outgoing .chat-message-time {
-  justify-content: flex-end;
+  color: #6a7f6a;
 }
 
 /* Séparateur de date */
 .chat-date-separator {
   display: flex;
   justify-content: center;
-  margin: 15px 0;
+  margin: 12px 0 8px 0;
 }
 
 .chat-date-separator span {
-  background-color: rgba(225, 243, 251, 0.8);
+  background-color: rgba(255, 255, 255, 0.92);
   padding: 4px 12px;
-  border-radius: 7px;
-  font-size: 0.75rem;
-  color: #555;
-  text-transform: capitalize;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+  border-radius: 8px;
+  font-size: 0.72rem;
+  color: var(--col-text-secondary);
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.07);
 }
 
 /* ==========================================
-   FORMULAIRE D'ENVOI ET POPOVER ÉMOJI
+   6. BARRE DE SAISIE
    ========================================== */
 .chat-form {
-  position: relative; /* Sécurise l'affichage absolu du sélecteur */
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 15px;
-  border-top: 1px solid #ddd;
-  background-color: #fff;
-}
-
-/* Positionnement dynamique de la boîte EmojiPicker */
-.chat-form > div {
-  position: absolute;
-  bottom: 75px;
-  left: 15px;
-  z-index: 1000;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
-  overflow: hidden;
+  gap: 8px;
+  padding: 8px 14px 10px 14px;
+  background-color: var(--col-bg-form);
+  border-top: 1px solid var(--col-border);
+  position: relative;
+  flex-shrink: 0;
 }
 
 .chat-input {
   flex: 1;
-  padding: 10px 16px;
-  border: 1px solid #ccc;
-  border-radius: 20px; /* Devient arrondi pour être moderne */
+  padding: 9px 16px;
+  border: none;
+  border-radius: var(--radius-input);
   outline: none;
-  font-size: 0.95rem;
-  transition: border-color 0.2s;
+  font-size: 0.92rem;
+  background-color: var(--col-bg-sidebar);
+  color: var(--col-text-primary);
+  resize: none;
+  font-family: var(--chat-font);
+  line-height: 1.45;
+  max-height: 120px;
+  overflow-y: auto;
+  transition: box-shadow 0.15s;
 }
 
 .chat-input:focus {
-  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 168, 132, 0.18);
+}
+
+.chat-input::placeholder {
+  color: var(--col-text-muted);
 }
 
 .emoji-btn {
@@ -316,162 +679,235 @@
   border: none;
   font-size: 1.3rem;
   cursor: pointer;
-  padding: 5px;
+  color: var(--col-text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.1s;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-btn);
+  transition: transform 0.15s, background 0.15s;
+  flex-shrink: 0;
 }
 
 .emoji-btn:hover {
-  transform: scale(1.1);
+  transform: scale(1.12);
+  background-color: rgba(0,0,0,0.05);
 }
 
+/* Bouton Envoyer / Micro — toggle selon saisie */
 .chat-submit-btn {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
+  background: transparent;
   border: none;
-  border-radius: 20px;
+  color: var(--col-text-muted);
   cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-btn);
+  font-size: 1.1rem;
+  transition: background-color 0.15s, color 0.2s, transform 0.15s;
+  flex-shrink: 0;
 }
 
-.chat-submit-btn:hover {
-  background-color: #0056b3;
+.chat-submit-btn.typing {
+  background-color: var(--col-accent-green);
+  color: #ffffff;
+}
+
+.chat-submit-btn.typing:hover {
+  background-color: #009174;
+  transform: scale(1.05);
+}
+
+.chat-submit-btn:not(.typing):hover {
+  background-color: var(--col-hover);
+}
+
+/* Popover emoji */
+.emoji-picker-popover {
+  position: absolute;
+  bottom: 64px;
+  left: 14px;
+  z-index: 1000;
+  box-shadow: var(--shadow-emoji);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Spinner de chargement */
+.spinner {
+  width: 26px;
+  height: 26px;
+  border: 3px solid var(--col-border);
+  border-top-color: var(--col-accent-green);
+  border-radius: var(--radius-btn);
+  animation: spin 0.75s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ==========================================
-   EN-TÊTES ET BOUTONS DE FERMETURE
+   7. SKELETONS DE CHARGEMENT
    ========================================== */
-.chat-box-header-m {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  gap: 0.5rem;
-  background-color: #fff;
-  border-bottom: 1px solid #ddd;
+@keyframes chatShimmer {
+  0%   { background-position: -300% 0; }
+  100% { background-position: 300% 0; }
 }
 
-.chat-box-header-m .a {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.chat-skeleton-blink {
+  background: linear-gradient(
+    90deg,
+    var(--col-skeleton-base) 25%,
+    var(--col-skeleton-shine) 50%,
+    var(--col-skeleton-base) 75%
+  );
+  background-size: 300% 100%;
+  animation: chatShimmer 1.6s infinite linear;
+  border-radius: 4px;
 }
 
-.chat-box-header-m span {
-  color: #666;
+.contact-list-item.chat-skeleton-card {
+  pointer-events: none;
 }
 
-.chat-box-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
+.chat-skeleton-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-btn);
+  flex-shrink: 0;
 }
 
-.chat-close-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: none;
-  border: none;
-  color: #007bff;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
-}
-
-.content-u {
-  display: flex;
-  justify-content: space-between;
-}
+.chat-skeleton-name    { width: 110px; height: 13px; }
+.chat-skeleton-time    { width: 36px;  height: 10px; }
+.chat-skeleton-preview { width: 72%;   height: 11px; }
 
 /* ==========================================
-   MEDIA QUERIES (BREAKPOINTS CONSERVÉS)
+   8. RESPONSIVE — MOBILE (≤ 768px)
    ========================================== */
 @media (max-width: 768px) {
+
+  /* Layout switch : slide entre sidebar et chatbox */
   .chat-container {
-    flex-direction: row; /* Aligné pour le switch hidden/active */
-    height: 100vh;
+    position: relative;
+    overflow: hidden;
   }
 
-  .chat-box-container {
-    height: 100vh !important;
-  }
-
+  /* Sidebar occupe tout l'écran, se cache à droite quand le chat est ouvert */
   .side-bar {
     width: 100%;
     min-width: 100%;
     height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 20;
+    transform: translateX(0);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .side-bar.hidden {
-    display: none !important;
+    transform: translateX(-100%);
+    pointer-events: none;
   }
 
+  /* Zone de chat : occupe tout l'écran, commence à droite */
   .chat-zone {
-    display: none;
     width: 100%;
+    min-width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 10;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .chat-zone.active {
-    display: flex;
+    transform: translateX(0);
   }
 
-  /* .chat-message-bubble {
-    max-width: 85%;
-  } */
-}
+  /* Sur mobile, pas de barre users actifs (gain de place) */
+  .active-users-bar {
+    display: none;
+  }
 
+  /* Header sidebar mobile : légèrement plus compact */
+  .page-name {
+    padding: 10px 14px 10px 14px;
+    min-height: 56px;
+  }
+
+  .page-name h1 {
+    font-size: 1.15rem;
+  }
+
+  /* Masquer les icônes téléphone/vidéo sur mobile */
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* Bulles plus larges sur petit écran */
+  .chat-message-wrapper {
+    max-width: 78%;
+  }
+
+  /* Header chat mobile : bouton retour visible */
+  .chat-box-header-m {
+    padding: 0 12px 0 8px;
+  }
+
+  /* Barre de saisie mobile : padding réduit */
+  .chat-form {
+    padding: 6px 10px 8px 10px;
+    gap: 6px;
+  }
+
+  .chat-input {
+    padding: 8px 13px;
+    font-size: 0.9rem;
+  }
+
+  /* Emoji picker repositionné */
+  .emoji-picker-popover {
+    left: 8px;
+    bottom: 60px;
+    width: calc(100vw - 16px);
+  }
+
+  /* Section title plus compact */
+  .sidebar-section-title {
+    padding: 8px 14px 4px 14px;
+  }
+
+  /* Liste contacts */
+  .contact-list-item {
+    padding: 10px 14px;
+  }
+
+  .chat-list {
+    padding: 10px 3%;
+  }
+}
 
 /* ==========================================
-   ANIMATION ET FORMES DU SQUELETTE DE CHAT
+   9. DESKTOP — POLISSAGE SUPPLÉMENTAIRE
    ========================================== */
-@keyframes chatShimmer {
-  0% {
-    background-position: -200% 0;
+@media (min-width: 769px) {
+  /* Sur desktop, le bouton retour est masqué */
+  .chat-close-btn {
+    display: none;
   }
-  100% {
-    background-position: 200% 0;
+
+  /* Lien sur identité dans le header → hover doux */
+  .chat-header-identity:hover .chat-header-name {
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
-}
-
-.chat-skeleton-blink {
-  background: linear-gradient(90deg, #eceff1 25%, #f6f7f8 50%, #eceff1 75%);
-  background-size: 200% 100%;
-  animation: chatShimmer 1.5s infinite linear;
-  border-radius: 4px;
-}
-
-/* Bloque les actions sur les cartes de chargement */
-.contact-list-item.chat-skeleton-card {
-  pointer-events: none;
-  cursor: default;
-}
-
-/* Rond de l'avatar */
-.chat-skeleton-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-/* Ligne du nom */
-.chat-skeleton-name {
-  width: 110px;
-  height: 14px;
-}
-
-/* Ligne de l'heure */
-.chat-skeleton-time {
-  width: 45px;
-  height: 10px;
-}
-
-/* Ligne d'aperçu du texte */
-.chat-skeleton-preview {
-  width: 80%;
-  height: 12px;
 }

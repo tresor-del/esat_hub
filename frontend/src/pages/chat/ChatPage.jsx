@@ -2,281 +2,371 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import { useNavigate } from 'react-router-dom';
 import SearchFilters from '../../components/ui/SearchFilters';
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiSearch, FiEdit, FiX } from 'react-icons/fi';
 import { searchPosts } from '../../services/api';
-import { markMessagesAsReadApi } from '../../services/chatApi';
+import { markMessagesAsReadApi, getRecentChat } from '../../services/chatApi';
 import Avatar from '../../components/ui/Avatar';
 import ChatBox from '../../components/chat/ChatBox';
-import "../../styles/Chat.css"
-import { getRecentChat } from '../../services/chatApi';
-import { set } from 'date-fns';
 import Logo from '../../components/common/Logo';
+import "../../styles/Chat.css";
+
+/* --------------------------------------------------
+   Données de démonstration pour la barre "actifs"
+   (remplace par de vraies données si tu as un endpoint)
+   -------------------------------------------------- */
+const DEMO_ACTIVE_USERS = [
+  { emoji: '⚡', bg: '#fff8e1', label: 'Votre Note' },
+  { emoji: '👑', bg: '#e8f5e9', label: 'Alex' },
+  { emoji: '🚀', bg: '#e3f2fd', label: 'Inès' },
+  { emoji: '🎮', bg: '#fce4ec', label: 'Thomas' },
+  { emoji: '🎨', bg: '#f3e5f5', label: 'Camille' },
+  { emoji: '🏄', bg: '#e0f7fa', label: 'Mathis' },
+];
 
 const ChatPage = () => {
-    const { unreadChatsCount, refreshUnreadCount, messages } = useWebSocket();
-    const [activeRecipient, setActiveRecipient] = useState(null);
-    // on utilise useRef pour avoir les valeurs courantes et eviter les closures
-    const activeRecipientRef = useRef();
-    const [searchQuery, setSearchQuery] = useState("");
-    const [searchResults, setSearchResults] = useState([]);
-    const [view, setView] = useState("recent")
-    const [recentChats, setRecentChats] = useState([]);
-    const [loadingRecentChats, setLoadingRecentChats] = useState(true);
-    const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
-    const [isChatOpen, setIsChatOpen] = useState(false);
+  const { refreshUnreadCount } = useWebSocket();
 
-    const navigate = useNavigate()
+  // État de la conversation active
+  const [activeRecipient, setActiveRecipient]   = useState(null);
+  const activeRecipientRef                       = useRef(null);
 
+  // Conversations récentes
+  const [recentChats, setRecentChats]           = useState([]);
+  const [loadingRecentChats, setLoadingRecentChats] = useState(true);
 
-    useEffect(() => {
-        const loadRecent = async () => {
-            setLoadingRecentChats(true);
-            try {
-                const data = await getRecentChat();
-                setRecentChats(data || []);
-                console.log("Recent:", data)
-            } catch (error) {
-                console.error("Erreur chargement récents:", error);
-            } finally {
-                setLoadingRecentChats(false);
-            }
-        };
-        loadRecent();
-    }, []);
+  // Recherche
+  const [isSearchOpen, setIsSearchOpen]         = useState(false);
+  const [searchQuery, setSearchQuery]           = useState('');
+  const [searchResults, setSearchResults]       = useState([]);
 
-    useEffect(() => {
-        const handleChatUpdate = (event) => {
+  // Responsive
+  const [isMobileView, setIsMobileView]         = useState(window.innerWidth <= 768);
+  const [isChatOpen, setIsChatOpen]             = useState(false);
 
-            const msg = event.detail;
-            const isActiveConv = activeRecipientRef.current?.id === msg.sender_id;
+  const navigate = useNavigate();
 
-            setRecentChats(prev => prev.map(chat => {
+  /* ------------------------------------------------
+     1. Chargement initial des conversations récentes
+     ------------------------------------------------ */
+  useEffect(() => {
+    const loadRecent = async () => {
+      setLoadingRecentChats(true);
+      try {
+        const data = await getRecentChat();
+        setRecentChats(data || []);
+      } catch (err) {
+        console.error('Erreur chargement récents:', err);
+      } finally {
+        setLoadingRecentChats(false);
+      }
+    };
+    loadRecent();
+  }, []);
 
-                const isThisChat = chat.id === msg.sender_id || chat.id === msg.recipient_id;
-                if (!isThisChat) return chat;
+  /* ------------------------------------------------
+     2. Mise à jour temps réel de la sidebar via events
+     ------------------------------------------------ */
+  useEffect(() => {
+    const handleChatUpdate = (event) => {
+      const msg        = event.detail;
+      const isActiveCv = activeRecipientRef.current?.id === msg.sender_id;
 
-                return {
-                    ...chat,
-                    last_message_content: msg.content,
-                    last_message_timestamp: msg.timestamp,
-                    // Non lu seulement si message entrant ET pas dans la conv active
-                    unread_count: msg.isIncoming && !isActiveConv
-                        ? chat.unread_count + 1
-                        : chat.unread_count
-                };
-            }));
-        };
-        window.addEventListener("CHAT_UPDATED", handleChatUpdate);
-        return () => window.removeEventListener("CHAT_UPDATED", handleChatUpdate);
-    }, []);
-
-
-    useEffect(() => {
-        const handleResize = () => {
-            const mobile = window.innerWidth <= 768;
-            setIsMobileView(mobile);
-            if (!mobile) {
-                setIsChatOpen(false);
-            }
-        };
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    const handleSelectRecipient = async (recipient) => {
-        // 1. ACTIONS INITIALES INSTANTANÉES (L'interface change de suite)
-        setActiveRecipient(recipient);
-        activeRecipientRef.current = recipient;
-
-        if (isMobileView) {
-            setIsChatOpen(true);
-        }
-
-        // 2. MISE À JOUR LOCALE DU COMPTEUR (Pas d'attente d'API)
-        setRecentChats(prev => prev.map(chat =>
-            // CORRECTION SÉCURITÉ : Vérifier chat.user?.id au lieu de chat.id 
-            // car u.user?.id est utilisé dans le .map de votre JSX
-            (chat.id === recipient.id || chat.user?.id === recipient.id)
-                ? { ...chat, unread_count: 0 }
-                : chat
-        ));
-
-        // 3. OPÉRATIONS RÉSEAU EN ARRIÈRE-PLAN (Exécutées en tâche de fond)
-        try {
-            // Lancés en parallèle sans bloquer l'ouverture visuelle de ChatBox
-            await Promise.all([
-                markMessagesAsReadApi(recipient.id),
-                refreshUnreadCount()
-            ]);
-        } catch (error) {
-            console.error("Erreur requêtes arrière-plan chat:", error);
-        }
+      setRecentChats(prev =>
+        prev.map(chat => {
+          const isThis = chat.id === msg.sender_id || chat.id === msg.recipient_id;
+          if (!isThis) return chat;
+          return {
+            ...chat,
+            last_message_content:   msg.content,
+            last_message_timestamp: msg.timestamp,
+            unread_count:
+              msg.isIncoming && !isActiveCv
+                ? chat.unread_count + 1
+                : chat.unread_count,
+          };
+        })
+      );
     };
 
+    window.addEventListener('CHAT_UPDATED', handleChatUpdate);
+    return () => window.removeEventListener('CHAT_UPDATED', handleChatUpdate);
+  }, []);
 
-    const handleCloseChat = () => {
-        setIsChatOpen(false);
-        setActiveRecipient(null);
-        activeRecipientRef.current = null;
+  /* ------------------------------------------------
+     3. Détection responsive
+     ------------------------------------------------ */
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobileView(mobile);
+      if (!mobile) setIsChatOpen(false);
     };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-    const handleSearch = async (value) => {
-        setSearchQuery(value);
-        if (value.length > 2) {
-            const result = await searchPosts(value);
-            console.log(result)
-            setSearchResults(result.users_list.users);
-        } else {
-            setSearchResults([]);
-        }
-    };
+  /* ------------------------------------------------
+     4. Sélection d'un destinataire
+     ------------------------------------------------ */
+  const handleSelectRecipient = async (recipient) => {
+    setActiveRecipient(recipient);
+    activeRecipientRef.current = recipient;
 
-    const handleSeeRecent = () => {
-        setView("recent");
-    }
+    if (isMobileView) setIsChatOpen(true);
 
-    const handleSeeNew = () => {
-        setView("new")
-    }
-
-    const formatTime = (timestamp) => {
-        if (!timestamp) return "";
-        return new Intl.DateTimeFormat('fr-FR', {
-            hour: 'numeric',
-            minute: 'numeric',
-        }).format(new Date(timestamp));
-    };
-
-
-    return (
-        <div className="chat-container" style={{ display: 'flex', height: 'calc(100vh - 60px)' }}>
-
-            {/* SIDEBAR : Recherche et Contacts */}
-            <div className={`side-bar ${isMobileView && isChatOpen ? 'hidden' : ''}`}>
-                <div className='page-name' >
-                    <div onClick={() => navigate("/")}>
-                        <Logo size={60} />
-                    </div>
-                    {/* <img src={logo} alt="" width={60} onClick={() => navigate("/")} /> */}
-                    <h1>Inbox</h1>
-                </div>
-
-                <div className="search-filter-btns">
-                    <button
-                        className={`btn ${view === 'recent' ? 'btn-primary' : 'btn-secondary'}`}
-                        onClick={handleSeeRecent}
-                    >
-                        Récents
-                    </button>
-                    <button
-                        className={`btn ${view === 'new' ? 'btn-primary' : 'btn-secondary'}`}
-                        onClick={handleSeeNew}
-                    >
-                        Nouveau
-                    </button>
-                </div>
-                {view === 'recent' && (
-                    <div className="contacts-list">
-                        {loadingRecentChats ? (
-                            <>
-                                {/* Génère 4 lignes de squelettes de contacts en boucle */}
-                                {Array(4).fill(0).map((_, index) => (
-                                    <div key={index} className="contact-list-item chat-skeleton-card">
-                                        {/* Avatar Squelette */}
-                                        <div className="chat-skeleton-avatar chat-skeleton-blink" />
-
-                                        <div className="contact-info">
-                                            <div className="contact-header">
-                                                {/* Nom Squelette */}
-                                                <div className="chat-skeleton-name chat-skeleton-blink" />
-                                                {/* Heure Squelette */}
-                                                <div className="chat-skeleton-time chat-skeleton-blink" />
-                                            </div>
-                                            <div className='content-u' style={{ marginTop: '8px' }}>
-                                                {/* Aperçu du Message Squelette */}
-                                                <div className="chat-skeleton-preview chat-skeleton-blink" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </>
-                        ) : (
-                            <>
-                                {recentChats.length > 0 ? (
-                                    recentChats.map(u => (
-                                        <div
-                                            key={u.user?.id}
-                                            onClick={() => handleSelectRecipient(u.user)}
-                                            className={`contact-list-item 
-                                ${activeRecipient?.id === u.user?.id ? 'active' : ''}
-                                ${u.unread_count > 0 ? 'unread' : ''}
-                            `}
-                                        >
-                                            <Avatar user={u.user} size="smlarge" />
-                                            <div className="contact-info">
-                                                <div className="contact-header">
-                                                    <span className="contact-name">{u.user.profil_name}</span>
-                                                    <span className="contact-time">{formatTime(u.last_message_timestamp)}</span>
-                                                </div>
-                                                <div className='content-u'>
-                                                    <p className="contact-preview">
-                                                        {u.last_message_content || "Aucun message"}
-                                                    </p>
-                                                    {u.unread_count > 0 && (<span className='unread-msg-badge'>{u.unread_count}</span>)}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p className='empty-text'>Aucune conversation récente</p>
-                                )}
-                            </>
-                        )}
-                    </div>
-                )}
-
-                {view === 'new' && (
-                    <div className='new-view'>
-                        <div className="search">
-                            <SearchFilters onSearch={handleSearch} chat={true} />
-                        </div>
-                        <div className="contacts-list">
-                            {searchResults.length > 0 ? (
-                                // Résultats de recherche
-                                searchResults.map(u => (
-                                    <div
-                                        key={u.id}
-                                        onClick={() => { handleSelectRecipient(u); setSearchQuery(""); }}
-                                        className='contact-list-item'
-                                    >
-                                        <Avatar user={u} /> {u.profil_name}
-                                    </div>
-                                ))
-                            ) : (
-                                // Ici tu pourrais lister tes conversations récentes
-                                <p className='empty-text'>Aucun utilisateur trouvé</p>
-                            )}
-                        </div>
-                    </div>
-
-                )}
-
-            </div>
-
-            {/* ZONE DE CHAT : Vide ou Active */}
-            <div className={`chat-zone ${isMobileView ? '' : 'desktop'} ${isMobileView && isChatOpen ? 'active' : ''}`}>
-                {activeRecipient ? (
-                    <ChatBox recipient={activeRecipient} onClose={handleCloseChat} isMobile={isMobileView} />
-                ) : (
-                    <div style={{ margin: 'auto', textAlign: 'center', color: '#888' }}>
-                        <div style={{ fontSize: '50px' }}>💬</div>
-                        <h3>Sélectionnez une conversation</h3>
-                        <p>Cherchez un utilisateur à gauche pour commencer à discuter.</p>
-                    </div>
-                )}
-            </div>
-        </div>
+    // Réinitialise les compteurs locaux immédiatement
+    setRecentChats(prev =>
+      prev.map(chat =>
+        chat.id === recipient.id || chat.user?.id === recipient.id
+          ? { ...chat, unread_count: 0 }
+          : chat
+      )
     );
+
+    try {
+      await Promise.all([
+        markMessagesAsReadApi(recipient.id),
+        refreshUnreadCount(),
+      ]);
+    } catch (err) {
+      console.error('Erreur arrière-plan:', err);
+    }
+  };
+
+  const handleCloseChat = () => {
+    setIsChatOpen(false);
+    setActiveRecipient(null);
+    activeRecipientRef.current = null;
+  };
+
+  /* ------------------------------------------------
+     5. Recherche d'utilisateurs
+     ------------------------------------------------ */
+  const handleToggleSearch = () => {
+    if (isSearchOpen) {
+      // Fermeture : reset recherche
+      setIsSearchOpen(false);
+      setSearchQuery('');
+      setSearchResults([]);
+    } else {
+      setIsSearchOpen(true);
+    }
+  };
+
+  const handleSearch = async (value) => {
+    setSearchQuery(value);
+    if (value.length > 2) {
+      try {
+        const result = await searchPosts(value);
+        setSearchResults(result?.users_list?.users || []);
+      } catch {
+        setSearchResults([]);
+      }
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  /* ------------------------------------------------
+     Helpers
+     ------------------------------------------------ */
+  const formatTime = (timestamp) => {
+    if (!timestamp) return '';
+    return new Intl.DateTimeFormat('fr-FR', {
+      hour:   'numeric',
+      minute: 'numeric',
+    }).format(new Date(timestamp));
+  };
+
+  /* ------------------------------------------------
+     Render
+     ------------------------------------------------ */
+  return (
+    <div className="chat-container">
+
+      {/* ══════════════════════════════════════════
+          SIDEBAR
+          ══════════════════════════════════════════ */}
+      <div className={`side-bar ${isMobileView && isChatOpen ? 'hidden' : ''}`}>
+
+        {/* ── En-tête ── */}
+        <div className="page-name">
+          <div onClick={() => navigate('/')} style={{ cursor: 'pointer', flexShrink: 0 }}>
+            <Logo size={38} />
+          </div>
+          <h1>Inbox</h1>
+
+          <div className="header-actions-right">
+            {/* Loupe — toggle barre de recherche */}
+            <button
+              className={`action-icon-btn ${isSearchOpen ? 'active' : ''}`}
+              onClick={handleToggleSearch}
+              title={isSearchOpen ? 'Fermer la recherche' : 'Rechercher'}
+            >
+              {isSearchOpen ? <FiX /> : <FiSearch />}
+            </button>
+
+            {/* Nouveau message */}
+            <button
+              className="action-icon-btn"
+              onClick={() => { setIsSearchOpen(true); }}
+              title="Nouveau message"
+            >
+              <FiEdit />
+            </button>
+          </div>
+        </div>
+
+        {/* ── Barre de recherche — slide animé ── */}
+        <div className={`search-slide-wrapper ${isSearchOpen ? 'open' : ''}`}>
+          <div className="search-slide-inner">
+            <SearchFilters
+              onSearch={handleSearch}
+              chat={true}
+              autoFocus={isSearchOpen}
+            />
+          </div>
+        </div>
+
+        {/* ── Utilisateurs actifs (stories) — desktop uniquement via CSS ── */}
+        <div className="active-users-bar">
+          {DEMO_ACTIVE_USERS.map((u, i) => (
+            <div
+              key={i}
+              className="active-user-item-mock"
+              title={u.label}
+            >
+              <div className="avatar-wrapper-online">
+                <div
+                  className="mock-avatar"
+                  style={{ backgroundColor: u.bg }}
+                >
+                  {u.emoji}
+                </div>
+                <span className="online-indicator" />
+              </div>
+              <span>{u.label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Titre de section dynamique ── */}
+        <div className="sidebar-section-title">
+          <span>{isSearchOpen ? 'Rechercher un profil' : 'Messages récents'}</span>
+          {isSearchOpen && (
+            <span className="close-new-view-btn" onClick={handleToggleSearch}>
+              Annuler
+            </span>
+          )}
+        </div>
+
+        {/* ── Liste des contacts ── */}
+        <div className="contacts-list">
+
+          {/* Vue : résultats de recherche */}
+          {isSearchOpen ? (
+            <div>
+              {searchResults.length > 0 ? (
+                searchResults.map(u => (
+                  <div
+                    key={u.id}
+                    onClick={() => {
+                      handleSelectRecipient(u);
+                      handleToggleSearch();
+                    }}
+                    className="contact-list-item search-result-item"
+                  >
+                    <Avatar user={u} />
+                    <span className="search-result-name">{u.profil_name}</span>
+                  </div>
+                ))
+              ) : (
+                searchQuery.length > 2 && (
+                  <p className="empty-text">Aucun utilisateur trouvé</p>
+                )
+              )}
+            </div>
+
+          ) : loadingRecentChats ? (
+            /* Skeleton de chargement */
+            Array(5).fill(0).map((_, i) => (
+              <div key={i} className="contact-list-item chat-skeleton-card">
+                <div className="chat-skeleton-avatar chat-skeleton-blink" />
+                <div className="contact-info">
+                  <div className="contact-header">
+                    <div className="chat-skeleton-name chat-skeleton-blink" />
+                    <div className="chat-skeleton-time chat-skeleton-blink" />
+                  </div>
+                  <div className="content-u" style={{ marginTop: '7px' }}>
+                    <div className="chat-skeleton-preview chat-skeleton-blink" />
+                  </div>
+                </div>
+              </div>
+            ))
+
+          ) : recentChats.length > 0 ? (
+            /* Conversations récentes */
+            recentChats.map(u => (
+              <div
+                key={u.user?.id}
+                onClick={() => handleSelectRecipient(u.user)}
+                className={[
+                  'contact-list-item',
+                  activeRecipient?.id === u.user?.id ? 'active'  : '',
+                  u.unread_count > 0                 ? 'unread'  : '',
+                ].join(' ')}
+              >
+                <Avatar user={u.user} size="smlarge" />
+                <div className="contact-info">
+                  <div className="contact-header">
+                    <span className="contact-name">{u.user?.profil_name}</span>
+                    <span className="contact-time">
+                      {formatTime(u.last_message_timestamp)}
+                    </span>
+                  </div>
+                  <div className="content-u">
+                    <p className="contact-preview">
+                      {u.last_message_content || 'Aucun message'}
+                    </p>
+                    {u.unread_count > 0 && (
+                      <span className="unread-msg-badge">{u.unread_count}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
+
+          ) : (
+            <p className="empty-text">Aucune conversation récente</p>
+          )}
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════
+          ZONE DE CHAT
+          ══════════════════════════════════════════ */}
+      <div
+        className={[
+          'chat-zone',
+          isMobileView && isChatOpen ? 'active' : '',
+        ].join(' ')}
+      >
+        {activeRecipient ? (
+          <ChatBox
+            recipient={activeRecipient}
+            onClose={handleCloseChat}
+            isMobile={isMobileView}
+          />
+        ) : (
+          <div className="chat-zone-empty">
+            <span className="empty-icon">💬</span>
+            <h3>Sélectionnez une conversation</h3>
+            <p>Parcourez vos messages récents ou lancez une recherche pour chatter.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default ChatPage;
