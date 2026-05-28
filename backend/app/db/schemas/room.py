@@ -24,3 +24,5 @@ class Room(Base):
     rep = relationship("User", back_populates="room_rep", foreign_keys=[rep_id])
 
     posts = relationship("Post", back_populates="post_room")
+
+    media = relationship("Media", back_populates="room", cascade="all, delete-orphan")

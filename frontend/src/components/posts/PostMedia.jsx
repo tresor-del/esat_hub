@@ -26,6 +26,8 @@ const PostMedia = ({ post, bust, size = "small" }) => {
   const [isNarrow, setIsNarrow] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  console.log(post)
+  
   // ÉTAT DE CHARGEMENT DE L'IMAGE
   const [isImageLoading, setIsImageLoading] = useState(true);
 
@@ -69,7 +71,9 @@ const PostMedia = ({ post, bust, size = "small" }) => {
     let objectUrl = null;
 
     const fetchPdf = async () => {
-      if (post.post_type !== "document") return;
+      if (!post.post_type) return;
+      
+      if (post.post_type && post.post_type !== "document" || !post.mime_type.startsWith("application/")) return;
 
       try {
         setLoading(true);
@@ -116,7 +120,7 @@ const PostMedia = ({ post, bust, size = "small" }) => {
   }, [post.id, effectiveBust, size]);
 
   // ==================== PHOTOS ====================
-  if (post.post_type === "photo") {
+  if (post.post_type && post.post_type === "photo" || post.mime_type?.startsWith("image/")) {
     const imageUrl = getPostFileUrl(post, effectiveBust);
 
     const handleImageLoad = (e) => {
@@ -179,7 +183,7 @@ const PostMedia = ({ post, bust, size = "small" }) => {
   }
 
   // ==================== DOCUMENTS PDF ====================
-  if (post.post_type === "document") {
+  if (post.post_type && post.post_type === "document" || post.mime_type?.startsWith("application/pdf")) {
     if (pdfError) {
       return (
         <div className={`pdf-fallback ${size}`}>

@@ -1,60 +1,93 @@
 .img-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: var(--overlay-darker);
+  inset: 0;
+  background-color: rgba(10, 10, 10, 0.85); /* Fond très sombre pour faire ressortir l'image */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 2000;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(12px); /* Effet de flou premium arrière-plan */
+  animation: modalFadeIn 0.2s ease-out;
 }
 
 .img-modal-content {
   position: relative;
   max-width: 90%;
-  max-height: 90%;
+  max-height: 85vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
+  gap: 12px; /* Espace fixe et propre entre les boutons et l'image */
+  animation: modalScaleUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.img-modal-controls {
+  display: flex;
+  justify-content: flex-start; /* Aligne les boutons à droite au-dessus de l'image */
+  gap: 10px;
+  width: 100%;
 }
 
 .img-modal-image {
   max-width: 100%;
-  max-height: 90vh;
+  max-height: 75vh; /* Ajusté pour laisser la place aux boutons au-dessus */
   object-fit: contain;
-  border-radius: var(--border-radius);
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
-}
-
-.img-modal-controls {
-  position: absolute;
-  top: -40px;
-  right: 0;
-  display: flex;
-  gap: 15px;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .img-modal-btn {
-  background: var(--bg-secondary);
-  border: none;
+
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f3f4f6;
   border-radius: 50%;
-  width: 35px;
-  height: 35px;
+  width: 38px;
+  height: 38px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  transition: transform 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .img-modal-btn:hover {
-  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
 }
 
+.img-modal-btn:active {
+  transform: translateY(0);
+}
+
+/* Version modernisée de votre bouton de fermeture */
 .img-modal-btn.close {
-  background: var(--reddit-orange);
-  color: var(--text-light);
+  background: rgba(239, 68, 68, 0.2); /* Fond rouge très léger (style technologique) */
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #ef4444; /* Texte/Icône rouge vif */
+}
+
+.img-modal-btn.close:hover {
+  background: rgba(239, 68, 68, 0.9);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+}
+
+/* 🔌 ANIMATIONS */
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

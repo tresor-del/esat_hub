@@ -7,7 +7,7 @@ from alembic import context
 import alembic_postgresql_enum 
 
 
-from app.db.schemas import user, email_verification, post, comments, notification, room, message, revoked_token, user_device
+from app.db.schemas import user, email_verification, post, comments, notification, room, message, revoked_token, user_device, media
 from app.db.database import Base
 from app.core.config import settings
 
