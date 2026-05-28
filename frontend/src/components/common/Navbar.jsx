@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useWebSocket } from "../../contexts/WebSocketContext";
 import UserMenuLinks from "../user/UserMenuLinks";
@@ -7,7 +7,7 @@ import UserMenu from "../user/UserMenu";
 import NotificationDropdown from "../notifications/NofitificationDropdown"
 import SearchDropdown from "../search/SearchDropdown";
 import InstallPWA from "./InstallPWA";
-import { FiMenu, FiX, FiMessageCircle } from "react-icons/fi";
+import { FiMenu, FiX, FiMessageCircle, FiHome, FiUsers } from "react-icons/fi";
 import "../../styles/Navbar.css";
 import Avatar from "../ui/Avatar";
 import DropdownMenu from "../ui/DropdownMenu";
@@ -16,27 +16,83 @@ import Logo from "./Logo";
 const Navbar = () => {
   const { user, isAuth } = useAuth();
   const { unreadCount, unreadChatsCount } = useWebSocket();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [showTopBar, setShowTopBar] = useState(() => {
+    const mobile = window.innerWidth <= 768;
+    return !mobile || !location.pathname.startsWith("/room");
+  });
+  const lastScrollY = useRef(0);
 
   const closeMenu = () => setIsMenuOpen(false);
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
-  const isMobile = window.innerWidth <= 768;
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setShowTopBar(true);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile) {
+      return;
+    }
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY || window.pageYOffset;
+      const isScrollingDown = currentScrollY > lastScrollY.current && currentScrollY > 40;
+      setShowTopBar(!isScrollingDown);
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isMobile]);
+
+  useEffect(() => {
+    if (!isMobile) {
+      return;
+    }
+
+    if (location.pathname.startsWith("/room")) {
+      setShowTopBar(false);
+    } else {
+      setShowTopBar(true);
+    }
+  }, [isMobile, location.pathname]);
+
+  const activeSection = (() => {
+    const path = location.pathname.toLowerCase();
+    if (path === "/" || path === "/home") return "home";
+    if (path.startsWith("/chat")) return "chat";
+    if (path.startsWith("/room")) return "rooms";
+    return "";
+  })();
 
   /* ── Éléments réutilisables ──────────────────── */
 
   const getLogo = (
     <div style={{ display: "flex" }}>
       {isMobile && (
-        <DropdownMenu trigger={<FiMenu size={22} />}>
-          <div className="user-menu">
-            <UserMenuLinks user={user} onAction={closeMenu} />
-          </div>
-        </DropdownMenu>
+        <div></div>
+        // <DropdownMenu trigger={<FiMenu size={22} />}>
+        //   <div className="user-menu">
+        //     <UserMenuLinks user={user} onAction={closeMenu} />
+        //   </div>
+        // </DropdownMenu>
       )}
       <Link to="/" className="navbar-logo">
-        <Logo size={isMobile ? 45 : 40}/>
+        <Logo size={isMobile ? 45 : 40} />
         {/* <img src={logo} alt="esat-hub" width={isMobile ? 45 : 40} height={isMobile ? 45 : 40} /> */}
         {isMobile ? (
           <h3>EsatHub</h3>
@@ -127,7 +183,7 @@ const Navbar = () => {
     <nav className="navbar navbar--mobile">
 
       {/* Barre supérieure */}
-      <div className="navbar-container">
+      <div className={`navbar-container navbar-topbar ${showTopBar ? "" : "hidden"}`}>
 
         {/* Logo */}
         {getLogo}
@@ -135,11 +191,9 @@ const Navbar = () => {
         {/* Cloche — toujours visible dans la barre */}
         {isAuth() && (
           <div className="navbar-actions">
-            {/* {CreateButton} */}
-            {ChatButton}
-            <NotificationDropdown unreadCount={unreadCount} />
+            {CreateButton}
             {user ? (
-              <Avatar user={user} openModal={false} onClick={() => navigate(`/profile/${user.id}`)} data-step="5"  />
+              <Avatar user={user} openModal={false} onClick={() => navigate(`/profile/${user.id}`)} data-step="5" />
             ) : (
               <div className="skeleton-avatar skeleton-blink" style={{ width: '32px', height: '32px' }} />
             )}
@@ -162,6 +216,57 @@ const Navbar = () => {
           )}
         </div>
       )} */}
+
+      {/* Barre d'actions mobile en bas du navbar (mobile only) */}
+      {isMobile && (
+        <div className="navbar-mobile-bottom">
+          <button
+            className={`navbar-icon-btn mobile-action ${activeSection === "home" ? "active" : ""}`}
+            aria-label="Accueil"
+            onClick={() => {
+              navigate("/");
+              closeMenu();
+            }}
+          >
+            <div className="icon-with-badge navbar-icon-container">
+              <FiHome size={25} style={{ opacity: activeSection === "home" ? 1 : 0.7 }} />
+            </div>
+          </button>
+
+          <button
+            className={`navbar-icon-btn mobile-action ${activeSection === "rooms" ? "active" : ""}`}
+            aria-label="Salles"
+            onClick={() => {
+              navigate("/room");
+              closeMenu();
+            }}
+          >
+            <div className="icon-with-badge navbar-icon-container">
+              <FiUsers size={25} style={{ opacity: activeSection === "rooms" ? 1 : 0.7 }} />
+            </div>
+          </button>
+
+          <button
+            className={`navbar-icon-btn mobile-action ${activeSection === "chat" ? "active" : ""}`}
+            aria-label="Messages"
+            onClick={() => {
+              navigate("/chat");
+              closeMenu();
+            }}
+          >
+            <div className="icon-with-badge navbar-icon-container">
+              <FiMessageCircle size={25} style={{ opacity: activeSection === "chat" ? 1 : 0.7 }} />
+              {unreadChatsCount > 0 && (
+                <span className="notification-badge">{unreadChatsCount}</span>
+              )}
+            </div>
+          </button>
+
+          <NotificationDropdown unreadCount={unreadCount} /> 
+
+        </div>
+
+      )}
 
     </nav>
   );

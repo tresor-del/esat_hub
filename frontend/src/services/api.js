@@ -251,6 +251,31 @@ export const getUserRoom = async () => {
   return response.data
 }
 
+export const getRoomMedia = async () => {
+  const response = await api.get(`${API_BASE_URL}/rooms/media`)
+  return response.data
+}
+
+export const uploadRoomMedia = async (mediaData) => {
+  const formData = new FormData();
+  formData.append("title", mediaData.title);
+  formData.append("description", mediaData.description || "");
+  formData.append("file", mediaData.file);
+
+  const response = await api.post(`${API_BASE_URL}/rooms/add-media`, formData);
+  return response.data;
+}
+
+export const updateRoomMedia = async (mediaId, mediaData) => {
+  const response = await api.put(`${API_BASE_URL}/rooms/media/${mediaId}`, mediaData);
+  return response.data;
+}
+
+export const deleteRoomMedia = async (mediaId) => {
+  const response = await api.delete(`${API_BASE_URL}/rooms/media/${mediaId}`);
+  return response.data;
+}
+
 /**
  * =========================================
  * UTILITAIRES

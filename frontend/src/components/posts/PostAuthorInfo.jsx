@@ -88,7 +88,7 @@ const PostAuthorInfo = ({
         }}
         onClick={handleUserClick}
       >
-        {user?.username || "Utilisateur inconnu"}
+        {user?.profil_name || "Utilisateur inconnu"}
       </span>
     </div>
   );
