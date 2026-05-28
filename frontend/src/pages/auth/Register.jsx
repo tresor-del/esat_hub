@@ -150,7 +150,8 @@ const Register = () => {
         level: rest.level,
         major: rest.major,
         role: rest.role,
-        password: rest.password
+        password: rest.password,
+        year: rest.year,
       }
 
       // console.log(dataToSend);
@@ -366,9 +367,9 @@ const Register = () => {
             <label htmlFor="year" className='form-label'>Année</label>
             <select className='form-select' name="year" value={formData.year} onChange={handleChange}>
               <option value="">Choisir...</option>
-              <option value="1_ERE_ANNEE">1 ere année</option>
-              <option value="2_EME_ANNEE">2 eme année</option>
-              <option value="3_EME_ANNEE">3 eme année</option>
+              <option value="PREMIERE_ANNEE">1 ere année</option>
+              <option value="DEUXIEME_ANNEE">2 eme année</option>
+              <option value="TROISIEME_ANNEE">3 eme année</option>
             </select>
           </div>
 
