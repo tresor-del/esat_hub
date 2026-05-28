@@ -6,3 +6,4 @@ from .notification import Notification
 from .room import Room
 from .message import Message
 from .user_device import UserDevice
+from .media import Media

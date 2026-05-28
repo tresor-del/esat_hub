@@ -91,8 +91,8 @@ class User(Base):
     sent_messages = relationship("Message", foreign_keys="[Message.sender_id]", back_populates="sender")
     received_messages = relationship("Message", foreign_keys="[Message.recipient_id]", back_populates="recipient")
 
-
     devices = relationship("UserDevice", back_populates="user", cascade="all, delete-orphan")
+    media = relationship("Media", back_populates="user", cascade="all, delete-orphan")
 
     # POUR LES ENSEIGNANTS
     teachs = Column(String, nullable=True)

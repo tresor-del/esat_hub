@@ -39,45 +39,63 @@ class FileService:
         resized: bool = False,
         is_avatar: bool = False,
         is_post_file: bool = True,
+        is_room_file: bool = False,
+        room_id: uuid.UUID = None
     ) -> tuple[str, str | None]:
         
         """Sauvegarder le fichier uploadé et retourner le chemin et le nom"""
 
         # si on reçoit un fichier uploadé depuis un formulaire (pour les posts)
-        if upload_file and is_post_file:
+        if upload_file:
+            file_ext = Path(upload_file.filename or "").suffix.lower()
 
-            file_ext = Path(upload_file.filename).suffix.lower()
-        
-            if post_type == "photo" and file_ext not in self.ALLOWED_PHOTO_EXTENSIONS:
-                return None, None
+            if is_post_file:
             
-            if post_type == "document" and file_ext not in self.ALLOWED_DOCUMENT_EXTENSIONS:
-                return None, None
-        
-            # Générer un nom de fichier unique
-            # unique_filename = f"{uuid.uuid4()}{file_ext}"
-            # upload_dir = Path(self.UPLOAD_DIR)
-            # upload_dir.mkdir(exist_ok=True)
-            # file_path = upload_dir / post_type / unique_filename
-
-            # # Créer le sous-dossier si nécessaire
-            # file_path.parent.mkdir(exist_ok=True)
+                if post_type == "photo" and file_ext not in self.ALLOWED_PHOTO_EXTENSIONS:
+                    return None, None
+                
+                if post_type == "document" and file_ext not in self.ALLOWED_DOCUMENT_EXTENSIONS:
+                    return None, None
             
-            # # Sauvegarder le fichier
-            # with file_path.open("wb") as buffer:
-            #     shutil.copyfileobj(upload_file.file, buffer)
+                # Générer un nom de fichier unique
+                # unique_filename = f"{uuid.uuid4()}{file_ext}"
+                # upload_dir = Path(self.UPLOAD_DIR)
+                # upload_dir.mkdir(exist_ok=True)
+                # file_path = upload_dir / post_type / unique_filename
 
-            content = upload_file.file.read()
-            folder = f"esat_hub/{post_type}"
-            public_id = f"{folder}/{uuid.uuid4()}"
+                # # Créer le sous-dossier si nécessaire
+                # file_path.parent.mkdir(exist_ok=True)
+                
+                # # Sauvegarder le fichier
+                # with file_path.open("wb") as buffer:
+                #     shutil.copyfileobj(upload_file.file, buffer)
 
-            result = cloudinary.uploader.upload(
-                content,
-                public_id=public_id,
-                resource_type="auto"
-            )
-            return result["secure_url"], upload_file.filename
+                content = upload_file.file.read()
+                folder = f"esat_hub/{post_type}"
+                public_id = f"{folder}/{uuid.uuid4()}"
+
+                result = cloudinary.uploader.upload(
+                    content,
+                    public_id=public_id,
+                    resource_type="auto"
+                )
+                return result["secure_url"], upload_file.filename
         
+            if is_room_file:
+                if file_ext not in self.ALLOWED_PHOTO_EXTENSIONS and file_ext not in self.ALLOWED_DOCUMENT_EXTENSIONS:
+                    return None, None
+
+                content = upload_file.file.read()
+                folder = f"esat_hub/room/{room_id}"
+                public_id = f"{folder}/{uuid.uuid4()}"
+
+                result = cloudinary.uploader.upload(
+                    content,
+                    public_id=public_id,
+                    resource_type="auto"
+                )
+                return result["secure_url"], upload_file.filename
+            
         # si on reçoit du contenu binaire
         if resized and resized_file: 
             
