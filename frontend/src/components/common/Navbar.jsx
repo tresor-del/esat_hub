@@ -13,7 +13,7 @@ import Avatar from "../ui/Avatar";
 import DropdownMenu from "../ui/DropdownMenu";
 import Logo from "./Logo";
 
-const Navbar = () => {
+const Navbar = (props) => {
   const { user, isAuth } = useAuth();
   const { unreadCount, unreadChatsCount } = useWebSocket();
   const navigate = useNavigate();
@@ -25,6 +25,7 @@ const Navbar = () => {
     return !mobile || !location.pathname.startsWith("/room");
   });
   const lastScrollY = useRef(0);
+  const lastShowTopBarChange = useRef(0);
 
   const closeMenu = () => setIsMenuOpen(false);
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
@@ -51,7 +52,15 @@ const Navbar = () => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY || window.pageYOffset;
       const isScrollingDown = currentScrollY > lastScrollY.current && currentScrollY > 40;
-      setShowTopBar(!isScrollingDown);
+      const newShowTopBar = !isScrollingDown;
+      
+      // Debounce: only update if enough time has passed
+      const now = Date.now();
+      if (now - lastShowTopBarChange.current > 150) {
+        setShowTopBar(newShowTopBar);
+        lastShowTopBarChange.current = now;
+      }
+      
       lastScrollY.current = currentScrollY;
     };
 
@@ -144,7 +153,7 @@ const Navbar = () => {
    */
 
   const DesktopNavbar = (
-    <nav className="navbar navbar--desktop">
+    <nav className={`navbar navbar--desktop ${props.className}`}>
       <div className="navbar-container">
 
         {/* Gauche : logo */}
@@ -180,7 +189,7 @@ const Navbar = () => {
    */
 
   const MobileNavbar = (
-    <nav className="navbar navbar--mobile">
+    <nav className={`navbar navbar--mobile ${props.className}`}>
 
       {/* Barre supérieure */}
       <div className={`navbar-container navbar-topbar ${showTopBar ? "" : "hidden"}`}>

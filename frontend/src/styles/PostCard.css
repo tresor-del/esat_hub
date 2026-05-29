@@ -19,7 +19,7 @@
 /* Contenu du post */
 .post-content {
   flex: 1;
-  padding: var(--spacing-md);
+  /* padding: var(--spacing-md); */
   display: flex;
   flex-direction: column;
 }
@@ -31,6 +31,7 @@
   justify-content: space-between;
   color: var(--text-secondary);
   margin-bottom: var(--spacing-sm);
+  padding: 10px;
 }
 
 .post-meta .menu-button {
@@ -45,7 +46,7 @@
   font-weight: bold;
   margin-bottom: var(--spacing-sm);
   color: var(--text-primary);
-
+  padding: 10px;
 }
 
 .user-cell {
@@ -67,6 +68,34 @@
 .user-cell .user-info .user-username {
   opacity: 0.7;
   font-size: 15px;
+}
+
+
+.user-cell-full {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.user-cell-full .user-info-full {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.user-cell-full .user-info-full .user-badges {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.user-cell-full .user-info-full .user-badges span {
+  text-wrap: nowrap;
+  overflow: hidden;
+}
+
+.user-cell-full .user-info-full .user-name-full {
+  font-weight: bold;
+  color: #444;
 }
 
 .post-user-info {
@@ -98,6 +127,7 @@
   word-break: break-word;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
+  padding: 10px;
 }
 
 .post-description.clamped {
@@ -137,6 +167,7 @@
   display: flex;
   gap: var(--spacing-md);
   justify-content: space-between;
+  /* padding: 10px; */
 }
 
 .post-action-btn {
@@ -146,13 +177,17 @@
   padding: var(--spacing-xs) var(--spacing-sm);
   color: var(--text-secondary);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 1.1rem;
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
   border-radius: var(--border-radius);
   transition: background-color 0.2s;
-  border-radius: 50px;
+  /* border-radius: 50px; */
+}
+
+.post-action-btn .comment {
+  font-size: 1rem;
 }
 
 .post-for-home {
@@ -162,6 +197,34 @@
 .post-action-btn:hover {
   background-color: var(--bg-primary);
 }
+
+.post-detail-modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(10, 10, 10, 0.75);
+  z-index: 3000;
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; 
+
+  overflow-y: auto; 
+  padding: 40px 20px;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+.post-detail-modal .post-card-container {
+  width: 100%;
+  max-width: 600px;
+  background-color: #ffffff; 
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  
+  height: auto;
+  overflow: visible; 
+}
+
 
 @media (max-width: 768px) {
 

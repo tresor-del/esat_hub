@@ -2,11 +2,11 @@ import React from "react";
 import { FiGithub, FiLinkedin, FiGlobe } from "react-icons/fi"; // Réutiliser react-icons installé dans votre projet
 import "../../styles/Footer.css";
 
-const Footer = () => {
+const Footer = (props) => {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="site-footer">
+        <footer className={`site-footer ${props.className}`}>
             <div className="footer-container">
                 {/* Section Gauche : Infos & Copyright */}
                 <div className="footer-brand">

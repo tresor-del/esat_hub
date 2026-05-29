@@ -67,7 +67,7 @@ const CommentCard = ({ comment, user, onReplySubmit, loading, onEdit, onDelete }
         <div className="comment-item" id={`comment-${comment.id}`}>
             <div>
                 <div className="comment-info">
-                    <PostAuthorInfo user={comment.user} variant="compact" />
+                    <PostAuthorInfo user={comment.user} variant="default" />
                     <span className="comment-date">{formatRelativeDate(comment.created_at)}</span>
                 </div>
 

@@ -173,7 +173,7 @@ const ChatPage = () => {
                         <Logo size={60} />
                     </div>
                     {/* <img src={logo} alt="" width={60} onClick={() => navigate("/")} /> */}
-                    <h1>Inbox</h1>
+                    <h1>Messages</h1>
                 </div>
 
                 <div className="search-filter-btns">

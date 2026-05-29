@@ -1,7 +1,7 @@
 
 .post-media.photo {
   margin: 12px 0;
-  border-radius: 8px;
+  /* border-radius: 8px; */
   overflow: hidden;
   background-color: var(--bg-light);
 }
@@ -12,7 +12,7 @@
   align-items: center;
   background-color: var(--bg-lighter);
   width: 100%;
-  border-radius: 8px;
+  /* border-radius: 8px; */
   overflow: hidden;
   position: relative;
 }
@@ -89,7 +89,7 @@
 .pdf-viewer {
   margin: 12px 0;
   border: 1px solid var(--border-color-light);
-  border-radius: 8px;
+  /* border-radius: 8px; */
   overflow: hidden;
   background: var(--bg-lightest);
   position: relative;
@@ -99,7 +99,7 @@
 /* Version small */
 .pdf-viewer.small {
   margin: 8px 0;
-  border-radius: 8px;
+  /* border-radius: 8px; */
   overflow: hidden;
   position: relative;
 }
