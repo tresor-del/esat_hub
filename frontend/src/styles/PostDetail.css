@@ -15,7 +15,6 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1rem;
   font-size: 1.5rem;
   cursor: pointer;
 }
@@ -28,5 +27,10 @@
 .post-detail-container {
   width:unset;
 }
+
+.navbar-hidden-mobile{
+  display: none;
+}
+
 }
 

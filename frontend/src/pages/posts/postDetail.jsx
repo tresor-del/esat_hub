@@ -71,11 +71,11 @@ const PostDetail = () => {
     }
   };
 
-  const handleEdit = (post) => {
+   const handleEdit = (post) => {
     navigate(`/edit/${post.id}`);
   };
 
-  const handleDelete = async (post) => {
+   const handleDelete = async (post) => {
     if (!confirm("Voulez-vous vraiment supprimer ce post ?")) return;
 
     try {
@@ -91,7 +91,7 @@ const PostDetail = () => {
     navigate("/");
   };
 
-  const handleCommentAdded = (count) => {
+   const handleCommentAdded = (count) => {
     setCommentCount(count)
     if (count > 0) {
       setCommentsLoaded(true);

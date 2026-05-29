@@ -43,6 +43,7 @@ const AppRoutes = () => {
   const { loading, isAuth, logout } = useAuth();
   const navigate = useNavigate();
 
+
   useEffect(() => {
     const handleLogout = (event) => {
       console.warn("Session expirée");

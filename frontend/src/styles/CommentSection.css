@@ -19,12 +19,13 @@
     display: flex;
     justify-content: space-between;
     width: 100%;
+    padding: 10px;
 }
 
 .comment-info {
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    /* align-items: center; */
     gap: 0.8rem;
 }
 
@@ -45,7 +46,7 @@
     flex-direction: column;
     gap: 0.3rem;
     width: 100%;
-    margin-left: 3.2rem;
+    /* margin-left: 3.2rem; */
 }
 
 /* Nouveaux styles pour les actions et réponses */
@@ -104,9 +105,10 @@
     gap: 10px;
     background: #f8f9fa;
     padding: 10px;
-    border-radius: 20px;
+    /* border-radius: 20px; */
     border: 1px solid #ddd;
     margin-top: 1rem;
+    padding: 5px;
 }
 
 .comment-textarea {
@@ -160,8 +162,9 @@
     max-height: 50px;
     }
     .submitForm {
-    padding: 5px;
-    border-radius: 10px;
+        margin: 5px;
+    /* padding: 5px; */
+    /* border-radius: 10px; */
     border: 1px solid #ddd;
 }
 

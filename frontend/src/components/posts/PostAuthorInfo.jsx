@@ -3,15 +3,16 @@ import { useNavigate } from "react-router-dom";
 import Avatar from "../ui/Avatar";
 
 
-const PostAuthorInfo = ({ 
+const PostAuthorInfo = ({
   user,
   dateVariant = "relative",
-  showAvatar = true, 
+  showAvatar = true,
   openModal = true,
   showEmail = false,
   showDomain = false,
   showYear = false,
   showStatus = false,
+  showMajor = false,
   variant = "default" // "default" | "compact" | "full"
 }) => {
   const navigate = useNavigate();
@@ -44,12 +45,19 @@ const PostAuthorInfo = ({
   if (variant === "full") {
     return (
       <div className="user-cell-full">
-        <Avatar user={user} size="large" onClick={handleUserClick} openModal={openModal} />
+        <Avatar user={user} size="smlarge" onClick={handleUserClick} openModal={openModal} />
         <div className="user-info-full">
-          <span className="user-name" onClick={handleUserClick} style={{ cursor: "pointer" }}>
-            {displayName}
-          </span>
-          <span className="user-username">{user?.username}</span>
+          <div className="user-info">
+            <span className="user-name" onClick={handleUserClick} style={{ cursor: "pointer" }}>
+              {displayName}
+            </span>
+            {/* <span className="user-username">{user?.username}</span> */}
+
+          </div>
+
+          <div>
+
+          </div>
           {showEmail && <span className="user-email">{user?.email}</span>}
           <div className="user-badges">
             {showDomain && user?.domain && (
@@ -63,6 +71,10 @@ const PostAuthorInfo = ({
                 {user.status}
               </span>
             )}
+
+            {showMajor && user?.major && (
+              <span className="year-badge">{user.major}</span>
+            )}
           </div>
         </div>
       </div>
@@ -73,16 +85,16 @@ const PostAuthorInfo = ({
   return (
     <div className="post-user-info">
       {showAvatar && (
-        <Avatar 
-          user={user} 
-          size="medium" 
+        <Avatar
+          user={user}
+          size="medium"
           onClick={handleUserClick}
           openModal={openModal}
         />
       )}
-      <span 
-        style={{ 
-          fontWeight: dateVariant === "absolute" ? 600 : "bold", 
+      <span
+        style={{
+          fontWeight: dateVariant === "absolute" ? 600 : "bold",
           fontSize: dateVariant === "absolute" ? "inherit" : "1rem",
           cursor: "pointer"
         }}

@@ -29,14 +29,17 @@ const MainLayout = () => {
     }
   };
 
+  const isRoomPage = location.pathname == "/room"
+  const postDetail = location.pathname.startsWith("/post/")
+
   return (
     <>
       {showWelcome && (
         <WelcomeModal user={user} onClose={handleCloseWelcome} />
       )}
-      <Navbar />
+      <Navbar className={isRoomPage || postDetail ? "navbar-hidden-mobile": ""} />
       <Outlet />
-      <Footer />
+      <Footer className={isRoomPage ? "footer-hidden-desktop": ""} />
     </>
   );
 };
