@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { FiDownload } from 'react-icons/fi';
 import '../../styles/ImageModal.css';
 
 const ImageModal = ({ src, alt, onClose }) => {
@@ -38,7 +39,7 @@ const ImageModal = ({ src, alt, onClose }) => {
             rel="noopener noreferrer"
             title="Télécharger l'image"
           >
-            📥
+            <FiDownload />
           </a>
           <button className="img-modal-btn close" onClick={onClose} title="Fermer la fenêtre">
             ✕

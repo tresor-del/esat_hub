@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useWebSocket } from "../../contexts/WebSocketContext";
-import UserMenuLinks from "../user/UserMenuLinks";
 import UserMenu from "../user/UserMenu";
 import NotificationDropdown from "../notifications/NofitificationDropdown"
 import SearchDropdown from "../search/SearchDropdown";
@@ -10,7 +9,6 @@ import InstallPWA from "./InstallPWA";
 import { FiMenu, FiX, FiMessageCircle, FiHome, FiUsers } from "react-icons/fi";
 import "../../styles/Navbar.css";
 import Avatar from "../ui/Avatar";
-import DropdownMenu from "../ui/DropdownMenu";
 import Logo from "./Logo";
 
 const Navbar = (props) => {
@@ -94,11 +92,6 @@ const Navbar = (props) => {
     <div style={{ display: "flex" }}>
       {isMobile && (
         <div></div>
-        // <DropdownMenu trigger={<FiMenu size={22} />}>
-        //   <div className="user-menu">
-        //     <UserMenuLinks user={user} onAction={closeMenu} />
-        //   </div>
-        // </DropdownMenu>
       )}
       <Link to="/" className="navbar-logo">
         <Logo size={isMobile ? 45 : 40} />
@@ -112,16 +105,40 @@ const Navbar = (props) => {
     </div>
   );
 
+  const HomeButton = (
+    <button
+      className={`navbar-icon-btn ${activeSection === "home" ? "active" : ""}`}
+      onClick={() => { navigate("/"); closeMenu(); }}
+      aria-label="Accueil"
+    >
+      <div className="icon-with-badge navbar-icon-container">
+        <FiHome size={30} style={{ opacity: activeSection === "home" ? 1 : 0.7 }} />
+      </div>
+    </button>
+  );
+
+  const RoomsButton = (
+    <button
+      className={`navbar-icon-btn ${activeSection === "rooms" ? "active" : ""}`}
+      onClick={() => { navigate("/room"); closeMenu(); }}
+      aria-label="Salles"
+    >
+      <div className="icon-with-badge navbar-icon-container">
+        <FiUsers size={30} style={{ opacity: activeSection === "rooms" ? 1 : 0.7 }} />
+      </div>
+    </button>
+  );
+
   const ChatButton = (
     <button
-      className="navbar-icon-btn "
+      className={`navbar-icon-btn ${activeSection === "chat" ? "active" : ""}`}
       onClick={() => { navigate("/chat"); closeMenu(); }}
       aria-label="Messages"
       data-step="2"
       data-intro="Accedez au chat ici !"
     >
       <div className="icon-with-badge navbar-icon-container ">
-        <FiMessageCircle size={30} style={{ opacity: 0.7 }} />
+        <FiMessageCircle size={30} style={{ opacity: activeSection === "chat" ? 1 : 0.7 }} />
         {unreadChatsCount > 0 && (
           <span className="notification-badge">{unreadChatsCount}</span>
         )}
@@ -154,14 +171,16 @@ const Navbar = (props) => {
 
   const DesktopNavbar = (
     <nav className={`navbar navbar--desktop ${props.className}`}>
-      <div className="navbar-container">
+      <div className="navbar-container desktop">
 
         {/* Gauche : logo */}
         {getLogo}
 
-        {/* Centre : barre de recherche (prend tout l'espace disponible) */}
-        <div className="navbar-search">
-          <SearchDropdown />
+        {/* Centre : home + rooms + chat */}
+        <div className="navbar-center">
+          {HomeButton}
+          {RoomsButton}
+          {ChatButton}
         </div>
 
         {/* Droite : actions */}
@@ -170,7 +189,7 @@ const Navbar = (props) => {
             <>
               {/* {CreateButton} */}
               <NotificationDropdown unreadCount={unreadCount} />
-              {ChatButton}
+              
               <UserMenu />
             </>
           ) : (
@@ -189,10 +208,10 @@ const Navbar = (props) => {
    */
 
   const MobileNavbar = (
-    <nav className={`navbar navbar--mobile ${props.className}`}>
+    <nav className={`navbar navbar--mobile`}>
 
       {/* Barre supérieure */}
-      <div className={`navbar-container navbar-topbar ${showTopBar ? "" : "hidden"}`}>
+      <div className={`navbar-container navbar-topbar ${showTopBar ? "" : "hidden"} ${props.className}`}>
 
         {/* Logo */}
         {getLogo}

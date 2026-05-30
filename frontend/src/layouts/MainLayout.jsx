@@ -31,15 +31,17 @@ const MainLayout = () => {
 
   const isRoomPage = location.pathname == "/room"
   const postDetail = location.pathname.startsWith("/post/")
+  const isHomePage = location.pathname == "/"
+  const isChatPage = location.pathname == "/chat"
 
   return (
     <>
       {showWelcome && (
         <WelcomeModal user={user} onClose={handleCloseWelcome} />
       )}
-      <Navbar className={isRoomPage || postDetail ? "navbar-hidden-mobile": ""} />
+      <Navbar className={ isChatPage || isRoomPage || postDetail ? "navbar-hidden-mobile": ""} />
       <Outlet />
-      <Footer className={isRoomPage ? "footer-hidden-desktop": ""} />
+      <Footer className={isRoomPage || isHomePage || isChatPage ? "footer-hidden-desktop": ""} />
     </>
   );
 };

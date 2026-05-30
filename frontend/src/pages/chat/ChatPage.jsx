@@ -11,6 +11,7 @@ import "../../styles/Chat.css"
 import { getRecentChat } from '../../services/chatApi';
 import { set } from 'date-fns';
 import Logo from '../../components/common/Logo';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ChatPage = () => {
     const { unreadChatsCount, refreshUnreadCount, messages } = useWebSocket();
@@ -26,6 +27,7 @@ const ChatPage = () => {
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [allUsers, setAllUsers] = useState([]);
     const [loadingUsers, setLoadingUsers] = useState(true);
+    const { user: fullUser } = useAuth();
 
     const navigate = useNavigate()
 
@@ -139,7 +141,7 @@ const ChatPage = () => {
         setSearchQuery(value);
         if (value.length > 2) {
             const result = await searchPosts(value);
-            console.log(result)
+            // console.log(result)
             setSearchResults(result.users_list.users);
         } else {
             setSearchResults([]);
@@ -164,163 +166,199 @@ const ChatPage = () => {
 
 
     return (
-        <div className="chat-container" style={{ display: 'flex', height: 'calc(100vh - 60px)' }}>
-
-            {/* SIDEBAR : Recherche et Contacts */}
-            <div className={`side-bar ${isMobileView && isChatOpen ? 'hidden' : ''}`}>
+        <div className='chat'>
+            <div className="chat-container">
                 <div className='page-name' >
-                    <div onClick={() => navigate("/")}>
-                        <Logo size={60} />
+                    <p>Messagerie</p>
+                    <div className="search-filter-btns">
+                        <button
+                            className={`btn ${view === 'recent' ? 'btn-primary' : 'btn-secondary'}`}
+                            onClick={handleSeeRecent}
+                        >
+                            Récents
+                        </button>
+                        <button
+                            className={`btn ${view === 'new' ? 'btn-primary' : 'btn-secondary'}`}
+                            onClick={handleSeeNew}
+                        >
+                            Nouveau
+                        </button>
                     </div>
-                    {/* <img src={logo} alt="" width={60} onClick={() => navigate("/")} /> */}
-                    <h1>Messages</h1>
                 </div>
 
-                <div className="search-filter-btns">
-                    <button
-                        className={`btn ${view === 'recent' ? 'btn-primary' : 'btn-secondary'}`}
-                        onClick={handleSeeRecent}
-                    >
-                        Récents
-                    </button>
-                    <button
-                        className={`btn ${view === 'new' ? 'btn-primary' : 'btn-secondary'}`}
-                        onClick={handleSeeNew}
-                    >
-                        Nouveau
-                    </button>
-                </div>
-                {view === 'recent' && (
-                    <div className="contacts-list">
-                        {loadingRecentChats ? (
-                            <>
-                                {/* Génère 4 lignes de squelettes de contacts en boucle */}
-                                {Array(8).fill(0).map((_, index) => (
-                                    <div key={index} className="contact-list-item chat-skeleton-card">
-                                        {/* Avatar Squelette */}
-                                        <div className="chat-skeleton-avatar chat-skeleton-blink" />
+                <div className='chat-container-main'>
+                    {/* SIDEBAR : Recherche et Contacts */}
+                    <div className={`side-bar ${isMobileView && isChatOpen ? 'hidden' : ''}`}>
 
-                                        <div className="contact-info">
-                                            <div className="contact-header">
-                                                {/* Nom Squelette */}
-                                                <div className="chat-skeleton-name chat-skeleton-blink" />
-                                                {/* Heure Squelette */}
-                                                <div className="chat-skeleton-time chat-skeleton-blink" />
-                                            </div>
-                                            <div className='content-u' style={{ marginTop: '8px' }}>
-                                                {/* Aperçu du Message Squelette */}
-                                                <div className="chat-skeleton-preview chat-skeleton-blink" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </>
-                        ) : (
-                            <>
-                                {recentChats.length > 0 ? (
-                                    recentChats.map(u => (
-                                        <div
-                                            key={u.user?.id}
-                                            onClick={() => handleSelectRecipient(u.user)}
-                                            className={`contact-list-item 
-                                ${activeRecipient?.id === u.user?.id ? 'active' : ''}
-                                ${u.unread_count > 0 ? 'unread' : ''}
-                            `}
-                                        >
-                                            <Avatar user={u.user} size="smlarge" />
-                                            <div className="contact-info">
-                                                <div className="contact-header">
-                                                    <span className="contact-name">{u.user.profil_name}</span>
-                                                    <span className="contact-time">{formatTime(u.last_message_timestamp)}</span>
-                                                </div>
-                                                <div className='content-u'>
-                                                    <p className="contact-preview">
-                                                        {u.last_message_content || "Aucun message"}
-                                                    </p>
-                                                    {u.unread_count > 0 && (<span className='unread-msg-badge'>{u.unread_count}</span>)}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p className='empty-text'>Aucune conversation récente</p>
-                                )}
-                            </>
-                        )}
-                    </div>
-                )}
+                        {view === 'recent' && (
+                            <div className="contacts-list">
+                                {loadingRecentChats ? (
+                                    <>
+                                        {/* Génère 4 lignes de squelettes de contacts en boucle */}
+                                        {Array(8).fill(0).map((_, index) => (
+                                            <div key={index} className="contact-list-item chat-skeleton-card">
+                                                {/* Avatar Squelette */}
+                                                <div className="chat-skeleton-avatar chat-skeleton-blink" />
 
-                {view === 'new' && (
-                    <div className='new-view'>
-                        <div className="search">
-                            <SearchFilters onSearch={handleSearch} chat={true} />
-                        </div>
-                        <div className="contacts-list">
-                            {loadingUsers ? (
-                                <>
-                                    {/* Génère 8 lignes de squelettes de contacts en boucle */}
-                                    {Array(8).fill(0).map((_, index) => (
-                                        <div key={index} className="contact-list-item chat-skeleton-card">
-                                            {/* Avatar Squelette */}
-                                            <div className="chat-skeleton-avatar chat-skeleton-blink" />
-
-                                            <div className="contact-info">
-                                                <div className="contact-header">
-                                                    {/* Nom Squelette */}
-                                                    <div className="chat-skeleton-name chat-skeleton-blink" />
-                                                    {/* Heure Squelette */}
-                                                    <div className="chat-skeleton-time chat-skeleton-blink" />
-                                                </div>
-                                                <div className='content-u' style={{ marginTop: '8px' }}>
-                                                    {/* Aperçu du Message Squelette */}
-                                                    <div className="chat-skeleton-preview chat-skeleton-blink" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </>
-                            ) : (
-                                <>
-                                    {(searchResults.length > 0 ? searchResults : allUsers).length > 0 ? (
-                                        (searchResults.length > 0 ? searchResults : allUsers).map(u => (
-                                            <div
-                                                key={u.id}
-                                                onClick={() => { handleSelectRecipient(u); setSearchQuery(""); }}
-                                                className='contact-list-item'
-                                            >
-                                                <Avatar user={u} />
                                                 <div className="contact-info">
                                                     <div className="contact-header">
-
-                                                        <span className="contact-name">{u.profil_name}</span>
+                                                        {/* Nom Squelette */}
+                                                        <div className="chat-skeleton-name chat-skeleton-blink" />
+                                                        {/* Heure Squelette */}
+                                                        <div className="chat-skeleton-time chat-skeleton-blink" />
+                                                    </div>
+                                                    <div className='content-u' style={{ marginTop: '8px' }}>
+                                                        {/* Aperçu du Message Squelette */}
+                                                        <div className="chat-skeleton-preview chat-skeleton-blink" />
                                                     </div>
                                                 </div>
                                             </div>
-                                        ))
+                                        ))}
+                                    </>
+                                ) : (
+                                    <>
+                                        {recentChats.length > 0 ? (
+                                            recentChats.map(u => (
+                                                <div
+                                                    key={u.user?.id}
+                                                    onClick={() => handleSelectRecipient(u.user)}
+                                                    className={`contact-list-item 
+                                ${activeRecipient?.id === u.user?.id ? 'active' : ''}
+                                ${u.unread_count > 0 ? 'unread' : ''}
+                            `}
+                                                >
+                                                    <Avatar user={u.user} size="smlarge" />
+                                                    <div className="contact-info">
+                                                        <div className="contact-header">
+                                                            <span className="contact-name">{u.user.first_name} {u.user.last_name}</span>
+                                                            <span className="contact-time">{formatTime(u.last_message_timestamp)}</span>
+                                                        </div>
+                                                        <div className='content-u'>
+                                                            <p className="contact-preview">
+                                                                {u.last_message_content || "Aucun message"}
+                                                            </p>
+                                                            {u.unread_count > 0 && (<span className='unread-msg-badge'>{u.unread_count}</span>)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className='empty-text'>Aucune conversation récente</p>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        {view === 'new' && (
+                            <div className='new-view'>
+                                {/* <p className='title'>Nouveau message</p> */}
+                                <div className="search">
+                                    <input onChange={(e) => handleSearch(e.target.value)} className='chat-search-input' type="text" placeholder='Taper un nom' />
+                                </div>
+                                <p className='title'>Suggestions</p>
+                                <div className="contacts-list">
+                                    {loadingUsers ? (
+                                        <>
+                                            {/* Génère 8 lignes de squelettes de contacts en boucle */}
+                                            {Array(8).fill(0).map((_, index) => (
+                                                <div key={index} className="contact-list-item chat-skeleton-card">
+                                                    {/* Avatar Squelette */}
+                                                    <div className="chat-skeleton-avatar chat-skeleton-blink" />
+
+                                                    <div className="contact-info">
+                                                        <div className="contact-header">
+                                                            {/* Nom Squelette */}
+                                                            <div className="chat-skeleton-name chat-skeleton-blink" />
+                                                            {/* Heure Squelette */}
+                                                            <div className="chat-skeleton-time chat-skeleton-blink" />
+                                                        </div>
+                                                        <div className='content-u' style={{ marginTop: '8px' }}>
+                                                            {/* Aperçu du Message Squelette */}
+                                                            <div className="chat-skeleton-preview chat-skeleton-blink" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </>
                                     ) : (
-                                        <p className='empty-text'>Aucun utilisateur trouvé</p>
+                                        <>
+                                            {(searchResults.length > 0 ? searchResults : allUsers).length > 0 ? (
+                                                (searchResults.length > 0 ? searchResults : allUsers).map(u => (
+                                                    <div
+                                                        key={u.id}
+                                                        onClick={() => { handleSelectRecipient(u); setSearchQuery(""); }}
+                                                        className='contact-list-item'
+                                                    >
+                                                        <Avatar user={u} />
+                                                        <div className="contact-info">
+                                                            <div className="contact-header">
+
+                                                                <span className="contact-name">{u.first_name} {u.last_name}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p className='empty-text'>Aucun utilisateur trouvé</p>
+                                            )}
+                                        </>
                                     )}
-                                </>
-                            )}
-                        </div>
+                                </div>
+                            </div>
+                        )}
+
                     </div>
-                )}
+
+                    {/* ZONE DE CHAT : Vide ou Active */}
+                    <div className={`chat-zone ${isMobileView ? '' : 'desktop'} ${isMobileView && isChatOpen ? 'active' : ''}`}>
+                        {activeRecipient ? (
+                            <ChatBox recipient={activeRecipient} onClose={handleCloseChat} isMobile={isMobileView} />
+                        ) : (
+                            <div style={{ margin: 'auto', textAlign: 'center', color: '#888' }}>
+                                <div style={{ fontSize: '50px' }}>💬</div>
+                                <h3>Sélectionnez une conversation</h3>
+                                <p>Cherchez un utilisateur à gauche pour commencer à discuter.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
 
             </div>
 
-            {/* ZONE DE CHAT : Vide ou Active */}
-            <div className={`chat-zone ${isMobileView ? '' : 'desktop'} ${isMobileView && isChatOpen ? 'active' : ''}`}>
-                {activeRecipient ? (
-                    <ChatBox recipient={activeRecipient} onClose={handleCloseChat} isMobile={isMobileView} />
-                ) : (
-                    <div style={{ margin: 'auto', textAlign: 'center', color: '#888' }}>
-                        <div style={{ fontSize: '50px' }}>💬</div>
-                        <h3>Sélectionnez une conversation</h3>
-                        <p>Cherchez un utilisateur à gauche pour commencer à discuter.</p>
+            <div className="left-home-card on-chat">
+                <div className="left-card-header">
+                    <div className="left-card-avatar">
+                        <Avatar
+                            user={fullUser}
+                            size="large"
+                            onClick={() => navigate(`profile/${userAuth.id}`)}
+                        />
                     </div>
-                )}
+                    <div className="left-card-meta">
+                        <h3 className="left-card-name">{fullUser?.first_name} {fullUser?.last_name}</h3>
+
+                    </div>
+                </div>
+
+                <button className="left-card-button" onClick={() => navigate(`/profile/${fullUser.id}`)}>
+                    Voir votre profil
+                </button>
+
+                <div className='footer'>
+                    <a href="/about" className="footer-link">À propos</a>
+                    <a href="/privacy" className="footer-link">Confidentialité</a>
+                    <a href="/terms" className="footer-link">Condition d'utilisation</a>
+                    <h3 className="footer-link">Esat-Hub &copy; 2026</h3>
+                    <p className="footer-link"></p>
+                    <p className="credits" className="footer-link">Développé par <strong> <a href="https://github.com/tresor-del" target="blank">Trésor</a></strong></p>
+
+                </div>
             </div>
+
         </div>
+
     );
 };
 

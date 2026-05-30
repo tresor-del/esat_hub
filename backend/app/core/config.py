@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
 
     # Production settings
-    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"  # Comma-separated list
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:4173"  # Comma-separated list
     DEBUG: bool = False
     
     # Rate limiting

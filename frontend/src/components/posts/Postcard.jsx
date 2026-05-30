@@ -74,45 +74,49 @@ const PostCard = ({
     <div className={`post-card ${detail ? 'post-detail-card' : ''}`}>
       <div className="post-content post-content-d">
         {/* Métadonnées avec avatar */}
-        <div className="post-meta">
-          <PostAuthorInfo
-            user={post.user}
-            createdAt={post.created_at}
-            dateVariant="relative"
-            showAvatar={true}
-            openModal={false}
-            variant="compact"
-          />
+        <div className="post-header">
+          <div className="post-meta">
+            <PostAuthorInfo
+              user={post.user}
+              createdAt={post.created_at}
+              dateVariant="relative"
+              showAvatar={true}
+              openModal={false}
+              variant="default"
+              postDate={formatRelativeDate(post.created_at)}
+            />
 
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            {post.room_id ? (<FiLock />) : (<IoEarth />)}
-            <PostActionsMenu post={post} onEdit={onEdit} onDelete={onDelete} onToggleStatus={onToggleStatus} />
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <PostActionsMenu post={post} onEdit={onEdit} onDelete={onDelete} onToggleStatus={onToggleStatus} />
+              {post.room_id ? (<FiLock />) : (<IoEarth />)}
+            </div>
+
           </div>
+
+          {/* Titre du poste */}
+          <h3 className="post-title">{post.title}</h3>
+
+          {/* Description */}
+          {post.description && (
+            <div>
+              <p className={`post-description ${isExpanded ? 'expanded' : 'clamped'}`}>
+                {post.description}
+              </p>
+              {post.description.length > 50 && (
+                <span className="read-more-btn" onClick={toggleReadMore}>
+                  {isExpanded ? " Voir moins" : "Voir plus"}
+                </span>
+              )}
+            </div>
+          )}
         </div>
-
-        {/* Titre du poste */}
-        <h3 className="post-title">{post.title}</h3>
-
-        {/* Description */}
-        {post.description && (
-          <div>
-            <p className={`post-description ${isExpanded ? 'expanded' : 'clamped'}`}>
-              {post.description}
-            </p>
-            {post.description.length > 50 && (
-              <span className="read-more-btn" onClick={toggleReadMore}>
-                {isExpanded ? " Voir moins" : "Voir plus"}
-              </span>
-            )}
-          </div>
-        )}
 
         {/* Médias */}
         <PostMedia post={post} />
 
         <div className="post-action" >
-          <span className="post-action-btn" onClick={handleCardClick}>{commentsLength} commentaires</span>
-          <span className="post-action-btn time" >{formatRelativeDate(post.created_at)}</span>
+          <span className="post-action-btn" onClick={handleCardClick}> <FiMessageCircle size={25} /> {commentsLength}</span>
+          {/* <span className="post-action-btn time" >{formatRelativeDate(post.created_at)}</span> */}
         </div>
 
       </div>

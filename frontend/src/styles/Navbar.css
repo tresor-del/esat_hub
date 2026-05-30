@@ -41,6 +41,11 @@
 /* ── Base navbar ─────────────────────────────── */
 
 .navbar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   height: 60px;
@@ -51,13 +56,37 @@
   box-sizing: border-box;
   width: 100%;
   overflow: visible;
+  min-width: 0;
 }
 
 .navbar-container {
   width: 100%;
+  max-width: 100%;
   display: flex;
   align-items: center;
   overflow: visible;
+  
+}
+
+.navbar-container.desktop {
+  display: flex;
+  justify-content: space-between !important;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navbar-center {
+  display: flex;
+  /* gap: 4rem; */
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.navbar-center .navbar-icon-btn {
+  padding: 0.4rem;
+  /* background-color: ; */
 }
 
 /* ── Logo ────────────────────────────────────── */
@@ -68,7 +97,7 @@
   /* gap: 6px; */
   font-size: 18px;
   font-weight: bold;
-  color: var(--reddit-orange);
+  color: var(--reddit-blue);
   flex-shrink: 0;
   text-decoration: none;
   white-space: nowrap;
@@ -107,7 +136,7 @@
   align-items: center;
   justify-content: center;
   color: var(--text-primary);
-  border-radius: 6px;
+  /* border-radius: 6px; */
   flex-shrink: 0;
 }
 
@@ -117,6 +146,11 @@
 
 .navbar-icon-btn:hover {
   background-color: var(--bg-hover);
+}
+
+.navbar-icon-btn.active {
+  color: var(--reddit-blue);
+  border-bottom: 5px solid var(--reddit-blue);
 }
 
 /* ── Badge + icône ───────────────────────────── */
@@ -130,8 +164,8 @@
 
 .notification-badge {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: 4px;
+  right: 19px;
   background-color: var(--reddit-orange);
   color: white;
   font-size: 10px;
@@ -157,31 +191,36 @@
 }
 
 .navbar-icon-container {
-  background-color: var(--icon-bg);
-  border-radius: 50% !important;
-  padding: 4px;
+  /* background-color: var(--icon-bg); */
+  padding: 8px 30px;
 }
 
-.navbar-icon-container:hover {
+.navbar-icon-container:hover:not(.notification-trigger) {
   background-color: var(--icon-bg-hover);
 }
 
-/* ── Trigger notification ────────────────────── */
-
 .notification-trigger {
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* padding: 6px; */
+  padding: 8px;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 50%;
   flex-shrink: 0;
+  transition: background-color 0.2s ease;
 }
 
-/* .notification-trigger:hover {
+.notification-trigger:hover {
   background-color: var(--bg-hover);
-} */
+}
+
+.notification-trigger.navbar-icon-container {
+  padding: 8px;
+  border-radius: 50%;
+  width: auto;
+  min-width: auto;
+}
 
 /* ── Bouton Créer ────────────────────────────── */
 
@@ -286,6 +325,10 @@
 
 /* ── Mobile bottom action bar ───────────────── */
 .navbar-mobile-bottom {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -293,6 +336,7 @@
   background: var(--bg-secondary);
   gap: 8px;
   border-top: 1px solid rgba(255,255,255,0.08);
+  z-index: 1000;
 }
 
 .navbar-mobile-bottom .mobile-action {
@@ -318,12 +362,12 @@
 }
 
 .navbar-mobile-bottom .mobile-action.active {
-  color: var(--reddit-orange);
-  border-bottom-color: var(--reddit-orange);
+  color: var(--reddit-blue);
+  border-bottom-color: var(--reddit-blue);
 }
 
 .navbar-mobile-bottom .mobile-action.active .navbar-icon-container {
-  background: rgba(237, 137, 54, 0.12);
+  background: rgba(54, 94, 237, 0.12);
 }
 
 .navbar-mobile-bottom .mobile-action .mobile-action-label {

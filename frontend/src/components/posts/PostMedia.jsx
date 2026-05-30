@@ -1,6 +1,6 @@
 // PostMedia.js
 import { version } from 'react-pdf/package.json';
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { getPostFileUrl } from "../../services/api";
 import api from "../../utils/axiosConfig";
 import { Document, Page, pdfjs } from "react-pdf";
@@ -26,8 +26,10 @@ const PostMedia = ({ post, bust, size = "small" }) => {
   const [isNarrow, setIsNarrow] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const imgRef = useRef(null);
+
   console.log(post)
-  
+
   // ÉTAT DE CHARGEMENT DE L'IMAGE
   const [isImageLoading, setIsImageLoading] = useState(true);
 
@@ -48,6 +50,10 @@ const PostMedia = ({ post, bust, size = "small" }) => {
     setIsModalOpen(false);
     setIsNarrow(false);
     setIsImageLoading(true);
+
+    if (imgRef.current?.complete && imgRef.current?.naturalWidth > 0) {
+      setIsImageLoading(false);
+    }
   }, [post.id]);
 
   const getDownloadUrl = (url) => {
@@ -72,7 +78,7 @@ const PostMedia = ({ post, bust, size = "small" }) => {
 
     const fetchPdf = async () => {
       if (!post.post_type) return;
-      
+
       if (post.post_type && post.post_type !== "document" || !post.mime_type.startsWith("application/")) return;
 
       try {
@@ -124,9 +130,13 @@ const PostMedia = ({ post, bust, size = "small" }) => {
     const imageUrl = getPostFileUrl(post, effectiveBust);
 
     const handleImageLoad = (e) => {
-      setIsImageLoading(false); // Désactive le squelette dès le chargement complet
-      const { naturalWidth, clientWidth } = e.target;
-      if (naturalWidth > clientWidth) {
+      setIsImageLoading(false);
+      const { naturalWidth, naturalHeight, clientWidth } = e.target;
+
+      const aspectRatio = naturalWidth / naturalHeight;
+
+      // Active le fond flouté pour les images portrait ou carrées
+      if (aspectRatio < 1.5) {
         setIsNarrow(true);
       }
     };
@@ -145,12 +155,14 @@ const PostMedia = ({ post, bust, size = "small" }) => {
             <div
               className={`photo-wrapper ${isNarrow ? 'has-blur-bg' : ''}`}
               style={{
-                display: isImageLoading ? "none" : "block",
+                visibility: isImageLoading ? "hidden" : "visible",
+                position: isImageLoading ? "absolute" : "relative",
                 backgroundImage: isNarrow ? `url(${imageUrl})` : "none"
               }}
             >
               <div className="blur-overlay"></div>
               <img
+                ref={imgRef}
                 src={imageUrl}
                 alt={post.title}
                 className="photo-image"

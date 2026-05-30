@@ -219,7 +219,7 @@ const Room = () => {
             <div className="room-left">
                 <div className="room-name">
 
-                    <FiArrowLeft className="b-btn" onClick={() => navigate("/")} />
+                    {/* <FiArrowLeft className="b-btn" onClick={() => navigate("/")} /> */}
                     <h3>
                         {room?.name === "PREPA_2" && "Prépa. 2eme Année"}
                         {room?.name === "PREPA_1" && "Prépa. 1eme Année"}
@@ -244,7 +244,7 @@ const Room = () => {
                         <FiUsers size={22} />
                         <span className="btn-label">membres</span>
                     </button>
-                    <button
+                    {/* <button
                         type="button"
                         className={`btn room-media-btn ${view === 'posts' ? 'btn-primary' : 'btn-secondary'}`}
                         onClick={handleSeePosts}
@@ -252,7 +252,7 @@ const Room = () => {
                     >
                         <FiBook size={22} />
                         <span className="btn-label">posts</span>
-                    </button>
+                    </button> */}
                 </div>
 
             </div>

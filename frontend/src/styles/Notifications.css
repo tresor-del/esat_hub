@@ -3,6 +3,7 @@
   margin: 0 auto;
   padding: 20px;
   overflow: scroll;
+
 }
 
 .notifications-page h1 {
@@ -17,13 +18,20 @@
   margin-top: 50px;
 }
 
+.notifications-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.notifications-header {
+  margin-bottom: 10px;
+}
+
 .notifications-list {
   display: flex;
   flex-direction: column;
-  gap: 15px;
   width: 400px;
-  max-height: 500px;
-
+  height: calc(100vh - 150px);
   overflow: scroll;
 }
 
@@ -36,7 +44,7 @@
   justify-content: space-between;
 }
 
-.notif-item-content{
+.notif-item-content {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -82,14 +90,15 @@
   color: #007bff;
 }
 
-.notification-button, .notification-button-delete {
-    border: none;
-    color: #fff;
-    cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 10px;
-    display: block;
-    width: 200px;
+.notification-button,
+.notification-button-delete {
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 10px;
+  display: block;
+  width: 200px;
 }
 
 .notification-button {
@@ -100,9 +109,9 @@
   background-color: rgba(169, 41, 41, 0.828);
 }
 
-.notification-button:hover{
-    background-color: #ddd;
-    color: #333;
+.notification-button:hover {
+  background-color: #ddd;
+  color: #333;
 }
 
 .btns {
@@ -111,38 +120,38 @@
 }
 
 .notif-menu {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 
 }
 
 .notif-menu button {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    background-color: transparent;
-    border: none;
-    font-size: 1rem;
-    width: 100%;
-    padding: 8px 16px;
-    border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: transparent;
+  border: none;
+  font-size: 1rem;
+  width: 100%;
+  padding: 8px 16px;
+  border-radius: 4px;
 }
 
-.notif-menu button::after{
-    height: 10px;
-    background-color: red;
-    color: red;
-    display: block;
-    width: 100%;
+.notif-menu button::after {
+  height: 10px;
+  background-color: red;
+  color: red;
+  display: block;
+  width: 100%;
 }
 
 .notif-menu button:hover {
-    cursor: pointer;
-    background-color: #ddd;
+  cursor: pointer;
+  background-color: #ddd;
 }
 
 .notif-menu .notif-delete-btn {
-    color: rgb(202, 21, 21)
+  color: rgb(202, 21, 21)
 }
 
 .notification-trigger {
@@ -175,8 +184,10 @@
 
 /* Style spécifique pour les NON LUES */
 .notification-item.unread {
-  background-color: #f0f7ff; /* Un bleu très léger */
-  border-left: 4px solid #007bff; /* Une barre bleue sur le côté */
+  background-color: #f0f7ff;
+  /* Un bleu très léger */
+  border-left: 4px solid #007bff;
+  /* Une barre bleue sur le côté */
 }
 
 /* Optionnel : mettre le texte en gras pour les non lues */
@@ -187,7 +198,7 @@
 
 /* Au survol */
 .notification-item:hover {
-  background-color: #f9f9f9;
+  background-color: #ddd
 }
 
 
@@ -195,10 +206,14 @@
   .notifications-list {
     min-height: 100vh;
   }
+
+  .notifications-header {
+    display: none;
+  }
 }
 
 @media (max-width: 500px) {
   .notifications-list {
-  width: unset;
-}
+    width: unset;
+  }
 }

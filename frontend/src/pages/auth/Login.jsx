@@ -117,7 +117,7 @@ const Login = () => {
           {/* Champ Mot de passe */}
           <div className="form-group">
             <label htmlFor="password" className="form-label">
-              Mot de passe
+              Password
             </label>
             <input
               type="password"

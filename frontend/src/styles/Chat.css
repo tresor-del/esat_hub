@@ -1,11 +1,52 @@
 /* ==========================================
    STRUCTURE GLOBALE (RESPONSIVE)
    ========================================== */
+.chat {
+  display: flex;
+}
+
 .chat-container {
   display: flex !important;
-  height: 100vh !important;
-  overflow: hidden;
+  height: calc(100vh - 100px) !important;
+  width: 70% !important;
+  /* width: 100%; */
+  margin: 1rem !important;
+  background-color: #fff;
+  border-radius: 1rem;
+  flex-direction: column;
+}
+
+.left-home-card.on-chat {
+  margin-top: 1rem;
+  height: calc(100vh - 100px) !important;
+  justify-content: space-between;
+  width: 25% !important;
+}
+
+.left-home-card.on-chat .footer {
+  margin-top: 5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.app-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* padding: 1rem; */
+  margin-top: 1rem;
+}
+
+.chat-container-main {
+  display: flex;
+  flex: 1;
+  /* ← prend tout l'espace restant après le titre */
   width: 100%;
+  /* ← pas 70% */
+  min-height: 0;
+  /* ← indispensable pour que les enfants flex scroll correctement */
+  border-top: 1px solid #ccc;
 }
 
 /* Panneau latéral */
@@ -13,12 +54,13 @@
   width: 300px;
   min-width: 300px;
   border-right: 1px solid #ddd;
-  padding: 10px;
+  /* padding: 10px; */
   background-color: #fff;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   height: 100%;
+  overflow: scroll;
   min-height: 0;
   box-sizing: border-box;
 }
@@ -35,7 +77,10 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100vh !important;
+  /* height: 100vh !important; */
+  /* width: 100%; */
+  /* max-width: 100%; */
+  min-width: 0;
 }
 
 /* ==========================================
@@ -43,20 +88,38 @@
    ========================================== */
 .page-name {
   display: flex;
-  align-items: center;
+  /* align-items: center; */
+  flex-direction: column;
+  padding: 10px;
+}
+
+.page-name p {
+  font-size: 1.2rem;
+  padding: 5px;
+  font-weight: 600;
 }
 
 .new-view {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  /* gap: 2rem; */
   flex: 1;
   min-height: 0;
 }
 
-.new-view .search {
-  margin-top: 1rem;
+.new-view .title {
+  padding: 10px;
 }
+
+.new-view .search .chat-search-input {
+  width: 100%;
+  padding: 0.8rem;
+  border-right: transparent !important;
+  border-left: transparent !important;
+  border-top: transparent !important;
+  border: 1px solid #ccc;
+}
+
 
 .go-back-btn {
   cursor: pointer;
@@ -79,7 +142,7 @@
 .search-filter-btns .btn {
   padding: 5px 10px;
   border-radius: 8px;
-  width: 100%;
+  /* width: 100%; */
   cursor: pointer;
 }
 
@@ -210,17 +273,58 @@
 .chat-list {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  /* padding: 20px; */
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  /* gap: 10px; */
 }
 
 .chat-message-wrapper {
   margin: 0;
   display: flex;
-  max-width: 70%;
-  width: fit-content;
+  flex-direction: column;
+  /* max-width: 70%; */
+  /* width: fit-content; */
+  /* padding: 10px; */
+}
+
+.chat-message-header {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  padding: 10px;
+}
+
+
+
+.chat-message-header .name {
+  /* width: 100%; */
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.a {}
+
+.chat-message-header .content {
+  width: auto;
+  /* margin-left: 3rem;  */
+  font-size: 1rem;
+  word-break: break-word;
+  background-clip: padding-box;
+  line-height: 1.5;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  white-space: pre-wrap
+}
+
+.chat-message-header .content.incoming {
+  background-color: #ddd;
+}
+
+.chat-message-header .content.outgoing {
+  background-color: #338ae8 !important;
+  color: #fff;
 }
 
 .chat-message-wrapper.incoming {
@@ -240,6 +344,7 @@
   line-height: 1.5;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   white-space: pre-wrap;
+  min-width: 100px;
 }
 
 .incoming .chat-message-bubble {
@@ -296,42 +401,60 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 15px;
+  padding: 12px 15px;
   border-top: 1px solid #ddd;
   background-color: #fff;
 }
 
-/* Positionnement dynamique de la boîte EmojiPicker */
-.chat-form>div {
-  position: absolute;
-  bottom: 75px;
-  left: 15px;
-  z-index: 1000;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
-  overflow: hidden;
+.chat-input-wrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .chat-input {
-  flex: 1;
-  padding: 10px 16px;
+  width: 100%;
+  padding: 12px 48px 12px 16px;
   border: 1px solid #ccc;
-  border-radius: 20px;
+  border-radius: 24px;
   outline: none;
   font-size: 0.95rem;
   transition: border-color 0.2s;
+  box-sizing: border-box;
+  resize: none;        /* ← désactive le resize manuel */
+  overflow: hidden;    /* ← masque la scrollbar pendant le resize */
+  min-height: 46px;    /* ← hauteur minimale */
+  max-height: 200px;   /* ← limite la hauteur max */
+  line-height: 1.5;
 }
 
 .chat-input:focus {
   border-color: #007bff;
 }
 
+.chat-submit-btn {
+  border: none;
+  background-color: transparent;
+  font-size: 1.5rem;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+    background-color: #007bff;
+  color: #ddd;
+}
+
+
 .emoji-btn {
+  position: absolute;
+  right: 10px;       /* ← collé à droite dans l'input */
   background: none;
   border: none;
   font-size: 1.3rem;
   cursor: pointer;
-  padding: 5px;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -342,20 +465,16 @@
   transform: scale(1.1);
 }
 
-.chat-submit-btn {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s;
+.emoji-picker-popup {
+  position: absolute;
+  bottom: 70px;
+  left: 15px;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.chat-submit-btn:hover {
-  background-color: #0056b3;
-}
 
 /* ==========================================
    EN-TÊTES ET BOUTONS DE FERMETURE
@@ -373,6 +492,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .chat-box-header-m span {
@@ -407,13 +528,23 @@
    ========================================== */
 @media (max-width: 768px) {
   .chat-container {
-    flex-direction: row;
+    flex-direction: column;
     /* Aligné pour le switch hidden/active */
-    height: 100vh;
+    height: 100vh !important;
+    width: 100% !important;
+    margin: unset !important;
+    /* margin-top: 1rem !important; */
+    border-radius: unset;
   }
 
   .chat-box-container {
     height: 100vh !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: rotate(-50%, -50%);
+    z-index: 9999;
+    background-color: #fff;
   }
 
   .side-bar {
@@ -435,6 +566,19 @@
     display: flex;
   }
 
+  .left-home-card.on-chat {
+    display: none;
+  }
+
+  .chat {
+    flex-direction: column !important;
+  }
+
+  .navbar-hidden-mobile {
+    display: none;
+  }
+
+
   /* .chat-message-bubble {
     max-width: 85%;
   } */
@@ -450,6 +594,10 @@
     padding: 10px;
   }
 
+}
+
+.footer-hidden-desktop {
+  display: none;
 }
 
 
