@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FiImage, FiVideo, FiInbox } from "react-icons/fi";
+import { FiImage, FiVideo, FiInbox, FiGithub, FiLinkedin, FiGlobe } from "react-icons/fi";
 import PostCard from "../../components/posts/Postcard";
 import Avatar from "../../components/ui/Avatar";
 import { getUserProfile, getPosts, deletePost } from "../../services/api";
@@ -154,6 +154,61 @@ const Home = () => {
 
   return (
     <div className="container">
+
+      <div className="left-home-card">
+        <div className="left-card-header">
+          <div className="left-card-avatar">
+            <Avatar
+              user={fullUser}
+              size="large"
+              onClick={() => navigate(`profile/${userAuth.id}`)}
+            />
+          </div>
+          <div className="left-card-meta">
+            <h3 className="left-card-name">{fullUser?.first_name} {fullUser?.last_name}</h3>
+
+          </div>
+        </div>
+
+        <div className="left-card-about">
+          <h4>Tips:</h4>
+          <p>
+            {fullUser?.bio || "Participez aux discussions, partagez vos expériences et explorez les publications du réseau."}
+          </p>
+        </div>
+
+        <button className="left-card-button" onClick={() => navigate(`/profile/${userAuth.id}`)}>
+          Voir votre profil
+        </button>
+
+        <div className="left-card-footer">
+          {/* <div>
+            <a href="https://github.com/esathub" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+              <FiGithub size={20} />
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+              <FiLinkedin size={20} />
+            </a>
+            <a href="https://votre-portfolio.com" target="_blank" rel="noopener noreferrer" aria-label="Website">
+              <FiGlobe size={20} />
+            </a>
+          </div> */}
+          <div>
+            <a href="/about" className="footer-link">À propos</a>
+            <a href="/privacy" className="footer-link">Confidentialité</a>
+            <a href="/terms" className="footer-link">Condition d'utilisation</a>
+          </div>
+
+          <div className="left-home-footer-brand">
+            <h3 className="footer-link">Esat-Hub &copy; 2026</h3>
+            <p className="footer-link">Tous droits réservés.</p>
+            <p className="credits" className="footer-link">Développé par <strong> <a href="https://github.com/tresor-del" target="blank">Trésor</a></strong></p>
+          </div>
+
+        </div>
+      </div>
+
+
       <div className="main-content home">
 
         {!isLoading && filteredPosts.length > 0 && <UserTour />}

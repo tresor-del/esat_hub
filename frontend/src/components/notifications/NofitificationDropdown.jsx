@@ -132,7 +132,11 @@ const NotificationDropdown = ({ unreadCount }) => {
       {notifications.length === 0 ? (
         <p className="notifications-empty">Aucune notification pour le moment.</p>
       ) : (
-        <ul className="notifications-list">
+        <div className="notifications-container">
+          <div className="notifications-header">
+            <h2>Notifications: </h2>
+          </div>
+          <ul className="notifications-list">
           {grouped.map((notif) => {
             const key = notif._key;
             const isUnread = notifications.some(
@@ -163,6 +167,8 @@ const NotificationDropdown = ({ unreadCount }) => {
             );
           })}
         </ul>
+        </div>
+        
       )}
     </div>
   );

@@ -8,7 +8,6 @@ import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
 import "../../styles/CommentSection.css";
 import "../../styles/PostDetail.css";
 
-// ✅ Changement clé : On reçoit 'postId' et 'onClose' via les PROPS du parent
 const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
   const { user } = useAuth();
   const [post, setPost] = useState(null);
@@ -35,13 +34,11 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
     }
   };
 
-  // ✅ CORRIGÉ : Retrait du mot-clé 'export' interdit dans une fonction
   const handleEdit = (currentPost) => {
     // Si vous êtes en production dans un modal, vous pouvez rediriger ou ouvrir un sous-modal
     window.location.href = `/edit/${currentPost.id}`;
   };
 
-  // ✅ CORRIGÉ : Gestion propre de la suppression sans casser la navigation globale
   const handleDelete = async (currentPost) => {
     if (!confirm("Voulez-vous vraiment supprimer ce post ?")) return;
     try {
@@ -61,14 +58,13 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
   if (error) return <p className="alert alert-error">{error}</p>;
 
   return (
-    // ✅ Structure d'overlay fixe et scrollable
     <div className="post-detail-modal" onClick={onClose}>
       <div className="post-card-container" onClick={(e) => e.stopPropagation()}>
         <div className="post-content">
           
           {/* Bouton de fermeture moderne en haut à droite */}
           <div className="return-to-post-btn" onClick={onClose}>
-            <FiX size={20} /> Fermer
+            <FiX size={20} />
           </div>
 
           {loading ? (

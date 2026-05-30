@@ -13,7 +13,8 @@ const PostAuthorInfo = ({
   showYear = false,
   showStatus = false,
   showMajor = false,
-  variant = "default" // "default" | "compact" | "full"
+  variant = "default", // "default" | "compact" | "full"
+  postDate = null,
 }) => {
   const navigate = useNavigate();
 
@@ -83,7 +84,7 @@ const PostAuthorInfo = ({
 
   // Default variant - original behavior
   return (
-    <div className="post-user-info">
+    <div className="post-user-info date">
       {showAvatar && (
         <Avatar
           user={user}
@@ -92,16 +93,23 @@ const PostAuthorInfo = ({
           openModal={openModal}
         />
       )}
-      <span
-        style={{
-          fontWeight: dateVariant === "absolute" ? 600 : "bold",
-          fontSize: dateVariant === "absolute" ? "inherit" : "1rem",
-          cursor: "pointer"
-        }}
-        onClick={handleUserClick}
-      >
-        {user?.profil_name || "Utilisateur inconnu"}
-      </span>
+      <div className="user-info ">
+        <span
+          style={{
+            fontWeight: dateVariant === "absolute" ? 600 : "bold",
+            fontSize: dateVariant === "absolute" ? "inherit" : "1rem",
+            cursor: "pointer"
+          }}
+          onClick={handleUserClick}
+        >
+          {user?.profil_name || "Utilisateur inconnu"}
+        </span>
+
+        {postDate && (
+          <span className="post-date">{postDate}</span>
+        )}
+      </div>
+
     </div>
   );
 };

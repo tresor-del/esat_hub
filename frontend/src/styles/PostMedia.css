@@ -1,9 +1,10 @@
 
 .post-media.photo {
-  margin: 12px 0;
+  /* margin: 12px 0; */
   /* border-radius: 8px; */
   overflow: hidden;
   background-color: var(--bg-light);
+  overflow: hidden;
 }
 
 .photo-wrapper {
@@ -13,11 +14,12 @@
   background-color: var(--bg-lighter);
   width: 100%;
   /* border-radius: 8px; */
-  overflow: hidden;
+  /* overflow: hidden; */
   position: relative;
 }
 
 .photo-wrapper.has-blur-bg {
+  /* height: 400px; */
   background-size: cover;
   background-position: center;
 }
@@ -25,10 +27,16 @@
 .photo-wrapper.has-blur-bg::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: -20px;
   background: inherit;
   filter: blur(15px) brightness(0.9);
   z-index: 1;
+}
+
+.photo-wrapper.has-blur-bg .photo-image {
+  width: auto;
+  max-width: 100%;
+  height: auto;
 }
 
 .photo-image {
@@ -46,19 +54,15 @@
   max-width: 100%;
 }
 
-.post-media.photo.small .photo-image {
-  max-height: 400px;
-}
 
 /* Taille normal pour les photos */
 .post-media.photo.normal .photo-image {
-  max-height: 500px;
+  /* max-height: 500px; */
   width: auto;
 }
 
 /* Taille large pour les photos */
 .post-media.photo.large .photo-image {
-  max-height: 700px;
   width: auto;
 }
 
@@ -441,7 +445,7 @@
 @media (max-width: 480px) {
   .pdf-preview-clickable {
     max-width: 100%; /* Prend toute la largeur disponible sur mobile */
-    height: 200px;   /* Hauteur légèrement réduite pour les petits écrans */
+    /* height: 200px;   Hauteur légèrement réduite pour les petits écrans */
   }
   
   .pdf-preview-overlay {

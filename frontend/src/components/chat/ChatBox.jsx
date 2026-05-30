@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import Avatar from '../ui/Avatar';
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiArrowLeft, FiSend } from 'react-icons/fi';
 import "../../styles/Chat.css";
 import { getChatHistory, markMessagesAsReadApi } from '../../services/chatApi';
 import EmojiPicker from 'emoji-picker-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ChatBox = ({ recipient, onClose, isMobile }) => {
     const { unreadChatsCount, messages, sendMessage, user } = useWebSocket();
@@ -14,6 +15,7 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
     const [loadingHistory, setLoadingHistory] = useState(true);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const navigate = useNavigate();
+    const { user: currentUser } = useAuth();
 
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
@@ -116,16 +118,16 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
 
     return (
         <div className='chat-box-container'>
-                <div className='chat-box-header-m'>
-                    <button className='chat-close-btn' onClick={onClose}>
-                        <FiArrowLeft />
-                    </button>
-                    <div className="a" onClick={() => navigate(`/profile/${recipient.id}`)}>
+            <div className='chat-box-header-m'>
+                <button className='chat-close-btn' onClick={onClose}>
+                    <FiArrowLeft />
+                </button>
+                <div className="a" onClick={() => navigate(`/profile/${recipient.id}`)}>
 
                     <Avatar user={recipient} />
-                    <span>{recipient.profil_name}</span>
-                    </div>
+                    <span>{recipient.first_name} {recipient.last_name}</span>
                 </div>
+            </div>
 
             <div className='chat-list'>
 
@@ -146,13 +148,36 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
                                         <span>{currentDateLabel}</span>
                                     </div>
                                 )}
-                                <div className={`chat-message-wrapper ${msg.sender_id === recipient.id ? 'incoming' : 'outgoing'}`}>
-                                    <div className="chat-message-bubble">
-                                        {msg.content}
-                                        <div className="chat-message-time">
-                                            {formatChatTimestamp(msg.timestamp)}
+
+                                <div className="chat-message-wrapper" >
+
+                                    {/* En-tête : avatar + nom + heure */}
+                                    <div className="chat-message-header">
+                                        {msg.sender_id === recipient.id ? (
+                                            <Avatar user={recipient} size="default" />
+                                        ) : (
+                                            <Avatar user={currentUser} size="default" />
+                                        )}
+
+                                        <div className='name'>
+                                            <span className="name-h">
+                                                {msg.sender_id === recipient.id
+                                                    ? `${recipient.first_name} ${recipient.last_name}`
+                                                    : `${currentUser.first_name} ${currentUser.last_name}`}
+                                                <span className="chat-message-time">
+                                                    {formatChatTimestamp(msg.timestamp)}
+                                                </span>
+                                            </span>
+
+                                            <div className={`content ${msg.sender_id === currentUser.id ? "outgoing" : "incoming"}`}>
+                                                {msg.content}
+                                            </div>
                                         </div>
                                     </div>
+
+                                    {/* Bulle de message en dessous */}
+
+
                                 </div>
                             </React.Fragment>
                         );
@@ -161,27 +186,44 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
                 <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={handleSend} className="chat-form" style={{ position: 'relative' }}>
+            <form onSubmit={handleSend} className="chat-form">
                 {showEmojiPicker && (
-                    <div style={{ position: 'absolute', bottom: '70px', left: '15px', zIndex: 1000 }}>
+                    <div className="emoji-picker-popup">
                         <EmojiPicker onEmojiClick={onEmojiClick} />
                     </div>
                 )}
-                <button
-                    type="button"
-                    className="emoji-btn"
-                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                >
-                    😊
-                </button>
-                <input
-                    ref={inputRef}
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    placeholder="Écrivez votre message..."
-                    className="chat-input"
-                />
-                <button type="submit" className="chat-submit-btn">Envoyer</button>
+
+                <div className="chat-input-wrapper">
+                    <textarea
+                        ref={inputRef}
+                        value={text}
+                        onChange={(e) => {
+                            setText(e.target.value);
+                            // Auto-resize
+                            e.target.style.height = 'auto';
+                            e.target.style.height = e.target.scrollHeight + 'px';
+                        }}
+                        onKeyDown={(e) => {
+                            // Envoyer avec Entrée, saut de ligne avec Shift+Entrée
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSend(e);
+                            }
+                        }}
+                        placeholder="Écrivez votre message..."
+                        className="chat-input"
+                        rows={1}
+                    />
+                    <button
+                        type="button"
+                        className="emoji-btn"
+                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    >
+                        😊
+                    </button>
+                </div>
+
+                <button type="submit" className="chat-submit-btn"><FiSend /></button>
             </form>
         </div>
     );

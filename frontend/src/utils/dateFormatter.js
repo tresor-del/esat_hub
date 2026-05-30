@@ -4,10 +4,26 @@ import { fr } from 'date-fns/locale';
 export const formatRelativeDate = (date) => {
   if (!date) return '';
   
-  return formatDistanceToNow(new Date(date), { 
+  let distance = formatDistanceToNow(new Date(date), { 
     locale: fr 
   });
+
+  // Nettoyage des mots inutiles et abréviations
+  distance = distance
+    .replace('environ', '')
+    .replace('moins d\'une', '1')
+    .replace('quelques', '1')
+    .replace('minutes', 'min')
+    .replace('minute', 'min')
+    .replace('heures', 'h')
+    .replace('heure', 'h')
+    .replace('jours', 'jrs')
+    .replace('jour', 'jrs');
+
+  // Supprime les espaces en double ou invisibles créés par les remplacements
+  return distance.replace(/\s+/g, ' ').trim();
 };
+
 
 export const formatChatDate = (timestamp) => {
   const date = new Date(timestamp);

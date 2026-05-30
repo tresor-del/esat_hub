@@ -90,7 +90,6 @@ const AppRoutes = () => {
               element={isAuth() ? <Navigate to="/" replace /> : <Register />}
             />
             <Route path="/confirm-email" element={<ConfirmEmail />} />
-            <Route path="/chat" element={<ChatPage />} />
 
           </Route>
 
@@ -101,6 +100,7 @@ const AppRoutes = () => {
               </ProtectedRoute>
             }
           >
+            <Route path="/chat" element={<ChatPage />} />
             <Route path="/" element={<Home />} />
             <Route path="/create" element={<CreatePost />} />
             <Route path="/edit/:id" element={<PostEdit />} />
