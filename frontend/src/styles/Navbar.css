@@ -97,7 +97,7 @@
   /* gap: 6px; */
   font-size: 18px;
   font-weight: bold;
-  color: var(--reddit-orange);
+  color: var(--reddit-blue);
   flex-shrink: 0;
   text-decoration: none;
   white-space: nowrap;
@@ -149,8 +149,8 @@
 }
 
 .navbar-icon-btn.active {
-  color: #1e3a8a;
-  border-bottom: 5px solid #1e3a8a;
+  color: var(--reddit-blue);
+  border-bottom: 5px solid var(--reddit-blue);
 }
 
 /* ── Badge + icône ───────────────────────────── */
@@ -362,8 +362,8 @@
 }
 
 .navbar-mobile-bottom .mobile-action.active {
-  color: #1e3a8a;
-  border-bottom-color: #1e3a8a;
+  color: var(--reddit-blue);
+  border-bottom-color: var(--reddit-blue);
 }
 
 .navbar-mobile-bottom .mobile-action.active .navbar-icon-container {
