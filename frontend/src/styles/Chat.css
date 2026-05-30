@@ -303,7 +303,6 @@
   font-weight: 500;
 }
 
-.a {}
 
 .chat-message-header .content {
   width: auto;
@@ -572,6 +571,7 @@
 
   .chat {
     flex-direction: column !important;
+    margin-bottom: 4rem;
   }
 
   .navbar-hidden-mobile {
