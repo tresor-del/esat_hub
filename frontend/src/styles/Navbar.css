@@ -23,6 +23,10 @@
     display: none;
   }
 
+  .navbar-logo {
+    font-size: 1.5rem !important;
+  }
+
   .show-mobile {
     display: block;
   }
@@ -95,7 +99,7 @@
   display: flex;
   align-items: center;
   /* gap: 6px; */
-  font-size: 18px;
+  font-size: 2rem;
   font-weight: bold;
   color: var(--reddit-blue);
   flex-shrink: 0;
@@ -209,10 +213,15 @@
   border-radius: 50%;
   flex-shrink: 0;
   transition: background-color 0.2s ease;
+  /* background-color: #ddd; */
 }
 
 .notification-trigger:hover {
-  background-color: var(--bg-hover);
+  background-color: #bbb;
+}
+
+.notification-trigger.active {
+  background-color: var(--reddit-blue);
 }
 
 .notification-trigger.navbar-icon-container {

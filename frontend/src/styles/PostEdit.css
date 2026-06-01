@@ -466,6 +466,10 @@
   color: #666;
 }
 
+.footer-hidden-desktop {
+    display: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .post-edit-container {

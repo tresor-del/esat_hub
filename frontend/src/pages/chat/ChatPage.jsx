@@ -3,15 +3,18 @@ import { useWebSocket } from '../../contexts/WebSocketContext';
 import { useNavigate } from 'react-router-dom';
 import SearchFilters from '../../components/ui/SearchFilters';
 import { FiArrowLeft } from 'react-icons/fi';
+import { useSearchParams } from 'react-router-dom';
 import { searchPosts } from '../../services/api';
 import { getAllUsers, markMessagesAsReadApi } from '../../services/chatApi';
 import Avatar from '../../components/ui/Avatar';
 import ChatBox from '../../components/chat/ChatBox';
 import "../../styles/Chat.css"
+import "../../styles/Home.css"
 import { getRecentChat } from '../../services/chatApi';
 import { set } from 'date-fns';
 import Logo from '../../components/common/Logo';
 import { useAuth } from '../../contexts/AuthContext';
+import HomeSidebar from '../Home/components/HomeSidebar';
 
 const ChatPage = () => {
     const { unreadChatsCount, refreshUnreadCount, messages } = useWebSocket();
@@ -30,6 +33,8 @@ const ChatPage = () => {
     const { user: fullUser } = useAuth();
 
     const navigate = useNavigate()
+
+    const [searchParams, setSearchParams] = useSearchParams();
 
 
     useEffect(() => {
@@ -88,7 +93,6 @@ const ChatPage = () => {
         return () => window.removeEventListener("CHAT_UPDATED", handleChatUpdate);
     }, []);
 
-
     useEffect(() => {
         const handleResize = () => {
             const mobile = window.innerWidth <= 768;
@@ -101,9 +105,20 @@ const ChatPage = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // 1. ÉCOUTER l'URL au chargement : Si un ID est présent, on l'active
+    useEffect(() => {
+        const userIdInUrl = searchParams.get('user');
+        if (userIdInUrl && (!activeRecipient || activeRecipient.id !== userIdInUrl)) {
+            // Trouvez l'utilisateur dans votre liste globale et activez-le
+            const user = allUsers?.find(u => u.id === userIdInUrl);
+            if (user) handleSelectRecipient(user);
+        }
+    }, [searchParams, allUsers, activeRecipient]);
+
     const handleSelectRecipient = async (recipient) => {
         // 1. ACTIONS INITIALES INSTANTANÉES (L'interface change de suite)
         setActiveRecipient(recipient);
+        setSearchParams({ user: recipient.id });
         activeRecipientRef.current = recipient;
 
         if (isMobileView) {
@@ -134,6 +149,7 @@ const ChatPage = () => {
     const handleCloseChat = () => {
         setIsChatOpen(false);
         setActiveRecipient(null);
+        setSearchParams({});
         activeRecipientRef.current = null;
     };
 
@@ -327,35 +343,7 @@ const ChatPage = () => {
 
             </div>
 
-            <div className="left-home-card on-chat">
-                <div className="left-card-header">
-                    <div className="left-card-avatar">
-                        <Avatar
-                            user={fullUser}
-                            size="large"
-                            onClick={() => navigate(`profile/${userAuth.id}`)}
-                        />
-                    </div>
-                    <div className="left-card-meta">
-                        <h3 className="left-card-name">{fullUser?.first_name} {fullUser?.last_name}</h3>
-
-                    </div>
-                </div>
-
-                <button className="left-card-button" onClick={() => navigate(`/profile/${fullUser.id}`)}>
-                    Voir votre profil
-                </button>
-
-                <div className='footer'>
-                    <a href="/about" className="footer-link">À propos</a>
-                    <a href="/privacy" className="footer-link">Confidentialité</a>
-                    <a href="/terms" className="footer-link">Condition d'utilisation</a>
-                    <h3 className="footer-link">Esat-Hub &copy; 2026</h3>
-                    <p className="footer-link"></p>
-                    <p className="credits" className="footer-link">Développé par <strong> <a href="https://github.com/tresor-del" target="blank">Trésor</a></strong></p>
-
-                </div>
-            </div>
+            <HomeSidebar fullUser={fullUser} userAuth={fullUser} className="on-chat" />
 
         </div>
 

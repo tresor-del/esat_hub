@@ -163,6 +163,22 @@ const UserProfile = () => {
                 </button>
               )}
 
+              {isOwnProfile ? (
+                <> </>
+              ) : (
+
+                <button
+                  className="btn btn-secondary profile-edit-btn"
+                  onClick={() => navigate('/chat?user=' + profile.id)}
+                  style={{ marginBottom: '16px' }}
+                >
+                  <FiEdit2 size={16} style={{ marginRight: '8px' }} />
+                  Envoyer un message
+                </button>
+              )}
+
+
+
               {isMobile ? (
                 <div></div>
               ) :
@@ -276,7 +292,7 @@ const UserProfile = () => {
       </div>
 
 
-    </div>
+    </div >
   );
 };
 

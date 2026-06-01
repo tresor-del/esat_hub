@@ -3,13 +3,21 @@
 .profile-container {
   width: 100% !important;
   margin: 0 auto;
-  padding: 20px;
+  height: calc(100vh - calc(1rem - 60px));
+  display: flex;
+  justify-content: center;
 }
 
 /* Carte de profil */
 .profile-card {
-  padding: 32px;
-  margin-bottom: 32px;
+  position: fixed;
+  width: 98%;
+  padding: 1rem !important;
+  margin: 0.5rem 0.5rem 0 0.5rem !important;
+  max-height: 100%;
+  border-radius: 1rem 1rem 0 0 !important;
+  overflow: scroll !important;
+  margin-bottom: 6rem !important;
 }
 
 
@@ -23,6 +31,7 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  min-width: 30%;
 }
 
 .profile-avatar-container {
