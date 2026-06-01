@@ -33,15 +33,18 @@ const MainLayout = () => {
   const postDetail = location.pathname.startsWith("/post/")
   const isHomePage = location.pathname == "/"
   const isChatPage = location.pathname == "/chat"
+  const isCreatePage = location.pathname == "/create"
+  const isEditPage = location.pathname.startsWith("/edit/")
+  const isProfilePage = location.pathname.startsWith("/profile/")
 
   return (
     <>
       {showWelcome && (
         <WelcomeModal user={user} onClose={handleCloseWelcome} />
       )}
-      <Navbar className={ isChatPage || isRoomPage || postDetail ? "navbar-hidden-mobile": ""} />
+      <Navbar className={ isEditPage || isCreatePage || isChatPage || isRoomPage || postDetail ? "navbar-hidden-mobile": ""} />
       <Outlet />
-      <Footer className={isRoomPage || isHomePage || isChatPage ? "footer-hidden-desktop": ""} />
+      <Footer className={isProfilePage || isEditPage ||isCreatePage || isRoomPage || isHomePage || isChatPage ? "footer-hidden-desktop": ""} />
     </>
   );
 };

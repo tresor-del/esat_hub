@@ -247,7 +247,7 @@ const Navbar = (props) => {
 
       {/* Barre d'actions mobile en bas du navbar (mobile only) */}
       {isMobile && (
-        <div className="navbar-mobile-bottom">
+        <div className={`navbar-mobile-bottom }`}>
           <button
             className={`navbar-icon-btn mobile-action ${activeSection === "home" ? "active" : ""}`}
             aria-label="Accueil"

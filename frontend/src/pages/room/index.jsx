@@ -1,0 +1,127 @@
+// ─── Room/index.jsx ───────────────────────────────────────────────────────────
+// Orchestrator: wires data hooks + action hooks into the layout.
+// Contains zero business logic — only composition.
+
+import React, { useMemo, useState } from "react";
+import "../../styles/Room.css";
+
+import { useRoomData }     from "./hooks/useRoomData";
+import { useMediaActions } from "./hooks/useMediaActions";
+import { getMediaUrl }     from "./utils/mediaHelpers";
+
+import RoomSidebar      from "./components/RoomSidebar";
+import UsersView        from "./components/UsersView";
+import PostsView        from "./components/PostsView";
+import MediaView        from "./components/MediaView";
+
+import MediaUploadModal from "./components/modals/MediaUploadModal";
+import MediaDetailModal from "./components/modals/MediaDetailModal";
+import ShareModal       from "./components/modals/ShareModal";
+import ImageModal       from "../../components/ui/ImageModal";
+
+const Room = () => {
+    const [view, setView] = useState("users");
+
+    // ── Data ──────────────────────────────────────────────────────────────────
+    const {
+        room,
+        loadingRoom,
+        posts,
+        loadingPosts,
+        roomMedia,
+        loadingMedia,
+    } = useRoomData(view);
+
+    // ── Actions + modal state ─────────────────────────────────────────────────
+    const {
+        uploadModalOpen,
+        editingMedia,
+        detailMediaId,
+        shareMedia,
+        imagePreview,
+        handleOpenDetail,
+        handleShare,
+        handleUploadSuccess,
+        openAddModal,
+        closeUploadModal,
+        closeDetailModal,
+        closeShareModal,
+        closeImagePreview,
+    } = useMediaActions(room?.id, roomMedia, setView);
+
+    // ── Derived: resolve detailMediaId → media object ─────────────────────────
+    const selectedDetailMedia = useMemo(
+        () =>
+            detailMediaId
+                ? (roomMedia.find((m) => String(m.id) === String(detailMediaId)) ?? null)
+                : null,
+        [roomMedia, detailMediaId]
+    );
+
+    // ── Early returns ─────────────────────────────────────────────────────────
+    if (loadingRoom) return <div className="room-loading">Chargement...</div>;
+    if (!room)       return <div className="room-error">Aucune salle trouvée.</div>;
+
+    // ── Render ────────────────────────────────────────────────────────────────
+    return (
+        <div className="room-container">
+
+            <RoomSidebar room={room} view={view} onViewChange={setView} />
+
+            <div className="room-right">
+                {view === "users" && (
+                    <UsersView users={room.users} />
+                )}
+
+                {view === "posts" && (
+                    <PostsView posts={posts} loading={loadingPosts} />
+                )}
+
+                {view === "media" && (
+                    <MediaView
+                        roomMedia={roomMedia}
+                        loading={loadingMedia}
+                        onOpenAdd={openAddModal}
+                        onOpenDetail={handleOpenDetail}
+                        onShare={handleShare}
+                    />
+                )}
+            </div>
+
+            {/* ── Portalled modals ── */}
+
+            {uploadModalOpen && (
+                <MediaUploadModal
+                    editingMedia={editingMedia}
+                    onClose={closeUploadModal}
+                    onSuccess={handleUploadSuccess}
+                />
+            )}
+
+            {selectedDetailMedia && (
+                <MediaDetailModal
+                    media={selectedDetailMedia}
+                    onClose={closeDetailModal}
+                />
+            )}
+
+            {imagePreview && (
+                <ImageModal
+                    src={getMediaUrl(imagePreview)}
+                    alt={imagePreview.title}
+                    onClose={closeImagePreview}
+                />
+            )}
+
+            {shareMedia && (
+                <ShareModal
+                    media={shareMedia}
+                    onClose={closeShareModal}
+                />
+            )}
+
+        </div>
+    );
+};
+
+export default Room;
