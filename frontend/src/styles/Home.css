@@ -23,7 +23,7 @@
   flex-shrink: 0;
   max-height: calc(100vh - 80px);
   overflow-y: auto;
-    background-color: #ffffff;
+  background-color: #ffffff;
   border: 1px solid #e8eaed;
   border-radius: 10px;
   padding: 20px;
@@ -33,18 +33,29 @@
   margin-right: 24px;
 }
 
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
 
 /* Conteneur principal prenant tout l'espace restant */
 .empty-state-container {
+  position: sticky;
+  /* top: 5rem; */
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 60vh;
+  /* min-height: 60vh; */
+  height: calc(100vh - 100px) !important;
   /* Occupe la majeure partie de la hauteur d'écran */
-  width: 100%;
+  width: 500px;
   padding: 24px;
   box-sizing: border-box;
   background-color: #ffffff;
+  border-radius: 1rem;
 }
 
 /* Carte centrale style Facebook / Réseau Social */
@@ -94,6 +105,7 @@
   line-height: 1.4;
 }
 
+
 /* Mode sombre optionnel : Si votre application gère le dark mode */
 @media (prefers-color-scheme: dark) {
 
@@ -117,8 +129,6 @@
 
 }
 
-
-
 @media (max-width: 768px) {
 
   .container {
@@ -135,7 +145,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: unset;
+    align-items: center;
     margin-top: unset;
     margin-bottom: 5rem;
   }
@@ -146,6 +157,14 @@
 
   .left-home-card {
     display: none;
+  }
+
+  /* .footer-hidden-desktop {
+    display: flex !important;
+  } */
+
+  .empty-state-container {
+    width: 100%;
   }
 }
 
@@ -172,6 +191,10 @@
     border-radius: unset !important;
     width: 100% !important;
     max-width: 680px !important;
+  }
+
+  .posts-skeleton-list {
+    width: 100%;
   }
 }
 
@@ -238,7 +261,9 @@
   color: #007bff;
 }
 
-
+.left-card-button {
+  background-color: var(--reddit-blue);
+}
 
 .left-card-header {
   display: flex;
@@ -259,7 +284,7 @@
 .left-card-footer div {
   display: flex;
   flex-direction: column;
-  justify-content:center;
+  justify-content: center;
   align-items: center;
 }
 

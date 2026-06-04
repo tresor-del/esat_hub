@@ -21,6 +21,15 @@
     display: none;
 }
 
+.card-body {
+    padding: unset !important;
+    margin-bottom: 4rem !important;
+}
+
+.form {
+    margin-top: 1rem;
+}
+
 @media (max-width: 768px) {
 
     .pc-container {

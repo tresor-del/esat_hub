@@ -28,7 +28,7 @@ export const usePostEdit = (id) => {
             try {
                 setLoading(true);
                 const result = await getPost(id);
-
+                
                 if (!user || user.id !== result.user?.id) {
                     setError("Vous n'êtes pas autorisé à modifier ce post");
                     setTimeout(() => navigate("/"), 2000);
@@ -45,7 +45,7 @@ export const usePostEdit = (id) => {
 
                 if (result.post_type === "photo" || result.post_type === "document") {
                     const bust = localStorage.getItem(`post_bust_${result.id}`);
-                    setPreview(getPostFileUrl(result.id, bust));
+                    setPreview(getPostFileUrl(result, bust));
                     setKeepExistingFile(true);
                 }
             } catch (err) {

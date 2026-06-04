@@ -202,8 +202,9 @@ export const downloadPostFile = async (postId, fileName) => {
 
 /* Commentaires */
 
-export const getComments = async (postId) => {
-  const response = await api.get(`${API_BASE_URL}/comments/posts/${postId}/comments`)
+export const getComments = async (postId, skip = 0, limit = 10) => {
+  const params = new URLSearchParams({ skip, limit });
+  const response = await api.get(`${API_BASE_URL}/comments/posts/${postId}/comments/?${params}`)
   return response.data
 }
 

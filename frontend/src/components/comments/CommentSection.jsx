@@ -1,34 +1,58 @@
 import React, { useEffect, useState } from "react";
 import { addComment, getComments, deleteComment, updateComment, getComment } from "../../services/api"; // Assure-toi que l'import est bon
 import { useLocation } from "react-router-dom";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
+import { MdComment, MdNoCell, MdNotInterested } from "react-icons/md";
 import CommentCard from "./CommentCard";
 import CommentSectionSkeleton from "../skeletons/CommentSectionSkeleton";
 import "../../styles/CommentSection.css";
 
 const CommentSection = ({ postId, user, onCommentAdded }) => {
-    const [comments, setComments] = useState([]);
+    // const [comments, queryCli] = useState([]);
     const [content, setContent] = useState("");
     const [loading, setLoading] = useState(false);
-    const [loadingComment, setLoadingComment] = useState(false);
+    // const [loadingComment, setLoadingComment] = useState(false);
     const [error, setError] = useState("");
+    const queryClient = useQueryClient();
     const location = useLocation();
 
-
     // Charger les commentaires
-    const loadComments = async () => {
-        try {
-            setLoadingComment(true);
-            const result = await getComments(postId);
-            // On suppose que l'API renvoie { comments: [...], total: X }
-            if (result && result.comments) {
-                setComments(result.comments);
-            }
-        } catch (err) {
-            setError("Erreur lors du chargement des commentaires");
-        } finally {
-            setLoadingComment(false);
+    const {
+        data: commentsData,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading,
+        isFetching,
+    } = useInfiniteQuery({
+        queryKey: ["comments", postId],
+        queryFn: async ({ pageParam = 0 }) => {
+            return getComments(postId);
+        },
+        getNextPageParam: (lastPage, allPages) => {
+            const totalLoaded = allPages.flatMap(p => p.comments).length;
+            if (totalLoaded >= lastPage.total) return undefined;
+            return totalLoaded; // skip = nombre déjà chargés
+        }, 
+    });
+
+    const comments = commentsData?.pages.flatMap((c) => c.comments) ?? [];
+
+    // infinite scroll
+    const { ref, inView } = useInView({
+        threshold: 0.1,
+    });
+
+    useEffect(() => {
+        if (inView && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
         }
-    };
+    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+
+    const hasNext = false;
+    //
 
     useEffect(() => {
         const handleRealtimeComment = async (event) => {
@@ -47,7 +71,7 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                     const newComment = await getComment(comment_data.comment_id);
                     if (!newComment) return;
 
-                    setComments(prev => {
+                    queryClient.setQueryData(prev => {
                         // SI C'EST UNE RÉPONSE (parent_id existe)
                         if (newComment.parent_id) {
                             return prev.map(c => {
@@ -74,11 +98,6 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
         return () => window.removeEventListener("NEW_COMMENT", handleRealtimeComment);
     }, [postId, user?.id, comments]); // Crucial d'avoir comments ici
 
-
-    useEffect(() => {
-        loadComments();
-    }, [postId]);
-
     // Notifier le parent du nombre de commentaires
     useEffect(() => {
         if (onCommentAdded) {
@@ -98,11 +117,12 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                 parent_id: null
             };
             const response = await addComment(commentData);
+            console.log(response)
             setContent("");
-            setComments(prevComments => [response, ...prevComments]);
+            queryClient.setQueryData(prevComments => [response, ...prevComments]);
             // loadComments(); // Recharger pour voir le nouveau commentaire et sa structure
         } catch (err) {
-            setError("Erreur lors de l'ajout");
+            setError("Erreur lors de l'ajout: ", err);
         } finally {
             setLoading(false);
         }
@@ -119,7 +139,7 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                 parent_id: parentId
             };
             const response = await addComment(responseData);
-            setComments(prevComments => {
+            queryClient.setQueryData(prevComments => {
                 return prevComments.map(c => {
                     if (c.id === parentId) {
                         // On ajoute la réponse dans le tableau replies du parent
@@ -142,7 +162,6 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                 const result = await deleteComment(commentId);
                 if (result) {
                     alert("Commentaire supprimé");
-                    loadComments();
                 }
             } catch (error) {
                 console.log("Erreur lors de la suppression: ", error);
@@ -156,7 +175,7 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
             const response = await updateComment(commentId, new_content);
             if (response) {
                 alert("Commentaire modifié avec succès");
-                setComments(prev => prev.map(c => c.id === commentId ? response : c));
+                queryClient.setQueryData(prev => prev.map(c => c.id === commentId ? response : c));
             }
         } catch (error) {
             console.log("Erreur lors de la mise à jour: ", error);
@@ -173,8 +192,23 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
         element.style.height = `${element.scrollHeight}px`; // Applique la hauteur du contenu
     };
 
-    if (loadingComment && comments.length === 0) {
+    if (isLoading || (comments.length === 0 && isFetching)) {
         return <CommentSectionSkeleton />;
+    }
+
+    const CommentCardSkeleton = () => {
+
+        return <div className="skeleton-comment-card">
+            <div className="skeleton-comment-avatar skeleton-blink" />
+            <div className="skeleton-comment-content">
+                <div className="skeleton-comment-header">
+                    <div className="skeleton-comment-name skeleton-blink" />
+                    <div className="skeleton-comment-date skeleton-blink" />
+                </div>
+                <div className="skeleton-comment-text skeleton-blink" />
+                <div className="skeleton-comment-text short skeleton-blink" />
+            </div>
+        </div>
     }
 
     return (
@@ -195,21 +229,43 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
             </div>
 
             <div className="commentBox">
-                {comments
-                    .filter(c => c.parent_id === null).sort((a, b) => {
-                        return new Date(b.created_at) - new Date(a.created_at)
-                    })
-                    .map((comment) => (
-                        <CommentCard
-                            key={comment.id}
-                            comment={comment}
-                            user={user}
-                            onReplySubmit={handleReply}
-                            loading={loading}
-                            onEdit={handleUpdateComment}
-                            onDelete={handleDeleteComment}
-                        />
-                    ))}
+                {comments.length === 0 ? (
+                    <div className="empty-container">
+                        <div className="empty-container-icon">
+                            <MdComment />
+                        </div>
+                        <p>pas de commentaire</p>
+                    </div>
+                ) :
+                    (
+                        comments
+                            .filter(c => c.parent_id === null).sort((a, b) => {
+                                return new Date(b.created_at) - new Date(a.created_at)
+                            })
+                            .map((comment) => (
+                                <CommentCard
+                                    key={comment.id}
+                                    comment={comment}
+                                    user={user}
+                                    onReplySubmit={handleReply}
+                                    loading={loading}
+                                    onEdit={handleUpdateComment}
+                                    onDelete={handleDeleteComment}
+                                />
+                            ))
+                    )}
+
+                {hasNextPage && (
+                    <div ref={ref} style={{ minHeight: '50px' }}>
+                        {isFetchingNextPage && (
+                            <div>
+                                <CommentCardSkeleton />
+                                <CommentCardSkeleton />
+                            </div>
+                        )}
+                    </div>
+                )}
+
             </div>
         </div>
     );

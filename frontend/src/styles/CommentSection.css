@@ -7,12 +7,14 @@
     margin: 1rem;
 }
 
+
+
 .content {
     font-size: 14px;
     color: #333;
     width: inherit;
     display: flex;
-    white-space: pre-wrap; 
+    white-space: pre-wrap;
 }
 
 .comment-item {
@@ -77,7 +79,8 @@
 }
 
 .toggle-replies {
-    color: #1877f2; /* Couleur bleue pour attirer l'œil sur les réponses */
+    color: #1877f2;
+    /* Couleur bleue pour attirer l'œil sur les réponses */
 }
 
 .replies-container {
@@ -101,7 +104,8 @@
 
 .submitForm {
     display: flex;
-    align-items: flex-end; /* Aligne le bouton en bas si le texte est long */
+    align-items: flex-end;
+    /* Aligne le bouton en bas si le texte est long */
     gap: 10px;
     background: #f8f9fa;
     padding: 10px;
@@ -115,13 +119,16 @@
     flex: 1;
     border: none;
     background: transparent;
-    resize: none; /* Désactive le redimensionnement manuel par l'utilisateur */
+    resize: none;
+    /* Désactive le redimensionnement manuel par l'utilisateur */
     padding: 8px 12px;
     font-family: inherit;
     font-size: 14px;
-    max-height: 150px; /* Optionnel : limite la hauteur max avant scroll */
+    max-height: 150px;
+    /* Optionnel : limite la hauteur max avant scroll */
     outline: none;
-    overflow-y: hidden; /* Cache la barre de défilement pendant l'auto-resize */
+    overflow-y: hidden;
+    /* Cache la barre de défilement pendant l'auto-resize */
 }
 
 .submitButton {
@@ -146,9 +153,27 @@
     gap: 1rem;
 }
 
+.empty-container {
+    height: 300px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-container-icon {
+    font-size: 4rem;
+}
+
 @keyframes highlight {
-    0% { background-color: #e7f3ff; }
-    100% { background-color: #1877f2; }
+    0% {
+        background-color: #e7f3ff;
+    }
+
+    100% {
+        background-color: #1877f2;
+    }
 }
 
 .highlight-comment {
@@ -158,14 +183,19 @@
 
 @media (max-width: 768px) {
     .comment-textarea {
-    font-size: 12px;
-    max-height: 50px;
+        font-size: 12px;
+        max-height: 50px;
     }
+
     .submitForm {
         margin: 5px;
-    /* padding: 5px; */
-    /* border-radius: 10px; */
-    border: 1px solid #ddd;
-}
+        /* padding: 5px; */
+        /* border-radius: 10px; */
+        border: 1px solid #ddd;
+    }
+
+    .comment-section-container {
+        min-height: 450px;
+    }
 
 }

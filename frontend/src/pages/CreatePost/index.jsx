@@ -10,6 +10,7 @@ import HomeSidebar from "../Home/components/HomeSidebar";
 import "../../styles/PostCreate.css"
 import "../../styles/Home.css"
 import "../../styles/Chat.css"
+import "../../styles/Auth.css"
 
 const CreatePost = () => {
     const navigate = useNavigate();

@@ -7,9 +7,11 @@ import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../../components/ui/Avatar";
 import HomeSidebar from "../Home/components/HomeSidebar";
 import FileUploadZone from "../CreatePost/components/fileUploadZone";
-import "../../styles/PostCreate.css";
+import "../../styles/PostEdit.css"
+import "../../styles/PostCreate.css"
 import "../../styles/Home.css"
 import "../../styles/Chat.css"
+import "../../styles/Auth.css"
 
 const PostEdit = () => {
     const { id } = useParams();
@@ -148,16 +150,17 @@ const PostEdit = () => {
                                 </div>
                             )}
 
-                            <FileUploadZone
-                                postType={formData.post_type}
-                                file={formData.file}
-                                preview={preview}
-                                keepExistingFile={keepExistingFile}
-                                disabled={saving}
-                                onFileChange={handleFileChange}
-                                onError={handleFileError}
-                                existingFileLabel="Fichier actuel — Cliquez pour le changer"
-                            />
+                            <div className="form-group">
+                                <FileUploadZone
+                                    postType={formData.post_type}
+                                    file={formData.file}
+                                    preview={preview}
+                                    disabled={loading}
+                                    onFileChange={handleFileChange}
+                                    onError={handleFileError}
+                                />
+                            </div>
+
                         </div>
 
                         <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
@@ -174,7 +177,7 @@ const PostEdit = () => {
                                 className="btn btn-primary"
                                 disabled={saving}
                             >
-                                {saving ? "Enregistrement..." : "Enregistrer les modifications"}
+                                {saving ? "Enregistrement..." : "Enregistrer"}
                             </button>
                         </div>
                     </form>

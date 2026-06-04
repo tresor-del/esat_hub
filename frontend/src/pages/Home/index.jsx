@@ -1,23 +1,24 @@
 // ─── Home/index.jsx ───────────────────────────────────────────────────────────
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { FiInbox } from "react-icons/fi";
+import { useInView } from 'react-intersection-observer';
 
-import { useHomeData }     from "./hooks/useHomeData";
-import HomeSidebar         from "./components/HomeSidebar";
-import CreatePostBar       from "./components/CreatePostBar";
+import { useHomeData } from "./hooks/useHomeData";
+import HomeSidebar from "./components/HomeSidebar";
+import CreatePostBar from "./components/CreatePostBar";
 
-import PostCard            from "../../components/posts/Postcard";
-import PostCardSkeleton    from "../../components/skeletons/PostcardSkeleton";
-import UserTour            from "../../components/common/Usertour";
-import { deletePost }      from "../../services/api";
+import PostCard from "../../components/posts/Postcard";
+import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
+import UserTour from "../../components/common/Usertour";
+import { deletePost } from "../../services/api";
 import "../../styles/Home.css";
 
 const Home = () => {
-    const navigate      = useNavigate();
-    const queryClient   = useQueryClient();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const {
         userAuth,
@@ -48,6 +49,20 @@ const Home = () => {
         }
     };
 
+    // infinite scroll
+    const { ref, inView } = useInView({
+        threshold: 0.1,
+    });
+
+    useEffect(() => {
+        if (inView && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+        }
+    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+
+    const hasNext = false;
+
     // ── Render ────────────────────────────────────────────────────────────────
 
     return (
@@ -55,9 +70,8 @@ const Home = () => {
             <HomeSidebar fullUser={fullUser} userAuth={userAuth} />
 
             <div className="main-content home">
-                {!isLoading && filteredPosts.length > 0 && <UserTour />}
+                {/* {!isLoading && filteredPosts.length > 0 && <UserTour />} */}
 
-                <CreatePostBar fullUser={fullUser} userAuth={userAuth} />
 
                 {/* Liste des posts */}
                 {isLoading || (filteredPosts.length === 0 && isFetching) ? (
@@ -81,25 +95,30 @@ const Home = () => {
                                 </div>
                             </div>
                         ) : (
-                            filteredPosts.map((post) => (
-                                <PostCard
-                                    key={post.id}
-                                    post={post}
-                                    onEdit={handleEdit}
-                                    onDelete={handleDelete}
-                                    onView={handleView}
-                                />
-                            ))
+                            <div className="posts-list">
+                                <CreatePostBar fullUser={fullUser} userAuth={userAuth} />
+
+                                {filteredPosts.map((post) => (
+                                    <PostCard
+                                        key={post.id}
+                                        post={post}
+                                        onEdit={handleEdit}
+                                        onDelete={handleDelete}
+                                        onView={handleView}
+                                    />
+                                ))}
+                            </div>
                         )}
 
                         {hasNextPage && (
-                            <button
-                                className="btn btn-secondary"
-                                onClick={() => fetchNextPage()}
-                                disabled={isFetchingNextPage}
-                            >
-                                {isFetchingNextPage ? "Chargement..." : "Charger plus"}
-                            </button>
+                            <div ref={ref} style={{ minHeight: '50px'}}>
+                                {isFetchingNextPage && (
+                                    <div>
+                                        <PostCardSkeleton />
+                                        <PostCardSkeleton />
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </>
                 )}
