@@ -42,9 +42,9 @@ const MainLayout = () => {
       {showWelcome && (
         <WelcomeModal user={user} onClose={handleCloseWelcome} />
       )}
-      <Navbar className={ isEditPage || isCreatePage || isChatPage || isRoomPage || postDetail ? "navbar-hidden-mobile": ""} />
+      <Navbar className={ isProfilePage || isEditPage || isCreatePage || isChatPage || isRoomPage || postDetail ? "navbar-hidden-mobile": ""} />
       <Outlet />
-      <Footer className={isProfilePage || isEditPage ||isCreatePage || isRoomPage || isHomePage || isChatPage ? "footer-hidden-desktop": ""} />
+      {/* <Footer hahah prince est un génie className={isProfilePage || isEditPage ||isCreatePage || isRoomPage || isHomePage || isChatPage || postDetail ? "footer-hidden-desktop": ""} /> */}
     </>
   );
 };

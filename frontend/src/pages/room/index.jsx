@@ -59,7 +59,7 @@ const Room = () => {
     );
 
     // ── Early returns ─────────────────────────────────────────────────────────
-    if (loadingRoom) return <div className="room-loading">Chargement...</div>;
+    if (loadingRoom) return <div className="spinner"></div>;
     if (!room)       return <div className="room-error">Aucune salle trouvée.</div>;
 
     // ── Render ────────────────────────────────────────────────────────────────

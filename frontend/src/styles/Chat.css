@@ -27,7 +27,10 @@
   border-radius: 1rem 1rem 0 0 !important;
   position: unset;
   margin-top: 1rem !important;
+  scrollbar-width: none;
 }
+
+.left-home-card.on-chat::--webkit-scrollbar
 
 .left-home-card.on-chat .footer {
   display: flex;
@@ -72,11 +75,17 @@
   box-sizing: border-box;
 }
 
+.contacts-list::-webkit-scrollbar {
+  display: none;
+}
+
 .contacts-list {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   padding-right: 2px;
+
+  scrollbar-width: none;
 }
 
 /* Zone d'affichage des messages */
@@ -533,15 +542,15 @@
    MEDIA QUERIES (BREAKPOINTS CONSERVÉS)
    ========================================== */
 @media (max-width: 768px) {
+  
   .chat-container {
     flex-direction: column;
     /* Aligné pour le switch hidden/active */
-    height: 100vh !important;
+    height: calc(100vh - 55px) !important;
     width: 100% !important;
     margin: unset !important;
     /* margin-top: 1rem !important; */
     border-radius: unset;
-    margin-bottom: 4rem !important;
   }
 
   .chat-box-container {
@@ -568,7 +577,7 @@
   .chat-zone {
     display: none;
     width: 100%;
-    height: 100% !important;
+    /* height: 100% !important; */
   }
 
   .chat-zone.active {
@@ -591,6 +600,10 @@
     display: none !important;
   }
 
+  .footer-hidden-desktop {
+    display: none !important;
+  }
+
 
   /* .chat-message-bubble {
     max-width: 85%;
@@ -609,9 +622,6 @@
 
 }
 
-.footer-hidden-desktop {
-  display: none;
-}
 
 
 /* ==========================================

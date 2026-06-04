@@ -57,6 +57,7 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
           )}
 
           <br />
+          
           {!loading && post && (
             <CommentSection
               postId={post.id}

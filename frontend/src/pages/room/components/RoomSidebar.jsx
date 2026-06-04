@@ -15,9 +15,7 @@ const RoomSidebar = ({ room, view, onViewChange }) => {
 
     return (
         <div className="room-left">
-            <div className="room-name">
-                <h3>{displayName}</h3>
-            </div>
+            <h2 className="room-name">{displayName}</h2>
             <div className="room-btns">
                 <button
                     type="button"

@@ -1,11 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { useState, useEffect } from "react";
-import QRCode from "react-qr-code"
+import QRCode from "react-qr-code";
+import { QRCodeSVG } from 'qrcode.react';
 import { useParams, useNavigate } from "react-router-dom";
-import { FiEdit2, FiMail, FiCalendar, FiArrowLeft, FiUser } from "react-icons/fi";
+import { FiEdit2, FiMail, FiCalendar, FiArrowLeft, FiUser, FiImage, FiFile, FiBookOpen, } from "react-icons/fi";
 import { TbSchool } from "react-icons/tb";
-import { RiSchoolLine } from "react-icons/ri";
-import { MdOutlineDomainVerification } from "react-icons/md";
+import { RiSchoolLine, } from "react-icons/ri";
+import { MdOutlineDomainVerification, MdEmergency, MdNotAccessible, MdNotStarted, MdNotInterested, MdNotificationsNone, MdMessage } from "react-icons/md";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
 import { getUserProfile, getPosts, uploadAvatar } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../../components/ui/Avatar";
@@ -13,6 +16,9 @@ import PostCard from "../../components/posts/Postcard";
 import PostAuthorInfo from "../../components/posts/PostAuthorInfo";
 import ProfileSkeleton from "../../components/skeletons/ProfileSkeleton";
 import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
+import { formatRelativeDate } from "../../utils/dateFormatter";
+import PostDetailModal from "../../components/posts/postDetailModal";
+
 
 const UserProfile = () => {
   const { id } = useParams();
@@ -29,6 +35,7 @@ const UserProfile = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const isOwnProfile = currentUser?.id === id;
+  const [selectedPost, setSelectedPost] = useState(null);
 
   // Profil
   const { data: profile, isLoading, error } = useQuery({
@@ -65,36 +72,6 @@ const UserProfile = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // const loadProfile = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const result = isOwnProfile ? currentUser : await getUserProfile(id);
-  //     setProfile(result);
-  //     loadUserPosts(result.id);
-  //     setQrValue(result.card_number)
-  //   } catch (err) {
-  //     console.error(err);
-  //     setError("Impossible de charger le profil");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const loadUserPosts = async (userId) => {
-  //   try {
-  //     const result = await getPosts({ user_id: userId });
-  //     console.log(result.posts)
-  //     setPosts(result.posts || []);
-
-  //     // Calculer les stats
-  //     setStats({
-  //       postsCount: result.total || 0,
-  //     });
-  //   } catch (err) {
-  //     console.error("Erreur lors du chargement des posts:", err);
-  //   }
-  // };
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("fr-FR", {
@@ -123,48 +100,44 @@ const UserProfile = () => {
     (post) => post.room_id === null || post.room_id === currentUser?.user_room_id
   );
 
+  const handleSeePost = (post) => {
+    if (isMobile) navigate(`/post/${post.id}`);
+    if (!isMobile) setSelectedPost(post.id);
+  }
+
+  const handleClose = () => {
+    setSelectedPost(null)
+  }
+
   return (
     <div className="profile-container">
 
 
       {/* Carte de profil */}
-      <div className="profile-card card">
+      <div className="profile-card">
 
         <div className="profile-header">
           {/* Avatar */}
           <div className="profile-side">
-            <div className="profile-avatar-container">
-              {isMobile ? (
-                <div className="u-i">
-                  <Avatar user={profile} size="large" />
-                  <div className="ui-items">
-                    <span style={{ fontWeight: "bold" }}>{profile.profil_name}</span>
-                    <span style={{ color: "#777" }}>{profile.username}</span>
-                  </div>
-                </div>
-              ) :
-                (
-                  <Avatar user={profile} size="xlarge" />
+            <div className="card profile-avatar-container">
+              <Avatar user={profile} size="xlarge" />
 
-                )}
-
-            </div>
-
-            <div className="profile-meta">
-
-              {isOwnProfile && (
-                <button
-                  className="btn btn-secondary profile-edit-btn"
-                  onClick={() => navigate('/profile/edit')}
-                  style={{ marginBottom: '16px' }}
-                >
-                  <FiEdit2 size={16} style={{ marginRight: '8px' }} />
-                  Modifier le profil
-                </button>
-              )}
+              <div className="profile-name">
+                <h2 >{profile.profil_name}</h2>
+                <span>{profile.username}</span>
+              </div>
 
               {isOwnProfile ? (
-                <> </>
+                <>
+                  <button
+                    className="btn btn-secondary profile-edit-btn"
+                    onClick={() => navigate('/profile/edit')}
+                    style={{ marginBottom: '16px' }}
+                  >
+                    <FiEdit2 size={16} style={{ marginRight: '8px', color: "var(--reddit-blue)" }} />
+                    Modifier le profil
+                  </button>
+                </>
               ) : (
 
                 <button
@@ -172,73 +145,25 @@ const UserProfile = () => {
                   onClick={() => navigate('/chat?user=' + profile.id)}
                   style={{ marginBottom: '16px' }}
                 >
-                  <FiEdit2 size={16} style={{ marginRight: '8px' }} />
+                  <MdMessage size={16} style={{ marginRight: '8px', color: "var(--reddit-blue)" }} />
                   Envoyer un message
                 </button>
               )}
 
+            </div>
 
-
-              {isMobile ? (
-                <div></div>
-              ) :
-                (
-                  <div className="profile-name">
-                    <h2 >{profile.profil_name}</h2>
-                    <span>{profile.username}</span>
+            <div className="card about info">
+              <h3 className="profile-title">Description</h3>
+              <p className="desc">
+                {profile.desc ? profile.desc : (
+                  <div className="empty-container">
+                    <div className="empty-container-icon">
+                      <MdNotInterested />
+                    </div>
+                    <p>pas de description</p>
                   </div>
                 )}
-
-
-              <div className="info">
-                <div className="profile-meta-item">
-                  <span className="label">Nom: </span>
-                  <span>{(profile.last_name).toUpperCase()} {profile.first_name}</span>
-                </div>
-
-                <div className="profile-meta-item">
-                  <span className="label">Email: </span>
-                  <span>{profile.email}</span>
-                </div>
-
-                <div className="profile-meta-item">
-                  <span className="label">Domaine:</span>
-                  <span>{profile.domain}</span>
-                </div>
-
-                <div className="profile-meta-item">
-                  <span className="label">Spécialité:</span>
-                  <span>{profile.major}</span>
-                </div>
-
-                <div className="profile-meta-item">
-                  <span className="label">Cycle :</span>
-                  <span>{profile.level}</span>
-                </div>
-
-                <div className="profile-meta-item">
-                  <span className="label">Année:</span>
-                  <span>{profile.year}</span>
-                </div>
-
-                {isMobile ? (
-                  // Version mobile compacte du QR code
-                  <div>
-
-                  </div>
-                ) : (
-                  // Version desktop normale
-                  <div className="profile-meta-item">
-                    {/* <QRCode
-                      value={qrValue}
-                      size={64}
-                      level="H"
-                      style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                    /> */}
-                  </div>
-                )}
-
-              </div>
+              </p>
             </div>
 
           </div>
@@ -246,44 +171,90 @@ const UserProfile = () => {
           {/* Informations */}
           <div className="profile-info">
 
-            {/* Liste des posts */}
-            <div className="profile-posts">
-              {postsLoading ? (
-                <div>
-                  <PostCardSkeleton />
-                  <PostCardSkeleton />
-                  <PostCardSkeleton />
+            <div className=" aca-info">
+              <div className=" card info">
+                <h3 className="profile-title">Info Académiques</h3>
+                <div className="profile-meta-item">
+                  <span className="label">N° de carte: </span>
+                  <span className="i">{profile.card_number}</span>
+                </div>
+                <div className="profile-meta-item">
+                  <span className="label">Nom: </span>
+                  <span className="i">{(profile.last_name).toUpperCase()} {profile.first_name}</span>
                 </div>
 
-              ) : filteredPosts.length === 0 ? (
-                /* 2. Le chargement est fini ET il n'y a vraiment aucun post */
-                <div className="empty-state card">
-                  <p>
-                    <span style={{ fontWeight: "bold" }}>{profile?.profil_name}</span> n'a aucun post pour l'instant.
-                  </p>
+                <div className="profile-meta-item">
+                  <span className="label">Email: </span>
+                  <span className="i">{profile.email}</span>
                 </div>
-              ) : (
-                /* 3. Le chargement est fini ET il y a des posts à afficher */
-                <div className="posts-grid">
-                  {(isMobile ? filteredPosts.slice(0, 3) : filteredPosts).map((post) => (
-                    <PostCard
-                      key={post.id}
-                      post={post}
-                      onView={(p) => navigate(`/post/${p.id}`)}
-                      variant={isMobile ? "compact" : "list"}
-                    />
-                  ))}
 
-                  {/* Bouton Voir plus pour le mode mobile */}
-                  {isMobile && posts.length > 3 && (
-                    <div className="load-more-mobile" style={{ textAlign: 'center', padding: '16px' }}>
-                      <button className="btn btn-secondary" onClick={() => navigate(`/profile/${id}/posts`)}>
-                        Voir tous les posts ({posts.length})
-                      </button>
+                <div className="profile-meta-item">
+                  <span className="label">Domaine:</span>
+                  <span className="i"> {profile.domain}</span>
+                </div>
+
+                <div className="profile-meta-item">
+                  <span className="label">Spécialité:</span>
+                  <span className="i">{profile.major}</span>
+                </div>
+
+                <div className="profile-meta-item">
+                  <span className="label">Cycle :</span>
+                  <span className="i">{profile.level}</span>
+                </div>
+
+                <div className="profile-meta-item">
+                  <span className="label">Année:</span>
+                  <span className="i">{profile.year}</span>
+                </div>
+              </div>
+
+              <div className=" card info bg-gray-50 p-3 rounded-lg inline-block qr">
+                <h3 className="profile-title">Qr Code</h3>
+                <QRCodeSVG
+                  value={"lienAEncoder"}
+                  size={200}               // Taille en pixels (largeur/hauteur)
+                  bgColor={"#ffffff"}      // Couleur de fond
+                  fgColor={"#000000"}      // Couleur du code QR (adaptez à votre charte !)
+                  level={"M"}              // Niveau de correction d'erreur (L, M, Q, H)
+                  includeMargin={true}     // Ajoute une marge blanche de sécurité autour
+                />
+              </div>
+            </div>
+
+            <div className="card info posts-card">
+              <h3 className="profile-title">Publications</h3>
+              <div className="posts-list">
+                {filteredPosts.length === 0 ? (
+                  <div className="post-list-empty">
+                    <div className="post-list-empty-icon">
+                      <MdNotInterested />
                     </div>
-                  )}
-                </div>
-              )}
+                    <p>{profile.profil_name} n'a rien publié</p>
+                  </div>
+                ) : (
+                  filteredPosts?.map((post) => (
+                    <div className="post-item" onClick={() => handleSeePost(post)}>
+                      <span className="post-type-icon">
+                        {post.post_type === "photo" ? (
+                          <FiImage size={33} />
+                        ) : (<FiFile size={33} />)}
+                      </span>
+
+                      <div className="post-item-info">
+                        <p>{post.title}</p>
+                        <div className="item">
+                          <span className="type">{post.post_type}</span>
+                          {/* <span className="sep">.</span> */}
+                          <span className="date">{formatRelativeDate(post.created_at)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+
+              </div>
+
             </div>
 
           </div>
@@ -291,7 +262,9 @@ const UserProfile = () => {
 
       </div>
 
-
+      {selectedPost && (
+        <PostDetailModal postId={selectedPost} onClose={handleClose} />
+      )}
     </div >
   );
 };

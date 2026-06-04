@@ -114,51 +114,15 @@ const PostCard = ({
         {/* Médias */}
         <PostMedia post={post} />
 
-        <div className="post-action" >
+        {!detail && (
+          <div className="post-action" >
           <span className="post-action-btn" onClick={handleCardClick}> <FiMessageCircle size={25} /> {commentsLength}</span>
           {/* <span className="post-action-btn time" >{formatRelativeDate(post.created_at)}</span> */}
         </div>
+        )}
+        
 
       </div>
-      {/* 
-      {isModaleOpen && (
-        <div className="post-detail-modal">
-
-          <div className="post-card-container">
-            <div className="return-to-post-btn" onClick={() => setIsModalOpen(false)}>
-              <FiArrowLeft />
-            </div>
-            <div className="" style={{ cursor: "default" }}>
-              <div className="post-content">
-                {/* Bouton retour */}
-
-
-      {/* {loading ? (
-                  <PostCardSkeleton />
-                ) :
-                  (
-                    <PostCard
-                      key={post.id}
-                      post={post}
-                      // onEdit={handleEdit}
-                      // onDelete={handleDelete}
-                      detail={true}
-                    />
-                  )}
-
-                <br />
-                <CommentSection
-                  postId={post.id}
-                  user={post.user}
-                // onCommentAdded={handleCommentAdded}
-                />
-              </div> */}
-
-      {/* </div> */}
-      {/* </div> */}
-
-      {/* </div> */}
-      {/* )} */}
 
       {selectedPostId && (
         <PostDetailModal

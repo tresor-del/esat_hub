@@ -234,13 +234,17 @@
 .post-detail-modal .post-card-container {
   width: 100%;
   max-width: 600px;
-  background-color: #ffffff; 
+  background-color: #eee; 
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   
   height: auto;
   overflow: visible; 
+}
+
+.post-detail-modal .post-card-container .post-card {
+  width: 100% !important;
 }
 
 

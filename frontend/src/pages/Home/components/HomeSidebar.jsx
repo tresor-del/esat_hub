@@ -25,7 +25,7 @@ const HomeSidebar = ({className, fullUser, userAuth}) => {
             </div>
 
             <div className="left-card-about">
-                <h4>Tips:</h4>
+                <h4>Tips    :</h4>
                 <p>
                     {fullUser?.bio ||
                         "Participez aux discussions, partagez vos expériences et explorez les publications du réseau."}

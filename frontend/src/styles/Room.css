@@ -824,6 +824,10 @@
         display: none;
     }
 
+    .room-name {
+        font-size: 1.7rem;
+    }
+
 }
 
 .b-btn {

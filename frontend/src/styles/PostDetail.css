@@ -33,5 +33,9 @@
   display: none;
 }
 
+.footer-hidden-desktop {
+    display: none !important;
+  }
+
 }
 

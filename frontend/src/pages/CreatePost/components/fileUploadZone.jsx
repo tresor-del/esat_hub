@@ -86,7 +86,7 @@ const FileUploadZone = ({
                         style={{ maxWidth: "100%", maxHeight: "300px", borderRadius: "4px" }}
                     />
                     <p style={{ marginTop: "12px", color: "var(--text-secondary)" }}>
-                        ✅ Nouveau fichier sélectionné — Cliquez pour changer
+                        Nouveau fichier sélectionné — Cliquez pour changer
                     </p>
                 </div>
             );
@@ -97,7 +97,7 @@ const FileUploadZone = ({
             return (
                 <div>
                     <div className="file-upload-icon">📄</div>
-                    <strong>✅ {file.name}</strong>
+                    <strong>{file.name}</strong>
                     <p style={{ marginTop: "8px", color: "var(--text-secondary)" }}>
                         Cliquez pour changer
                     </p>
@@ -153,7 +153,7 @@ const FileUploadZone = ({
     };
 
     return (
-        <div className="file-upload">
+        <div>
             <input
                 type="file"
                 id="file"
