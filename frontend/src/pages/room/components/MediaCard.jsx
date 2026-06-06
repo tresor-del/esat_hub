@@ -1,5 +1,3 @@
-// ─── MediaCard.jsx ────────────────────────────────────────────────────────────
-
 import React from "react";
 import { FiFileText, FiShare2 } from "react-icons/fi";
 import Avatar from "../../../components/ui/Avatar";
@@ -10,11 +8,6 @@ import {
     formatMediaType,
 } from "../utils/mediaHelpers";
 
-/**
- * @prop {object}   media
- * @prop {Function} onOpen   — open detail / image preview
- * @prop {Function} onShare
- */
 const MediaCard = ({ media, onOpen, onShare }) => {
     const handleShareClick = (e) => {
         e.stopPropagation();
@@ -36,7 +29,7 @@ const MediaCard = ({ media, onOpen, onShare }) => {
                     />
                 ) : (
                     <div className="media-preview-icon">
-                        <FiFileText size={32} />
+                        <FiFileText size={28} />
                     </div>
                 )}
             </div>
@@ -56,7 +49,8 @@ const MediaCard = ({ media, onOpen, onShare }) => {
 
                 <div className="media-item-footer">
                     <div className="media-item-author">
-                        <Avatar user={media.user} />
+                        {/* 🆕 Taille 'small' pour un look plus harmonieux */}
+                        <Avatar user={media.user} size="small" />
                         <span>
                             {media.user?.profil_name ||
                                 media.user?.username ||
@@ -69,7 +63,7 @@ const MediaCard = ({ media, onOpen, onShare }) => {
                         onClick={handleShareClick}
                         aria-label="Partager"
                     >
-                        <FiShare2 />
+                        <FiShare2 size={16} />
                     </button>
                 </div>
             </div>

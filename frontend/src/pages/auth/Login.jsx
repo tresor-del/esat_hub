@@ -1,46 +1,27 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import "../../styles/Auth.css"
-import Logo from '../../components/common/Logo';
-
-
+import AuthLayout from './AuthLayout';
+import "../../styles/Auth.css";
 
 const Login = () => {
   const navigate = useNavigate();
   const { login, user } = useAuth();
 
-  // États du formulaire
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-  });
-
-  // États de l'interface
+  const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  /**
-   * Gérer les changements dans les champs du formulaire
-   */
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-    // Effacer l'erreur quand l'utilisateur commence à taper
+    setFormData({ ...formData, [e.target.name]: e.target.value });
     if (error) setError('');
   };
 
-  /**
-   * Gérer la soumission du formulaire
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // Validation basique
     if (!formData.username || !formData.password) {
       setError('Veuillez remplir tous les champs');
       setLoading(false);
@@ -48,11 +29,8 @@ const Login = () => {
     }
 
     try {
-      // Tentative de connexion
       const result = await login(formData.username, formData.password);
-
       if (result.success) {
-        // Connexion réussie - rediriger vers la page d'accueil
         const token = await requestNotificationPermission();
         if (token) {
           await axios.post("/api/v1/notifications/devices/register", {
@@ -63,11 +41,10 @@ const Login = () => {
         }
         navigate('/');
       } else {
-        // Afficher l'erreur
         setError(result.error);
       }
     } catch (err) {
-      setError('Une erreur inattendue s\'est produite');
+      setError("Une erreur inattendue s'est produite");
       console.error('Erreur lors de la connexion:', err);
     } finally {
       setLoading(false);
@@ -75,80 +52,55 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container login">
-      <div className="auth-card login-card">
-        {/* Logo */}
-        <div className="auth-logo">
-          <Logo size={60} className={loading ? "spinning-logo" : ""} />
-          <div className="auth-logo-text">Esat-Hub</div>
-        </div>
+    <AuthLayout loading={loading}>
+      <h2 className="auth-title">Connexion</h2>
 
-        {/* Titre */}
-        <h2 className="auth-title">Connexion</h2>
+      {error && <div className="alert alert-error">{error}</div>}
 
-        {/* Message d'erreur */}
-        {error && (
-          <div className="alert alert-error">
-            {error}
-          </div>
-
-
-        )}
-
-        {/* Formulaire de connexion */}
-        <form onSubmit={handleSubmit} className="form">
-          {/* Champ Email */}
-          <div className="form-group">
-            <label htmlFor="username" className="form-label">
-              Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              className="form-input"
-              placeholder="profil_name@esat_togo"
-              value={formData.username}
-              onChange={handleChange}
-              disabled={loading}
-            />
-          </div>
-
-          {/* Champ Mot de passe */}
-          <div className="form-group">
-            <label htmlFor="password" className="form-label">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              className="form-input"
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              disabled={loading}
-            />
-          </div>
-
-          {/* Bouton de soumission */}
-          <button
-            type="submit"
-            className="btn btn-primary btn-full"
+      <form onSubmit={handleSubmit} className="form">
+        <div className="form-group">
+          <label htmlFor="username" className="form-label">Username</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            className="form-input"
+            placeholder="profil_name@esat_togo"
+            value={formData.username}
+            onChange={handleChange}
             disabled={loading}
-          >
-            {loading ? 'Connexion...' : 'Se connecter'}
-          </button>
-        </form>
-
-        {/* Lien vers l'inscription */}
-        <div className="auth-link">
-          Pas encore de compte ?{' '}
-          <Link to="/register">S'inscrire</Link>
+          />
         </div>
+
+        <div className="form-group">
+          <label htmlFor="password" className="form-label">Mot de passe</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            className="form-input"
+            placeholder="••••••••"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            disabled={loading}
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="btn btn-primary btn-full"
+          disabled={loading}
+        >
+          {loading ? 'Connexion...' : 'Se connecter'}
+        </button>
+      </form>
+
+      <div className="auth-link">
+        Pas encore de compte ?{' '}
+        <Link to="/register">S'inscrire</Link>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 

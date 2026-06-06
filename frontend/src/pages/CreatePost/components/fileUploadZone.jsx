@@ -1,7 +1,3 @@
-// ─── FileUploadZone.jsx ───────────────────────────────────────────────────────
-// Shared between CreatePost and PostEdit.
-// Handles file selection, type validation, preview rendering.
-
 import React from "react";
 import { FiUpload } from "react-icons/fi";
 
@@ -76,93 +72,66 @@ const FileUploadZone = ({
     };
 
     const renderContent = () => {
-        // New file selected with image preview
         if (preview && file) {
             return (
-                <div>
-                    <img
-                        src={preview}
-                        alt="Aperçu"
-                        style={{ maxWidth: "100%", maxHeight: "300px", borderRadius: "4px" }}
-                    />
-                    <p style={{ marginTop: "12px", color: "var(--text-secondary)" }}>
-                        Nouveau fichier sélectionné — Cliquez pour changer
-                    </p>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                    <img src={preview} alt="Aperçu"
+                        style={{ maxWidth: "100%", maxHeight: "220px", borderRadius: "10px", objectFit: "contain" }} />
+                    <p className="file-upload-text-secondary">Fichier sélectionné — cliquez pour changer</p>
                 </div>
             );
         }
-
-        // New document selected (no image preview)
         if (file) {
             return (
-                <div>
-                    <div className="file-upload-icon">📄</div>
-                    <strong>{file.name}</strong>
-                    <p style={{ marginTop: "8px", color: "var(--text-secondary)" }}>
-                        Cliquez pour changer
-                    </p>
+                <div className="file-selected-doc">
+                    <span className="file-selected-doc-icon">📄</span>
+                    <span className="file-selected-doc-name">{file.name}</span>
+                    <span className="file-selected-doc-change">Changer</span>
                 </div>
             );
         }
-
-        // Edit mode: existing file kept, image preview available
         if (keepExistingFile && preview && postType === "photo") {
             return (
-                <div>
-                    <img
-                        src={preview}
-                        alt="Aperçu actuel"
-                        style={{ maxWidth: "100%", maxHeight: "300px", borderRadius: "4px" }}
-                    />
-                    <p style={{ marginTop: "12px", color: "var(--text-secondary)" }}>
-                        {existingFileLabel || "Fichier actuel — Cliquez pour le changer"}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+                    <img src={preview} alt="Aperçu actuel"
+                        style={{ maxWidth: "100%", maxHeight: "220px", borderRadius: "10px", objectFit: "contain" }} />
+                    <p className="file-upload-text-secondary">
+                        {existingFileLabel || "Fichier actuel — cliquez pour changer"}
                     </p>
                 </div>
             );
         }
-
-        // Edit mode: existing file kept, no image preview
         if (keepExistingFile) {
             return (
-                <div>
-                    <div className="file-upload-icon">
-                        {postType === "photo" ? "📷" : "📄"}
-                    </div>
-                    <strong>Fichier actuel conservé</strong>
-                    <p style={{ marginTop: "8px", color: "var(--text-secondary)" }}>
-                        Cliquez pour le remplacer
-                    </p>
+                <div className="file-selected-doc">
+                    <span className="file-selected-doc-icon">{postType === "photo" ? "📷" : "📄"}</span>
+                    <span className="file-selected-doc-name">Fichier actuel conservé</span>
+                    <span className="file-selected-doc-change">Remplacer</span>
                 </div>
             );
         }
-
-        // Default: empty state
+        // État vide
         return (
             <>
-                <div className="file-upload-icon">
+                <div className="file-upload-icon-circle">
                     <FiUpload />
                 </div>
-                <strong>Cliquez pour sélectionner un fichier</strong>
-                <p style={{ marginTop: "8px", color: "var(--text-secondary)" }}>
-                    {postType === "photo"
-                        ? "JPG, PNG, GIF ou WEBP"
-                        : "PDF, DOC, DOCX, TXT, XLS, XLSX, PPT ou PPTX"}
-                </p>
+                <div>
+                    <p className="file-upload-text-primary">Glissez ou cliquez pour uploader</p>
+                    <p className="file-upload-text-secondary">
+                        {postType === "photo" ? "JPG, PNG, GIF ou WEBP · max 10 Mo" : "PDF, DOC, DOCX, TXT, XLS, XLSX, PPT ou PPTX"}
+                    </p>
+                </div>
+                <button type="button" className="file-upload-browse-btn">Parcourir</button>
             </>
         );
     };
 
     return (
         <div>
-            <input
-                type="file"
-                id="file"
-                accept={accept}
-                onChange={handleChange}
-                style={{ display: "none" }}
-                disabled={disabled}
-            />
-            <label htmlFor="file" className="file-upload-label" style={{ cursor: "pointer" }}>
+            <input type="file" id="file" accept={accept} onChange={handleChange}
+                style={{ display: "none" }} disabled={disabled} />
+            <label htmlFor="file" className="file-upload-label">
                 {renderContent()}
             </label>
         </div>

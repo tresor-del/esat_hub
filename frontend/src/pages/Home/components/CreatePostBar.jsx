@@ -2,16 +2,18 @@
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { FiImage, FiVideo } from "react-icons/fi";
+import { FiFile, FiImage, FiVideo } from "react-icons/fi";
 import Avatar from "../../../components/ui/Avatar";
+import CreatePost from "../../CreatePost";
+
 
 /**
  * @prop {object} fullUser
  * @prop {object} userAuth
  */
-const CreatePostBar = ({ fullUser, userAuth }) => {
+const CreatePostBar = ({fullUser, userAuth, handleCreate, closeModale }) => {
     const navigate = useNavigate();
-    const handleCreate = () => navigate("/create");
+
 
     return (
         <div
@@ -36,7 +38,7 @@ const CreatePostBar = ({ fullUser, userAuth }) => {
                     <FiImage size={20} />
                 </button>
                 <button type="button" className="action-icon-btn" title="Ajouter une vidéo">
-                    <FiVideo size={20} />
+                    <FiFile size={20} />
                 </button>
             </div>
         </div>

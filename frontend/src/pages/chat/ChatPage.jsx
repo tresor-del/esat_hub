@@ -188,13 +188,13 @@ const ChatPage = () => {
                     <p>Messagerie</p>
                     <div className="search-filter-btns">
                         <button
-                            className={`btn ${view === 'recent' ? 'btn-primary' : 'btn-secondary'}`}
+                            className={` search-filter-btn ${view === 'recent' ? 'btn-primary' : 'btn-secondary'}`}
                             onClick={handleSeeRecent}
                         >
-                            Récents
+                            Tout
                         </button>
                         <button
-                            className={`btn ${view === 'new' ? 'btn-primary' : 'btn-secondary'}`}
+                            className={`search-filter-btn ${view === 'new' ? 'btn-primary' : 'btn-secondary'}`}
                             onClick={handleSeeNew}
                         >
                             Nouveau
@@ -343,7 +343,7 @@ const ChatPage = () => {
 
             </div>
 
-            <HomeSidebar fullUser={fullUser} userAuth={fullUser} className="on-chat" />
+            <HomeSidebar fullUser={activeRecipient ? activeRecipient : fullUser} userAuth={activeRecipient ? activeRecipient : fullUser} className="profile" />
 
         </div>
 

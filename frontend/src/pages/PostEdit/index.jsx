@@ -13,9 +13,10 @@ import "../../styles/Home.css"
 import "../../styles/Chat.css"
 import "../../styles/Auth.css"
 
-const PostEdit = () => {
-    const { id } = useParams();
-    const {user: fullUser } = useAuth();
+const PostEdit = ({ id, onClose }) => {
+    const params = useParams();
+    const postId = id || params.id;
+    const { user: fullUser } = useAuth();
     const navigate = useNavigate();
 
     const {
@@ -54,8 +55,8 @@ const PostEdit = () => {
     // ── Render ────────────────────────────────────────────────────────────────
 
     return (
-        <div className="pc-container">
-            <div className="card post-create-container">
+        <div className="post-edit-modal-layout">
+            <div className="card post-edit-modal-card">
                 <div className="card-header">
                     <h2 className="card-title">Modifier le post</h2>
                 </div>
@@ -183,9 +184,6 @@ const PostEdit = () => {
                     </form>
                 </div>
             </div>
-
-            <HomeSidebar fullUser={fullUser} userAuth={fullUser} className="on-chat" />
-
         </div>
     );
 };

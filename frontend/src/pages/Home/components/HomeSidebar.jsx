@@ -4,11 +4,14 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "../../../components/ui/Avatar";
 
-const HomeSidebar = ({className, fullUser, userAuth}) => {
+const HomeSidebar = ({ className, fullUser, userAuth, home = false }) => {
     const navigate = useNavigate();
 
+    const onChatPage = window.location.pathname.startsWith("/chat");
+
+
     return (
-        <div className={ `left-home-card ${className}`}>
+        <div className={`left-home-card ${className} ${onChatPage ? "on-chat" : ""}`}>
             <div className="left-card-header">
                 <div className="left-card-avatar">
                     <Avatar
@@ -18,18 +21,15 @@ const HomeSidebar = ({className, fullUser, userAuth}) => {
                     />
                 </div>
                 <div className="left-card-meta">
-                    <h3 className="left-card-name">
+                    <h1 className="left-card-name">
                         {fullUser?.first_name} {fullUser?.last_name}
-                    </h3>
-                </div>
-            </div>
+                    </h1>
+                    <div className="i">
+                        <p className="domain-badge">{fullUser?.domain}</p>
+                        <p className="major-badge">{fullUser?.major}</p>
+                    </div>
 
-            <div className="left-card-about">
-                <h4>Tips    :</h4>
-                <p>
-                    {fullUser?.bio ||
-                        "Participez aux discussions, partagez vos expériences et explorez les publications du réseau."}
-                </p>
+                </div>
             </div>
 
             <button
@@ -39,25 +39,28 @@ const HomeSidebar = ({className, fullUser, userAuth}) => {
                 Voir votre profil
             </button>
 
-            <div className="left-card-footer">
-                <div>
-                    <a href="/about"   className="footer-link">À propos</a>
-                    <a href="/privacy" className="footer-link">Confidentialité</a>
-                    <a href="/terms"   className="footer-link">Condition d'utilisation</a>
+            {home && (
+                <div className="left-card-footer">
+                    <div>
+                        <a href="/about" className="footer-link">À propos</a>
+                        <a href="/privacy" className="footer-link">Confidentialité</a>
+                        <a href="/terms" className="footer-link">Condition d'utilisation</a>
+                    </div>
+                    <div className="left-home-footer-brand">
+                        <h3 className="footer-link">Esat-Hub &copy; 2026</h3>
+                        <p className="footer-link">Tous droits réservés.</p>
+                        <p className="footer-link">
+                            Développé par{" "}
+                            <strong>
+                                <a href="https://github.com/tresor-del" target="blank">
+                                    Trésor
+                                </a>
+                            </strong>
+                        </p>
+                    </div>
                 </div>
-                <div className="left-home-footer-brand">
-                    <h3 className="footer-link">Esat-Hub &copy; 2026</h3>
-                    <p className="footer-link">Tous droits réservés.</p>
-                    <p className="footer-link">
-                        Développé par{" "}
-                        <strong>
-                            <a href="https://github.com/tresor-del" target="blank">
-                                Trésor
-                            </a>
-                        </strong>
-                    </p>
-                </div>
-            </div>
+            )}
+
         </div>
     );
 };

@@ -7,14 +7,13 @@ import FileUploadZone from "./components/fileUploadZone";
 import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../../components/ui/Avatar";
 import HomeSidebar from "../Home/components/HomeSidebar";
-import "../../styles/PostCreate.css"
+import "../../styles/PostEdit.css"
 import "../../styles/Home.css"
-import "../../styles/Chat.css"
 import "../../styles/Auth.css"
 
-const CreatePost = () => {
+const CreatePost = ({ onClose }) => {
     const navigate = useNavigate();
-    const {user: fullUser } = useAuth();
+    const { user: fullUser } = useAuth();
 
     const {
         formData,
@@ -29,11 +28,13 @@ const CreatePost = () => {
 
     return (
 
-        <div className="pc-container">
-            <div className="card post-create-container">
+        <div className="post-edit-modal-layout">
+            <div className="card post-edit-modal-card">
                 <div className="card-header">
+
                     <h2 className="card-title">Créer un nouveau poste</h2>
                 </div>
+
 
                 <div className="card-body">
                     {error && (
@@ -131,31 +132,20 @@ const CreatePost = () => {
                             </div>
                         )}
 
-                        <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end", marginTop: "20px" }}>
-                            <button
-                                type="button"
-                                className="btn btn-secondary"
-                                onClick={() => navigate("/")}
-                                disabled={loading}
-                            >
+                        <div className="post-edit-footer">
+                            <button type="button" className="btn-cancel"
+                                onClick={() => navigate("/")} disabled={loading}>
                                 Annuler
                             </button>
-                            <button
-                                type="submit"
-                                className="btn btn-primary"
-                                disabled={loading}
-                            >
+                            <button type="submit" className="btn-submit" disabled={loading}>
                                 {loading ? "Création..." : "Créer le poste"}
                             </button>
                         </div>
+                        
                     </form>
                 </div>
             </div>
-
-            <HomeSidebar fullUser={fullUser} userAuth={fullUser} className="on-chat"/>
-
         </div>
-
 
 
     );

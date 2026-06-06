@@ -1,373 +1,207 @@
-/* pages/UserProfile.css */
-
-.profile-container {
-  width: 100% !important;
-  margin: 0 auto;
-  /* height: calc(100vh - calc(1rem - 60px)); */
-  display: flex;
-  justify-content: center;
-}
-
-/* Carte de profil */
 .profile-card {
-  /* position: fixed; */
-  width: 98%;
-  padding: 1rem !important;
-  /* margin: 0.5rem 0.5rem 0 0.5rem !important; */
-  height: 100%;
-  /* border-radius: 1rem 1rem 0 0 !important; */
-  /* overflow: scroll !important; */
-  background: unset !important;
-}
-
-.profile-header {
-  display: flex;
-  gap: 0.6rem;
-  align-items: flex-start;
-}
-
-.aca-info {
-  display: flex !important;
-  justify-content: space-evenly;
-  border-radius: 1rem !important;
-  gap: 0.6rem;
-}
-
-.aca-info div {
   width: 100%;
-}
-
-.profile-side {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  min-width: 30%;
-}
-
-.profile-avatar-container {
-  position: relative;
-  flex-shrink: 0;
+  max-width: 1400px;
   padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  /* justify-content: center; */
-  border-radius: 1rem !important;
-}
-
-.avatar-upload-btn {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 36px;
-  height: 36px;
-  background: var(--reddit-blue, #0079d3);
-  border: 3px solid white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: white;
-  transition: all 0.2s ease;
-}
-
-.avatar-upload-btn:hover {
-  background: #0066b3;
-  transform: scale(1.1);
-}
-
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 0.6rem;
-  /* height: calc(100vh - 80px); */
-  overflow: scroll;
-  scrollbar-width: none;
-}
-
-.profile-info::-webkit-scrollbar {
-  display: none;
-}
-
-.profile-name {
-  font-weight: 700;
-  margin: 0 0 16px 0;
-  color: #1c1c1c;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background: transparent !important;
 }
 
 .info {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 1rem;
   border-radius: 1rem !important;
-}
-
-.profile-meta-item {
-  display: flex;
-  align-items: center;
-  /* justify-content: space-between; */
-  gap: 1rem;
-  font-size: 14px;
-  color: #666;
-  font-size: 1rem;
-}
-
-.profile-meta-item svg {
-  flex-shrink: 0;
-}
-
-.profile-meta-item .label {
-  font-weight: 700;
-}
-
-.about {
-  min-height: 200px;
-}
-
-.about .desc {
-  padding: 10px;
-}
-
-.empty-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.empty-container-icon {
-    font-size: 2rem;
-  color: var(--reddit-blue);
-}
-
-.post-list-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  /* min-height:200px !important; */
-}
-
-.post-list-empty p, .empty-container-icon p {
-  color: #444;
-}
-
-.post-list-empty-icon {
-  font-size: 4rem;
-  color: var(--reddit-blue);
-}
-.posts-card {
-  min-height: 250px;
-}
-
-.post
-/* Statistiques */
-.profile-stats {
-  display: flex;
-  gap: 32px;
-  padding: 20px 0;
-  border-top: 1px solid var(--border-color, #edeff1);
-}
-
-.profile-stat {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.profile-stat svg {
-  color: var(--reddit-blue, #0079d3);
-}
-
-.profile-stat>div {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1c1c1c;
-  line-height: 1;
-}
-
-.stat-label {
-  font-size: 13px;
-  color: #666;
-  margin-top: 4px;
-}
-
-/* Posts de l'utilisateur */
-.profile-posts {
-  width: 100%;
-}
-
-.section-title {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0 0 20px 0;
-  color: #1c1c1c;
-}
-
-.posts-grid {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 4rem;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 48px 24px;
-  color: #666;
-}
-
-.profile-info {
-  width: 100%;
-
-}
-
-.aca-info .qr {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 1rem;
+  border: 1px solid #E6EAF0;
 }
 
 .profile-title {
   font-weight: bolder;
   font-size: 1.2rem;
   color: #444;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  padding-bottom: 10px;
 }
 
-.posts-list {
+.profile-banner {
+  background:
+    linear-gradient(135deg,
+      #0f4c81,
+      #0079d3);
+
+  border-radius: 20px;
+  padding: 2rem;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.profile-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.profile-identity {
+  flex: 1;
+}
+
+.profile-identity h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.profile-identity .username {
+  opacity: .9;
+  margin-top: .25rem;
+}
+
+.profile-badges {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.profile-badge {
+  background: rgba(255, 255, 255, .15);
+  border: 1px solid rgba(255, 255, 255, .2);
+  padding: .45rem .8rem;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+}
+
+.profile-actions {
+  display: flex;
+  gap: .75rem;
+  margin-top: 1rem;
+}
+
+.profile-main-grid {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 1rem;
+}
+
+.student-card {
+  background:
+    linear-gradient(135deg,
+      #0f172a,
+      #1e293b);
+
+  color: white;
+  border-radius: 18px;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 2rem;
+  align-items: center;
+}
+
+.qr-actions {
+  display: flex;
+  justify-content: space-evenly;
+  font-size: 1.5rem;
+  width: 100%;
+}
+
+
+.student-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.student-row span:first-child {
+  opacity: .8;
+}
+
+.qr-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.academic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.academic-item {
+  background: var(--bg-secondary);
+  border: 1px solid #eee;
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.academic-item .label {
+  color: #64748b;
+  font-size: .85rem;
+}
+
+.academic-item .value {
+  margin-top: .4rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.about-card {
+  margin-top: 1rem;
+}
+
+.about-content {
+  line-height: 1.8;
+  color: #475569;
+}
+
+.posts-card {
+  margin-top: 1rem;
 }
 
 .post-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  background-color: #ddd;
-  border-radius: 8px;
+  background: white;
+  border: 1px solid #e8edf3;
+  border-left: 4px solid var(--reddit-blue);
+  border-radius: 14px;
+  padding: 1rem;
+  transition: all .2s ease;
+  cursor: pointer;
+}
+
+.post-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .08);
 }
 
 .post-type-icon {
-  background-color: var(--reddit-blue);
-  /* background: rgba(89, 86, 86, 0.5); */
-  padding: 2px;
-  color: #ccc;
-  border-radius: 2px;
-}
-
-.post-item-info {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: rgba(0, 121, 211, .1);
+  color: var(--reddit-blue);
   display: flex;
-  flex-direction: column;
-  gap: 0;
+  align-items: center;
+  justify-content: center;
 }
 
 .post-item-info p {
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-.post-item-info span {
-  font-size: 14px;
-
+  margin: 0;
 }
 
 .post-item-info .item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  margin-top: .25rem;
 }
 
-.post-item-info .item .sep {
-  font-size: 2rem;
-}
-
-.post-item-info .item .type {
-  color: #0079d3;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-
-  .profile-container {
-    padding: unset;
-    padding-top: unset;
-  }
-
-  .profile-card {
-    width: 100%;
-  }
-
-  .profile-side {
-    width: 100%;
-
-    gap: 0.2rem !important;
-  }
-
-  .back-button {
-    padding: 0;
-  }
-
-  .profile-card {
-    padding: unset !important;
-  }
-
-  .info,
-  .profile-avatar-container,
-  .aca-info {
-    border-radius: unset !important;
-  }
-
-  .profile-header {
-    flex-direction: column;
-    gap: 0.2rem !important;
-    /* margin-bottom: 50px; */
-  }
-
-  .profile-edit-btn {
-    width: 100%;
-  }
-
-  .posts-grid {
+@media (max-width: 900px) {
+  .profile-main-grid {
     grid-template-columns: 1fr;
-    width: 100% !important;
   }
 
-  .aca-info {
-    display: flex !important;
+  .profile-banner-content {
     flex-direction: column;
-    gap: 0.2rem !important ;
+    text-align: center;
   }
 
-  .profile-info {
-    gap: 0.2rem !important;
+  .profile-actions {
+    justify-content: center;
   }
 
-  .navbar-hidden-mobile {
-    display: none !important;
-  }
-
-  .footer-hidden-desktop {
-    display: none !important;
+  .profile-card {
+    padding: 0.5rem;
+    margin-bottom: 4rem;
   }
 }
-
-.footer-hidden-desktop {
-    display: flex !important;
-  }

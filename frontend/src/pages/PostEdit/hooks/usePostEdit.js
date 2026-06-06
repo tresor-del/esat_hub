@@ -22,13 +22,16 @@ export const usePostEdit = (id) => {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
 
+    const isOnMobile = window.innerWidth <= 768;
+
+
     // ── Load post on mount ────────────────────────────────────────────────────
     useEffect(() => {
         const load = async () => {
             try {
                 setLoading(true);
                 const result = await getPost(id);
-                
+
                 if (!user || user.id !== result.user?.id) {
                     setError("Vous n'êtes pas autorisé à modifier ce post");
                     setTimeout(() => navigate("/"), 2000);
@@ -112,7 +115,11 @@ export const usePostEdit = (id) => {
 
             await updatePost(id, data);
             localStorage.setItem(`post_bust_${id}`, Date.now());
-            navigate(`/post/${id}`, { state: { updatedAt: Date.now() } });
+            if (isOnMobile) {
+                navigate(`/post/${id}`, { state: { updatedAt: Date.now() } });
+            } else {
+                navigate("/");
+            }
         } catch (err) {
             console.error(err);
             setError(err.response?.data?.detail || "Erreur lors de la modification du post");

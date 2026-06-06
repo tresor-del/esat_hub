@@ -1,22 +1,11 @@
-// ─── postDetailModal.jsx ──────────────────────────────────────────────────────
-
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FiX } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
-
-import PostCard from "../../components/posts/Postcard";
-import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
 import CommentSection from "../../components/comments/CommentSection";
+import PostAuthorInfo from "../../components/posts/PostAuthorInfo";
 import { usePostDetail } from "../../components/posts/hooks/usePostDetail";
+import "../../styles/PostDetail.css"
 
-import "../../styles/CommentSection.css";
-import "../../styles/PostDetail.css";
-
-/**
- * @prop {string}   postId
- * @prop {Function} onClose
- * @prop {Function} onPostDeleted  — optional, called with deleted post id
- */
 const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
   const { user } = useAuth();
 
@@ -25,47 +14,61 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
     loading,
     error,
     loadPost,
-    handleEdit,
-    handleDelete,
     handleCommentAdded,
   } = usePostDetail({ onClose, onPostDeleted });
 
+  const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
+
   useEffect(() => {
     if (postId) loadPost(postId);
-  }, [postId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [postId]);
+
+  const handleImageLoad = (e) => {
+    setImgSize({
+      width: e.target.naturalWidth,
+      height: e.target.naturalHeight,
+    });
+  };
 
   if (error) return <p className="alert alert-error">{error}</p>;
 
+  const toggleReadMore = (e) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  }
+
   return (
     <div className="post-detail-modal" onClick={onClose}>
-      <div className="post-card-container" onClick={(e) => e.stopPropagation()}>
-        <div className="post-content">
-          <div className="return-to-post-btn" onClick={onClose}>
-            <FiX size={20} />
-          </div>
 
-          {loading ? (
-            <PostCardSkeleton />
-          ) : (
-            <PostCard
-              key={post.id}
-              post={post}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              detail={true}
+      <div className="return-to-post-btn" onClick={onClose}>
+        <FiX size={33} />
+      </div>
+
+      <div className="post-detail-content" onClick={(e) => e.stopPropagation()}>
+
+        {/* IMAGE */}
+        <div className="post-detail-media">
+
+          {post?.file_path && (
+            <img
+              src={post.file_path}
+              alt={post.title}
+              className="post-image"
             />
           )}
 
-          <br />
-          
-          {!loading && post && (
-            <CommentSection
-              postId={post.id}
-              user={user}
-              onCommentAdded={handleCommentAdded}
-            />
-          )}
         </div>
+
+        {/* COMMENTS */}
+        <div className="post-detail-info">
+          <CommentSection
+            postId={post?.id}
+            user={user}
+            onCommentAdded={handleCommentAdded}
+          />
+
+        </div>
+
       </div>
     </div>
   );

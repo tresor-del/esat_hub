@@ -3,7 +3,7 @@
     display: flex;
     width: 100%;
     height: calc(100vh - calc(1rem + 60px));
-    /* background-color: var(--bg-primary); */
+    /* background-color: ; */
     margin: 1rem;
 }
 
@@ -15,8 +15,12 @@
     gap: 2rem;
     border-right: 1px solid var(--border-color);
     padding: var(--spacing-lg);
-    background-color: var(--bg-secondary);
     border-radius: 1rem 0 0 0;
+    /* border: 1px solid #eee; */
+    background:
+    linear-gradient(135deg,
+      #0f4c81,
+      #0079d3);
 }
 
 .room-right {
@@ -24,30 +28,31 @@
     display: flex;
     flex-direction: column;
     padding: var(--spacing-xl);
-    background-color: var(--bg-primary);
     overflow: auto;
-    background-color: #fff;
     border-radius: 0 1rem 0 0;
+    border: 1px solid #eee;
+    border-left: none;
     margin-right: 2rem;
-}
-
-.room-btns {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    width: 100%;
+     background-color: #fff;
 }
 
 .room-name {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    /* text-align: center; */
+    gap: 0.5rem;
     font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--text-primary);
-    /* margin-bottom: var(--spacing-md); */
-    width: 100%;
-    gap: 1rem;
+    font-weight: 600;
+    color: #b45309;
+    background-color: #fef3c7;
+    border: 1px solid #fde68a;
+    padding: 6px 14px;
+    border-radius: 4px;
+    width: fit-content;
+    white-space: nowrap;
+
+    /* Effet bordereau penché */
+    transform: rotate(-2deg);
+    box-shadow: 2px 3px 10px rgba(180, 83, 9, 0.08);
 }
 
 .room-btns-mobile button {
@@ -55,16 +60,55 @@
     font-size: 1rem;
 }
 
-.room-btns .btn {
+.room-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     width: 100%;
-    justify-content: flex-start;
-    gap: 10px;
-    font-size: 1rem;
 }
 
-.room-btns .btn .btn-label {
+.room-media-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #fff;
+    background-color: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.room-media-btn.btn-primary {
+    color: #0066ff;
+    background-color: #eff6ff;
+    font-weight: 600;
+}
+
+.room-media-btn:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+}
+
+.room-media-btn.btn-primary:hover {
+    background-color: #e0f2fe;
+    color: #0066ff;
+}
+
+.room-media-btn svg {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.btn-label {
     display: inline;
 }
+
 
 .media-upload-header {
     display: flex;
@@ -138,7 +182,7 @@
     display: flex;
     align-items: center;
     background: white;
-    border: 1px solid var(--border-color);
+    border: 1px solid #eee;
     border-radius: 8px;
     padding: 12px 16px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -433,64 +477,134 @@
     color: var(--reddit-orange);
 }
 
+.media-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #eaf0f6;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.media-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+.media-preview {
+  width: 100%;
+  height: 160px;
+  background-color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.media-preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-preview-icon {
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .media-item-body {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .media-item-meta {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 }
 
 .media-item-badge {
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    font-weight: 700;
-    color: var(--reddit-orange);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  color: #0066ff;
+  background-color: #eff6ff;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.media-date {
+  font-size: 0.75rem;
+  color: #94a3b8;
 }
 
 .media-item h4 {
-    margin: 0;
-    font-size: 1rem;
-    color: var(--text-primary);
-    line-height: 1.4;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.4;
 }
 
 .media-item-body p {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    min-height: 44px;
+  margin: 0;
+  color: #64748b;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 38px;
 }
 
 .media-item-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
 }
 
 .media-item-author {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
 .media-item-action {
-    padding: 10px;
-    border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .media-item-action:hover {
-    background-color: #9ca3af;
+  background-color: #f1f5f9;
+  color: #0f172a;
 }
+
 
 .media-detail-overlay {
     position: fixed;
@@ -663,8 +777,7 @@
 
     .room-left {
         min-width: 100%;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
+        border: unset;
         gap: 1rem;
         padding: 10px;
         border-radius: unset;
@@ -684,6 +797,10 @@
         gap: 12px;
         align-items: unset;
         justify-content: space-between;
+    }
+
+    .users-search {
+        margin: 10px;
     }
 
 
@@ -800,7 +917,8 @@
     }
 
     .room-users-view {
-        padding: 1rem;
+        padding: unset;
+        gap: 0.5rem !important;
     }
 
     .media-item-header {

@@ -1,13 +1,14 @@
 .post-card {
   display: flex;
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background-color: #ffffff;
+  border: 1px solid #eee;
   border-radius: var(--border-radius);
   /* margin-bottom: var(--spacing-md); */
   overflow: hidden;
   transition: box-shadow 0.2s;
   align-items: flex-end;
-  width: 500px;
+  max-width: 600px;
+  width: 100%;
   border-radius: 10px;
 }
 

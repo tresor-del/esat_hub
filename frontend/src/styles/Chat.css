@@ -1,44 +1,37 @@
-/* ==========================================
-   STRUCTURE GLOBALE (RESPONSIVE)
-   ========================================== */
 .chat {
   display: flex;
-
   height: calc(100vh - calc(1rem + 60px)) !important;
 }
 
 .chat-container {
   display: flex !important;
   height: 100%;
-  /* height: caplc(100vh - 100px) !important; */
-  width: 70% !important;
+  height: calc(100vh - 95px) !important;
+  width: 77% !important;
   /* width: 100%; */
-  margin: 1rem 1rem 0 1rem !important;
-  background-color: #fff;
+  margin: 2rem 1rem 0 1rem !important;
   border-radius: 1rem 1rem 0 0;
   flex-direction: column;
+  /* border: 1px solid #eee; */
+
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 10px 15px -3px rgba(0, 0, 0, 0.03),
+    0 20px 25px -5px rgba(0, 0, 0, 0.02);
 }
 
 .left-home-card.on-chat {
-  max-height: unset;
-  height: calc(100vh - calc(1rem + 60px)) !important;
-  justify-content: space-between;
+  /* max-height: unset; */
+  max-height: calc(100vh - calc(1rem + 60px)) !important; 
+  position: fixed;
+  right: 10px;
+  /* justify-content: space-between; */
   width: 25% !important;
-  border-radius: 1rem 1rem 0 0 !important;
-  position: unset;
-  margin-top: 1rem !important;
+  border-radius: 1rem 1rem 0 0 ;
   scrollbar-width: none;
+  margin-top: 1rem; 
+  box-shadow: unset;
 }
 
-.left-home-card.on-chat::--webkit-scrollbar
-
-.left-home-card.on-chat .footer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: end;
-  height: 50%;
-}
 
 .app-info {
   display: flex;
@@ -97,6 +90,8 @@
   /* width: 100%; */
   /* max-width: 100%; */
   min-width: 0;
+
+  background-color: #fff;
 }
 
 /* ==========================================
@@ -107,12 +102,33 @@
   /* align-items: center; */
   flex-direction: column;
   padding: 10px;
+    background:
+    linear-gradient(135deg,
+      #0f4c81,
+      #0079d3);
+  border-radius: 20px 20px 0 0;
 }
 
 .page-name p {
-  font-size: 1.2rem;
-  padding: 5px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
   font-weight: 600;
+  color: #b45309;
+  background-color: #fef3c7;
+  border: 1px solid #fde68a;
+  padding: 6px 14px;
+  border-radius: 4px;
+  width: fit-content;
+  white-space: nowrap;
+
+  /* Effet bordereau penché */
+  transform: rotate(-2deg);
+  box-shadow: 2px 3px 10px rgba(180, 83, 9, 0.08);
+  margin-bottom: 10px;
+  
 }
 
 .new-view {
@@ -150,17 +166,38 @@
 }
 
 .search-filter-btns {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 1rem;
+  /* background-color: #f1f5f9; */
+  padding: 4px;
+  border-radius: 8px;
+  gap: 2px;
 }
 
-.search-filter-btns .btn {
-  padding: 5px 10px;
-  border-radius: 8px;
-  /* width: 100%; */
+.search-filter-btn {
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #fff;
+  background-color: transparent;
+  border: none;
   cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
 }
+
+.search-filter-btn:hover {
+  color: #1e293b;
+}
+
+.search-filter-btn.btn-primary {
+  background-color: #f1f5f9;;
+  color: #0066ff;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.07);
+}
+
 
 .empty-text {
   color: #999;
@@ -437,10 +474,14 @@
   font-size: 0.95rem;
   transition: border-color 0.2s;
   box-sizing: border-box;
-  resize: none;        /* ← désactive le resize manuel */
-  overflow: hidden;    /* ← masque la scrollbar pendant le resize */
-  min-height: 46px;    /* ← hauteur minimale */
-  max-height: 200px;   /* ← limite la hauteur max */
+  resize: none;
+  /* ← désactive le resize manuel */
+  overflow: hidden;
+  /* ← masque la scrollbar pendant le resize */
+  min-height: 46px;
+  /* ← hauteur minimale */
+  max-height: 200px;
+  /* ← limite la hauteur max */
   line-height: 1.5;
 }
 
@@ -457,14 +498,15 @@
   align-items: center;
   justify-content: center;
   border-radius: 20px;
-    background-color: #007bff;
+  background-color: #007bff;
   color: #ddd;
 }
 
 
 .emoji-btn {
   position: absolute;
-  right: 10px;       /* ← collé à droite dans l'input */
+  right: 10px;
+  /* ← collé à droite dans l'input */
   background: none;
   border: none;
   font-size: 1.3rem;
@@ -542,7 +584,11 @@
    MEDIA QUERIES (BREAKPOINTS CONSERVÉS)
    ========================================== */
 @media (max-width: 768px) {
-  
+
+  .page-name {
+    border-bottom: none !important;
+  }
+
   .chat-container {
     flex-direction: column;
     /* Aligné pour le switch hidden/active */
@@ -590,6 +636,11 @@
 
   .chat {
     flex-direction: column !important;
+  }
+
+  .contacts-list {
+    height: calc(100vh - 125px) !important;
+    border-bottom: none !important;
   }
 
   /* .navbar-hidden-mobile {
