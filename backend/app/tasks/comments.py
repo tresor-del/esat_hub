@@ -1,18 +1,18 @@
 from uuid import UUID
 
-from app.db.database import SessionLocal
+from app.tasks.deps import get_tasks_db
 from app.core.notifications import notification_contents
 from app.db.schemas.user import User
 from app.db.schemas.comments import Comment
 from app.db.schemas.post import Post
 from app.services.interactions.notification import NotificationService
-from app.models.notifications import NotificationResponse
+from app.models.notifications import NotificationResponse, NotificationUserResponse
 from app.models.user import UserResponse
 from app.services.realtime.ws_manager import ws_manager
 
 async def handle_new_comment_task(comment_id: UUID, sender_id: UUID):
 
-    with SessionLocal() as db:
+    with get_tasks_db() as db:
 
         comment = db.query(Comment).get(comment_id)
         sender = db.query(User).get(sender_id)
@@ -44,8 +44,8 @@ async def handle_new_comment_task(comment_id: UUID, sender_id: UUID):
             type="new_comment",
             content=content,
             is_read=False,
-            recipient=UserResponse.model_validate(recipient),
-            sender=UserResponse.model_validate(sender),
+            recipient=NotificationUserResponse.model_validate(recipient),
+            sender=NotificationUserResponse.model_validate(sender),
             post_id=post.id,
             comment_id=comment.id
         )

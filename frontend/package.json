@@ -16,6 +16,7 @@
     "qrcode.react": "^4.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-globe.gl": "^2.38.0",
     "react-icons": "^4.12.0",
     "react-intersection-observer": "^10.0.3",
     "react-pdf": "^10.4.1",

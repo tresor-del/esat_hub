@@ -1,515 +1,260 @@
-/**
- * Styles pour la page PostEdit
- * Design cohérent avec les autres composants
- */
-
-/* Container principal */
-.post-edit-container {
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 24px 20px;
+/* ─── Modal layout ─────────────────────────────────────── */
+.post-edit-modal-layout {
+  border-radius: 1rem;
+  height: 100vh;
 }
 
-/* En-tête */
-.post-edit-header {
-  margin-bottom: 32px;
+.post-edit-modal-card {
+  height: 100vh;
+  border: none;
+  border-radius: 1rem !important;
+  overflow: hidden;
 }
 
-.card-body {
-    padding: unset !important;
+/* ─── Header gradient bleu ─────────────────────────────── */
+.post-edit-modal-card .card-header {
+  background: linear-gradient(135deg, #0f4c81, #0079d3);
+  padding: 22px 28px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.back-button {
+/* ─── Titre bordereau penché ───────────────────────────── */
+.post-edit-modal-card .card-title {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: none;
-  border: 1px solid var(--border-color, #edeff1);
-  border-radius: 6px;
-  color: #666;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 16px;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #b45309;
+  background-color: #fef3c7;
+  border: 1px solid #fde68a;
+  padding: 6px 14px;
+  border-radius: 4px;
+  width: fit-content;
+  white-space: nowrap;
+  transform: rotate(-2deg);
+  box-shadow: 2px 3px 10px rgba(180, 83, 9, 0.08);
 }
 
-.back-button:hover {
-  background-color: #f6f7f8;
-  border-color: #d7dadc;
-}
-
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1c1c1c;
-  margin: 0;
-}
-
-/* Alertes */
-.alert {
-  padding: 12px 16px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.alert-error {
-  background-color: #fee;
-  color: #d32f2f;
-  border: 1px solid #ffcdd2;
-}
-
-.alert-success {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-  border: 1px solid #a5d6a7;
-}
-
-/* Formulaire */
-.post-edit-form {
+/* ─── Body ─────────────────────────────────────────────── */
+.post-edit-modal-card .card-body {
+  padding: 24px 28px !important;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  margin-top: 1rem;
+  gap: 20px;
+  background: #fff;
 }
 
-.form-card {
-  background: white;
-  border: 1px solid var(--border-color, #edeff1);
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+/* ─── Type & Visibilité ────────────────────────────────── */
+.post-create-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
-/* Groupes de formulaire */
-.form-group {
-  margin-bottom: 24px;
+.toggle-btn-group {
+  display: flex;
+  gap: 5px;
+  background: #f3f4f6;
+  border-radius: 10px;
+  padding: 4px;
 }
 
-.form-group:last-child {
-  margin-bottom: 0;
+.toggle-btn {
+  flex: 1;
+  padding: 7px 4px;
+  font-size: 12.5px;
+  font-weight: 500;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
+.toggle-btn.active {
+  background: #fff;
+  color: #0f4c81;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* ─── Labels ───────────────────────────────────────────── */
 .form-label {
-  display: block;
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 600;
-  color: #1c1c1c;
-  margin-bottom: 8px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 6px;
+  display: block;
 }
 
+/* ─── Inputs ───────────────────────────────────────────── */
 .form-input,
 .form-textarea {
   width: 100%;
-  padding: 12px 16px;
+  padding: 10px 14px;
   font-size: 14px;
-  border: 1px solid var(--border-color, #edeff1);
-  border-radius: 6px;
-  transition: all 0.2s ease;
   font-family: inherit;
+  color: #111;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+  resize: vertical;
 }
 
 .form-input:focus,
 .form-textarea:focus {
   outline: none;
-  border-color: var(--reddit-blue, #0079d3);
+  border-color: #0079d3;
   box-shadow: 0 0 0 3px rgba(0, 121, 211, 0.1);
 }
 
-.form-input::placeholder,
-.form-textarea::placeholder {
-  color: #999;
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 120px;
-}
-
-/* Sélecteur de type de post */
-.post-type-selector {
-  display: flex;
-  gap: 12px;
-}
-
-.type-option {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 16px;
-  background: white;
-  border: 2px solid var(--border-color, #edeff1);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 14px;
-  font-weight: 500;
-  color: #666;
-}
-
-.type-option:hover {
-  border-color: #d7dadc;
-  background-color: #f9fafa;
-}
-
-.type-option.active {
-  border-color: var(--reddit-blue, #0079d3);
-  background-color: #e8f4fd;
-  color: var(--reddit-blue, #0079d3);
-}
-
-.type-option svg {
-  transition: transform 0.2s ease;
-}
-
-.type-option:hover svg {
-  transform: scale(1.1);
-}
-
-/* Zone d'upload de fichier */
-.file-upload-area {
-  position: relative;
-}
-
-.file-input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
+/* ─── Zone upload ──────────────────────────────────────── */
 .file-upload-label {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 40px 20px;
-  border: 2px dashed var(--border-color, #edeff1);
-  border-radius: 8px;
+  padding: 32px 20px;
+  border: 1.5px dashed #93c5fd;
+  border-radius: 14px;
+  background: #eff6ff;
   cursor: pointer;
-  transition: all 0.2s ease;
-  background-color: #fafafa;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s;
 }
 
 .file-upload-label:hover {
-  border-color: var(--reddit-blue, #0079d3);
-  background-color: #f0f8ff;
+  border-color: #0079d3;
+  background: #dbeafe;
 }
 
-.upload-text {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1c1c1c;
-}
-
-.upload-hint {
-  font-size: 12px;
-  color: #999;
-}
-
-/* Aperçu du fichier */
-.file-preview-box {
-  border: 1px solid var(--border-color, #edeff1);
-  border-radius: 8px;
-  padding: 16px;
-  background-color: #fafafa;
-}
-
-.file-preview-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.file-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: #1c1c1c;
-}
-
-.remove-file-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  background: white;
-  border: 1px solid #edeff1;
-  border-radius: 4px;
-  font-size: 13px;
-  color: #d32f2f;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.remove-file-btn:hover {
-  background-color: #fee;
-  border-color: #ffcdd2;
-}
-
-.file-preview-image {
-  margin-top: 12px;
-  border-radius: 6px;
-  overflow: hidden;
-  max-height: 300px;
-  display: flex;
-  justify-content: center;
-  background-color: #f5f5f5;
-}
-
-.file-preview-image img {
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-}
-
-/* Fichier existant */
-.existing-file-preview {
-  border: 1px solid var(--border-color, #edeff1);
-  border-radius: 8px;
-  padding: 16px;
-  background-color: #f9fafa;
-}
-
-.existing-file-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.existing-file-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #666;
-}
-
-.file-preview-document {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background-color: white;
-  border: 1px solid var(--border-color, #edeff1);
-  border-radius: 6px;
-  margin-top: 12px;
-}
-
-.document-icon {
-  font-size: 32px;
-}
-
-.document-info {
-  flex: 1;
-}
-
-.document-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1c1c1c;
-  margin-bottom: 4px;
-}
-
-.document-link {
-  font-size: 13px;
-  color: var(--reddit-blue, #0079d3);
-  text-decoration: none;
-}
-
-.document-link:hover {
-  text-decoration: underline;
-}
-
-.restore-file-btn {
-  width: 100%;
-  padding: 10px;
-  background: white;
-  border: 1px solid var(--reddit-blue, #0079d3);
-  border-radius: 6px;
-  color: var(--reddit-blue, #0079d3);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 12px;
-}
-
-.restore-file-btn:hover {
-  background-color: #e8f4fd;
-}
-
-/* Aperçu du post */
-.post-preview {
-  border: 1px solid var(--border-color, #edeff1);
-  border-radius: 8px;
-  padding: 16px;
-  background-color: white;
-}
-
-.preview-header {
-  margin-bottom: 12px;
-}
-
-.preview-user-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.preview-avatar {
-  width: 32px;
-  height: 32px;
+.file-upload-icon-circle {
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background-color: #f6f7f8;
+  background: #fff;
+  border: 1px solid #bfdbfe;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 22px;
+  color: #0079d3;
 }
 
-.preview-email {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1c1c1c;
-}
-
-.preview-time {
-  font-size: 12px;
-  color: #999;
-}
-
-.preview-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1c1c1c;
-  margin: 0 0 12px 0;
-}
-
-.preview-description {
+.file-upload-text-primary {
+  margin: 0;
   font-size: 14px;
-  color: #666;
-  line-height: 1.5;
-  margin: 0 0 12px 0;
+  font-weight: 500;
+  color: #1e40af;
 }
 
-.preview-image {
-  border-radius: 6px;
-  overflow: hidden;
-  max-height: 300px;
+.file-upload-text-secondary {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #6b7280;
 }
 
-.preview-image img {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
+.file-upload-browse-btn {
+  margin-top: 2px;
+  padding: 7px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid #bfdbfe;
+  background: #fff;
+  color: #0f4c81;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-.preview-document {
+.file-upload-browse-btn:hover {
+  background: #eff6ff;
+}
+
+/* État doc sélectionné */
+.file-selected-doc {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px;
-  background-color: #f6f7f8;
-  border: 1px solid var(--border-color, #edeff1);
-  border-radius: 6px;
-  font-size: 14px;
-  color: #666;
-}
-
-/* Boutons d'action */
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
   gap: 12px;
-  padding-top: 16px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
 }
 
-.btn {
-  padding: 12px 24px;
+.file-selected-doc-icon { font-size: 28px; line-height: 1; }
+
+.file-selected-doc-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: #111;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-selected-doc-change {
+  font-size: 12px;
+  color: #0079d3;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ─── Footer ───────────────────────────────────────────── */
+.post-edit-footer {
+  padding: 14px 28px 22px;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  background: #fff;
+}
+
+.btn-cancel {
+  padding: 9px 20px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.btn-cancel:hover { background: #f9fafb; }
+
+.btn-submit {
+  padding: 9px 22px;
   font-size: 14px;
   font-weight: 600;
-  border-radius: 6px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #0f4c81, #0079d3);
+  color: #fff;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
+  transition: opacity 0.15s;
 }
 
-.btn-secondary {
-  background-color: white;
-  color: #666;
-  border: 1px solid var(--border-color, #edeff1);
-}
+.btn-submit:disabled { opacity: 0.45; cursor: not-allowed; }
 
-.btn-secondary:hover:not(:disabled) {
-  background-color: #f6f7f8;
-  border-color: #d7dadc;
-}
-
-.btn-primary {
-  background-color: var(--reddit-blue, #0079d3);
-  color: white;
-  border: none;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #0066b3;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Loading */
-.loading {
-  font-size: 16px;
-  color: #666;
-}
-
-.footer-hidden-desktop {
-    display: none;
-}
-
-/* Responsive */
+/* ─── Responsive ───────────────────────────────────────── */
 @media (max-width: 768px) {
-  .post-edit-container {
-    padding: 16px 12px;
-  }
-
-  .form-card {
-    padding: 16px;
-  }
-
-  .page-title {
-    font-size: 24px;
-  }
-
-  .post-type-selector {
-    flex-direction: column;
-  }
-
-  .type-option {
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  .form-actions {
-    flex-direction: column-reverse;
-  }
-
-  .btn {
-    width: 100%;
-  }
-}
-
-/* Variables CSS (à ajouter dans votre fichier global si pas déjà fait) */
-:root {
-  --reddit-blue: #0079d3;
-  --border-color: #edeff1;
-  --bg-secondary: #f6f7f8;
+  .post-edit-modal-card { padding: unset !important; }
+  .post-edit-modal-layout, .card { border-radius: unset !important; }
+  .modal-overlay { padding: unset !important; }
+  .modal-container { height: unset; border-radius: unset !important; }
+  .post-edit-modal-card .card-body { padding: 16px 18px !important; }
+  .post-create-info { grid-template-columns: 1fr; gap: 12px; }
 }

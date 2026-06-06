@@ -349,55 +349,6 @@
   color: #6b7280;
 }
 
-/* Badges */
-.role-badge,
-.status-badge,
-.type-badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-/* Role Badges */
-.role-badge.role-admin {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.role-badge.role-student {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.role-badge.role-teacher {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-/* Status Badges */
-.status-badge.status-active {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.status-badge.status-inactive {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.status-badge.status-pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-/* Type Badge */
-.type-badge {
-  background: #e5e7eb;
-  color: #374151;
-}
-
 /* Action Buttons */
 .action-buttons {
   display: flex;
@@ -477,5 +428,4 @@
   outline: none;
   border-color: #4f46e5;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-}
 }

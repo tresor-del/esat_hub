@@ -19,7 +19,7 @@ const RoomSidebar = ({ room, view, onViewChange }) => {
             <div className="room-btns">
                 <button
                     type="button"
-                    className={`btn room-media-btn ${view === "media" ? "btn-primary" : "btn-secondary"}`}
+                    className={`room-media-btn ${view === "media" ? "btn-primary" : "btn-secondary"}`}
                     onClick={() => onViewChange("media")}
                     aria-label="Voir les médias"
                 >
@@ -28,7 +28,7 @@ const RoomSidebar = ({ room, view, onViewChange }) => {
                 </button>
                 <button
                     type="button"
-                    className={`btn room-media-btn ${view === "users" ? "btn-primary" : "btn-secondary"}`}
+                    className={`room-media-btn ${view === "users" ? "btn-primary" : "btn-secondary"}`}
                     onClick={() => onViewChange("users")}
                     aria-label="Voir les membres"
                 >

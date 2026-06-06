@@ -18,14 +18,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import MainLayout from "./layouts/MainLayout";
 import EmptyLayout from "./layouts/EmptyLayout";
+import { CreatePostProvider } from "./contexts/createPostContext";
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
-const ConfirmEmail = lazy(() => import("./pages/auth/ComfirmEmail"));
 const Home = lazy(() => import("./pages/Home/index"));
-const CreatePost = lazy(() => import("./pages/CreatePost/index"));
 const PostDetail = lazy(() => import("./pages/posts/postDetail"));
-const PostEdit = lazy(() => import("./pages/PostEdit/index"));
 const UserProfil = lazy(() => import("./pages/profile/UserProfil"));
 const ProfileEdit = lazy(() => import("./pages/profile/ProfileEdit"));
 const Room = lazy(() => import("./pages/room/index"));
@@ -34,7 +32,7 @@ const ChatPage = lazy(() => import("./pages/chat/ChatPage"));
 const About = lazy(() => import("./pages/legal/About"));
 const Privacy = lazy(() => import("./pages/legal/Privacy"));
 const Terms = lazy(() => import("./pages/legal/Terms"));
-const UpdateBanner = lazy(() => import("./components/common/UpdateBanner") )
+const UpdateBanner = lazy(() => import("./components/common/UpdateBanner"))
 
 
 const queryClient = new QueryClient();
@@ -89,7 +87,6 @@ const AppRoutes = () => {
               path="/register"
               element={isAuth() ? <Navigate to="/" replace /> : <Register />}
             />
-            <Route path="/confirm-email" element={<ConfirmEmail />} />
 
           </Route>
 
@@ -102,8 +99,6 @@ const AppRoutes = () => {
           >
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/" element={<Home />} />
-            <Route path="/create" element={<CreatePost />} />
-            <Route path="/edit/:id" element={<PostEdit />} />
             <Route path="/post/:id" element={<PostDetail />} />
             <Route path="/profile/:id" element={<UserProfil />} />
             <Route path="/profile/edit" element={<ProfileEdit />} />
@@ -130,8 +125,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <AuthProvider>
-          <AppRoutes />
-
+          <CreatePostProvider>
+            <AppRoutes />
+          </CreatePostProvider>
         </AuthProvider>
       </Router>
     </QueryClientProvider>

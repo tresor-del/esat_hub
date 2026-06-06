@@ -15,10 +15,16 @@ import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
 import UserTour from "../../components/common/Usertour";
 import { deletePost } from "../../services/api";
 import "../../styles/Home.css";
+import HomeSidebarAppInfo from "./components/HomeSidebarAppInfo";
+import PostEdit from "../PostEdit";
+import CreatePost from "../CreatePost";
+import { useCreatePostModal } from "../../contexts/createPostContext";
 
 const Home = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const [editPostId, setEditPostId] = React.useState(null);
+    const { createPostModale, openCreatePost, closeCreatePost } = useCreatePostModal();
 
     const {
         userAuth,
@@ -33,7 +39,13 @@ const Home = () => {
 
     // ── Handlers ──────────────────────────────────────────────────────────────
 
-    const handleEdit = (post) => navigate(`/edit/${post.id}`);
+    const handleEdit = (post) => {
+        setEditPostId(post.id);
+    };
+
+    const closeEditModal = () => {
+        setEditPostId(null);
+    };
 
     const handleView = (post) => navigate(`/post/${post.id}`);
 
@@ -67,7 +79,7 @@ const Home = () => {
 
     return (
         <div className="container">
-            <HomeSidebar fullUser={fullUser} userAuth={userAuth} />
+            <HomeSidebar fullUser={fullUser} userAuth={userAuth} className="profile" />
 
             <div className="main-content home">
                 {/* {!isLoading && filteredPosts.length > 0 && <UserTour />} */}
@@ -96,7 +108,7 @@ const Home = () => {
                             </div>
                         ) : (
                             <div className="posts-list">
-                                <CreatePostBar fullUser={fullUser} userAuth={userAuth} />
+                                <CreatePostBar fullUser={fullUser} userAuth={userAuth} handleCreate={openCreatePost} closeModale={closeCreatePost} />
 
                                 {filteredPosts.map((post) => (
                                     <PostCard
@@ -111,7 +123,7 @@ const Home = () => {
                         )}
 
                         {hasNextPage && (
-                            <div ref={ref} style={{ minHeight: '50px'}}>
+                            <div ref={ref} style={{ minHeight: '50px' }}>
                                 {isFetchingNextPage && (
                                     <div>
                                         <PostCardSkeleton />
@@ -122,7 +134,42 @@ const Home = () => {
                         )}
                     </>
                 )}
+
+                {editPostId && (
+                    <div className="modal-overlay">
+                        <div className="modal-container">
+
+                            <button className="modal-close" onClick={closeEditModal}>
+                                ✕
+                            </button>
+
+                            <PostEdit id={editPostId} onClose={closeEditModal} />
+
+                        </div>
+                    </div>
+                )}
+
+                {createPostModale && (
+                <div className="modal-overlay">
+                    <div className="modal-container">
+
+                        <button className="modal-close" onClick={closeCreatePost}>
+                            ✕
+                        </button>
+
+                        <CreatePost onClose={closeCreatePost} />
+
+                    </div>
+                </div>
+            )}
+
+
             </div>
+
+
+            <HomeSidebarAppInfo />
+
+
         </div>
     );
 };

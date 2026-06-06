@@ -15,8 +15,8 @@ export const useHomeData = () => {
     // ── Profil complet (avatar, bio…) ─────────────────────────────────────────
     const { data: fullUser } = useQuery({
         queryKey: ["userProfile", userAuth?.id],
-        queryFn:  () => getUserProfile(userAuth.id),
-        enabled:  !!userAuth?.id,
+        queryFn: () => getUserProfile(userAuth.id),
+        enabled: !!userAuth?.id,
         staleTime: Infinity,
     });
 
@@ -60,9 +60,9 @@ export const useHomeData = () => {
         if (navigator.serviceWorker) {
             await navigator.serviceWorker.ready;
             sendSystemNotification({
-                type:  "SHOW_WS_NOTIFICATION",
+                type: "SHOW_WS_NOTIFICATION",
                 title: `${userAuth?.profil_name}`,
-                body:  "Bienvenue sur EsatHub!",
+                body: "Bienvenue sur EsatHub!",
             });
             localStorage.setItem(key, "true");
         }

@@ -1,7 +1,7 @@
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile, status
 
 from app.api.deps.services import get_file_service, get_room_service
 from app.api.deps.auth import get_current_user
@@ -9,6 +9,8 @@ from app.db.schemas.user import User
 from app.services.social.room import RoomService
 from app.models.media import MediaCreate, MediaListResponse, MediaResponse, MediaUpdate
 from app.services.common.files import FileService
+from app.tasks.room import handle_room_notifications
+
 
 
 router = APIRouter(prefix="/rooms", tags=["Room"])
@@ -25,12 +27,13 @@ def get_room(
 
 @router.post("/add-media", response_model=MediaResponse)
 def upload_room_media(
+    background_tasks: BackgroundTasks,
     title: str = Form(...),
     description: Optional[str] = Form(None),
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     room_service: RoomService = Depends(get_room_service),
-    file_service: FileService = Depends(get_file_service)
+    file_service: FileService = Depends(get_file_service),
 ):
     room = room_service.get_user_room(current_user)
     room_id = room.id if room else current_user.user_room_id
@@ -65,6 +68,13 @@ def upload_room_media(
     )
 
     media = room_service.upload_room_media(data)
+
+    background_tasks.add_task(
+        handle_room_notifications,
+        current_user,
+        "new_media_in_room"
+    )
+    
     return media
 
 

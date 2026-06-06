@@ -3,11 +3,7 @@ import React, { useState, useEffect } from "react";
 import QRCode from "react-qr-code";
 import { QRCodeSVG } from 'qrcode.react';
 import { useParams, useNavigate } from "react-router-dom";
-import { FiEdit2, FiMail, FiCalendar, FiArrowLeft, FiUser, FiImage, FiFile, FiBookOpen, } from "react-icons/fi";
-import { TbSchool } from "react-icons/tb";
-import { RiSchoolLine, } from "react-icons/ri";
-import { MdOutlineDomainVerification, MdEmergency, MdNotAccessible, MdNotStarted, MdNotInterested, MdNotificationsNone, MdMessage } from "react-icons/md";
-import { Swiper, SwiperSlide } from 'swiper/react';
+import { FiDownload, FiShare2 } from "react-icons/fi";
 import { Navigation, Pagination } from 'swiper/modules';
 import { getUserProfile, getPosts, uploadAvatar } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
@@ -116,155 +112,239 @@ const UserProfile = () => {
       {/* Carte de profil */}
       <div className="profile-card">
 
-        <div className="profile-header">
-          {/* Avatar */}
-          <div className="profile-side">
-            <div className="card profile-avatar-container">
-              <Avatar user={profile} size="xlarge" />
 
-              <div className="profile-name">
-                <h2 >{profile.profil_name}</h2>
-                <span>{profile.username}</span>
+        <div className="profile-banner">
+
+          <div className="profile-banner-content">
+
+            <Avatar
+              user={profile}
+              size="xlarge"
+            />
+
+            <div className="profile-identity">
+
+              <h1>{profile.profil_name}</h1>
+
+              <div className="username">
+                @{profile.username}
               </div>
 
-              {isOwnProfile ? (
-                <>
+              <div className="profile-badges">
+
+                <div className="profile-badge">
+                  {profile.domain}
+                </div>
+
+                <div className="profile-badge">
+                  {profile.major}
+                </div>
+
+                <div className="profile-badge">
+                  {profile.level}
+                </div>
+
+              </div>
+
+              <div className="profile-actions">
+
+                {isOwnProfile ? (
                   <button
-                    className="btn btn-secondary profile-edit-btn"
+                    className="btn btn-secondary"
                     onClick={() => navigate('/profile/edit')}
-                    style={{ marginBottom: '16px' }}
                   >
-                    <FiEdit2 size={16} style={{ marginRight: '8px', color: "var(--reddit-blue)" }} />
                     Modifier le profil
                   </button>
-                </>
-              ) : (
-
-                <button
-                  className="btn btn-secondary profile-edit-btn"
-                  onClick={() => navigate('/chat?user=' + profile.id)}
-                  style={{ marginBottom: '16px' }}
-                >
-                  <MdMessage size={16} style={{ marginRight: '8px', color: "var(--reddit-blue)" }} />
-                  Envoyer un message
-                </button>
-              )}
-
-            </div>
-
-            <div className="card about info">
-              <h3 className="profile-title">Description</h3>
-              <p className="desc">
-                {profile.desc ? profile.desc : (
-                  <div className="empty-container">
-                    <div className="empty-container-icon">
-                      <MdNotInterested />
-                    </div>
-                    <p>pas de description</p>
-                  </div>
+                ) : (
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => navigate('/chat?user=' + profile.id)}
+                  >
+                    Envoyer un message
+                  </button>
                 )}
-              </p>
+
+              </div>
+
             </div>
 
           </div>
 
-          {/* Informations */}
-          <div className="profile-info">
+          <div className="profile-desc">
+            {profile.desc ? (
+              <div className="profile-desc-content">
+                <h3 className="profile-title">
+                  À propos
+                </h3>
 
-            <div className=" aca-info">
-              <div className=" card info">
-                <h3 className="profile-title">Info Académiques</h3>
-                <div className="profile-meta-item">
-                  <span className="label">N° de carte: </span>
-                  <span className="i">{profile.card_number}</span>
-                </div>
-                <div className="profile-meta-item">
-                  <span className="label">Nom: </span>
-                  <span className="i">{(profile.last_name).toUpperCase()} {profile.first_name}</span>
+                <div className="profile-content">
+                  {profile.desc || "Aucune description disponible"}
                 </div>
 
-                <div className="profile-meta-item">
-                  <span className="label">Email: </span>
-                  <span className="i">{profile.email}</span>
+              </div>
+            ) : (
+              ""
+            )}
+
+          </div>
+
+        </div>
+
+        <div className="profile-main-grid">
+
+          <div className="profile-sidebar">
+
+            <div className="card info student-card">
+
+              <div className="profile-title">
+                <h3>Scanner le QR Code</h3>
+              </div>
+
+                <div className="qr-wrapper">
+
+                  <QRCodeSVG
+                    value={`${window.location.origin}/profile/${profile.id}`}
+                    size={200}
+                    bgColor={"#ffffff"}
+                    fgColor={"#0f172a"}
+                    level={"H"}
+                    includeMargin={true}
+                  />
+
                 </div>
 
-                <div className="profile-meta-item">
-                  <span className="label">Domaine:</span>
-                  <span className="i"> {profile.domain}</span>
-                </div>
 
-                <div className="profile-meta-item">
-                  <span className="label">Spécialité:</span>
-                  <span className="i">{profile.major}</span>
+              <div className="qr-actions">
+                <div className="download">
+                  <FiDownload />
                 </div>
-
-                <div className="profile-meta-item">
-                  <span className="label">Cycle :</span>
-                  <span className="i">{profile.level}</span>
-                </div>
-
-                <div className="profile-meta-item">
-                  <span className="label">Année:</span>
-                  <span className="i">{profile.year}</span>
+                <div className="share">
+                  <FiShare2 />
                 </div>
               </div>
 
-              <div className=" card info bg-gray-50 p-3 rounded-lg inline-block qr">
-                <h3 className="profile-title">Qr Code</h3>
-                <QRCodeSVG
-                  value={"lienAEncoder"}
-                  size={200}               // Taille en pixels (largeur/hauteur)
-                  bgColor={"#ffffff"}      // Couleur de fond
-                  fgColor={"#000000"}      // Couleur du code QR (adaptez à votre charte !)
-                  level={"M"}              // Niveau de correction d'erreur (L, M, Q, H)
-                  includeMargin={true}     // Ajoute une marge blanche de sécurité autour
-                />
-              </div>
             </div>
 
-            <div className="card info posts-card">
-              <h3 className="profile-title">Publications</h3>
-              <div className="posts-list">
-                {filteredPosts.length === 0 ? (
-                  <div className="post-list-empty">
-                    <div className="post-list-empty-icon">
-                      <MdNotInterested />
-                    </div>
-                    <p>{profile.profil_name} n'a rien publié</p>
-                  </div>
-                ) : (
-                  filteredPosts?.map((post) => (
-                    <div className="post-item" onClick={() => handleSeePost(post)}>
-                      <span className="post-type-icon">
-                        {post.post_type === "photo" ? (
-                          <FiImage size={33} />
-                        ) : (<FiFile size={33} />)}
-                      </span>
+          </div>
 
-                      <div className="post-item-info">
-                        <p>{post.title}</p>
-                        <div className="item">
-                          <span className="type">{post.post_type}</span>
-                          {/* <span className="sep">.</span> */}
-                          <span className="date">{formatRelativeDate(post.created_at)}</span>
+          <div className="profile-content">
+
+            <div className="card info">
+
+              <h3 className="profile-title">
+                Informations Académiques
+              </h3>
+
+              <div className="academic-grid">
+
+                <div className="academic-item">
+                  <div className="label">Numéro de carte</div>
+                  <div className="value">{profile.card_number ? profile.card_number : "Null"}</div>
+                </div>
+
+                <div className="academic-item">
+                  <div className="label">Nom</div>
+                  <div className="value">{profile.last_name}</div>
+                </div>
+
+                <div className="academic-item">
+                  <div className="label">Prénom</div>
+                  <div className="value">{profile.first_name}</div>
+                </div>
+
+                <div className="academic-item">
+                  <div className="label">Numéro de téléphone</div>
+                  <div className="value">{profile.phone_number ? profile.phone_number : "Null"}</div>
+                </div>
+
+                <div className="academic-item">
+                  <div className="label">Domaine</div>
+                  <div className="value">{profile.domain}</div>
+                </div>
+
+                <div className="academic-item">
+                  <div className="label">Spécialité</div>
+                  <div className="value">{profile.major}</div>
+                </div>
+
+                <div className="academic-item">
+                  <div className="label">Cycle</div>
+                  <div className="value">{profile.level}</div>
+                </div>
+
+                <div className="academic-item">
+                  <div className="label">Année</div>
+                  <div className="value">{profile.year}</div>
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+            {/* <div className="card posts-card">
+
+              <div className="card-body">
+
+                <h3 className="profile-title">
+                  Publications
+                </h3>
+
+                <div className="posts-list">
+
+                  {filteredPosts.length === 0 ? (
+                    <div className="post-list-empty">
+                      <MdNotInterested size={50} />
+                      <p>
+                        Aucune publication
+                      </p>
+                    </div>
+                  ) : (
+                    filteredPosts.map((post) => (
+                      <div
+                        key={post.id}
+                        className="post-item"
+                        onClick={() => handleSeePost(post)}
+                      >
+                        <span className="post-type-icon">
+
+                          {post.post_type === "photo"
+                            ? <FiImage size={24} />
+                            : <FiFile size={24} />
+                          }
+
+                        </span>
+
+                        <div className="post-item-info">
+
+                          <p>{post.title}</p>
+
+                          <div className="item">
+                            <span className="type">
+                              {post.post_type}
+                            </span>
+
+                            <span className="date">
+                              {formatRelativeDate(post.created_at)}
+                            </span>
+                          </div>
+
                         </div>
+
                       </div>
-                    </div>
-                  ))
-                )}
+                    ))
+                  )}
 
+                </div>
               </div>
-
-            </div>
+            </div> */}
 
           </div>
         </div>
 
       </div>
 
-      {selectedPost && (
-        <PostDetailModal postId={selectedPost} onClose={handleClose} />
-      )}
     </div >
   );
 };
