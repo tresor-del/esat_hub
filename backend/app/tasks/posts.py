@@ -1,24 +1,20 @@
-from sqlalchemy.orm import Session
-
-from app.db.database import SessionLocal
 from app.models.user import UserResponse
 from app.api.deps.services import get_auth_service, get_notification_service
 from app.core.notifications import notification_contents
+from app.tasks.deps import get_tasks_db
+from app.models.notifications import NotificationUserResponse
 
 async def handle_new_post(current_user, room_id, post):
-    with SessionLocal() as db:
+    with get_tasks_db() as db:
         auth_service = get_auth_service(db)
         notif_service = get_notification_service(db)
         
-        # Préparer l'expéditeur de notification
-        sender = UserResponse(
+       # Préparer l'expéditeur de notification
+        sender = NotificationUserResponse(
             id=current_user.id,
-            email=current_user.email,
             username=getattr(current_user, 'username', None),
-            first_name=getattr(current_user, 'first_name', None),
-            last_name=getattr(current_user, 'last_name', None),
-            is_verified=getattr(current_user, 'is_verified', False),
-            user_room_id=getattr(current_user, 'user_room_id', None)
+            user_room_id=getattr(current_user, 'user_room_id', None),
+            avatar_path=getattr(current_user, 'avatar_path', None)
         )
 
         # Préparer le contenu selon si le post est général ou de classe

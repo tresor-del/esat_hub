@@ -8,8 +8,7 @@ from app.db.schemas.user_device import UserDevice
 
 
 from app.db.schemas.notification import Notification
-from app.models.notifications import NotificationResponse, NotificationListResponse, NotificationResponseUser
-from app.models.user import UserResponse
+from app.models.notifications import NotificationResponse, NotificationListResponse, NotificationResponseUser, NotificationUserResponse
 from app.services.realtime.ws_manager import ws_manager
 
 
@@ -19,22 +18,24 @@ class NotificationService:
         self._db = db
 
     def send_firebase_push(self, recipient_id: UUID, title: str, body: str, url: str = None) -> None:
-        """Méthode interne pour pousser une bannière Android via Firebase Cloud Messaging."""
+        """
+        Méthode interne pour pousser une bannière Android via Firebase Cloud Messaging.
+        """
         try:
-            # 1. On cherche UNIQUEMENT les appareils qui ont un token valide, non vide et non nul
+            # On cherche UNIQUEMENT les appareils qui ont un token valide, non vide et non nul
             devices = self._db.query(UserDevice).filter(
                 UserDevice.user_id == recipient_id,
                 UserDevice.device_token != None,
                 UserDevice.device_token != ""
             ).all()
             
-            print(f"FCM : Nombre d'appareils valides trouvés pour l'envoi : {len(devices)}")
+            print(f"FCM : Nombre d'apparleils valides trouvés pour l'envoi : {len(devices)}")
             
             if not devices:
                 print("ℹFCM : Aucun appareil avec un jeton valide trouvé en base de données.")
                 return
                 
-            # 2. On envoie la bannière à chaque téléphone trouvé
+            # On envoie la bannière à chaque téléphone trouvé
             for device in devices:
                 # Sécurité supplémentaire juste avant la construction du message
                 if not device.device_token or device.device_token.strip() == "":
@@ -100,9 +101,7 @@ class NotificationService:
             self._db.commit()
             self._db.refresh(data_in_db)
             notif_data = NotificationResponseUser.model_validate(data_in_db).model_dump(mode="json")
-            print(f"Notification enregistrée en base: {data_in_db.id}")
             await ws_manager.send_personal_notification(notif_data)
-            print("notification envoyé au manager")
 
             title_mapping = {
                 "chat": "Nouveau message",
@@ -137,35 +136,22 @@ class NotificationService:
         notification_type: str,
         content: str,
         recipients: list,
-        sender: UserResponse | None = None,
+        sender: NotificationUserResponse | None = None,
         post_id: UUID | None = None,
         comment_id: UUID | None = None,
     ) -> None:
-        """Envoie une notification à plusieurs destinataires."""
-        print(f"Envoi de notifications en bulk: {notification_type} à {len(recipients)} destinataires")
+        """
+        Envoie une notification à plusieurs destinataires.
+        """
+
         for recipient in recipients:
-            print(f"Destinataire: {recipient.id}")
 
-            if sender and recipient.id == sender.id:
-                continue
+            # if sender and recipient.id == sender.id:
+            #     continue
             
-            print(f"Envoi à {recipient.id}")
             try:
-                recipient_data = UserResponse(
-                    first_name=recipient.first_name,
-                    last_name=recipient.last_name,
-                    profil_name=recipient.profil_name,
-                    school_name=recipient.school_name,
-                    domain=recipient.domain,
-                    level=recipient.level,
-                    year=recipient.year,
-                    id=recipient.id,
-                    is_verified=recipient.is_verified,
-                    username=recipient.username,
-                    user_room_id=recipient.user_room_id,
-                    email=recipient.email,
-                )
-
+                recipient_data = NotificationUserResponse.model_validate(recipient)
+                
                 notification = NotificationResponse(
                     type=notification_type,
                     content=content,
@@ -176,7 +162,6 @@ class NotificationService:
                     comment_id=comment_id,
                 )
                 await self.send_notification(notification)
-                print(f"Notification envoyée à {recipient.id}")
             except Exception as e:
                 print(f"Erreur envoi notification à {recipient.id}: {e}")
 

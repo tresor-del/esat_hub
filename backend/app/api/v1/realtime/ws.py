@@ -10,7 +10,7 @@ from app.services.realtime.ws_manager import ws_manager
 from app.api.deps.db import get_db
 from app.models.rt_message import MessageCreate
 from app.services.realtime.chat import save_message
- 
+
 from app.models.notifications import NotificationResponse  
 from app.models.user import UserResponse
 from app.api.deps.services import get_notification_service  
