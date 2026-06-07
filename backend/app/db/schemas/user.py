@@ -75,13 +75,14 @@ class User(Base):
 
     # Relations
     posts = relationship("Post", back_populates="user",cascade="all, delete-orphan")
-
     email_verification_tokens = relationship("EmailVerificationToken",cascade="all, delete-orphan")
-
     comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
-
     notifications = relationship("Notification", foreign_keys="Notification.recipient_id", back_populates="recipient")
     
+    # Pour les présences aux cours
+    course_sessions = relationship("CourseSession", back_populates="session_author")
+    attendance_records = relationship("AttendanceRecord", back_populates="student")
+
     
     user_room_id = Column(UUID(as_uuid=True), ForeignKey("rooms.id", use_alter=True), index=True, nullable=True)
     user_room = relationship("Room", back_populates="users", foreign_keys=[user_room_id])
