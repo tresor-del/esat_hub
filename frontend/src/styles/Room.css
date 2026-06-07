@@ -84,9 +84,10 @@
     transition: all 0.2s ease;
 }
 
-.room-media-btn.btn-primary {
+
+.room-media-btn.active {
     color: #0066ff;
-    background-color: #eff6ff;
+    background-color: #f1f5f9 !important;
     font-weight: 600;
 }
 
@@ -95,10 +96,6 @@
     color: #1e293b;
 }
 
-.room-media-btn.btn-primary:hover {
-    background-color: #e0f2fe;
-    color: #0066ff;
-}
 
 .room-media-btn svg {
     font-size: 1.1rem;
