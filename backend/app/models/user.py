@@ -21,6 +21,7 @@ class UserBase(BaseModel):
     birthday: Optional[datetime] = None
     card_number: Optional[str] = None
     status: Optional[str] = None
+    is_room_rep: Optional[bool] = None
 
     model_config = ConfigDict(from_attributes=True)
 

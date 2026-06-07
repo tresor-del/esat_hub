@@ -27,6 +27,7 @@ class Room(Base):
     posts = relationship("Post", back_populates="post_room")
 
     media = relationship("Media", back_populates="room", cascade="all, delete-orphan")
+    course_sessions = relationship("CourseSession", back_populates="session_room")
 
 
 # tables pour le systeme de présence aux cours. 
@@ -44,6 +45,9 @@ class CourseSession(Base):
     expires_at = Column(DateTime, nullable=False)
     status     = Column(Enum(SessionStatus), default=SessionStatus.ACTIVE)
     created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+
+    room_id = Column(UUID(as_uuid=True), ForeignKey("rooms.id"))
+    session_room = relationship("Room", back_populates="course_sessions")
 
     session_author = relationship("User", back_populates="course_sessions", foreign_keys=[session_author_id])
     attendance_records = relationship("AttendanceRecord", back_populates="session")
