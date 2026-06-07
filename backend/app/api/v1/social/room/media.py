@@ -12,17 +12,7 @@ from app.services.common.files import FileService
 from app.tasks.room import handle_room_notifications
 
 
-
 router = APIRouter(prefix="/rooms", tags=["Room"])
-
-
-@router.get("/me")
-def get_room(
-    current_user: User = Depends(get_current_user),
-    room_service: RoomService = Depends(get_room_service)
-):
-    room = room_service.get_user_room(current_user)
-    return room
 
 
 @router.post("/add-media", response_model=MediaResponse)

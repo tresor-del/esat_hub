@@ -1,4 +1,3 @@
-# app/db/schemas/post.py (VERSION MISE À JOUR)
 from sqlalchemy import UUID, Column, Integer, String, Text, DateTime, Enum, ForeignKey
 from sqlalchemy.orm import relationship
 import datetime
