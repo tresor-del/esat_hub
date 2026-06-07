@@ -88,6 +88,7 @@ class User(Base):
     user_room = relationship("Room", back_populates="users", foreign_keys=[user_room_id])
 
     room_rep = relationship("Room", back_populates="rep", foreign_keys="[Room.rep_id]")
+    is_room_rep = Column(Boolean, server_default=text("false"), default=False)
 
     sent_messages = relationship("Message", foreign_keys="[Message.sender_id]", back_populates="sender")
     received_messages = relationship("Message", foreign_keys="[Message.recipient_id]", back_populates="recipient")
