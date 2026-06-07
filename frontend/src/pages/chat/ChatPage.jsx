@@ -188,13 +188,13 @@ const ChatPage = () => {
                     <p>Messagerie</p>
                     <div className="search-filter-btns">
                         <button
-                            className={` search-filter-btn ${view === 'recent' ? 'btn-primary' : 'btn-secondary'}`}
+                            className={` search-filter-btn ${view === 'recent' ? 'active' : ''}`}
                             onClick={handleSeeRecent}
                         >
                             Tout
                         </button>
                         <button
-                            className={`search-filter-btn ${view === 'new' ? 'btn-primary' : 'btn-secondary'}`}
+                            className={`search-filter-btn ${view === 'new' ? 'active' : ''}`}
                             onClick={handleSeeNew}
                         >
                             Nouveau
