@@ -6,6 +6,7 @@ from app.db.schemas.user import User, UserStatus
 from app.db.schemas.email_verification import EmailVerificationToken
 from app.models.user import  UserInDatabase
 from app.core.config import settings
+from app.db.security import hash_password, verify_password
 
 
 class AuthService:
@@ -68,8 +69,30 @@ class AuthService:
         user = self.get_user(user_id)
         if not user:
             return None
-        
+
         update_data = user_update.model_dump(exclude_unset=True)
+
+        if "new_password" in update_data:
+            new_password = update_data.get("new_password")
+            old_password = update_data.get("old_password")
+
+            if not old_password:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="L'ancien mot de passe est obligatoire."
+                )
+            
+            if not verify_password(old_password, user.hashed_password):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Mot de passe incorrect"
+                )   
+            
+            user.hashed_password = hash_password(new_password)
+
+            update_data.pop("old_password", None)
+            update_data.pop("new_password", None)
+
         for key, value in update_data.items():
             if hasattr(user, key):
                 setattr(user, key, value)
@@ -92,4 +115,7 @@ class AuthService:
         """Récupère tous les utilisateurs d'une salle spécifique"""
         return self._db.query(User).filter(User.user_room_id == room_id).all()
     
+    def get_user_by_rfid_uid(self, uid: str) -> list[User]:
+        """Récupère tous les utilisateurs d'une salle spécifique"""
+        return self._db.query(User).filter(User.rfid_uid == uid).first()
     

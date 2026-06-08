@@ -127,7 +127,14 @@ export const WebSocketProvider = ({ children }) => {
           });
         }
 
+
         // 3. GESTION DES ACTIONS SPÉCIFIQUES (Commentaires, Posts)
+
+        if (data.event === "NEW_ATTENDANCE") {
+          window.dispatchEvent(new CustomEvent("NEW_ATTENDANCE", { detail: data }));
+          return;
+        }
+
         if (data.type === "new_comment") {
           window.dispatchEvent(new CustomEvent("NEW_COMMENT", { detail: data }));
 

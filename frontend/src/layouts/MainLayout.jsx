@@ -29,13 +29,13 @@ const MainLayout = () => {
     }
   };
 
-  const isRoomPage = location.pathname == "/room"
-  const postDetail = location.pathname.startsWith("/post/")
-  const isHomePage = location.pathname == "/"
-  const isChatPage = location.pathname == "/chat"
-  const isCreatePage = location.pathname == "/create"
-  const isEditPage = location.pathname.startsWith("/edit/")
-  const isProfilePage = location.pathname.startsWith("/profile/")
+  const isRoomPage = window.location.pathname == "/room"
+  const postDetail = window.location.pathname.startsWith("/post/")
+  const isHomePage = window.location.pathname == "/"
+  const isChatPage = window.location.pathname == "/chat"
+  const isCreatePage = window.location.pathname == "/create"
+  const isEditPage = window.location.pathname.startsWith("/edit/")
+  const isProfilePage = window.location.pathname.startsWith("/profile/")
 
   return (
     <>

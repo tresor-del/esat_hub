@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 import jwt, io, qrcode, base64
-from datetime import datetime, timedelta
+import datetime
+from datetime import timedelta
 from uuid import UUID, uuid4
 
 from sqlalchemy.orm import Session
@@ -11,7 +12,7 @@ from app.db.schemas.user import Level, User, Year
 from app.models.room import RoomResponse
 from app.db.schemas.media import Media
 from app.models.media import MediaCreate, MediaUpdate, MediaListResponse, MediaResponse
-from app.services.realtime import ws_manager
+from app.services.realtime.ws_manager import ws_manager
 
 SECRET = settings.SECRET_KEY
 QR_DURATION_MINUTES = 15
@@ -108,12 +109,12 @@ class RoomService:
 
     def create_session(self, rep, course: str) -> dict:
         session_id = str(uuid4())
-        expires_at = datetime.utcnow() + timedelta(minutes=QR_DURATION_MINUTES)
+        expires_at = datetime.datetime.now(datetime.timezone.utc) + timedelta(minutes=QR_DURATION_MINUTES)
 
         # Token embarqué dans le QR
         token = jwt.encode({
             "session_id": session_id,
-            "exp": expires_at,
+            # "exp": expires_at,
             "type": "attendance"
         }, SECRET, algorithm="HS256")
 
@@ -164,9 +165,9 @@ class RoomService:
         self._db.add(record); self._db.commit()
 
         # Broadcaster via WebSocket au prof en temps réel
-        await ws_manager.broadcast_to_session(session.id, {
+        await ws_manager.broadcast({
             "event": "NEW_ATTENDANCE",
-            "student_id": student_id
+            "student_id": str(student_id)
         })
 
         return {"message": "Présence enregistrée"}
@@ -175,15 +176,15 @@ class RoomService:
         """GET /sessions/{id}/qr — Prof récupère le QR d'une session existante"""
         session = self._db.query(CourseSession).filter_by(
             id=session_id,
-            rep_id=rep_id  # sécurité : seul le prof propriétaire
+            session_author_id=rep_id 
         ).first()
 
         if not session:
             raise HTTPException(404, "Session introuvable")
         if session.status == SessionStatus.CLOSED:
             raise HTTPException(400, "Session déjà fermée")
-        if datetime.utcnow() > session.expires_at:
-            raise HTTPException(400, "QR Code expiré")
+        # if datetime.datetime.now(datetime.timezone.utc) > session.expires_at:
+        #     raise HTTPException(400, "QR Code expiré")
 
         # Regénérer l'image QR depuis le token stocké
         url = f"{HOST}/scan?token={session.qr_token}"
@@ -203,7 +204,7 @@ class RoomService:
         """GET /sessions/{id}/records — Prof voit la liste des présents"""
         session = self._db.query(CourseSession).filter_by(
             id=session_id,
-            rep_id=rep_id
+            session_author_id=rep_id
         ).first()
 
         if not session:
@@ -232,7 +233,7 @@ class RoomService:
         """PATCH /sessions/{id}/close — Prof ferme la session"""
         session = self._db.query(CourseSession).filter_by(
             id=session_id,
-            rep_id=rep_id
+            session_author_id=rep_id
         ).first()
 
         if not session:
@@ -254,4 +255,102 @@ class RoomService:
             "total_present": total_present,
         }
 
+    def get_session_history(self, rep_id: str) -> list:
+        sessions = (
+            self._db.query(CourseSession)
+            .filter_by(session_author_id=rep_id, status=SessionStatus.CLOSED)
+            .order_by(CourseSession.expires_at.desc())
+            .all()
+        )
+
+        result = []
+        for session in sessions:
+            # Récupérer les étudiants avec leurs infos
+            records = (
+                self._db.query(AttendanceRecord, User)
+                .join(User, AttendanceRecord.student_id == User.id)
+                .filter(AttendanceRecord.session_id == session.id)
+                .order_by(AttendanceRecord.scanned_at.asc())
+                .all()
+            )
+
+            students = [
+                {
+                    "student_id": str(user.id),
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "profil_name": user.profil_name,
+                    "scanned_at": record.scanned_at.isoformat(),
+                }
+                for record, user in records
+            ]
+
+            result.append({
+                "session_id": str(session.id),
+                "course": session.course,
+                "date": session.expires_at.isoformat(),
+                "total_present": len(students),
+                "students": students,  # ← nouveau
+            })
+
+        # Grouper par jour
+        from itertools import groupby
+
+        def day_key(s):
+            return s["date"][:10]  # "2025-06-01"
+
+        grouped = []
+        for day, items in groupby(result, key=day_key):
+            items_list = list(items)
+            grouped.append({
+                "day": day,
+                "sessions": items_list,
+                "total_present": sum(s["total_present"] for s in items_list),
+            })
+
+        return grouped
+    
+    async def mark_present_via_rfid(self, rfid_uid: str, room_id: str) -> dict:
+
+        # Trouver l'étudiant grâce à l'UID de sa carte RFID
+        student = self._db.query(User).filter_by(rfid_uid=rfid_uid).first()
+        if not student:
+            raise HTTPException(404, "Badge RFID inconnu ou non assigné")
+
+        # Trouver la session de cours ACTIVE dans CETTE salle spécifique
+        session = self._db.query(CourseSession).filter_by(
+            room_id=room_id,
+            status=SessionStatus.ACTIVE
+        ).first()
+
+        if not session:
+            raise HTTPException(404, "Aucun cours actif dans cette salle")
+
+        # Vérifier si l'étudiant n'a pas déjà badger pour ce cours
+        exists = self._db.query(AttendanceRecord).filter_by(
+            session_id=session.id, 
+            student_id=student.id
+        ).first()
+        
+        if exists:
+            raise HTTPException(409, f"Déjà présent : {student.first_name}")
+
+        # Enregistrer la présence dans votre table existante
+        record = AttendanceRecord(session_id=session.id, student_id=student.id)
+        self._db.add(record)
+        self._db.commit()
+
+        # Envoyer l'alerte en temps réel
+        await ws_manager.broadcast({
+            "event": "NEW_ATTENDANCE",
+            "student_id": str(student.id)
+        })
+
+        # Réponse lue par l'ESP32 pour afficher le nom sur l'écran LCD !
+        return {
+            "status": "ok",
+            "message": "Présence enregistrée",
+            "first_name": student.first_name,
+            "last_name": student.last_name
+        }
 

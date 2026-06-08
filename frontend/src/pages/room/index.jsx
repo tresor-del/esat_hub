@@ -5,19 +5,20 @@
 import React, { useMemo, useState } from "react";
 import "../../styles/Room.css";
 
-import { useRoomData }     from "./hooks/useRoomData";
+import { useRoomData } from "./hooks/useRoomData";
 import { useMediaActions } from "./hooks/useMediaActions";
-import { getMediaUrl }     from "./utils/mediaHelpers";
+import { getMediaUrl } from "./utils/mediaHelpers";
 
-import RoomSidebar      from "./components/RoomSidebar";
-import UsersView        from "./components/UsersView";
-import PostsView        from "./components/PostsView";
-import MediaView        from "./components/MediaView";
+import RoomSidebar from "./components/RoomSidebar";
+import UsersView from "./components/UsersView";
+import PostsView from "./components/PostsView";
+import MediaView from "./components/MediaView";
+import AttendanceView from "./components/AttendanceView";
 
 import MediaUploadModal from "./components/modals/MediaUploadModal";
 import MediaDetailModal from "./components/modals/MediaDetailModal";
-import ShareModal       from "./components/modals/ShareModal";
-import ImageModal       from "../../components/ui/ImageModal";
+import ShareModal from "./components/modals/ShareModal";
+import ImageModal from "../../components/ui/ImageModal";
 
 const Room = () => {
     const [view, setView] = useState("users");
@@ -60,7 +61,7 @@ const Room = () => {
 
     // ── Early returns ─────────────────────────────────────────────────────────
     if (loadingRoom) return <div className="spinner"></div>;
-    if (!room)       return <div className="room-error">Aucune salle trouvée.</div>;
+    if (!room) return <div className="room-error">Aucune salle trouvée.</div>;
 
     // ── Render ────────────────────────────────────────────────────────────────
     return (
@@ -85,6 +86,10 @@ const Room = () => {
                         onOpenDetail={handleOpenDetail}
                         onShare={handleShare}
                     />
+                )}
+
+                {view === "attendance" && (
+                    <AttendanceView />
                 )}
             </div>
 

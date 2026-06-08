@@ -49,6 +49,7 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
+    rfid_uid = Column(String(50), unique=True, nullable=True, index=True)
 
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)

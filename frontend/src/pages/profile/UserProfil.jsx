@@ -14,6 +14,7 @@ import ProfileSkeleton from "../../components/skeletons/ProfileSkeleton";
 import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
 import { formatRelativeDate } from "../../utils/dateFormatter";
 import PostDetailModal from "../../components/posts/postDetailModal";
+import ProfileEdit from "./ProfileEdit";
 
 
 const UserProfile = () => {
@@ -32,6 +33,7 @@ const UserProfile = () => {
 
   const isOwnProfile = currentUser?.id === id;
   const [selectedPost, setSelectedPost] = useState(null);
+  const [editProfile, seteditProfile] = React.useState();
 
   // Profil
   const { data: profile, isLoading, error } = useQuery({
@@ -105,6 +107,14 @@ const UserProfile = () => {
     setSelectedPost(null)
   }
 
+  const handleEdit = () => {
+        seteditProfile(true);
+    };
+
+    const closeEditProfile = () =>{
+      seteditProfile(false);
+    }
+
   return (
     <div className="profile-container">
 
@@ -127,7 +137,11 @@ const UserProfile = () => {
               <h1>{profile.profil_name}</h1>
 
               <div className="username">
-                @{profile.username}
+                {profile.username}
+              </div>
+
+              <div className="username" style={{color: "yellow"}}>
+                {profile.is_room_rep ? "Délégué" : ""}
               </div>
 
               <div className="profile-badges">
@@ -151,7 +165,7 @@ const UserProfile = () => {
                 {isOwnProfile ? (
                   <button
                     className="btn btn-secondary"
-                    onClick={() => navigate('/profile/edit')}
+                    onClick={() => handleEdit()}
                   >
                     Modifier le profil
                   </button>
@@ -344,6 +358,20 @@ const UserProfile = () => {
         </div>
 
       </div>
+
+      {editProfile && (
+                <div className="modal-overlay">
+                    <div className="modal-container">
+
+                        <button className="modal-close" onClick={closeEditProfile}>
+                            ✕
+                        </button>
+
+                        <ProfileEdit onClose={closeEditProfile} />
+
+                    </div>
+                </div>
+            )}
 
     </div >
   );

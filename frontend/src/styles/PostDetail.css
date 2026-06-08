@@ -37,7 +37,7 @@
 
 .post-detail-info {
   height: 80vh;
-  overflow: auto;
+  overflow-y: auto;
   width: 30%;
   background-color: #fff;
   padding: 1rem;

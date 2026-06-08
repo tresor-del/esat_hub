@@ -19,15 +19,6 @@ const RoomSidebar = ({ room, view, onViewChange }) => {
             <div className="room-btns">
                 <button
                     type="button"
-                    className={`room-media-btn ${view === "media" ? "active" : ""}`}
-                    onClick={() => onViewChange("media")}
-                    aria-label="Voir les médias"
-                >
-                    <FiImage  />
-                    <span className="btn-label">Fichiers</span>
-                </button>
-                <button
-                    type="button"
                     className={`room-media-btn ${view === "users" ? "active" : ""}`}
                     onClick={() => onViewChange("users")}
                     aria-label="Voir les membres"
@@ -35,6 +26,26 @@ const RoomSidebar = ({ room, view, onViewChange }) => {
                     <FiUsers  />
                     <span className="btn-label">Membres</span>
                 </button>
+                <button
+                    type="button"
+                    className={`room-media-btn ${view === "media" ? "active" : ""}`}
+                    onClick={() => onViewChange("media")}
+                    aria-label="Voir les médias"
+                >
+                    <FiImage  />
+                    <span className="btn-label">Fichiers</span>
+                </button>
+
+                <button
+                    type="button"
+                    className={`room-media-btn ${view === "attendance" ? "active" : ""}`}
+                    onClick={() => onViewChange("attendance")}
+                    aria-label="Système de présence aux cours"
+                >
+                    <FiUsers  />
+                    <span className="btn-label">Présence</span>
+                </button>
+                
             </div>
         </div>
     );

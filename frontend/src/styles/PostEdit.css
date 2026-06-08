@@ -8,13 +8,13 @@
   height: 100vh;
   border: none;
   border-radius: 1rem !important;
-  overflow: hidden;
+  overflow: auto !important;
 }
 
 /* ─── Header gradient bleu ─────────────────────────────── */
 .post-edit-modal-card .card-header {
   background: linear-gradient(135deg, #0f4c81, #0079d3);
-  padding: 22px 28px 20px;
+  padding: 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -87,10 +87,10 @@
 
 /* ─── Labels ───────────────────────────────────────────── */
 .form-label {
-  font-size: 11px;
+  font-size: 1.1rem;
   font-weight: 600;
   letter-spacing: 0.07em;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   color: #6b7280;
   margin-bottom: 6px;
   display: block;
@@ -101,7 +101,7 @@
 .form-textarea {
   width: 100%;
   padding: 10px 14px;
-  font-size: 14px;
+  font-size: 1rem;
   font-family: inherit;
   color: #111;
   background: #f9fafb;
@@ -194,7 +194,10 @@
   border-radius: 10px;
 }
 
-.file-selected-doc-icon { font-size: 28px; line-height: 1; }
+.file-selected-doc-icon {
+  font-size: 28px;
+  line-height: 1;
+}
 
 .file-selected-doc-name {
   flex: 1;
@@ -233,7 +236,9 @@
   cursor: pointer;
 }
 
-.btn-cancel:hover { background: #f9fafb; }
+.btn-cancel:hover {
+  background: #f9fafb;
+}
 
 .btn-submit {
   padding: 9px 22px;
@@ -247,14 +252,42 @@
   transition: opacity 0.15s;
 }
 
-.btn-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 
 /* ─── Responsive ───────────────────────────────────────── */
 @media (max-width: 768px) {
-  .post-edit-modal-card { padding: unset !important; }
-  .post-edit-modal-layout, .card { border-radius: unset !important; }
-  .modal-overlay { padding: unset !important; }
-  .modal-container { height: unset; border-radius: unset !important; }
-  .post-edit-modal-card .card-body { padding: 16px 18px !important; }
-  .post-create-info { grid-template-columns: 1fr; gap: 12px; }
+  .post-edit-modal-card {
+    padding: unset !important;
+    overflow: auto !important;
+  }
+
+  .post-edit-modal-card .card-header {
+    padding: 2rem;
+  }
+
+  .post-edit-modal-layout,
+  .card {
+    border-radius: unset !important;
+  }
+
+  .modal-overlay {
+    padding: unset !important;
+  }
+
+  .modal-container {
+    height: unset;
+    border-radius: unset !important;
+  }
+
+  .post-edit-modal-card .card-body {
+    padding: 16px 18px !important;
+  }
+
+  .post-create-info {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }

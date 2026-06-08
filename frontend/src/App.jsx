@@ -29,6 +29,7 @@ const ProfileEdit = lazy(() => import("./pages/profile/ProfileEdit"));
 const Room = lazy(() => import("./pages/room/index"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const ChatPage = lazy(() => import("./pages/chat/ChatPage"));
+const ScanPage = lazy(() => import("./pages/ScanPage"));
 const About = lazy(() => import("./pages/legal/About"));
 const Privacy = lazy(() => import("./pages/legal/Privacy"));
 const Terms = lazy(() => import("./pages/legal/Terms"));
@@ -107,6 +108,7 @@ const AppRoutes = () => {
             <Route path="/about" element={<About />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/scan" element={<ScanPage />} />
           </Route>
 
           <Route

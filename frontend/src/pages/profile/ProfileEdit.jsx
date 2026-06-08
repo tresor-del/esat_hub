@@ -6,9 +6,10 @@ import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../../components/ui/Avatar";
 import { FiEdit2 } from "react-icons/fi";
 import "../../styles/Auth.css";
+import "../../styles/PostEdit.css"
 import "../../styles/UserProfile.css"
 
-const ProfileEdit = () => {
+const ProfileEdit = (onClose) => {
     const navigate = useNavigate();
     const { user, logout, updateUser } = useAuth();
 
@@ -28,43 +29,13 @@ const ProfileEdit = () => {
         phone_number: user.phone_number || '',
         card_number: user.card_number || '',
         birthday: user.birthday || '',
+        old_password: '',
+        new_password: '',
     });
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
-
-    // useEffect(() => {
-    //     loadProfile();
-    // }, []);
-
-    // const loadProfile = async () => {
-    //     try {
-    //         setLoading(true);
-    //         const result = await getUserProfile(user.id);
-    //         setProfile(result);
-    //         setFormData({
-    //             first_name: result.first_name || '',
-    //             last_name: result.last_name || '',
-    //             profil_name: result.profil_name || '',
-    //             email: result.email || '',
-    //             school_name: result.school_name || '',
-    //             domain: result.domain || '',
-    //             level: result.level || '',
-    //             major: result.major || '',
-    //             year: result.year || '',
-    //             phone_number: result.phone_number || '',
-    //             card_number: result.card_number || '',
-    //             birthday: result.birthday || '',
-    //         });
-    //     } catch (err) {
-    //         console.error('Erreur chargement profil:', err);
-    //         setError('Impossible de charger le profil');
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
 
     const handleAvatarUpload = async (e) => {
         const file = e.target.files[0];
@@ -95,7 +66,6 @@ const ProfileEdit = () => {
             setUploadingAvatar(false);
         }
     };
-
 
     const handleChange = (e) => {
         setFormData({
@@ -160,8 +130,12 @@ const ProfileEdit = () => {
     }
 
     return (
-        <div className="auth-container">
-            <div className="auth-card edit-profile-card">
+        <div className="post-edit-modal-layout">
+            <div className="card post-edit-modal-card">
+                <div className="card-header">
+                    <h2 className="card-title">Modifier le profile</h2>
+                </div>
+
                 {error && (
                     <div className="alert alert-error">
                         {error}
@@ -188,24 +162,12 @@ const ProfileEdit = () => {
 
                     <div className="profile-info">
 
-                        <div className="form-group">
-                            <label htmlFor="first_name" className="form-label">
-                                Numéro de carte
-                            </label>
-                            <input
-                                type="text"
-                                id="card_number"
-                                name="card_number"
-                                className="form-input"
-                                value={formData.card_number}
-                                onChange={handleChange}
-                                disabled={loading}
-                            />
-                        </div>
+                        <h1 className="group-title">Informations Personnelles: </h1>
+                        <hr />
 
                         <div className="form-group">
                             <label htmlFor="first_name" className="form-label">
-                                Prénom *
+                                Prénom
                             </label>
                             <input
                                 type="text"
@@ -214,14 +176,13 @@ const ProfileEdit = () => {
                                 className="form-input"
                                 value={formData.first_name}
                                 onChange={handleChange}
-                                required
                                 disabled={loading}
                             />
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="last_name" className="form-label">
-                                Nom *
+                                Nom
                             </label>
                             <input
                                 type="text"
@@ -251,24 +212,8 @@ const ProfileEdit = () => {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="profil_name" className="form-label">
-                                Nom de profil *
-                            </label>
-                            <input
-                                type="text"
-                                id="profil_name"
-                                name="profil_name"
-                                className="form-input"
-                                value={formData.profil_name}
-                                onChange={handleChange}
-                                required
-                                disabled={loading}
-                            />
-                        </div>
-
-                        <div className="form-group">
                             <label htmlFor="email" className="form-label">
-                                Email *
+                                Email
                             </label>
                             <input
                                 type="email"
@@ -277,7 +222,6 @@ const ProfileEdit = () => {
                                 className="form-input"
                                 value={formData.email}
                                 onChange={handleChange}
-                                required
                                 disabled={loading}
                             />
                         </div>
@@ -293,7 +237,42 @@ const ProfileEdit = () => {
                                 className="form-input"
                                 value={formData.phone_number}
                                 onChange={handleChange}
-                                required
+                                disabled={loading}
+                            />
+                        </div>
+
+                        <h1 className="group-title">Informations du Compte: </h1>
+                        <hr />
+
+                        <div className="form-group">
+                            <label htmlFor="profil_name" className="form-label">
+                                Nom de profil
+                            </label>
+                            <input
+                                type="text"
+                                id="profil_name"
+                                name="profil_name"
+                                className="form-input"
+                                value={formData.profil_name}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                        </div>
+
+                        <h1 className="group-title">Informations Académiques: </h1>
+                        <hr />
+
+                        <div className="form-group">
+                            <label htmlFor="first_name" className="form-label">
+                                Numéro de carte
+                            </label>
+                            <input
+                                type="text"
+                                id="card_number"
+                                name="card_number"
+                                className="form-input"
+                                value={formData.card_number}
+                                onChange={handleChange}
                                 disabled={loading}
                             />
                         </div>
@@ -382,14 +361,61 @@ const ProfileEdit = () => {
                                 <option value="CYBERSECURITE">Cybersécurité</option>
                             </select>
                         </div>
-                        <button
-                            type="submit"
-                            className="btn btn-primary btn-full"
-                            disabled={loading}
-                        >
-                            <FiSave size={16} style={{ marginRight: '8px' }} />
-                            {loading ? 'Enregistrement...' : 'Enregistrer'}
-                        </button>
+
+                        <h1 className="group-title red-zone">Modifier le mot de passe:</h1>
+                        <hr />
+
+                        <div className="form-group">
+                            <label htmlFor="profil_name" className="form-label">
+                                Ancien mot de passe
+                            </label>
+                            <input
+                                type="password"
+                                className="form-input"
+                                id="old_password"
+                                name="old_password"
+                                className="form-input"
+                                value={formData.old_password}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="profil_name" className="form-label">
+                                Nouveau mot de passe
+                            </label>
+                            <input
+                                type="password"
+                                id="new_password"
+                                name="new_password"
+                                className="form-input"
+                                value={formData.new_password}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                        </div>
+
+                        <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+                            <button
+                                type="submit"
+                                className="btn btn-secondary"
+                                disabled={loading}
+                                onClick={() => onClose()}
+                            >
+                                Annuler
+                            </button>
+
+                            <button
+                                type="submit"
+                                className="btn btn-primary"
+                                disabled={loading}
+                            >
+                                <FiSave size={16} style={{ marginRight: '8px' }} />
+                                {loading ? 'Enregistrement...' : 'Enregistrer'}
+                            </button>
+                        </div>
+
                     </div>
 
                 </form>

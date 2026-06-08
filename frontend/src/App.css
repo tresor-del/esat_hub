@@ -301,8 +301,6 @@ footer p {
   font-size: 1rem;
 }
 
-
-  
 }
 
 .skeleton-avatar {
@@ -472,6 +470,7 @@ footer p {
 
 /* bouton close */
 .modal-close {
+  display: flex;
   position: absolute;
   top: 10px;
   right: 10px;
@@ -490,4 +489,11 @@ footer p {
 
   font-size: 18px;
   z-index: 10;
+}
+
+@media (max-width: 768px) {
+
+  .modal-close {
+    display: none;
+  }
 }

@@ -43,6 +43,8 @@ class UserUpdate(BaseModel):
     birthday: Optional[datetime] = None
     card_number: Optional[str] = None
     phone_number: Optional[str] = None
+    old_password: Optional[str] = None
+    new_password: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

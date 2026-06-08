@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { 
-  FiUsers, FiFileText, FiMessageSquare, FiBarChart2, 
+import {
+  FiUsers, FiFileText, FiMessageSquare, FiBarChart2,
   FiSearch, FiFilter, FiToggleLeft, FiToggleRight, FiTrash2,
   FiEdit, FiMoreVertical, FiUserCheck, FiUserX, FiActivity
 } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
-import { 
-  getAllUsers, searchUsers, updateUserStatus, 
+import {
+  getAllUsers, searchUsers, updateUserStatus,
   getAllPostsAdmin, updatePostStatus, deletePostAdmin,
   getAdminStats, getPostStatistics, getCommentStatistics,
-  getAllCommentsAdmin, getAllRoomsAdmin
+  getAllCommentsAdmin, getAllRoomsAdmin,
+  setRoomRep
 } from "../../services/adminApi";
 import PostAuthorInfo from "../../components/posts/PostAuthorInfo";
 import "../../styles/AdminDashboard.css";
@@ -30,6 +31,7 @@ const AdminDashboard = () => {
   // Filter states
   const [userStatusFilter, setUserStatusFilter] = useState("");
   const [userRoleFilter, setUserRoleFilter] = useState("");
+  const [userRoomFilter, setUserRoomFilter] = useState("");
   const [postStatusFilter, setPostStatusFilter] = useState("");
   const [postTypeFilter, setPostTypeFilter] = useState("");
   const [postRoomFilter, setPostRoomFilter] = useState("");
@@ -48,7 +50,7 @@ const AdminDashboard = () => {
     if (isAdmin) {
       loadData();
     }
-  }, [isAdmin, activeTab, userStatusFilter, userRoleFilter, postStatusFilter, postTypeFilter, postRoomFilter]);
+  }, [isAdmin, activeTab, userStatusFilter, userRoleFilter, userRoomFilter, postStatusFilter, postTypeFilter, postRoomFilter]);
 
   const loadRooms = async () => {
     try {
@@ -68,19 +70,20 @@ const AdminDashboard = () => {
       console.log("stats: ", statsData)
 
       if (activeTab === "users") {
-        const data = await getAllUsers({ 
+        const data = await getAllUsers({
           limit: 100,
           status: userStatusFilter || null,
-          role: userRoleFilter || null
+          role: userRoleFilter || null,
+          room_name: userRoomFilter || null
         });
         setUsers(data.users || []);
       } else if (activeTab === "posts") {
         const [postsData, postStatsData] = await Promise.all([
-          getAllPostsAdmin({ 
+          getAllPostsAdmin({
             limit: 100,
             status: postStatusFilter || null,
             postType: postTypeFilter || null,
-            roomId: postRoomFilter || null
+            room_id: postRoomFilter || null
           }),
           getPostStatistics()
         ]);
@@ -137,6 +140,16 @@ const AdminDashboard = () => {
       console.error("Erreur lors de la mise à jour du statut:", error);
     }
   };
+
+  const setAsRoomRep = async (userId) => {
+    try {
+      const resp = await setRoomRep(userId);
+      console.log(resp)
+      loadData();
+    } catch (error) {
+      console.error("Une erreur s'est produite:", error);
+    }
+  }
 
   const handleDeletePost = async (postId) => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce post?")) return;
@@ -209,7 +222,7 @@ const AdminDashboard = () => {
       )}
 
       <div className="admin-tabs">
-        <button 
+        <button
           className={`admin-tab ${activeTab === "users" ? "active" : ""}`}
           onClick={() => setActiveTab("users")}
         >
@@ -217,7 +230,7 @@ const AdminDashboard = () => {
           <span>Utilisateurs</span>
           {stats?.total_users && <span className="badge">{stats.total_users}</span>}
         </button>
-        <button 
+        <button
           className={`admin-tab ${activeTab === "posts" ? "active" : ""}`}
           onClick={() => setActiveTab("posts")}
         >
@@ -225,7 +238,7 @@ const AdminDashboard = () => {
           <span>Publications</span>
           {stats?.total_posts && <span className="badge">{stats.total_posts}</span>}
         </button>
-        <button 
+        <button
           className={`admin-tab ${activeTab === "comments" ? "active" : ""}`}
           onClick={() => setActiveTab("comments")}
         >
@@ -252,8 +265,8 @@ const AdminDashboard = () => {
       <div className="admin-filters">
         {activeTab === "users" && (
           <>
-            <select 
-              value={userStatusFilter} 
+            <select
+              value={userStatusFilter}
               onChange={(e) => setUserStatusFilter(e.target.value)}
               className="filter-select"
             >
@@ -262,8 +275,8 @@ const AdminDashboard = () => {
               <option value="INACTIVE">Inactif</option>
               <option value="PENDING">En attente</option>
             </select>
-            <select 
-              value={userRoleFilter} 
+            <select
+              value={userRoleFilter}
               onChange={(e) => setUserRoleFilter(e.target.value)}
               className="filter-select"
             >
@@ -271,12 +284,25 @@ const AdminDashboard = () => {
               <option value="ADMIN">Administrateur</option>
               <option value="STUDENT">Étudiant</option>
             </select>
+
+            <select
+              value={userRoomFilter}
+              onChange={(e) => setUserRoomFilter(e.target.value)}
+              className="filter-select"
+            >
+              <option value="">Tous les groupes</option>
+              <option value="PREPA_1">PREPA_1</option>
+              <option value="PREPA_2">PREPA_2</option>
+              <option value="INGE_1">INGE_1</option>
+              <option value="INGE_2">INGE_2</option>
+              <option value="INGE_3">INGE_3</option>
+            </select>
           </>
         )}
         {activeTab === "posts" && (
           <>
-            <select 
-              value={postStatusFilter} 
+            <select
+              value={postStatusFilter}
               onChange={(e) => setPostStatusFilter(e.target.value)}
               className="filter-select"
             >
@@ -284,8 +310,8 @@ const AdminDashboard = () => {
               <option value="ACTIVE">Actif</option>
               <option value="INACTIVE">Inactif</option>
             </select>
-            <select 
-              value={postTypeFilter} 
+            <select
+              value={postTypeFilter}
               onChange={(e) => setPostTypeFilter(e.target.value)}
               className="filter-select"
             >
@@ -294,8 +320,8 @@ const AdminDashboard = () => {
               <option value="ROOM">Groupe</option>
               <option value="EVENT">Événement</option>
             </select>
-            <select 
-              value={postRoomFilter} 
+            <select
+              value={postRoomFilter}
               onChange={(e) => setPostRoomFilter(e.target.value)}
               className="filter-select"
             >
@@ -313,20 +339,21 @@ const AdminDashboard = () => {
         {loading ? (
           <div className="admin-loading">Chargement...</div>
         ) : activeTab === "users" ? (
-          <UsersList 
-            users={users} 
-            onToggleStatus={handleToggleUserStatus} 
+          <UsersList
+            users={users}
+            onToggleStatus={handleToggleUserStatus}
+            onSetAsRoomRep={setAsRoomRep}
           />
         ) : activeTab === "posts" ? (
-          <PostsList 
-            posts={posts} 
+          <PostsList
+            posts={posts}
             postStats={postStats}
             onToggleStatus={handleTogglePostStatus}
             onDelete={handleDeletePost}
           />
         ) : (
-          <CommentsList 
-            comments={comments} 
+          <CommentsList
+            comments={comments}
             commentStats={commentStats}
           />
         )}
@@ -336,7 +363,7 @@ const AdminDashboard = () => {
 };
 
 
-const UsersList = ({ users, onToggleStatus }) => {
+const UsersList = ({ users, onToggleStatus, onSetAsRoomRep }) => {
   if (!users.length) {
     return <div className="admin-empty">Aucun utilisateur trouvé</div>;
   }
@@ -380,6 +407,21 @@ const UsersList = ({ users, onToggleStatus }) => {
                     <FiToggleRight size={20} className="inactive-toggle" />
                   )}
                 </button>
+                <button
+                  className="action-btn"
+                  onClick={() => onSetAsRoomRep(user.id)}
+                  title={user.is_room_rep ? "Est délégué" : "N'est pas délégué"}
+                >
+                  {user.is_room_rep ? (
+                    <>
+                      {user.is_room_rep}<FiToggleLeft size={20} className="active-toggle" />
+                    </>
+                  ) : (
+                    <>
+                      {user.is_room_rep} <FiToggleRight size={20} className="inactive-toggle" />
+                    </>
+                  )}
+                </button>
               </td>
             </tr>
           ))}
@@ -420,7 +462,7 @@ const PostsList = ({ posts, onToggleStatus, onDelete }) => {
                 </div>
               </td>
               <td>
-                <PostAuthorInfo user={post.user} variant="compact"/>
+                <PostAuthorInfo user={post.user} variant="compact" />
               </td>
               <td>
                 <span className="type-badge">{post.post_type || "GENERAL"}</span>

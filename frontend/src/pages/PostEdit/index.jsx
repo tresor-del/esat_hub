@@ -168,7 +168,7 @@ const PostEdit = ({ id, onClose }) => {
                             <button
                                 type="button"
                                 className="btn btn-secondary"
-                                onClick={() => navigate(`/post/${id}`)}
+                                onClick={() => onClose()}
                                 disabled={saving}
                             >
                                 Annuler
