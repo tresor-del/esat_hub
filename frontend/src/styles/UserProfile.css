@@ -30,6 +30,10 @@
   margin-bottom: 1rem;
 }
 
+.edit-form {
+  padding: 1rem;
+}
+
 .profile-banner-content {
   display: flex;
   align-items: center;
@@ -76,6 +80,15 @@
   display: grid;
   grid-template-columns: 350px 1fr;
   gap: 1rem;
+}
+
+.profile-avatar-container {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center
 }
 
 .student-card {
@@ -176,6 +189,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.profile-info .group-title, .profile-info hr {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #444;
+}
+
+.profile-info .group-title.red-zone {
+  color: #e53e3e;
+}
+
+.profile-info hr {
+  opacity: 0.5;
+  padding-bottom: 1rem;
 }
 
 .post-item-info p {

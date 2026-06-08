@@ -23,7 +23,7 @@ def get_current_user_profile(
 ):
     return current_user
 
-@router.put("/me")
+@router.patch("/me")
 def update_current_user_profile(
     user_update: UserUpdate,
     current_user: User = Depends(get_current_user),

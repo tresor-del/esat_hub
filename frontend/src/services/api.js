@@ -15,7 +15,7 @@ export const getUserProfile = async (userId) => {
  * Mettre à jour son profil
  */
 export const updateProfile = async (data) => {
-  const response = await api.put('/users/me', data);
+  const response = await api.patch('/users/me', data);
   return response.data;
 };
 
@@ -276,6 +276,29 @@ export const deleteRoomMedia = async (mediaId) => {
   const response = await api.delete(`${API_BASE_URL}/rooms/media/${mediaId}`);
   return response.data;
 }
+
+export const getCourseSession = async () => {
+  const response = await api.get(`${API_BASE_URL}/rooms/attendance/course-session`)
+  return response.data
+}
+
+export const createAttendanceSession = async (course) => {
+  const response = await api.post(`/rooms/attendance?course=${encodeURIComponent(course)}`);
+  return response.data;
+};
+
+export const getSessionQR = async (sessionId) => {
+  const response = await api.get(`rooms/attendance/${sessionId}/qr`);
+  return response.data;
+};
+
+export const closeAttendanceSession = async (sessionId) => {
+  const response = await api.patch(`rooms/attendance/${sessionId}/close`);
+  return response.data;
+};
+
+export const getAttendanceHistory = () =>
+    api.get("rooms/attendance/history").then(r => r.data);
 
 /**
  * =========================================

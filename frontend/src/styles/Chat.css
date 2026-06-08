@@ -588,6 +588,7 @@
 
   .page-name {
     border-bottom: none !important;
+    border-radius: unset;
   }
 
   .chat-container {

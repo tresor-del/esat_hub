@@ -134,7 +134,7 @@ const CreatePost = ({ onClose }) => {
 
                         <div className="post-edit-footer">
                             <button type="button" className="btn-cancel"
-                                onClick={() => navigate("/")} disabled={loading}>
+                                onClick={() => onClose()} disabled={loading}>
                                 Annuler
                             </button>
                             <button type="submit" className="btn-submit" disabled={loading}>

@@ -5,12 +5,13 @@ import api, { API_BASE_URL } from "../utils/axiosConfig";
 /**
  * Obtenir tous les utilisateurs (admin)
  */
-export const getAllUsers = async ({ skip = 0, limit = 100, role = null, status = null, domain = null, year = null } = {}) => {
+export const getAllUsers = async ({ skip = 0, limit = 100, role = null, status = null, domain = null, year = null, room_name = null} = {}) => {
   const params = new URLSearchParams({ skip, limit });
   if (role) params.append("role", role);
   if (status) params.append("status", status);
   if (domain) params.append("domain", domain);
   if (year) params.append("year", year);
+  if (room_name) params.append("room_name", room_name);
 
   const response = await api.get(`/admin/users?${params}`);
   return response.data;
@@ -144,3 +145,8 @@ export const getRoomByIdAdmin = async (roomId) => {
   const response = await api.get(`/admin/rooms/${roomId}`);
   return response.data;
 };
+
+export const setRoomRep = async (userId) => {
+  const response = await api.post(`/admin/rooms/rep?user_id=${userId}`);
+  return response.data;
+}
