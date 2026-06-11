@@ -7,19 +7,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useWebSocket } from "../../contexts/WebSocketContext";
 import DropdownMenu from "../ui/DropdownMenu";
 import Avatar from "../ui/Avatar";
-import "../../styles/UserMenu.css";
-
-/* ─────────────────────────────────────────────────
-   UserMenuLinks
-   Liste des actions utilisateur (réutilisable dans
-   le drawer mobile ou le dropdown desktop).
-
-   Props :
-     user     – objet utilisateur courant
-     isAdmin  – booléen
-     onAction – callback appelé après chaque action
-                (ex. fermer le drawer)
-   ───────────────────────────────────────────────── */
+import "../../styles/Users/UserMenu.css";
 
 export const UserMenuLinks = ({ user, isAdmin, onAction, isDesktop = false }) => {
     const { logout } = useAuth();

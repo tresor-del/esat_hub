@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatRelativeDate } from '../../utils/dateFormatter';
 import { useRef, useEffect } from 'react';
 import Avatar from '../ui/Avatar';
-import "../../styles/Search.css"
+import "../../styles/Common/Search.css"
 import { useAuth } from '../../contexts/AuthContext';
 
 const SearchDropdown = () => {

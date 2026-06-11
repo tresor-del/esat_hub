@@ -4,7 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import CommentSection from "../../components/comments/CommentSection";
 import PostAuthorInfo from "../../components/posts/PostAuthorInfo";
 import { usePostDetail } from "../../components/posts/hooks/usePostDetail";
-import "../../styles/PostDetail.css"
+import "../../styles/Posts/PostDetail.css"
 
 const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
   const { user } = useAuth();

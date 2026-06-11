@@ -8,13 +8,8 @@ import { useWebSocket } from "../../contexts/WebSocketContext";
 import DropdownMenu from "../ui/DropdownMenu";
 import UserMenuLinks from "./UserMenuLinks";
 import Avatar from "../ui/Avatar";
-import "../../styles/UserMenu.css";
+import "../../styles/Users/UserMenu.css";
 
-
-/* ─────────────────────────────────────────────────
-   UserMenu
-   Dropdown affiché dans la navbar desktop.
-   ───────────────────────────────────────────────── */
 
 const UserMenu = ({ onAction }) => {
   const { user } = useAuth();

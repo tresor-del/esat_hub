@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../../styles/WelcomeModal.css';
+import '../../styles/Modals/WelcomeModal.css';
 
 const WelcomeModal = ({ user, onClose }) => {
   const [currentStep, setCurrentStep] = useState(0);

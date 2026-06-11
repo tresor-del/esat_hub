@@ -4,16 +4,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { getPostFileUrl } from "../../services/api";
 import api from "../../utils/axiosConfig";
 import { Document, Page, pdfjs } from "react-pdf";
-import "../../styles/PostMedia.css";
+import "../../styles/Posts/PostMedia.css";
 import ImageModal from "../ui/ImageModal";
 import axios from "axios";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-//   'pdfjs-dist/build/pdf.worker.min.mjs',
-//   import.meta.url
-// ).toString();
+
 
 const PostMedia = ({ post, bust, size = "small" }) => {
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null);

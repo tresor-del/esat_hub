@@ -9,9 +9,9 @@ import PostMedia from "../../components/posts/PostMedia";
 import CommentSection from "../../components/comments/CommentSection";
 import PostCard from "../../components/posts/Postcard";
 import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
-import "../../styles/CommentSection.css"
-import "../../styles/PostDetail.css"
-import "../../styles/PostMedia.css"
+import "../../styles/Comments/CommentSection.css"
+import "../../styles/Posts/PostDetail.css"
+import "../../styles/Posts/PostMedia.css"
 
 const PostDetail = () => {
   const { id } = useParams();

@@ -1,5 +1,3 @@
-// ─── MediaUploadModal.jsx ─────────────────────────────────────────────────────
-
 import React, { useState } from "react";
 import { uploadRoomMedia, updateRoomMedia } from "../../../../services/api";
 

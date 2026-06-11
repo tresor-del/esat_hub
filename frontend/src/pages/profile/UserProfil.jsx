@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { useState, useEffect } from "react";
-import QRCode from "react-qr-code";
 import { QRCodeSVG } from 'qrcode.react';
 import { useParams, useNavigate } from "react-router-dom";
 import { FiDownload, FiShare2 } from "react-icons/fi";
@@ -22,12 +21,8 @@ const UserProfile = () => {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
 
-  // const [profile, setProfile] = useState(null);
-  // const [posts, setPosts] = useState([]);
-  // const [stats, setStats] = useState({ postsCount: 0, });
   const [loading, setLoading] = useState(true);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  // const [error, setError] = useState("");
   const [qrValue, setQrValue] = useState()
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
@@ -54,11 +49,6 @@ const UserProfile = () => {
   const posts = postsData?.posts || [];
   const stats = { postsCount: postsData?.total || 0 };
 
-
-  // useEffect(() => {
-  //   loadProfile();
-
-  // }, [id]);
 
   // Détection des petits écrans
   useEffect(() => {

@@ -1,6 +1,3 @@
-// ─── useHomeData.js ───────────────────────────────────────────────────────────
-// Centralise les queries et la logique de notification pour la page Home.
-
 import { useEffect } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useAuth } from "../../../contexts/AuthContext";

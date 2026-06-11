@@ -12,7 +12,7 @@ import { formatRelativeDate } from "../../utils/dateFormatter";
 import PostCardSkeleton from "../skeletons/PostcardSkeleton";
 import CommentSection from "../comments/CommentSection";
 import PostDetailModal from "./postDetailModal";
-import "../../styles/PostCard.css"
+import "../../styles/Posts/PostCard.css"
 
 const PostCard = ({
   post,

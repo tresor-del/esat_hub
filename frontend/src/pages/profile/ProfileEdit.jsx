@@ -5,16 +5,15 @@ import { updateProfile, getUserProfile, uploadAvatar } from "../../services/api"
 import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../../components/ui/Avatar";
 import { FiEdit2 } from "react-icons/fi";
-import "../../styles/Auth.css";
-import "../../styles/PostEdit.css"
-import "../../styles/UserProfile.css"
+import "../../styles/Auth/Auth.css";
+import "../../styles/Posts/PostEdit.css"
+import "../../styles/Users/UserProfile.css"
 
 const ProfileEdit = (onClose) => {
     const navigate = useNavigate();
     const { user, logout, updateUser } = useAuth();
 
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
-    // const [profile, setProfile] = useState(null);
 
     const [formData, setFormData] = useState({
         first_name: user.first_name || '',

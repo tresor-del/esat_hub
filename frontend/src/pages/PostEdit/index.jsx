@@ -7,11 +7,11 @@ import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../../components/ui/Avatar";
 import HomeSidebar from "../Home/components/HomeSidebar";
 import FileUploadZone from "../CreatePost/components/fileUploadZone";
-import "../../styles/PostEdit.css"
-import "../../styles/PostCreate.css"
+import "../../styles/Posts/PostEdit.css"
+import "../../styles/Posts/PostCreate.css"
 import "../../styles/Home.css"
-import "../../styles/Chat.css"
-import "../../styles/Auth.css"
+import "../../styles/Chat/Chat.css"
+import "../../styles/Auth/Auth.css"
 
 const PostEdit = ({ id, onClose }) => {
     const params = useParams();

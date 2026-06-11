@@ -1,5 +1,3 @@
-// ─── CreatePostBar.jsx ────────────────────────────────────────────────────────
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FiFile, FiImage, FiVideo } from "react-icons/fi";

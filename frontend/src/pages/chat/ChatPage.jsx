@@ -8,7 +8,7 @@ import { searchPosts } from '../../services/api';
 import { getAllUsers, markMessagesAsReadApi } from '../../services/chatApi';
 import Avatar from '../../components/ui/Avatar';
 import ChatBox from '../../components/chat/ChatBox';
-import "../../styles/Chat.css"
+import "../../styles/Chat/Chat.css"
 import "../../styles/Home.css"
 import { getRecentChat } from '../../services/chatApi';
 import { set } from 'date-fns';

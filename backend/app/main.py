@@ -55,7 +55,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 async def accueil(request: Request):
     return {"Hello": "Welcome to ESAT-HUB API"}
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 async def health_check():
     """Health check endpoint for production monitoring"""
     return {

@@ -6,7 +6,7 @@ import { useInView } from "react-intersection-observer";
 import { MdComment, MdNoCell, MdNotInterested } from "react-icons/md";
 import CommentCard from "./CommentCard";
 import CommentSectionSkeleton from "../skeletons/CommentSectionSkeleton";
-import "../../styles/CommentSection.css";
+import "../../styles/Comments/CommentSection.css";
 
 const CommentSection = ({ postId, user, onCommentAdded }) => {
     // const [comments, queryCli] = useState([]);

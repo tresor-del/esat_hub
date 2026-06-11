@@ -1,18 +1,7 @@
 import React from 'react';
 import Logo from "../../components/common/Logo"
 
-/**
- * AuthLayout
- * Divise l'écran en deux colonnes :
- *   - Gauche  : panneau brand (dégradé bleu)
- *   - Droite  : panneau formulaire (blanc/clair)
- *
- * Usage :
- *   <AuthLayout>
- *     <h2 className="auth-title">Connexion</h2>
- *     <form ...> ... </form>
- *   </AuthLayout>
- */
+
 const AuthLayout = ({ children, loading = false }) => {
     return (
         <div className="auth-container">
@@ -31,29 +20,10 @@ const AuthLayout = ({ children, loading = false }) => {
                     {/* Nom & tagline */}
                     <h1 className="auth-brand-name">Esat-Hub</h1>
                     <h2 className="auth-brand-tagline">Plateforme Social de l'ESAT-TOGO</h2>
-                    {/* <p className="auth-brand-tagline">
-            La plateforme sociale des étudiants ESAT — partage, collabore et reste connecté avec ta communauté.
-          </p> */}
-
-                    {/* Pillules de features */}
-                    {/* <div className="auth-brand-pills">
-            <div className="auth-brand-pill">
-              <span className="auth-brand-pill-icon">💬</span>
-              Publications des activités
-            </div>
-            <div className="auth-brand-pill">
-              <span className="auth-brand-pill-icon">💬</span>
-              Discussions entre étudiants
-            </div>
-            <div className="auth-brand-pill">
-              <span className="auth-brand-pill-icon">📚</span>
-              Gestion des Salles de classe
-            </div>
-            <div className="auth-brand-pill">
-              <span className="auth-brand-pill-icon">🔔</span>
-              Notifications & chat en temps réel
-            </div>
-          </div> */}
+                    <div className="presentations">
+                        <img src="/presentation_smartphones.png" alt="" />
+                        <img src="/presentation_desktop.png" alt="" />
+                    </div>
                 </div>
             </div>
 

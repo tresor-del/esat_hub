@@ -1,6 +1,6 @@
 import React from "react";
 import { FiGithub, FiLinkedin, FiGlobe } from "react-icons/fi"; // Réutiliser react-icons installé dans votre projet
-import "../../styles/Footer.css";
+import "../../styles/Common/Footer.css";
 
 const Footer = (props) => {
     const currentYear = new Date().getFullYear();

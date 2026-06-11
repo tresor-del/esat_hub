@@ -12,7 +12,7 @@ import PostDetailModal from "./postDetailModal";
 
 import { formatRelativeDate } from "../../utils/dateFormatter";
 import { usePostCard }        from "./hooks/usePostCard";
-import "../../styles/PostCard.css";
+import "../../styles/Posts/PostCard.css"
 
 const PostCard = ({
     post,

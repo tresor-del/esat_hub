@@ -13,7 +13,7 @@ import {
   setRoomRep
 } from "../../services/adminApi";
 import PostAuthorInfo from "../../components/posts/PostAuthorInfo";
-import "../../styles/AdminDashboard.css";
+import "../../styles/Admin/AdminDashboard.css";
 
 const AdminDashboard = () => {
   const { user: authUser } = useAuth();
