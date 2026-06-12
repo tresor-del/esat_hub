@@ -588,6 +588,8 @@
   .page-name {
     border-bottom: none !important;
     border-radius: unset;
+    padding: 1rem;
+    width: 100%;
   }
 
   .chat-container {

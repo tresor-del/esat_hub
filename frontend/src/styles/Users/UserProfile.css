@@ -1,8 +1,13 @@
+
 .profile-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   width: 100%;
   max-width: 1400px;
   padding: 1rem;
   background: transparent !important;
+  margin: 0 auto;
 }
 
 .info {
@@ -80,6 +85,13 @@
   display: grid;
   grid-template-columns: 350px 1fr;
   gap: 1rem;
+}
+
+.profile-content {
+  min-height: 100%;
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 1rem
 }
 
 .profile-avatar-container {

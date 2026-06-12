@@ -27,6 +27,13 @@
   margin-bottom: 10px;
 }
 
+.notifications-header h2 {
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: #333;
+  padding: 10px;
+}
+
 .notifications-list {
   display: flex;
   flex-direction: column;
