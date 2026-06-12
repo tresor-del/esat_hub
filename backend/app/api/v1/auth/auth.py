@@ -251,7 +251,6 @@ def resend_verification_email(
     
     return Message(message="Si cet email est dans le système, un nouveau lien de vérification a été envoyé")
 
-
 @router.get("/check-profil-name/{profil_name}")
 def check_profil_name_availability(
     profil_name: str, 
