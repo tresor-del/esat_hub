@@ -36,6 +36,14 @@
      background-color: #fff;
 }
 
+.spinner-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items:center;
+}
+
 .room-name {
     display: inline-flex;
     align-items: center;

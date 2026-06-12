@@ -106,12 +106,7 @@ const UserProfile = () => {
     }
 
   return (
-    <div className="profile-container">
-
-
-      {/* Carte de profil */}
       <div className="profile-card">
-
 
         <div className="profile-banner">
 
@@ -217,23 +212,11 @@ const UserProfile = () => {
 
                 </div>
 
-
-              <div className="qr-actions">
-                <div className="download">
-                  <FiDownload />
-                </div>
-                <div className="share">
-                  <FiShare2 />
-                </div>
-              </div>
-
             </div>
 
           </div>
 
           <div className="profile-content">
-
-            <div className="card info">
 
               <h3 className="profile-title">
                 Informations Académiques
@@ -281,70 +264,8 @@ const UserProfile = () => {
                   <div className="value">{profile.year}</div>
                 </div>
 
-              </div>
 
             </div>
-
-
-
-            {/* <div className="card posts-card">
-
-              <div className="card-body">
-
-                <h3 className="profile-title">
-                  Publications
-                </h3>
-
-                <div className="posts-list">
-
-                  {filteredPosts.length === 0 ? (
-                    <div className="post-list-empty">
-                      <MdNotInterested size={50} />
-                      <p>
-                        Aucune publication
-                      </p>
-                    </div>
-                  ) : (
-                    filteredPosts.map((post) => (
-                      <div
-                        key={post.id}
-                        className="post-item"
-                        onClick={() => handleSeePost(post)}
-                      >
-                        <span className="post-type-icon">
-
-                          {post.post_type === "photo"
-                            ? <FiImage size={24} />
-                            : <FiFile size={24} />
-                          }
-
-                        </span>
-
-                        <div className="post-item-info">
-
-                          <p>{post.title}</p>
-
-                          <div className="item">
-                            <span className="type">
-                              {post.post_type}
-                            </span>
-
-                            <span className="date">
-                              {formatRelativeDate(post.created_at)}
-                            </span>
-                          </div>
-
-                        </div>
-
-                      </div>
-                    ))
-                  )}
-
-                </div>
-              </div>
-            </div> */}
-
-          </div>
         </div>
 
       </div>

@@ -7,8 +7,6 @@
     margin: 1rem;
 }
 
-
-
 .content {
     font-size: 14px;
     color: #333;
@@ -182,6 +180,10 @@
 }
 
 @media (max-width: 768px) {
+    .commentBox {
+        margin-bottom: 7rem !important;
+    }
+    
     .comment-textarea {
         font-size: 12px;
         max-height: 50px;

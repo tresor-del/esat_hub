@@ -19,7 +19,6 @@ import ImageModal from "../../components/ui/ImageModal";
 const Room = () => {
     const [view, setView] = useState("users");
 
-    // ── Data ──────────────────────────────────────────────────────────────────
     const {
         room,
         loadingRoom,
@@ -29,7 +28,6 @@ const Room = () => {
         loadingMedia,
     } = useRoomData(view);
 
-    // ── Actions + modal state ─────────────────────────────────────────────────
     const {
         uploadModalOpen,
         editingMedia,
@@ -46,7 +44,6 @@ const Room = () => {
         closeImagePreview,
     } = useMediaActions(room?.id, roomMedia, setView);
 
-    // ── Derived: resolve detailMediaId → media object ─────────────────────────
     const selectedDetailMedia = useMemo(
         () =>
             detailMediaId
@@ -55,11 +52,11 @@ const Room = () => {
         [roomMedia, detailMediaId]
     );
 
-    // ── Early returns ─────────────────────────────────────────────────────────
-    if (loadingRoom) return <div className="spinner"></div>;
+    if (loadingRoom) return <div className='spinner-container'>
+                                        <div className="spinner"></div>
+                                    </div>;
     if (!room) return <div className="room-error">Aucune salle trouvée.</div>;
 
-    // ── Render ────────────────────────────────────────────────────────────────
     return (
         <div className="room-container">
 

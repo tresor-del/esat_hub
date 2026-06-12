@@ -11,6 +11,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   margin-bottom: 3rem;
   margin-top: 1rem;
 }
@@ -46,7 +47,7 @@
   );
 }
 
-.posts-list, .posts-skeleton-list {
+.posts-list, .posts-skeleton-list, .empty-state-container {
   display: flex;
   flex-direction: column;
   align-items: center;
