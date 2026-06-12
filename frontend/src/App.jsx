@@ -12,7 +12,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Logo from "./components/common/Logo";
 import WelcomeModal from "./components/common/WelcomeModal";
 
-import "./styles/UserProfile.css";
+import "./styles/Users/UserProfile.css";
 import "./App.css";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
