@@ -9,7 +9,7 @@ import SearchDropdown from "../search/SearchDropdown";
 import InstallPWA from "./InstallPWA";
 import { useCreatePostModal } from "../../contexts/createPostContext";
 import { FiMenu, FiX, FiMessageCircle, FiHome, FiUsers, FiPlus, FiSearch, FiServer } from "react-icons/fi";
-import "../../styles/Navbar.css";
+import "../../styles/Common/Navbar.css";
 import Avatar from "../ui/Avatar";
 import Logo from "./Logo";
 

@@ -1,5 +1,3 @@
-// ─── ShareModal.jsx ───────────────────────────────────────────────────────────
-
 import React, { useCallback, useState } from "react";
 import { buildShareUrl } from "../../utils/mediaHelpers";
 

@@ -4,7 +4,7 @@ import { formatRelativeDate } from "../../utils/dateFormatter";
 import { useLocation } from "react-router-dom";
 import { FiEdit, FiTrash2, FiMoreVertical } from "react-icons/fi";
 import CommentActionsMenu from "./CommentActionsMenu";
-import "../../styles/CommentSection.css"
+import "../../styles/Comments/CommentSection.css"
 import { useAuth } from "../../contexts/AuthContext";
 import { getComment, getUserProfile } from "../../services/api";
 

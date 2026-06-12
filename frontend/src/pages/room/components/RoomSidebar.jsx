@@ -1,5 +1,3 @@
-// ─── RoomSidebar.jsx ──────────────────────────────────────────────────────────
-
 import React  from "react";
 import { FiImage, FiUsers } from "react-icons/fi";
 import { ROOM_DISPLAY_NAMES } from "../utils/mediaHelpers";

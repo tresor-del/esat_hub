@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import Avatar from '../ui/Avatar';
 import { FiArrowLeft, FiSend } from 'react-icons/fi';
-import "../../styles/Chat.css";
+import "../../styles/Chat/Chat.css";
 import { getChatHistory, markMessagesAsReadApi } from '../../services/chatApi';
 import EmojiPicker from 'emoji-picker-react';
 import { useNavigate } from 'react-router-dom';

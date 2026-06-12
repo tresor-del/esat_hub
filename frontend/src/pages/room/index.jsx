@@ -1,9 +1,5 @@
-// ─── Room/index.jsx ───────────────────────────────────────────────────────────
-// Orchestrator: wires data hooks + action hooks into the layout.
-// Contains zero business logic — only composition.
-
 import React, { useMemo, useState } from "react";
-import "../../styles/Room.css";
+import "../../styles/Rooms/Room.css";
 
 import { useRoomData } from "./hooks/useRoomData";
 import { useMediaActions } from "./hooks/useMediaActions";

@@ -42,7 +42,7 @@ class Settings(BaseSettings):
 
     DEFAULT_AVATAR: str = "static/default_avatar.jpg"
 
-    FRONTEND_HOST: str = "http://localhost:5173"
+    FRONTEND_HOST: str = ""
 
     SMTP_HOST: str
     SMTP_PORT: int

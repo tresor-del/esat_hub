@@ -1,8 +1,3 @@
-/* ═══════════════════════════════════════════
-   AUTH – Split Screen Layout
-   Left  : brand panel (blue gradient)
-   Right : form panel (light)
-═══════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
 
@@ -77,6 +72,16 @@
   animation: brandFadeIn 0.7s ease both;
 }
 
+.presentations {
+  display: flex;
+}
+
+.presentations img {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 1rem;
+}
+
 @keyframes brandFadeIn {
   from {
     opacity: 0;
@@ -93,18 +98,6 @@
   margin-bottom: 28px;
 }
 
-/* Halo lumineux autour du logo */
-.auth-brand-logo-halo {
-  /* width: 96px;
-  height: 96px;
-  border-radius: 28px;
-  background: rgba(255,255,255,0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 0 12px rgba(255,255,255,0.06), 0 0 0 24px rgba(255,255,255,0.03);
-  backdrop-filter: blur(4px); */
-}
 
 .auth-brand-name {
   font-family: 'Sora', sans-serif;

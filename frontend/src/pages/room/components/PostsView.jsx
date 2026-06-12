@@ -1,5 +1,3 @@
-// ─── PostsView.jsx ────────────────────────────────────────────────────────────
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import PostCard from "../../../components/posts/Postcard";

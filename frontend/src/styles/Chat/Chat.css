@@ -1,18 +1,19 @@
 .chat {
   display: flex;
   height: calc(100vh - calc(1rem + 60px)) !important;
+
+  justify-content: center;
 }
 
 .chat-container {
   display: flex !important;
   height: 100%;
   height: calc(100vh - 95px) !important;
-  width: 77% !important;
+  width: 75% !important;
   /* width: 100%; */
   margin: 2rem 1rem 0 1rem !important;
   border-radius: 1rem 1rem 0 0;
   flex-direction: column;
-  /* border: 1px solid #eee; */
 
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
     0 10px 15px -3px rgba(0, 0, 0, 0.03),
@@ -20,15 +21,13 @@
 }
 
 .left-home-card.on-chat {
-  /* max-height: unset; */
-  max-height: calc(100vh - calc(1rem + 60px)) !important; 
-  position: fixed;
-  right: 10px;
-  /* justify-content: space-between; */
-  width: 25% !important;
+  height: 100% !important;
+  max-height: 300px;
+
+  width: 30% !important;
   border-radius: 1rem 1rem 0 0 ;
   scrollbar-width: none;
-  margin-top: 1rem; 
+  margin-top: 2rem; 
   box-shadow: unset;
 }
 

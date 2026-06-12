@@ -1,5 +1,10 @@
 <p align="center">
   <img src="frontend/public/logo_circle.png" alt="Logo EsatHub" width="150" height="auto">
+
+  <img src="frontend/public/presentation_smartphones.png" alt="" width="700">
+
+  <img src="frontend/public/presentation_desktop.png" alt="" width="700">
+
 </p>
 
 # ESAT-HUB

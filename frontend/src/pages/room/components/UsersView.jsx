@@ -1,5 +1,3 @@
-// ─── UsersView.jsx ────────────────────────────────────────────────────────────
-
 import React, { useMemo, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import PostAuthorInfo from "../../../components/posts/PostAuthorInfo";

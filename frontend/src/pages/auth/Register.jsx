@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { register, checkPname } from '../../services/api';
 import AuthLayout from './AuthLayout';
-import "../../styles/Auth.css";
+import "../../styles/Auth/Auth.css";
 
 const Register = () => {
   const navigate = useNavigate();

@@ -7,9 +7,9 @@ import FileUploadZone from "./components/fileUploadZone";
 import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../../components/ui/Avatar";
 import HomeSidebar from "../Home/components/HomeSidebar";
-import "../../styles/PostEdit.css"
+import "../../styles/Posts/PostEdit.css"
 import "../../styles/Home.css"
-import "../../styles/Auth.css"
+import "../../styles/Auth/Auth.css"
 
 const CreatePost = ({ onClose }) => {
     const navigate = useNavigate();

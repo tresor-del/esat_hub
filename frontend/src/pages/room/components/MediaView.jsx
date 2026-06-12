@@ -1,5 +1,3 @@
-// ─── MediaView.jsx ────────────────────────────────────────────────────────────
-
 import React, { useMemo, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import MediaCard from "./MediaCard";
