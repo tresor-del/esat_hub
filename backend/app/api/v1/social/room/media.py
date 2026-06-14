@@ -1,3 +1,5 @@
+import asyncio
+from functools import partial
 from typing import Optional
 from uuid import UUID
 
@@ -16,7 +18,7 @@ router = APIRouter(prefix="/rooms", tags=["Room"])
 
 
 @router.post("/add-media", response_model=MediaResponse)
-def upload_room_media(
+async def upload_room_media(
     background_tasks: BackgroundTasks,
     title: str = Form(...),
     description: Optional[str] = Form(None),
@@ -34,6 +36,17 @@ def upload_room_media(
             detail="Impossible de déterminer la salle de l'utilisateur"
         )
 
+    # Envoyer le fichiers dans un autre thread pool
+    file_path, original_filename = await asyncio.to_thread(
+        None,
+        partial(
+            file_service.save_upload_file,
+            upload_file=file,
+            is_room_file=True,
+            room_id=room_id
+        )
+    )
+    
     file_path, original_filename = file_service.save_upload_file(
         upload_file=file,
         is_room_file=True,
