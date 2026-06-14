@@ -1,5 +1,6 @@
 import re
 import uuid
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.db.schemas.user import User, UserStatus
@@ -7,6 +8,7 @@ from app.db.schemas.email_verification import EmailVerificationToken
 from app.models.user import  UserInDatabase
 from app.core.config import settings
 from app.db.security import hash_password, verify_password
+from app.services.utils.pagination import paginate_query
 
 
 class AuthService:
@@ -16,7 +18,10 @@ class AuthService:
         
 
     def get_username(self, profil_name: str, school_name: str) -> str|None:
+
+        # on enlever les espaces et le rendre minuscule
         validated_profil_name = profil_name.strip().lower()
+        # expression régulière pour valider le nom de profile
         if re.match("^[a-z0-9_]+$", validated_profil_name):
             validated_school_name = school_name.strip().lower()
             username = f"{validated_profil_name}@{validated_school_name}"
@@ -25,14 +30,9 @@ class AuthService:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Le nom de profil n'est pas valide"
         )
-
-    def confirm_user(self, user: User, record: EmailVerificationToken):
-        user.status = UserStatus.ACTIVE
-        self._db.delete(record)
-        self._db.commit()
-        self._db.refresh(user)
         
     def check_duplicated_email(self, user_email: str) -> bool:
+
         user = self._db.query(User).filter(User.email == user_email).first()
         
         if not user:
@@ -45,7 +45,6 @@ class AuthService:
             
         return True
 
-    
     def check_duplicated_profil_name(self, profil_name: str) -> bool:
         result = self._db.query(User).filter(User.profil_name == profil_name).first()
         return True if result else False
@@ -107,13 +106,17 @@ class AuthService:
             self._db.delete(user)
             self._db.commit()
     
-    def get_all_users(self) -> list[User]:
+    def get_all_users(self, page: int = 1, page_size: int = 20) -> list[User]:
         """Récupère tous les utilisateurs"""
-        return self._db.query(User).filter(User.status == UserStatus.ACTIVE).all()
+        statement = select(User).filter(User.status == UserStatus.ACTIVE)
+        result = paginate_query(self._db, statement, page, page_size)
+        return result
     
-    def get_users_by_room_id(self, room_id: uuid.UUID) -> list[User]:
+    def get_users_by_room_id(self, room_id: uuid.UUID, page: int = 1, page_size: int = 20) -> list[User]:
         """Récupère tous les utilisateurs d'une salle spécifique"""
-        return self._db.query(User).filter(User.user_room_id == room_id).all()
+        statement = select(User).filter(User.user_room_id == room_id)
+        result = paginate_query(self._db, statement, page, page_size)
+        return result
     
     def get_user_by_rfid_uid(self, uid: str) -> list[User]:
         """Récupère tous les utilisateurs d'une salle spécifique"""

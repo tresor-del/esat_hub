@@ -63,7 +63,7 @@ def authenticate_user(db: Session, username: str, password: str):
             detail="Incorrect email or password",
         )
     
-    # Vérifier si l'email est vérifié
+    # Vérifier si l'utilisateur à été vérifié
     if not user.status == "ACTIVE":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
