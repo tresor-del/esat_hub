@@ -49,7 +49,6 @@ const MediaCard = ({ media, onOpen, onShare }) => {
 
                 <div className="media-item-footer">
                     <div className="media-item-author">
-                        {/* 🆕 Taille 'small' pour un look plus harmonieux */}
                         <Avatar user={media.user} size="small" />
                         <span>
                             {media.user?.profil_name ||

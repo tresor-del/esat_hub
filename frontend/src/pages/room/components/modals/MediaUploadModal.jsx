@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { uploadRoomMedia, updateRoomMedia } from "../../../../services/api";
 
 /**
- * @prop {object|null} editingMedia  — null → add mode, object → edit mode
+ * @prop {object|null} editingMedia 
  * @prop {Function}    onClose
- * @prop {Function}    onSuccess     — called after successful save
+ * @prop {Function}    onSuccess 
  */
 const MediaUploadModal = ({ editingMedia, onClose, onSuccess }) => {
     const [title,       setTitle]       = useState(editingMedia?.title       || "");

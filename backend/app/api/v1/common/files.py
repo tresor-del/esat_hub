@@ -1,4 +1,6 @@
 import uuid
+import asyncio
+from functools import partial 
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from fastapi.responses import RedirectResponse, StreamingResponse
@@ -63,13 +65,17 @@ async def upload_avatar(
         file_service.delete_file_path(current_user.avatar_path)
     
     # Sauvegarder avec un nom unique
-    file_path = file_service.save_upload_file(
-        resized_file=image,
-        resized=True,
-        is_avatar=True,
-        is_post_file=False
-    )[0]
-
+    file_path, _ = await asyncio.to_thread(
+        None,
+        partial(
+            file_service.save_upload_file,
+            resized_file=image,
+            resized=True,
+            is_avatar=True,
+            is_post_file=False
+        )
+    )
+    
     # Mettre à jour le chemin de l'avatar dans la base de données
     file_service.update_avatar(db, current_user, file_path)
 
@@ -96,8 +102,13 @@ async def upload_chat_file(
     file_service: FileService = Depends(get_file_service)
     ):
 
-    file_path, _ = file_service.save_upload_file(
-        upload_file=file
+    file_path, _ = await asyncio.to_thread(
+        None,
+        partial(
+            file_service.save_upload_file(
+                upload_file=file
+            )
+        )
     )
 
     # Renvoyer le chemin relatif
