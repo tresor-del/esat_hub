@@ -140,7 +140,7 @@ class FileService:
                 if env == "prod":
                     folder = "esat_hub/avatars"
                     result = self.upload_to_cloud(
-                        upload_file=upload_file,
+                        byte_file=upload_file,
                         folder=folder
                     )
                     return result
