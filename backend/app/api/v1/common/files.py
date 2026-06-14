@@ -66,7 +66,6 @@ async def upload_avatar(
     
     # Sauvegarder avec un nom unique
     file_path, _ = await asyncio.to_thread(
-        None,
         partial(
             file_service.save_upload_file,
             resized_file=image,
@@ -103,7 +102,6 @@ async def upload_chat_file(
     ):
 
     file_path, _ = await asyncio.to_thread(
-        None,
         partial(
             file_service.save_upload_file(
                 upload_file=file
