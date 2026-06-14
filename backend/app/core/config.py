@@ -9,6 +9,8 @@ class Settings(BaseSettings):
         env_ignore_empty=True,
         extra="ignore",
     )
+
+    ENV: str = "dev"
     
     SECRET_KEY: str 
     ALGORITHM: str = "HS256"
@@ -52,6 +54,10 @@ class Settings(BaseSettings):
     EMAILS_FROM_NAME: str
     SMTP_TLS: bool = True
     SMTP_SSL: bool = False
+
+    REDIS_URL: str = "redis://localhost:6379"
+
+    SENTRY_DSN: str = ""
 
     @property
     def emails_enabled(self) -> bool:

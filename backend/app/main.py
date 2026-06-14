@@ -1,8 +1,15 @@
 import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+
+import redis.asyncio as aioredis
+
+import sentry_sdk
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+from sentry_sdk.integrations.starlette import StarletteIntegration
 
 from contextlib import asynccontextmanager
 
@@ -13,17 +20,34 @@ from app.core.config import settings
 from app.core.limiter import limiter
 from app.core.firebase import init_firebase
 
+if settings.ENV == "prod":
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        traces_sample_rate=1.0,
+        integrations=[StarletteIntegration(), FastApiIntegration()]
+    )
 
 setup_logging()
 logger = logging.getLogger(__name__)
 
+REDIS_URL = settings.REDIS_URL
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Connexion à l'api...")
+
+    # initialisation de firebase
     init_firebase()
+
+    # connexion à redis
+    app.state.redis = await aioredis.from_url(REDIS_URL, decode_responses=True)
+    
     yield
     logger.info("Fermerture des connexions...")
+
+    # fermerture de la connexion avec redis
+    await app.state.redis.close()
+
     # à la création de engine, l'app crée une pool pour et stock des tuyaux ouverts vers la base de données. 
     # ça permet de réutiliser ces tuyaux pour les requêtes suivantes sans devoir se reconnecter à chaque fois, ce qui améliore les performances.
     # Quand l'app se ferme, il faut fermer ces tuyaux pour libérer les ressources
@@ -63,5 +87,9 @@ async def health_check():
         "service": settings.APP_NAME,
         "version": "1.0.0"
     }
+
+@app.get("/sentry-debug")
+async def trigger_error():
+    division_by_zero = 1 / 0
 
 app.include_router(api_v1_router, prefix="/api/v1")

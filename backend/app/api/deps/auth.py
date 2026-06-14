@@ -4,6 +4,9 @@ from sqlalchemy.orm import Session
 
 from typing import Annotated
 
+from app.api.deps.redis import get_redis
+import redis.asyncio as aioredis
+
 from app.db.security import oauth2_scheme
 from app.core.config import settings
 from app.db.schemas.user import User
@@ -11,7 +14,7 @@ from app.models.token import TokenData
 from app.api.deps.db import get_db
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db), redis: aioredis.Redis = Depends(get_redis)):
     """
     Dépendence pour sécuriser l'accès aux routes contre les utilisateurs non connecté.
     """
@@ -33,9 +36,15 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
     except JWTError:
         raise credentials_exception
     
+    active_session = await redis.get(f"session:{user_id}")
+    if not active_session:
+        raise credentials_exception
+    
     user = db.query(User).filter(User.id == token_data.user_id).first()
     if not user:
         raise credentials_exception
+    
+    
     return user
 
 async def get_current_admin(
