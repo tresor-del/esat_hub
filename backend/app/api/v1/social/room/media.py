@@ -38,7 +38,6 @@ async def upload_room_media(
 
     # Envoyer le fichiers dans un autre thread pool
     file_path, original_filename = await asyncio.to_thread(
-        None,
         partial(
             file_service.save_upload_file,
             upload_file=file,
@@ -47,12 +46,6 @@ async def upload_room_media(
         )
     )
     
-    file_path, original_filename = file_service.save_upload_file(
-        upload_file=file,
-        is_room_file=True,
-        room_id=room_id
-    )
-
     if not file_path and not original_filename:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
