@@ -35,6 +35,7 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
             if (totalLoaded >= lastPage.total) return undefined;
             return totalLoaded; // skip = nombre déjà chargés
         }, 
+        enabled: !!postId,
     });
 
     const comments = commentsData?.pages.flatMap((c) => c.comments) ?? [];

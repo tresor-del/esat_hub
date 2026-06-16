@@ -24,3 +24,10 @@ export const getAllUsers  = async () => {
     const response = await api.get(`/users/all`)
     return response.data
 }
+
+export const uploadChatFile = async (formData) => {
+    const res = await api.post("/files/chat/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
+    return res.data;
+};

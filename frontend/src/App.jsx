@@ -19,6 +19,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import MainLayout from "./layouts/MainLayout";
 import EmptyLayout from "./layouts/EmptyLayout";
 import { CreatePostProvider } from "./contexts/createPostContext";
+import { ToastProvider } from "./contexts/toastContext";
+import PostDetailRoute from "./components/posts/PostDetailRoute";
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
@@ -100,7 +102,8 @@ const AppRoutes = () => {
           >
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/" element={<Home />} />
-            <Route path="/post/:id" element={<PostDetail />} />
+            <Route path="/post/:id" element={<Home />} />
+            <Route path="/post-page/:id" element={<PostDetailRoute />} />
             <Route path="/profile/:id" element={<UserProfil />} />
             <Route path="/profile/edit" element={<ProfileEdit />} />
             <Route path="/room" element={<Room />} />
@@ -127,9 +130,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <AuthProvider>
-          <CreatePostProvider>
-            <AppRoutes />
-          </CreatePostProvider>
+          <ToastProvider>
+            <CreatePostProvider>
+              <AppRoutes />
+            </CreatePostProvider>
+          </ToastProvider>
         </AuthProvider>
       </Router>
     </QueryClientProvider>

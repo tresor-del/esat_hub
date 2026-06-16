@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useWebSocket } from '../../contexts/WebSocketContext';
 import Avatar from '../ui/Avatar';
-import { FiArrowLeft, FiSend } from 'react-icons/fi';
+import { FiArrowLeft, FiSend, FiPaperclip } from 'react-icons/fi';
 import "../../styles/Chat/Chat.css";
 import { getChatHistory, markMessagesAsReadApi } from '../../services/chatApi';
 import EmojiPicker from 'emoji-picker-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { uploadChatFile } from '../../services/chatApi';
 
 const ChatBox = ({ recipient, onClose, isMobile }) => {
     const { unreadChatsCount, messages, sendMessage, user } = useWebSocket();
@@ -20,12 +21,66 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
 
+    const [uploadingFile, setUploadingFile] = useState(false);
+    const fileInputRef = useRef(null);
+
+    const handleFileSelect = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validation
+        const isImage = file.type.startsWith("image/");
+        const isDoc = file.type === "application/pdf";
+        if (!isImage && !isDoc) {
+            alert("Seules les images et PDFs sont acceptés");
+            return;
+        }
+        // if (file.size > 5 * 1024 * 1024) {
+        //     alert("Fichier trop volumineux (max 5MB)");
+        //     return;
+        // }
+
+        try {
+            setUploadingFile(true);
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const result = await uploadChatFile(formData);
+            console.log(result)
+
+            // Envoie via WS avec le media_id
+            sendMessage(recipient.id, "", result.media_id);
+
+            const optimisticMsg = {
+                sender_id: currentUser.id,
+                content: "",
+                timestamp: new Date().toISOString(),
+                is_read: false,
+                media: {
+                    id: result.media_id,
+                    file_path: result.file_path,
+                    file_name: file.name,
+                    mime_type: file.type,
+                }
+            };
+            setLocalHistory(prev => [...prev, optimisticMsg]);
+
+        } catch (err) {
+            console.error("Erreur upload:", err);
+            alert("Erreur lors de l'envoi du fichier");
+        } finally {
+            setUploadingFile(false);
+            e.target.value = ""; // reset input
+        }
+    };
+
     useEffect(() => {
         const loadHistory = async () => {
             setLocalHistory([]);
             setLoadingHistory(true);
             try {
                 const res = await getChatHistory(recipient.id);
+                console.log(res)
                 setLocalHistory(res);
             } catch (error) {
                 console.log(error);
@@ -141,6 +196,11 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
                         const showDateBadge = currentDateLabel !== lastDateLabel;
                         lastDateLabel = currentDateLabel;
 
+                        // vérfier si l'auteur du message précédent est le mm que celui du nouveau
+                        const prevMsg = conversation[i - 1]
+                        const isGrouped = prevMsg && prevMsg.sender_id === msg.sender_id && !showDateBadge;
+
+
                         return (
                             <React.Fragment key={i}>
                                 {showDateBadge && (
@@ -149,29 +209,59 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
                                     </div>
                                 )}
 
-                                <div className="chat-message-wrapper" >
+                                <div className={`chat-message-wrapper `} >
 
                                     {/* En-tête : avatar + nom + heure */}
-                                    <div className="chat-message-header">
-                                        {msg.sender_id === recipient.id ? (
-                                            <Avatar user={recipient} size="default" />
+                                    <div className={`chat-message-header ${isGrouped ? "grouped" : ""}`}>
+                                        {!isGrouped ? (
+                                            msg.sender_id === recipient.id ? (
+                                                <Avatar user={recipient} size="default" />
+                                            ) : (
+                                                <Avatar user={currentUser} size="default" />
+                                            )
                                         ) : (
-                                            <Avatar user={currentUser} size="default" />
+                                            <div className="avatar-placeholder" />
                                         )}
 
                                         <div className='name'>
+
                                             <span className="name-h">
-                                                {msg.sender_id === recipient.id
-                                                    ? `${recipient.first_name} ${recipient.last_name}`
-                                                    : `${currentUser.first_name} ${currentUser.last_name}`}
-                                                <span className="chat-message-time">
-                                                    {formatChatTimestamp(msg.timestamp)}
-                                                </span>
+                                                {!isGrouped && (
+                                                    msg.sender_id === recipient.id
+                                                        ? `${recipient.first_name} ${recipient.last_name}`
+                                                        : `${currentUser.first_name} ${currentUser.last_name}`
+                                                )}
+                                                
                                             </span>
 
                                             <div className={`content ${msg.sender_id === currentUser.id ? "outgoing" : "incoming"}`}>
-                                                {msg.content}
+                                                {msg.content && <span>{msg.content}</span>}
+
+                                                {msg.media && (
+                                                    msg.media.mime_type?.startsWith("image/") ? (
+                                                        <img
+                                                            src={msg.media.file_path}
+                                                            alt="image"
+                                                            className="chat-media-image"
+                                                            onClick={() => window.open(msg.media.file_path, "_blank")}
+                                                        />
+                                                    ) : (
+                                                        <a
+                                                            href={msg.media.file_path}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="chat-media-doc"
+                                                        >
+                                                            📄 {msg.media.file_name || "Document"}
+                                                        </a>
+                                                    )
+                                                )}
+
+                                                <span className="chat-message-time">
+                                                    {formatChatTimestamp(msg.timestamp)}
+                                                </span>
                                             </div>
+
                                         </div>
                                     </div>
 
@@ -187,6 +277,22 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
             </div>
 
             <form onSubmit={handleSend} className="chat-form">
+                <button
+                    type="button"
+                    className="file-upload-btn"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingFile}
+                >
+                    {uploadingFile ? <div className="spinner-sm" /> : <FiPaperclip size={20} />}
+                </button>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={handleFileSelect}
+                    style={{ display: "none" }}
+                />
+
                 {showEmojiPicker && (
                     <div className="emoji-picker-popup">
                         <EmojiPicker onEmojiClick={onEmojiClick} />

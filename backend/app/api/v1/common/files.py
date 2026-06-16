@@ -13,6 +13,7 @@ from app.db.schemas.user import User
 from app.core.config import settings
 from app.services.social.posts import PostService
 from app.services.common.files import FileService
+from app.services.realtime import chat_service
 
 router = APIRouter(prefix="/files", tags=["files"])
 
@@ -84,7 +85,8 @@ async def upload_avatar(
 async def get_avatar(
     user_id: uuid.UUID, 
     db: Session = Depends(get_db), 
-    user_service = Depends(get_auth_service)):
+    user_service = Depends(get_auth_service)
+):
     
     user = user_service.get_user(user_id)
     
@@ -98,16 +100,30 @@ async def get_avatar(
 @router.post("/chat/upload")
 async def upload_chat_file(
     file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
     file_service: FileService = Depends(get_file_service)
     ):
 
-    file_path, _ = await asyncio.to_thread(
+    file_path, file_name = await asyncio.to_thread(
         partial(
-            file_service.save_upload_file(
-                upload_file=file
-            )
+            file_service.save_upload_file,
+            upload_file=file,
+            is_chat_file=True,
         )
+    )
+    
+    media = chat_service.add_chat_media(
+        db,
+        current_user.id,
+        file_path,
+        file_name,
+        file.content_type
     )
 
     # Renvoyer le chemin relatif
-    return {"file_path": file_path}
+    return {
+        "media_id": str(media.id),
+        "file_path": file_path,
+        "mime_type": file.content_type,
+    }

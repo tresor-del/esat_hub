@@ -71,6 +71,12 @@ class AuthService:
 
         update_data = user_update.model_dump(exclude_unset=True)
 
+
+        # Ignorer les champs password vides
+        if not update_data.get("new_password"):
+            update_data.pop("new_password", None)
+            update_data.pop("old_password", None)
+
         if "new_password" in update_data:
             new_password = update_data.get("new_password")
             old_password = update_data.get("old_password")

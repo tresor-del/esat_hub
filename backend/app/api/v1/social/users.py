@@ -11,6 +11,7 @@ from app.api.deps.db import get_db
 from app.core.config import settings
 from app.api.deps.services import get_auth_service
 from app.models.user import UserUpdate
+from app.services.auth.users import AuthService
 
 
 os.makedirs(settings.AVATAR_DIR, exist_ok=True)
@@ -27,7 +28,7 @@ def get_current_user_profile(
 def update_current_user_profile(
     user_update: UserUpdate,
     current_user: User = Depends(get_current_user),
-    user_service = Depends(get_auth_service)
+    user_service: AuthService = Depends(get_auth_service)
 ):
     updated_user = user_service.update_user(current_user.id, user_update)
     return updated_user

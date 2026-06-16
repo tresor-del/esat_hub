@@ -194,11 +194,12 @@ export const WebSocketProvider = ({ children }) => {
   }, []);
 
   // FONCTION POUR ENVOYER UN MESSAGE DE CHAT
-  const sendMessage = (recipientId, content) => {
+  const sendMessage = (recipientId, content, mediaId) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       const payload = {
         recipient_id: recipientId,
-        message: content
+        message: content,
+        media_id: mediaId
       }
 
       // On l'envoie au serveur via le socket unique

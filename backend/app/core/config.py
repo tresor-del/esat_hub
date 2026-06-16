@@ -87,6 +87,8 @@ class Settings(BaseSettings):
     BREVO_API_KEY: str = ""
 
     FIREBASE_CREDENTIALS_PATH: str = ""
+    
+    ENCRYPTION_KEY: str = ""
 
 
     

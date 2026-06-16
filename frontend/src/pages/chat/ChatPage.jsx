@@ -251,6 +251,7 @@ const ChatPage = () => {
                                                         </div>
                                                         <div className='content-u'>
                                                             <p className="contact-preview">
+                                                                {u.user?.id === fullUser?.id ? "Vous :" : "Lui: "}
                                                                 {u.last_message_content || "Aucun message"}
                                                             </p>
                                                             {u.unread_count > 0 && (<span className='unread-msg-badge'>{u.unread_count}</span>)}

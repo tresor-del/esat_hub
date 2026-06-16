@@ -117,6 +117,7 @@ const NotificationDropdown = ({ unreadCount }) => {
   };
 
   /* Naviguer vers le post ciblé */
+  const isOnMobile = window.innerWidth < 768;
   const handleClick = (notif) => {
     if (notif.type === "new_comment") {
       navigate(`/post/${notif.post_id}?commentId=${notif.comment_id}`);

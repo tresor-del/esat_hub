@@ -3,12 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { FiInbox } from "react-icons/fi";
 import { useInView } from 'react-intersection-observer';
+import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import { useHomeData } from "./hooks/useHomeData";
 import HomeSidebar from "./components/HomeSidebar";
 import CreatePostBar from "./components/CreatePostBar";
 
 import PostCard from "../../components/posts/Postcard";
+import PostDetailModal from "../../components/posts/postDetailModal";
 import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
 import UserTour from "../../components/common/Usertour";
 import { deletePost } from "../../services/api";
@@ -23,6 +26,15 @@ const Home = () => {
     const queryClient = useQueryClient();
     const [editPostId, setEditPostId] = React.useState(null);
     const { createPostModale, openCreatePost, closeCreatePost } = useCreatePostModal();
+    const { id: modalPostId } = useParams();
+    const isMobile = window.innerWidth < 768;
+
+    useEffect(() => {
+        if (modalPostId && isMobile) {
+            // Seulement sur mobile, remplace par la vraie page
+            navigate(`/post-page/${modalPostId}`, { replace: true });
+        }
+    }, [modalPostId]);
 
     const {
         userAuth,
@@ -148,18 +160,27 @@ const Home = () => {
                 )}
 
                 {createPostModale && (
-                <div className="modal-overlay">
-                    <div className="modal-container">
+                    <div className="modal-overlay">
+                        <div className="modal-container">
 
-                        <button className="modal-close" onClick={closeCreatePost}>
-                            ✕
-                        </button>
+                            <button className="modal-close" onClick={closeCreatePost}>
+                                ✕
+                            </button>
 
-                        <CreatePost onClose={closeCreatePost} />
+                            <CreatePost onClose={closeCreatePost} />
 
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+
+                {modalPostId && !isMobile && (
+                    <div className="modal-overlay">
+                        <PostDetailModal
+                            postId={modalPostId}
+                            onClose={() => navigate("/")}
+                        />
+                    </div>
+                )}
 
 
             </div>

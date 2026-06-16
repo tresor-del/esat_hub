@@ -33,8 +33,8 @@ const UserProfile = () => {
   // Profil
   const { data: profile, isLoading, error } = useQuery({
     queryKey: ["userProfile", id],
-    queryFn: () => isOwnProfile ? Promise.resolve(currentUser) : getUserProfile(id),
-    staleTime: isOwnProfile ? Infinity : 1000 * 60 * 5,
+    queryFn: () => getUserProfile(id),
+    staleTime: 1000 * 60 * 5,
     enabled: !!id,
   });
 
@@ -84,18 +84,6 @@ const UserProfile = () => {
     );
   }
 
-  const filteredPosts = posts.filter(
-    (post) => post.room_id === null || post.room_id === currentUser?.user_room_id
-  );
-
-  const handleSeePost = (post) => {
-    if (isMobile) navigate(`/post/${post.id}`);
-    if (!isMobile) setSelectedPost(post.id);
-  }
-
-  const handleClose = () => {
-    setSelectedPost(null)
-  }
 
   const handleEdit = () => {
         seteditProfile(true);
@@ -203,13 +191,13 @@ const UserProfile = () => {
 
                   <QRCodeSVG
                     value={`${window.location.origin}/profile/${profile.id}`}
-                    size={200}
+                    size={250}
                     bgColor={"#ffffff"}
                     fgColor={"#0f172a"}
                     level={"H"}
                     includeMargin={true}
                   />
-
+                
                 </div>
 
             </div>

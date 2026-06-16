@@ -1,9 +1,10 @@
-// ─── useCreatePost.js ─────────────────────────────────────────────────────────
-
+import { useCreatePostModal } from "../../../contexts/createPostContext";
 import { useEffect, useState } from "react";
 import { useNavigate }         from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../../contexts/AuthContext";
 import { createPost } from "../../../services/api";
+import { useToast } from "../../../contexts/toastContext";
 
 const INITIAL_FORM = {
     title:       "",
@@ -15,6 +16,7 @@ const INITIAL_FORM = {
 };
 
 export const useCreatePost = () => {
+    const { toast } = useToast();
     const navigate     = useNavigate();
     const { user }     = useAuth();
 
@@ -22,6 +24,8 @@ export const useCreatePost = () => {
     const [preview,  setPreview]  = useState(null);
     const [error,    setError]    = useState("");
     const [loading,  setLoading]  = useState(false);
+    const { closeCreatePost } = useCreatePostModal();
+    const queryClient = useQueryClient(); 
 
     // Sync room_id with scope
     useEffect(() => {
@@ -61,12 +65,18 @@ export const useCreatePost = () => {
         setLoading(true);
         try {
             await createPost(formData);
-            navigate("/");
+            queryClient.invalidateQueries({ queryKey: ["posts"] });
+            toast({ message: "Post créé avec succès !" });
+            closeCreatePost();
         } catch (err) {
             const detail = err.response?.data?.detail;
-            if (Array.isArray(detail))        setError(detail[0].msg);
-            else if (typeof detail === "string") setError(detail);
-            else setError("Erreur lors de la création du poste");
+            const message = Array.isArray(detail)
+                ? detail[0].msg
+                : typeof detail === "string"
+                ? detail
+                : "Erreur lors de la création du post";
+            toast({ message, type: "error" });
+            setError(message);
         } finally {
             setLoading(false);
         }

@@ -4,6 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import CommentSection from "../../components/comments/CommentSection";
 import PostAuthorInfo from "../../components/posts/PostAuthorInfo";
 import { usePostDetail } from "../../components/posts/hooks/usePostDetail";
+import { formatRelativeDate } from "../../utils/dateFormatter";
 import "../../styles/Posts/PostDetail.css"
 
 const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
@@ -44,6 +45,7 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
         <FiX size={33} />
       </div>
 
+
       <div className="post-detail-content" onClick={(e) => e.stopPropagation()}>
 
         {/* IMAGE */}
@@ -61,6 +63,17 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
 
         {/* COMMENTS */}
         <div className="post-detail-info">
+          <div className="post-detail-header">
+            <PostAuthorInfo user={post?.user} postDate={formatRelativeDate(post?.created_at)} />
+          </div>
+          <div>
+            <p>
+              {post?.title}
+            </p>
+            <p>
+              {post?.description}
+            </p>
+          </div>
           <CommentSection
             postId={post?.id}
             user={user}
