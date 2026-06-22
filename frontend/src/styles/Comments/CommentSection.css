@@ -1,10 +1,20 @@
-/* Tes styles existants */
+.comment-section-container{
+    /* margin-top: 1rem; */
+    width: 100% !important;
+}
+
 .commentBox {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 1.5rem;
-    margin: 1rem;
+    /* gap: 1.5rem; */
+    width: 100%;
+}
+
+.comment-c {
+    display: flex;
+    gap: 1rem;
+    align-items: start;
 }
 
 .content {

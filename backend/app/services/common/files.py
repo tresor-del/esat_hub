@@ -27,9 +27,8 @@ cloudinary.config(
 class FileService:
 
     def __init__(self):
-        if env == "prod":
-            self.ALLOWED_DOCUMENT_EXTENSIONS = settings.ALLOWED_DOCUMENT_EXTENSIONS
-            self.ALLOWED_PHOTO_EXTENSIONS = settings.ALLOWED_PHOTO_EXTENSIONS
+        self.ALLOWED_DOCUMENT_EXTENSIONS = settings.ALLOWED_DOCUMENT_EXTENSIONS
+        self.ALLOWED_PHOTO_EXTENSIONS = settings.ALLOWED_PHOTO_EXTENSIONS
         if env == "dev":
             self.UPLOAD_DIR = settings.UPLOAD_DIR
             self.AVATAR_DIR = settings.AVATAR_DIR
@@ -60,23 +59,29 @@ class FileService:
         upload_file: UploadFile = None,
         byte_file: bytes = None,
     ):
+        
+        extension = ".jpg"  # Par défaut pour les bytes
+        if upload_file and upload_file.filename:
+            extension = Path(upload_file.filename).suffix
+        
         # Générer un nom de fichier unique
-        unique_filename = f"{uuid.uuid4()}"
+        unique_filename = f"{uuid.uuid4()}{extension}"
         upload_dir = Path(self.UPLOAD_DIR)
-        upload_dir.mkdir(exist_ok=True)
-        file_path = upload_dir / unique_filename
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        file_loc = upload_dir / unique_filename
+        file_path = f"http://127.0.0.1:8000/static/{unique_filename}"
 
         # # Créer le sous-dossier si nécessaire
-        file_path.parent.mkdir(exist_ok=True)
+        file_loc.parent.mkdir(exist_ok=True)
          
         if upload_file:           
             # Sauvegarder le fichier
-            with file_path.open("wb") as buffer:
+            with file_loc.open("wb") as buffer:
                 shutil.copyfileobj(upload_file.file, buffer)
         
         if byte_file:
-            byte_file.save(file_path, "JPEG", quality=85)
-            Path(file_path).write_bytes(byte_file)
+            # byte_file.save(file_loc, "JPEG", quality=85)
+            file_loc.write_bytes(byte_file)
 
         return str(file_path), upload_file.filename if upload_file else None
 
@@ -88,9 +93,10 @@ class FileService:
         post_type: str = None,
         resized: bool = False,
         is_avatar: bool = False,
-        is_post_file: bool = True,
+        is_post_file: bool = False,
         is_room_file: bool = False,
-        room_id: uuid.UUID = None
+        room_id: uuid.UUID = None, 
+        is_chat_file: bool = False
     ) -> tuple[str, str | None]:
         
         """Sauvegarder le fichier uploadé et retourner le chemin et le nom"""
@@ -121,15 +127,23 @@ class FileService:
                 if env == "dev":
                     return self.upload_to_local(upload_file)
         
-            if is_room_file:
+            if is_room_file or is_chat_file:
                 if file_ext not in self.ALLOWED_PHOTO_EXTENSIONS and file_ext not in self.ALLOWED_DOCUMENT_EXTENSIONS:
                     return None, None
 
                 folder = f"esat_hub/room/media/{room_id}"
-                result = self.upload_to_cloud(
-                    upload_file=upload_file,
-                    folder=folder
-                )
+                if is_chat_file:
+                    folder = f"esat_hub/chat/media"
+                
+                if env == "prod":
+                    result = self.upload_to_cloud(
+                        upload_file=upload_file,
+                        folder=folder
+                    )
+                if env == "dev":
+                    result = self.upload_to_local(
+                        upload_file=upload_file,
+                    )
                 return result
             
         # si on reçoit du contenu binaire
@@ -140,12 +154,12 @@ class FileService:
                 if env == "prod":
                     folder = "esat_hub/avatars"
                     result = self.upload_to_cloud(
-                        byte_file=upload_file,
+                        byte_file=resized_file,
                         folder=folder
                     )
                     return result
                 if env == "dev":
-                    return self.upload_to_local(upload_file)
+                    return self.upload_to_local(byte_file=resized_file)
                 
         return None, None
 
@@ -178,7 +192,7 @@ class FileService:
         buffer = io.BytesIO()
 
         # on sauvegarde l'image dans ce buffer au format WEBP (plus léger et gère la transparence de l'image)
-        image.save(buffer, format="WEBP", quality=85)
+        image.save(buffer, format="JPEG", quality=85)
 
         # on retourne le contenu binaire du buffer
         return buffer.getvalue()

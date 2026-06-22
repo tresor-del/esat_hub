@@ -1,10 +1,10 @@
-# app/services/post_service.py (VERSION COMPLÈTE)
 from typing import List, Optional, Tuple
 from uuid import UUID
-from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func
+from sqlalchemy.orm import Session, joinedload, selectinload
+from sqlalchemy import func, select
 
 from app.db.schemas.post import Post
+from app.db.schemas.comments import Comment
 from app.db.schemas.user import User
 
 
@@ -35,11 +35,15 @@ class PostService:
             user_id=user_id,
             room_id=room_id
         )
-        self._db.add(db_post)
-        self._db.commit()
-        self._db.refresh(db_post)
-        return db_post
-    
+        try:
+            self._db.add(db_post)
+            self._db.commit()
+            self._db.refresh(db_post)
+            return db_post
+        except:
+            self._db.rollback()
+            raise
+        
     def get_posts(
         self,
         skip: int = 0,
@@ -52,41 +56,52 @@ class PostService:
         """
         Récupère les posts avec compteurs de likes et comments
         """
-        query = self._db.query(
-            Post
-        ).group_by(Post.id)
+        
+        stmt = select(Post).where(Post.status == "ACTIVE")
+        count_stmt = select(func.count(Post.id)).where(Post.status == "ACTIVE")
+        
+        # Ajouter les relations
+        stmt = stmt.add_columns(
+            select(func.count(Comment.id))
+            .where(Comment.post_id == Post.id)
+            .scalar_subquery()
+            .label("comments_count")
+        )
 
         # Filtres
         if post_type:
-            query = query.filter(Post.post_type == post_type)
+            stmt = stmt.where(Post.post_type == post_type)
+            count_stmt = count_stmt.where(Post.post_type == post_type)
+            
         if user_id:
-            query = query.filter(Post.user_id == user_id)
+            stmt = stmt.where(Post.user_id == user_id)
+            count_stmt = count_stmt.where(Post.user_id == user_id)
             include_all = True
         
         # Gestion du room_id
         if room_id is not None:
             # Posts d'une salle spécifique
-            query = query.filter(Post.room_id == room_id)
-            
+            stmt = stmt.where(Post.room_id == room_id)
+            count_stmt = count_stmt.where(Post.room_id == room_id)
 
-        elif include_all:
-            # Tous les posts (general + private) - ne pas filtrer par room
-            pass
-        else:
-            # Par défaut: posts généraux seulement (sans room)
-            query = query.filter(Post.room_id.is_(None))
+        elif not include_all:
+            stmt = stmt.where(Post.room_id.is_(None))
+            count_stmt = count_stmt.where(Post.room_id.is_(None))
         
         # Total
-        total = query.count()
+        total = self._db.execute(count_stmt).scalar()
         
         # Pagination et tri
-        results = query.filter(
-            Post.status == "ACTIVE"
-        ).order_by(Post.created_at.desc()).offset(skip).limit(limit).all()
+        results = self._db.execute(
+            stmt.order_by(Post.created_at.desc()).offset(skip).limit(limit)
+        ).all()
         
+        posts = []
+        for post, count in results:
+            post.comments_count = count
+            posts.append(post)
         
-        
-        return results, total
+        return posts, total
      
     def get_post(
         self, 

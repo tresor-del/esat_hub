@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
+import { useQueryClient } from "@tanstack/react-query";
 import { updateProfile, getUserProfile, uploadAvatar } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../../components/ui/Avatar";
 import { FiEdit2 } from "react-icons/fi";
+import { useToast } from "../../contexts/toastContext";
 import "../../styles/Auth/Auth.css";
 import "../../styles/Posts/PostEdit.css"
 import "../../styles/Users/UserProfile.css"
 
-const ProfileEdit = (onClose) => {
+const ProfileEdit = ({ onClose }) => {
+    const { toast } = useToast();
     const navigate = useNavigate();
     const { user, logout, updateUser } = useAuth();
+    const queryClient = useQueryClient();
 
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
@@ -55,12 +59,15 @@ const ProfileEdit = (onClose) => {
         try {
             setUploadingAvatar(true);
             const result = await uploadAvatar(file);
+            console.log(result)
             localStorage.setItem(`avatar_bust_${user.id}`, Date.now());
             // Recharger le profil
             updateUser({ avatar_path: result.avatar_path });
+            queryClient.invalidateQueries({ queryKey: ["userProfile", user.id] });
+            toast({ message: "Photo de profil mise à jour avec succès" })
         } catch (err) {
             console.error("Erreur lors de l'upload:", err);
-            alert("Impossible de mettre à jour la photo de profil");
+            toast({ message: "Une erreur s'est produite, veuillez réessayer.", type: "error" })
         } finally {
             setUploadingAvatar(false);
         }
@@ -92,19 +99,23 @@ const ProfileEdit = (onClose) => {
             return;
         }
 
+        // Construire le payload sans les champs password vides
+        const payload = { ...formData };
+        if (!payload.new_password) {
+            delete payload.new_password;
+            delete payload.old_password;
+        }
+
         try {
             await updateProfile(formData);
-            setSuccess(true);
-            setTimeout(() => {
-                navigate(`/profile/${user.id}`);
-            }, 2000);
+            queryClient.invalidateQueries({ queryKey: ["userProfile", user.id] });
+            toast({ message: "Profil mis à jour !" });
+            onClose();
         } catch (err) {
-            console.error('Erreur mise à jour:', err);
-            if (err.response?.status === 400) {
-                setError('Données invalides ou profil_name déjà utilisé');
-            } else {
-                setError('Erreur lors de la mise à jour');
-            }
+            const message = err.response?.status === 400
+                ? "Données invalides ou profil_name déjà utilisé"
+                : "Erreur lors de la mise à jour";
+            toast({ message, type: "error" });
         } finally {
             setLoading(false);
         }

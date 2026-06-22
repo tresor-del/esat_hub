@@ -21,3 +21,7 @@ class Message(Base):
     recipient = relationship("User", foreign_keys=[recipient_id], back_populates="received_messages")
 
     is_read = Column(Boolean, default=False, nullable=True)
+    
+    # média associé
+    media_id = Column(UUID(as_uuid=True), ForeignKey("media.id"), nullable=True)
+    media = relationship("Media")

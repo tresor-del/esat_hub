@@ -30,7 +30,7 @@ const MainLayout = () => {
   };
 
   const isRoomPage = window.location.pathname == "/room"
-  const postDetail = window.location.pathname.startsWith("/post/")
+  const postDetail = window.location.pathname.startsWith("/post-page/")
   const isHomePage = window.location.pathname == "/"
   const isChatPage = window.location.pathname == "/chat"
   const isCreatePage = window.location.pathname == "/create"

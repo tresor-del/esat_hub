@@ -5,10 +5,13 @@ from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 
 from app.models.user import UserResponse
+from app.models.post import PostResponse
 
 class NotificationUserResponse(BaseModel):
     id: uuid.UUID
     username: str
+    first_name: str
+    last_name: str
     profil_name: str
     avatar_path: Optional[str] = None
     user_room_id: Optional[uuid.UUID] = None
@@ -22,7 +25,7 @@ class NotificationResponse(BaseModel):
     is_read: bool
     recipient: NotificationUserResponse
     sender: Optional[NotificationUserResponse] = None
-    post_id: Optional[UUID] = None
+    post: Optional[PostResponse] = None
     comment_id: Optional[UUID] = None
     model_config = ConfigDict(from_attributes=True)
 
@@ -33,7 +36,7 @@ class NotificationResponseUser(BaseModel):
     is_read: bool
     recipient: NotificationUserResponse
     sender: Optional[NotificationUserResponse] = None
-    post_id: Optional[UUID] = None
+    post: Optional[PostResponse] = None
     comment_id: Optional[UUID] = None
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)

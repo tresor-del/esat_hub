@@ -23,6 +23,7 @@ class Notification(Base):
 
     post_id = Column(UUID(as_uuid=True), ForeignKey("posts.id"), index=True,  nullable=True)
     post_rel = relationship("Post", back_populates="notifications")
+    post = relationship("Post", back_populates="notifications")
 
     comment_id = Column(UUID(as_uuid=True), ForeignKey("comments.id", ondelete="CASCADE"), index=True, nullable=True)
     comment_rel = relationship("Comment", back_populates="notifications")

@@ -12,7 +12,10 @@ import { formatRelativeDate } from "../../utils/dateFormatter";
 import PostCardSkeleton from "../skeletons/PostcardSkeleton";
 import CommentSection from "../comments/CommentSection";
 import PostDetailModal from "./postDetailModal";
+import { FiShare2 } from "react-icons/fi";
 import "../../styles/Posts/PostCard.css"
+import "../../styles/Rooms/Room.css"
+import SharePostModal from "./modals/SharePostModal";
 
 const PostCard = ({
   post,
@@ -30,15 +33,16 @@ const PostCard = ({
   const [isModaleOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
+  const [sharePost, setSharePost] = useState(false)
   // const [user, setUser] = useState()
 
-  const { data: commentsData } = useQuery({
-    queryKey: ["commentsCount", post.id],
-    queryFn: () => getComments(post.id),
-    staleTime: 1000 * 60,
-  });
+  // const { data: commentsData } = useQuery({
+  //   queryKey: ["commentsCount", post.id],
+  //   queryFn: () => getComments(post.id),
+  //   staleTime: 1000 * 60,
+  // });
 
-  const commentsLength = commentsData?.total || 0;
+  const commentsLength = post.comments_count ?? 0;
 
   useEffect(() => {
     const handResize = () => setIsMobile(window.innerWidth < 768);
@@ -68,6 +72,14 @@ const PostCard = ({
       setSelectedPostId(post.id)
     }
   };
+
+  const handleShareClick = ()=> {
+    setSharePost(true);
+  }
+
+  const closeSharePostModal = () => {
+    setSharePost(false);
+  }
 
 
   return (
@@ -116,11 +128,11 @@ const PostCard = ({
 
         {!detail && (
           <div className="post-action" >
-          <span className="post-action-btn" onClick={handleCardClick}> <FiMessageCircle size={25} /> {commentsLength}</span>
-          {/* <span className="post-action-btn time" >{formatRelativeDate(post.created_at)}</span> */}
-        </div>
+            <span className="post-action-btn" onClick={handleCardClick}> <FiMessageCircle size={25} /> {commentsLength}</span>
+            <span className="post-action-btn" onClick={handleShareClick}><FiShare2 size={20} /></span>
+          </div>
         )}
-        
+
 
       </div>
 
@@ -130,7 +142,14 @@ const PostCard = ({
           onClose={() => setSelectedPostId(null)}
           onPostDeleted={(id) => {
             // Optionnel : retirez le post de votre liste locale si supprimé
-          }}
+          }} a
+        />
+      )}
+
+      {sharePost && (
+        <SharePostModal
+          post={post}
+          onClose={closeSharePostModal}
         />
       )}
 

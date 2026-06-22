@@ -204,7 +204,7 @@ export const downloadPostFile = async (postId, fileName) => {
 
 export const getComments = async (postId, skip = 0, limit = 10) => {
   const params = new URLSearchParams({ skip, limit });
-  const response = await api.get(`${API_BASE_URL}/comments/posts/${postId}/comments/?${params}`)
+  const response = await api.get(`${API_BASE_URL}/comments/posts/${postId}/comments?${params}`)
   return response.data
 }
 
@@ -237,6 +237,11 @@ export const getNotifications = async () => {
 
 export const markNotificationsAsRead = async () => {
   const response = await api.put(`${API_BASE_URL}/notifications/me/all`)
+  return response.data
+}
+
+export const markNotificationAsRead = async (id) => {
+  const response = await api.put(`${API_BASE_URL}/notifications/me/${id}`)
   return response.data
 }
 

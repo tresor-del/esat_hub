@@ -1,7 +1,9 @@
 import logging
+from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
+from fastapi.staticfiles import StaticFiles
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
@@ -74,6 +76,9 @@ app.add_middleware(
 # rate limiting
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+BASE_DIR = settings.UPLOAD_DIR
+app.mount("/static", StaticFiles(directory=BASE_DIR), name="uploads")
 
 @app.get("/")
 async def accueil(request: Request):

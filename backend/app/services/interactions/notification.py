@@ -1,4 +1,5 @@
 import asyncio
+from functools import partial
 from typing import List
 from uuid import UUID
 from sqlalchemy.orm import Session
@@ -10,6 +11,7 @@ from app.db.schemas.user_device import UserDevice
 from app.db.schemas.notification import Notification
 from app.models.notifications import NotificationResponse, NotificationListResponse, NotificationResponseUser, NotificationUserResponse
 from app.services.realtime.ws_manager import ws_manager
+from app.services.social.posts import PostService
 
 
 class NotificationService:
@@ -91,18 +93,26 @@ class NotificationService:
         try:
 
             d_data = data.model_copy()
-            validate_data = d_data.model_dump(exclude={"sender", "recipient"})
+            validate_data = d_data.model_dump(exclude={"sender", "recipient", "post"})
             validate_data.update({
                 "recipient_id": d_data.recipient.id,
-                "sender_id": d_data.sender.id if d_data.sender else None
+                "sender_id": d_data.sender.id if d_data.sender else None,
+                "post_id": d_data.post.id if d_data.post else None,
             })
             data_in_db = Notification(**validate_data)
             self._db.add(data_in_db)
             self._db.commit()
             self._db.refresh(data_in_db)
+        
             notif_data = NotificationResponseUser.model_validate(data_in_db).model_dump(mode="json")
-            await ws_manager.send_personal_notification(notif_data)
 
+            delivered_via_ws = await ws_manager.send_personal_notification(notif_data)
+
+            if delivered_via_ws:
+                print("délivré via ws")
+                return 
+            
+            
             title_mapping = {
                 "chat": "Nouveau message",
                 "new_comment": "Nouveau commentaire",
@@ -117,13 +127,14 @@ class NotificationService:
             notif_title = title_mapping.get(data_in_db.type, "Nouvelle notification")
             
             # On déclenche l'envoi Firebase de manière non-bloquante
-            loop = asyncio.get_event_loop()
-            await loop.run_in_executor(
-                None,                    # utilise le thread pool par défaut
-                self.send_firebase_push, # la fonction bloquante
-                data_in_db.recipient_id, 
-                notif_title,             
-                data_in_db.content, 
+            await asyncio.to_thread(
+                partial(
+                   self.send_firebase_push, # la fonction bloquante
+                    data_in_db.recipient_id, 
+                    notif_title,             
+                    data_in_db.content, 
+                )
+                 
             )
             
         except Exception as e:
@@ -143,11 +154,13 @@ class NotificationService:
         """
         Envoie une notification à plusieurs destinataires.
         """
+        
+        post_service = PostService(self._db)
 
         for recipient in recipients:
 
-            # if sender and recipient.id == sender.id:
-            #     continue
+            if sender and recipient.id == sender.id:
+                continue
             
             try:
                 recipient_data = NotificationUserResponse.model_validate(recipient)
@@ -158,7 +171,7 @@ class NotificationService:
                     is_read=False,
                     recipient=recipient_data,
                     sender=sender,
-                    post_id=post_id,
+                    post=post_service.get_post(post_id),
                     comment_id=comment_id,
                 )
                 await self.send_notification(notification)
@@ -169,7 +182,7 @@ class NotificationService:
         notification = self._db.query(Notification).where(Notification.id==notif_id).first()
         return notification
     
-    def get_notifications(self, user_id: UUID) -> List[Notification]:
+    def get_notifications(self, user_id: UUID) -> List[NotificationResponseUser]:
         notifications = self._db.query(Notification).where(Notification.recipient_id==user_id).all()
         return notifications
 

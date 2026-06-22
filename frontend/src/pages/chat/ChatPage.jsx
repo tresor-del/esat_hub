@@ -17,7 +17,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import HomeSidebar from '../Home/components/HomeSidebar';
 
 const ChatPage = () => {
-    const { unreadChatsCount, refreshUnreadCount, messages } = useWebSocket();
+    const { unreadChatsCount, refreshUnreadCount, setUnreadChatsCount, activeConvRef, messages } = useWebSocket();
     const [activeRecipient, setActiveRecipient] = useState(null);
     // on utilise useRef pour avoir les valeurs courantes et eviter les closures
     const activeRecipientRef = useRef();
@@ -42,6 +42,7 @@ const ChatPage = () => {
             setLoadingRecentChats(true);
             try {
                 const data = await getRecentChat();
+                console.log(data)
                 setRecentChats(data || []);
             } catch (error) {
                 console.error("Erreur chargement récents:", error);
@@ -69,13 +70,13 @@ const ChatPage = () => {
 
     useEffect(() => {
         const handleChatUpdate = (event) => {
-
+            console.log("CHAT_UPDATED reçu:", event.detail);
             const msg = event.detail;
-            const isActiveConv = activeRecipientRef.current?.id === msg.sender_id;
+            const isActiveConv = activeRecipientRef.current?.id === msg.sender.id;
 
             setRecentChats(prev => prev.map(chat => {
 
-                const isThisChat = chat.id === msg.sender_id || chat.id === msg.recipient_id;
+                const isThisChat = chat.user?.id === msg.sender.id || chat.user?.id === msg.recipient_id;
                 if (!isThisChat) return chat;
 
                 return {
@@ -87,7 +88,12 @@ const ChatPage = () => {
                         ? chat.unread_count + 1
                         : chat.unread_count
                 };
+
             }));
+
+            setRecentChats(prev => prev.sort(
+                (a, b) => new Date(b.last_message_timestamp) - new Date(a.last_message_timestamp)
+            ))
         };
         window.addEventListener("CHAT_UPDATED", handleChatUpdate);
         return () => window.removeEventListener("CHAT_UPDATED", handleChatUpdate);
@@ -117,6 +123,7 @@ const ChatPage = () => {
 
     const handleSelectRecipient = async (recipient) => {
         // 1. ACTIONS INITIALES INSTANTANÉES (L'interface change de suite)
+        activeConvRef.current = recipient.id;
         setActiveRecipient(recipient);
         setSearchParams({ user: recipient.id });
         activeRecipientRef.current = recipient;
@@ -125,28 +132,34 @@ const ChatPage = () => {
             setIsChatOpen(true);
         }
 
+        // Trouver combien de messages non lus avait cette conv
+        const chat = recentChats.find(c => c.user?.id === recipient.id);
+        const previousUnread = chat?.unread_count || 0;
+
         // 2. MISE À JOUR LOCALE DU COMPTEUR (Pas d'attente d'API)
         setRecentChats(prev => prev.map(chat =>
             // CORRECTION SÉCURITÉ : Vérifier chat.user?.id au lieu de chat.id 
             // car u.user?.id est utilisé dans le .map de votre JSX
-            (chat.id === recipient.id || chat.user?.id === recipient.id)
+            (chat.user?.id === recipient.id || chat.user?.id === recipient.id)
                 ? { ...chat, unread_count: 0 }
                 : chat
         ));
 
-        // 3. OPÉRATIONS RÉSEAU EN ARRIÈRE-PLAN (Exécutées en tâche de fond)
+        // Décrémenter immédiatement le badge global
+        if (previousUnread > 0) {
+            setUnreadChatsCount(prev => Math.max(0, prev - previousUnread)); // ← nécessite d'exposer ce setter
+        }
+
         try {
-            // Lancés en parallèle sans bloquer l'ouverture visuelle de ChatBox
-            await Promise.all([
-                markMessagesAsReadApi(recipient.id),
-                refreshUnreadCount()
-            ]);
+            await markMessagesAsReadApi(recipient.id); // ← d'abord marquer comme lu
+            await refreshUnreadCount();                 // ← ENSUITE refresh, avec la DB à jour
         } catch (error) {
             console.error("Erreur requêtes arrière-plan chat:", error);
         }
     };
 
     const handleCloseChat = () => {
+        activeConvRef.current = null;
         setIsChatOpen(false);
         setActiveRecipient(null);
         setSearchParams({});
@@ -179,6 +192,30 @@ const ChatPage = () => {
             minute: 'numeric',
         }).format(new Date(timestamp));
     };
+
+    const handleMsgEvent = (msg) => {
+
+        setRecentChats(prev => prev.map(chat => {
+
+            const isThisChat = chat.user?.id === activeRecipientRef.current?.id;
+            if (!isThisChat) return chat;
+
+            return {
+                ...chat,
+                last_message_content: msg.last_message_content,
+                last_message_timestamp: msg.last_message_timestamp,
+                last_sender_id: msg.last_sender_id,
+                // Non lu seulement si message entrant ET pas dans la conv active
+                unread_count: 0,
+            };
+
+
+        }));
+
+        setRecentChats(prev => prev.sort(
+            (a, b) => new Date(b.last_message_timestamp) - new Date(a.last_message_timestamp)
+        ))
+    }
 
 
     return (
@@ -251,6 +288,7 @@ const ChatPage = () => {
                                                         </div>
                                                         <div className='content-u'>
                                                             <p className="contact-preview">
+                                                                {u.last_sender_id === fullUser?.id ? "Vous : " : `${u.user.first_name} : `}
                                                                 {u.last_message_content || "Aucun message"}
                                                             </p>
                                                             {u.unread_count > 0 && (<span className='unread-msg-badge'>{u.unread_count}</span>)}
@@ -329,7 +367,7 @@ const ChatPage = () => {
                     {/* ZONE DE CHAT : Vide ou Active */}
                     <div className={`chat-zone ${isMobileView ? '' : 'desktop'} ${isMobileView && isChatOpen ? 'active' : ''}`}>
                         {activeRecipient ? (
-                            <ChatBox recipient={activeRecipient} onClose={handleCloseChat} isMobile={isMobileView} />
+                            <ChatBox recipient={activeRecipient} onClose={handleCloseChat} isMobile={isMobileView} onMessage={handleMsgEvent} />
                         ) : (
                             <div style={{ margin: 'auto', textAlign: 'center', color: '#888' }}>
                                 <div style={{ fontSize: '50px' }}>💬</div>

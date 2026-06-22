@@ -1,32 +1,24 @@
-// ─── usePostDetail.js ─────────────────────────────────────────────────────────
-// Shared by PostDetail (page) and PostDetailModal.
-// Handles post loading, edit/delete navigation, comment count.
-
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { getPost, deletePost } from "../../../services/api";
 
 export const usePostDetail = ({ onClose = null, onPostDeleted = null } = {}) => {
     const navigate = useNavigate();
 
-    const [post,          setPost]          = useState(null);
-    const [loading,       setLoading]       = useState(true);
-    const [error,         setError]         = useState("");
     const [commentCount,  setCommentCount]  = useState(0);
+    const [postId, setPostId] = useState(null);
 
-    const loadPost = async (id) => {
-        try {
-            setLoading(true);
-            const result = await getPost(id);
-            setPost(result);
-        } catch (err) {
-            console.error(err);
-            setError("Erreur lors du chargement du post");
-        } finally {
-            setLoading(false);
-        }
-    };
 
+    const { data: post, isLoading, error } = useQuery({
+        queryKey: ["post", postId],
+        queryFn: () => getPost(postId),
+        enabled: !!postId,  
+        staleTime: 1000 * 60,
+    });
+
+    const loadPost = (id) => setPostId(id);
+    
     const handleEdit = (currentPost) => {
         if (onClose) {
             // Modal context: hard navigate (no router history in modal)
@@ -56,8 +48,8 @@ export const usePostDetail = ({ onClose = null, onPostDeleted = null } = {}) => 
 
     return {
         post,
-        loading,
-        error,
+        loading: isLoading,
+        error: error ? "Erreur lors du chargement du post" : "",
         commentCount,
         loadPost,
         handleEdit,

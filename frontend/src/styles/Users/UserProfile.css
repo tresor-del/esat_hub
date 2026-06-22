@@ -231,6 +231,10 @@
     grid-template-columns: 1fr;
   }
 
+  .profile-content {
+    order: -1;
+  }
+
   .profile-banner-content {
     flex-direction: column;
     text-align: center;
