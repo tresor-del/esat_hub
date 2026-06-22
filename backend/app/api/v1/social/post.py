@@ -48,7 +48,8 @@ async def create_post(
                 partial(
                     file_service.save_upload_file,
                     upload_file=file,
-                    post_type=post_type.value
+                    post_type=post_type.value,
+                    is_post_file=True,
                 )
             )
         except Exception:

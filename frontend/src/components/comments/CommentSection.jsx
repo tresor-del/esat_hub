@@ -28,13 +28,13 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
     } = useInfiniteQuery({
         queryKey: ["comments", postId],
         queryFn: async ({ pageParam = 0 }) => {
-            return getComments(postId);
+            return getComments(postId, pageParam, 5);
         },
         getNextPageParam: (lastPage, allPages) => {
             const totalLoaded = allPages.flatMap(p => p.comments).length;
             if (totalLoaded >= lastPage.total) return undefined;
             return totalLoaded; // skip = nombre déjà chargés
-        }, 
+        },
         enabled: !!postId,
     });
 
@@ -59,7 +59,7 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
         const handleRealtimeComment = async (event) => {
             const comment_data = event.detail;
 
-            const isSamePost = String(comment_data.post_id) === String(postId);
+            const isSamePost = String(comment_data.post?.id) === String(postId);
             const isNotFromMe = comment_data.sender?.id !== user?.id;
 
             if (isSamePost && isNotFromMe) {
@@ -72,22 +72,38 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                     const newComment = await getComment(comment_data.comment_id);
                     if (!newComment) return;
 
-                    queryClient.setQueryData(prev => {
-                        // SI C'EST UNE RÉPONSE (parent_id existe)
+                    queryClient.setQueryData(["comments", postId], (prev) => {
+                        if (!prev) return prev;
                         if (newComment.parent_id) {
-                            return prev.map(c => {
-                                if (c.id === newComment.parent_id) {
-                                    // On l'ajoute dans les replies du parent
-                                    const updatedReplies = c.replies ? [newComment, ...c.replies] : [newComment];
-                                    return { ...c, replies: updatedReplies };
-                                }
-                                return c;
-                            });
+                            return {
+                                ...prev,
+                                pages: prev.pages.map((page) => ({
+                                    ...page,
+                                    comments: page.comments.map((c) => {
+                                        if (c.id === newComment.parent_id) {
+                                            return {
+                                                ...c,
+                                                replies: [newComment, ...(c.replies ?? [])],
+                                            };
+                                        }
+                                        return c;
+                                    }),
+                                })),
+                            };
                         }
 
-                        // SI C'EST UN COMMENTAIRE RACINE
-                        if (prev.some(c => c.id === newComment.id)) return prev;
-                        return [newComment, ...prev];
+                        // Commentaire racine
+                        if (prev.pages[0].comments.some((c) => c.id === newComment.id)) return prev;
+                        return {
+                            ...prev,
+                            pages: [
+                                {
+                                    ...prev.pages[0],
+                                    comments: [newComment, ...prev.pages[0].comments],
+                                },
+                                ...prev.pages.slice(1),
+                            ],
+                        };
                     });
                 } catch (error) {
                     console.log("Erreur realtime reply:", error);
@@ -120,7 +136,19 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
             const response = await addComment(commentData);
             console.log(response)
             setContent("");
-            queryClient.setQueryData(prevComments => [response, ...prevComments]);
+
+            queryClient.setQueryData(["comments", postId], (prev) => {
+                if (!prev) return prev;
+                const updatedFirstPage = {
+                    ...prev.pages[0],
+                    comments: [response, ...prev.pages[0].comments],
+                };
+                return {
+                    ...prev,
+                    pages: [updatedFirstPage, ...prev.pages.slice(1)],
+                };
+            });
+
             // loadComments(); // Recharger pour voir le nouveau commentaire et sa structure
         } catch (err) {
             setError("Erreur lors de l'ajout: ", err);
@@ -140,15 +168,23 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                 parent_id: parentId
             };
             const response = await addComment(responseData);
-            queryClient.setQueryData(prevComments => {
-                return prevComments.map(c => {
-                    if (c.id === parentId) {
-                        // On ajoute la réponse dans le tableau replies du parent
-                        const updatedReplies = c.replies ? [response, ...c.replies] : [response];
-                        return { ...c, replies: updatedReplies };
-                    }
-                    return c;
-                });
+            queryClient.setQueryData(["comments", postId], (prev) => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    pages: prev.pages.map((page) => ({
+                        ...page,
+                        comments: page.comments.map((c) => {
+                            if (c.id === parentId) {
+                                return {
+                                    ...c,
+                                    replies: [response, ...(c.replies ?? [])],
+                                };
+                            }
+                            return c;
+                        }),
+                    })),
+                };
             });
         } catch (err) {
             setError("Erreur lors de l'envoi de la réponse");
@@ -176,7 +212,18 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
             const response = await updateComment(commentId, new_content);
             if (response) {
                 alert("Commentaire modifié avec succès");
-                queryClient.setQueryData(prev => prev.map(c => c.id === commentId ? response : c));
+                queryClient.setQueryData(["comments", postId], (prev) => {
+                    if (!prev) return prev;
+                    return {
+                        ...prev,
+                        pages: prev.pages.map((page) => ({
+                            ...page,
+                            comments: page.comments.map((c) =>
+                                c.id === commentId ? response : c
+                            ),
+                        })),
+                    };
+                });
             }
         } catch (error) {
             console.log("Erreur lors de la mise à jour: ", error);

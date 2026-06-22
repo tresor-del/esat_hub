@@ -13,6 +13,7 @@ from app.services.realtime.ws_manager import ws_manager
 from app.services.realtime.utils import encrypt, decrypt
 from app.services.admin.manager import AdminService
 from app.db.schemas.media import Media
+from app.services.interactions.notification import NotificationService
 
 logger = logging.getLogger(__name__)
 
@@ -20,18 +21,20 @@ async def handle_chat_message(
     db: Session,
     user_id: UUID,
     msg_json: dict,
-    notif_service,
+    notif_service: NotificationService,
     admin_service: AdminService
 ):
     msg_in = MessageCreate(**msg_json)
     saved_msg = save_message(db, user_id, msg_in)
+    sender = admin_service.users.get_user_by_id(user_id)
 
     # Envoi WebSocket temps réel
     await ws_manager.send_message(
         recipient_id=msg_in.recipient_id,
         data={
-            "sender_id": str(user_id),
-            "content": saved_msg.content,
+            "sender": admin_service.users.create_user_response(sender),
+            "from": "chat",
+            "content": decrypt(saved_msg.content),
             "timestamp": str(saved_msg.timestamp),
             "is_read": saved_msg.is_read,
             "media": {
@@ -45,11 +48,10 @@ async def handle_chat_message(
     # Notification FCM
     try:
         recip = admin_service.users.get_user_by_id(msg_in.recipient_id)
-        sender = admin_service.users.get_user_by_id(user_id)
 
         await notif_service.send_notification(NotificationResponse(
             type="chat",
-            content=saved_msg.content,
+            content=decrypt(saved_msg.content),
             is_read=False,
             recipient=admin_service.users.create_user_response(recip),
             sender=admin_service.users.create_user_response(sender),
@@ -73,27 +75,30 @@ def save_message(db: Session, sender_id: UUID, message_data: MessageCreate):
     return db_message
 
 
-def get_chat_history(db: Session, user_id: UUID, recipient_id: UUID, limit: int = 50):
+def get_chat_history(db: Session, user_id: UUID, recipient_id: UUID, limit: int = 50, before: datetime | None = None):
+    conditions = [
+        or_(
+            and_(Message.sender_id == user_id, Message.recipient_id == recipient_id),
+            and_(Message.sender_id == recipient_id, Message.recipient_id == user_id)
+        )
+    ]
+    if before:
+        conditions.append(Message.timestamp < before)
+
     stmt = (
         select(Message)
-        .where(
-            or_(
-                and_(Message.sender_id == user_id, Message.recipient_id == recipient_id),
-                and_(Message.sender_id == recipient_id, Message.recipient_id == user_id)
-            )
-        )
-        # .options(selectinload(Message.media))  
-        .order_by(Message.timestamp.asc())
+        .where(and_(*conditions))
+        .order_by(Message.timestamp.desc())
         .limit(limit)
     )
-    
     messages = db.execute(stmt).scalars().all()
-    
+    messages = list(reversed(messages))
+
     for msg in messages:
         if msg.content:
             msg.content = decrypt(msg.content)
-    
     return messages
+
 
 def get_recent_conversations(db: Session, user_id: UUID):
     
@@ -122,6 +127,7 @@ def get_recent_conversations(db: Session, user_id: UUID):
         User,
         Message.content,
         Message.timestamp,
+        Message.sender_id,
         func.coalesce(unread_counts_sub.c.count, 0).label("unread_count") # Récupère le chiffre ou 0
     ).join(
         last_msg_subquery, 
@@ -143,8 +149,9 @@ def get_recent_conversations(db: Session, user_id: UUID):
             "user": u,
             "last_message_content": decrypt(content),
             "last_message_timestamp": timestamp.isoformat(),
+            "last_sender_id": str(sender_id),
             "unread_count": unread_count 
-        } for u, content, timestamp, unread_count in results
+        } for u, content, timestamp, sender_id, unread_count in results
     ]
 
 def total_unread(db: Session, user_id: UUID):

@@ -68,7 +68,7 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
           </div>
           <div>
             <p>
-              {post?.title}
+              <strong>{post?.title}</strong>
             </p>
             <p>
               {post?.description}

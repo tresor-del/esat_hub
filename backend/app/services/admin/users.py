@@ -118,4 +118,5 @@ class AdminUsersService(BaseAdminService):
             is_verified=user.is_verified,
             username=user.username,
             user_room_id=user.user_room_id,
+            avatar_path=user.avatar_path
         )

@@ -8,9 +8,10 @@ import EmojiPicker from 'emoji-picker-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { uploadChatFile } from '../../services/chatApi';
+import { useSearchParams } from 'react-router-dom';
 
-const ChatBox = ({ recipient, onClose, isMobile }) => {
-    const { unreadChatsCount, messages, sendMessage, user } = useWebSocket();
+const ChatBox = ({ recipient, onClose, isMobile, onMessage }) => {
+    const { refreshUnreadCount, activeConvRef, unreadChatsCount, messages, sendMessage, user } = useWebSocket();
     const [text, setText] = useState("");
     const [localHistory, setLocalHistory] = useState([]);
     const [loadingHistory, setLoadingHistory] = useState(true);
@@ -23,6 +24,15 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
 
     const [uploadingFile, setUploadingFile] = useState(false);
     const fileInputRef = useRef(null);
+
+    const { searchParams, setSearchParams } = useSearchParams();
+
+    useEffect(() => {
+        activeConvRef.current = recipient.id; // ← on est dans cette conv
+        return () => {
+            activeConvRef.current = null; // ← on quitte
+        };
+    }, [recipient.id]);
 
     const handleFileSelect = async (e) => {
         const file = e.target.files[0];
@@ -50,6 +60,13 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
 
             // Envoie via WS avec le media_id
             sendMessage(recipient.id, "", result.media_id);
+
+            onMessage({
+                last_message_content: "📎 Fichier",
+                last_message_timestamp: new Date().toISOString(),
+                unread_count: 0,
+                user: recipient,
+            });
 
             const optimisticMsg = {
                 sender_id: currentUser.id,
@@ -107,13 +124,37 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
         )
     ];
 
+
     useEffect(() => {
         const liveMessages = messages[recipient.id] || [];
-        if (liveMessages.length > 0) {
-            // On a des messages en temps réel, on les marque comme lus
-            markMessagesAsReadApi(recipient.id).catch(console.error);
-        }
-    }, [messages[recipient.id]?.length]);
+        if (liveMessages.length === 0) return;
+
+        const lastMsg = liveMessages[liveMessages.length - 1];
+        const isIncoming = lastMsg.sender?.id !== currentUser.id;
+
+        const syncRead = async () => {
+            try {
+                await markMessagesAsReadApi(recipient.id); // marquer lu en DB d'abord
+                if (isIncoming) {
+                    await refreshUnreadCount(); // puis re-synchroniser le badge global
+                }
+            } catch (error) {
+                console.error("Erreur sync read:", error);
+            }
+        };
+
+        syncRead();
+
+        // Notifier le parent pour mettre à jour la liste
+        onMessage({
+            last_message_content: lastMsg.content || "📎 Fichier",
+            last_message_timestamp: lastMsg.timestamp,
+            last_sender_id: lastMsg.sender?.id,
+            unread_count: 0,
+            user: recipient,
+        });
+
+    }, [messages[recipient.id]?.length]);   
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -150,6 +191,14 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
         e.preventDefault();
         if (text.trim()) {
             sendMessage(recipient.id, text);
+            const data = {
+                last_message_content: text,
+                last_message_timestamp: new Date().toISOString(),
+                last_sender_id: currentUser.id,
+                unread_count: 0,
+                user: currentUser,
+            }
+            onMessage(data)
             setText("");
             setShowEmojiPicker(false);
         }
@@ -231,7 +280,7 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
                                                         ? `${recipient.first_name} ${recipient.last_name}`
                                                         : `${currentUser.first_name} ${currentUser.last_name}`
                                                 )}
-                                                
+
                                             </span>
 
                                             <div className={`content ${msg.sender_id === currentUser.id ? "outgoing" : "incoming"}`}>
@@ -264,10 +313,6 @@ const ChatBox = ({ recipient, onClose, isMobile }) => {
 
                                         </div>
                                     </div>
-
-                                    {/* Bulle de message en dessous */}
-
-
                                 </div>
                             </React.Fragment>
                         );

@@ -20,10 +20,12 @@ function groupNotifications(notifications) {
 
   notifications.forEach((notif) => {
 
+    console.log("notif: ", notif)
+
     if (notif.type === "new_comment") {
 
       // Clé unique pour chaque dictionnaire
-      const key = `${notif.type}-${notif.post_id}`;
+      const key = `${notif.type}-${notif.post?.id}`;
 
       // créer le groupe s'il n'existe pas avec des champs suplémentaires
       if (!groups[key]) {
@@ -31,7 +33,7 @@ function groupNotifications(notifications) {
           ...notif,
           count: 1,
           latest_date: notif.created_at,
-          latest_author: notif.sender?.profil_name,
+          latest_author: `${notif.sender?.first_name} ${notif.sender?.last_name}` ,
           latest_sender: notif.sender,
           ids: [notif.id],
           _key: key
@@ -42,17 +44,16 @@ function groupNotifications(notifications) {
 
         if (new Date(notif.created_at) > new Date(groups[key].latest_date)) {
           groups[key].latest_date = notif.created_at;
-          groups[key].latest_author = notif.sender?.profil_name;
+          groups[key].latest_author = `${notif.sender?.first_name} ${notif.sender?.last_name}`;
           groups[key].latest_sender = notif.sender;
         }
       }
-
-
 
     } else {
       const key = `${notif.type}-${notif.created_at}`;
       groups[key] = {
         ...notif,
+        count: 1,
         ids: [notif.id],
         _key: key
       }
@@ -73,13 +74,26 @@ function groupNotifications(notifications) {
  * Construit le texte d'une notification groupée.
  */
 function buildNotifText(notif) {
-  if (notif.type === "new_comment") {
-    if (notif.count === 1) return notif.content;
-    if (notif.count === 2) return `${notif.latest_author} et 1 autre personne ont commenté votre post`;
-    return `${notif.latest_author} et ${notif.count - 1} personnes ont commenté votre post`;
-  } else {
-    return notif.content;
+
+  if (notif.type === "new_post") {
+    return `<strong>${notif.sender.first_name} ${notif.sender.last_name}</strong> vient de publier ${notif.post?.post_type === "photo" ? "une photo" : ""} ${notif.post?.post_type === "document" ? "un document" : ""} ${notif.post?.room_id ? "dans votre salle" : ""}.`
   }
+
+  if (notif.type === "new_comment") {
+    if (notif.count === 1) return `<strong>${notif.sender.first_name} ${notif.sender.last_name}</strong>  à commenté votre post`;
+    if (notif.count === 2) return `<strong> ${notif.latest_author} et 1</strong>  autre personne ont commenté votre post`;
+    return `<strong> ${notif.latest_author} et ${notif.count - 1}</strong>  personnes ont commenté votre post`;
+  }
+
+  if (notif.type === "new_media_in_room") {
+    return `<strong>${notif.sender.first_name} ${notif.sender.last_name}</strong> à ajouter un fichier dans votre salle.`
+  }
+
+  if (notif.type === "chat") {
+    return `<strong>${notif.sender.first_name} ${notif.sender.last_name}</strong>  vous a envoyé un message: <strong>${notif.content}</strong>`
+  }
+
+  return notif.content
 }
 
 /* ─────────────────────────────────────────────── */
@@ -119,13 +133,37 @@ const NotificationDropdown = ({ unreadCount }) => {
   /* Naviguer vers le post ciblé */
   const isOnMobile = window.innerWidth < 768;
   const handleClick = (notif) => {
+    markAsRead(notif.id)
+
     if (notif.type === "new_comment") {
-      navigate(`/post/${notif.post_id}?commentId=${notif.comment_id}`);
+      navigate(`/post/${notif.post?.id}?commentId=${notif.comment_id}`);
     }
     if (notif.type === "new_post") {
-      navigate(`/post/${notif.post_id}`)
+      navigate(`/post/${notif.post.id}`)
+    }
+    if (notif.type === "chat"){
+      navigate(`chat?user=${notif.sender.id}`)
     }
   };
+
+  const getRelativeDateLabel = (timestamp) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfYesterday = new Date(startOfToday);
+    startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+    const oneWeekAgo = new Date(startOfToday);
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 6);
+
+    if (date >= startOfToday) return "Aujourd'hui";
+    if (date >= startOfYesterday) return "Hier";
+    if (date >= oneWeekAgo) {
+      return new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(date);
+    }
+    return new Intl.DateTimeFormat('fr-FR').format(date);
+  };
+
+  let lastDateLabel = null;
 
   /* ── Contenu de la liste ── */
   const ListContent = (
@@ -138,38 +176,52 @@ const NotificationDropdown = ({ unreadCount }) => {
             <h2>Notifications: </h2>
           </div>
           <ul className="notifications-list">
-          {grouped.map((notif) => {
-            const key = notif._key;
-            const isUnread = notifications.some(
-              (n) => notif.ids.includes(n.id) && !n.is_read
-            );
-            const senderUser = notif.count === 1 ? notif.sender : notif.latest_sender;
+            {grouped.map((notif) => {
+              const key = notif._key;
+              const isUnread = notifications.some(
+                (n) => notif.ids.includes(n.id) && !n.is_read
+              );
+              const senderUser = notif.count === 1 ? notif.sender : notif.latest_sender;
 
-            return (
-              <li
-                key={key}
-                className={`notification-item ${isUnread ? "notification-item--unread" : ""}`}
-                onClick={() => handleClick(notif)}
-              >
-                <div className="notif-item-content">
-                  <Avatar user={senderUser} size="large" />
-                <p className="notification-text">{buildNotifText(notif)}</p>
+              const currentDateLabel = getRelativeDateLabel(notif.count === 1 ? notif.created_at : notif.latest_date);
+              const showDateBadge = currentDateLabel !== lastDateLabel;
+              lastDateLabel = currentDateLabel;
 
-                </div>
-                
-                {/* Empêche le clic sur le menu d'actions de naviguer */}
-                <div onClick={(e) => e.stopPropagation()}>
-                  <NotificationActionsMenu
-                    notifIds={notif.ids}
-                    onDelete={handleDelete}
-                  />
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+              return (
+                <>
+                  {showDateBadge && (
+                    <div className="notif-date-sep">
+                      <span>{currentDateLabel}</span>
+                    </div>
+                  )}
+                  <li
+                    key={key}
+                    className={`notification-item ${!notif.is_read ? "notification-item--unread" : ""}`}
+                    onClick={() => handleClick(notif)}
+                  >
+                    <div className="notif-item-content">
+                      <Avatar user={senderUser} size="smlarge" />
+                      <p
+                        className="notification-text"
+                        dangerouslySetInnerHTML={{ __html: buildNotifText(notif) }}
+                      />
+
+                    </div>
+
+                    {/* Empêche le clic sur le menu d'actions de naviguer */}
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <NotificationActionsMenu
+                        notifIds={notif.ids}
+                        onDelete={handleDelete}
+                      />
+                    </div>
+                  </li>
+                </>
+              );
+            })}
+          </ul>
         </div>
-        
+
       )}
     </div>
   );
@@ -178,8 +230,7 @@ const NotificationDropdown = ({ unreadCount }) => {
   const BellTrigger = (
     <div
       className="notification-trigger navbar-icon-container"
-      onClick={() => badgeCount > 0 && markAsRead()}
-      data-step="3" 
+      data-step="3"
     >
       <HiOutlineBell className="navbar-icon" size={30} style={{ opacity: 0.7 }} />
       {badgeCount > 0 && (

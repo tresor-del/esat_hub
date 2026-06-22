@@ -6,6 +6,7 @@ import { FiEdit, FiTrash2, FiMoreVertical } from "react-icons/fi";
 import CommentActionsMenu from "./CommentActionsMenu";
 import "../../styles/Comments/CommentSection.css"
 import { useAuth } from "../../contexts/AuthContext";
+import Avatar from "../ui/Avatar";
 import { getComment, getUserProfile } from "../../services/api";
 
 const CommentCard = ({ comment, user, onReplySubmit, loading, onEdit, onDelete }) => {
@@ -65,9 +66,13 @@ const CommentCard = ({ comment, user, onReplySubmit, loading, onEdit, onDelete }
 
     return (
         <div className="comment-item" id={`comment-${comment.id}`}>
-            <div>
-                <div className="comment-info">
-                    <PostAuthorInfo user={comment.user} variant="default" />
+            <div className="comment-c">
+                <div>
+                    <Avatar user={comment.user} />
+                </div>
+                <div>
+                    <div className="comment-info">
+                    <h3><strong>{comment.user?.first_name}</strong></h3>
                     <span className="comment-date">{formatRelativeDate(comment.created_at)}</span>
                 </div>
 
@@ -146,6 +151,9 @@ const CommentCard = ({ comment, user, onReplySubmit, loading, onEdit, onDelete }
                         ))}
                     </div>
                 )}
+                </div>
+
+                
             </div>
             {(isAdmin || isOwner) && !isEditing && (
                 <div className="comment-options">

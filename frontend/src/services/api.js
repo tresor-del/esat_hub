@@ -240,6 +240,11 @@ export const markNotificationsAsRead = async () => {
   return response.data
 }
 
+export const markNotificationAsRead = async (id) => {
+  const response = await api.put(`${API_BASE_URL}/notifications/me/${id}`)
+  return response.data
+}
+
 export const deleteNotif = async (notifId) => {
   const response = await api.delete(`${API_BASE_URL}/notifications/me/delete/${notifId}`)
   return response.data

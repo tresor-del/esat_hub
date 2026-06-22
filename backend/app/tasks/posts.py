@@ -16,6 +16,8 @@ async def handle_new_post(current_user, room_id, post):
             sender = NotificationUserResponse(
                 id=current_user.id,
                 username=getattr(current_user, 'username', None),
+                first_name=getattr(current_user, 'first_name', None),
+                last_name=getattr(current_user, 'last_name', None),
                 user_room_id=getattr(current_user, 'user_room_id', None),
                 avatar_path=getattr(current_user, 'avatar_path', None),
                 profil_name = getattr(current_user, 'profil_name', None)
@@ -28,7 +30,7 @@ async def handle_new_post(current_user, room_id, post):
             if room_id is None:
                 recipients = auth_service.get_all_users()
                 notif_content = notification_contents.new_post(
-                    username=current_user.profil_name,
+                    user=current_user,
                     post_title=post.title,
                     is_general=is_general,
                     post_type=post.post_type
@@ -37,7 +39,7 @@ async def handle_new_post(current_user, room_id, post):
             else:
                 recipients = auth_service.get_users_by_room_id(room_id)
                 notif_content = notification_contents.new_post(
-                    username=current_user.profil_name,
+                    user=current_user,
                     post_title=post.title,
                     is_general=is_general,
                     post_type=post.post_type
@@ -54,8 +56,11 @@ async def handle_new_post(current_user, room_id, post):
             
     except Exception:
         # Log l'erreur complète côté serveur, rien ne remonte à l'user
+        print("error")
         logger.error(
             "Échec notifications pour post %s par user %s",
             post.id, current_user.id,
             exc_info=True  # ← inclut le traceback complet dans Sentry/logs
         )
+        
+        

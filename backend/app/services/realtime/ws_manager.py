@@ -27,6 +27,8 @@ class ConnexionManager:
         websocket = self.active_connections.get(recipient_id)
         if websocket:
             await websocket.send_json(jsonable_encoder(data))
+            return True
+        return False
     
     async def broadcast(self, data):
         for websocket in self.active_connections.values():

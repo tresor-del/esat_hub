@@ -2,7 +2,7 @@ import axios from "axios";
 import { API_BASE_URL } from "../utils/axiosConfig";
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from './AuthContext';
-import { getNotifications, markNotificationsAsRead } from '../services/api';
+import { getNotifications, markNotificationsAsRead, markNotificationAsRead } from '../services/api';
 import { getUnreadMsgTotal } from '../services/chatApi';
 import { sendSystemNotification } from "../services/notificationService";
 
@@ -20,8 +20,8 @@ export const WebSocketProvider = ({ children }) => {
   const reconnectTimeout = useRef(null);
   const shouldReconnect = useRef(true);
   const [unreadChatsCount, setUnreadChatsCount] = useState(0);
-
   const unreadCount = notifications.filter(n => n.is_read === false).length;
+  const activeConvRef = useRef(null);
 
   const loadNotifications = async () => {
     try {
@@ -83,25 +83,31 @@ export const WebSocketProvider = ({ children }) => {
         const data = JSON.parse(event.data);
 
         // 1. GESTION DU CHAT
-        if (data.sender_id) {
-          const interlocutorId = data.sender_id === user.id ? data.recipient_id : data.sender_id;
+        if (data.from === "chat") {
+          const interlocutorId = data.sender.id === user.id ? data.recipient_id : data.sender.id;
 
           setMessages(prev => ({
             ...prev,
             [interlocutorId]: [...(prev[interlocutorId] || []), data]
           }));
 
-          const isIncoming = data.sender_id !== user.id;
+          const isIncoming = data.sender.id !== user.id;
           if (isIncoming) {
-            setUnreadChatsCount(prev => prev + 1);
 
-            // CORRIGÉ : Appel sécurisé sans crash de syntaxe string
-            sendSystemNotification({
-              type: "SHOW_WS_NOTIFICATION",
-              title: "Nouveau message",
-              body: data.content || "Vous avez reçu un message.",
-              url: "/chat"
-            });
+            const isReadingThisConv = activeConvRef.current === data.sender.id;
+            if (!isReadingThisConv) {
+              setUnreadChatsCount(prev => prev + 1);
+
+              sendSystemNotification({
+                type: "SHOW_WS_NOTIFICATION",
+                title: data.sender.first_name,
+                body: data.content || "Vous avez reçu un message.",
+                url: `/chat?user=${data.sender.id}`,
+                icon: data.sender?.avatar_path,
+              });
+            }
+
+
           }
 
           window.dispatchEvent(new CustomEvent("CHAT_UPDATED", {
@@ -111,7 +117,7 @@ export const WebSocketProvider = ({ children }) => {
           return; // On stoppe ici pour le cas du chat
         }
 
-        // 2. GESTION DES NOTIFICATIONS GLOBALES / ÉVÉNEMENTS
+        // GESTION DES NOTIFICATIONS GLOBALES / ÉVÉNEMENTS
         if (data.recipient?.id === user?.id) {
           setNotifications(prev => {
             if (prev.some(n => n.id === data.id)) return prev;
@@ -119,16 +125,19 @@ export const WebSocketProvider = ({ children }) => {
           });
 
           // Appel sécurisé pour les alertes globales
-          sendSystemNotification({
-            type: "SHOW_WS_NOTIFICATION",
-            title: data.title || "Nouvelle notification",
-            body: data.content || "Il y a du nouveau sur votre compte.",
-            url: "/"
-          });
+
+          // sendSystemNotification({
+          //   type: "SHOW_WS_NOTIFICATION",
+          //   title: data.title || "None",
+          //   body: data.content || "Il y a du nouveau sur votre compte.",
+          //   url: "/"
+          // });
+
+
         }
 
 
-        // 3. GESTION DES ACTIONS SPÉCIFIQUES (Commentaires, Posts)
+        // GESTION DES ACTIONS SPÉCIFIQUES
 
         if (data.event === "NEW_ATTENDANCE") {
           window.dispatchEvent(new CustomEvent("NEW_ATTENDANCE", { detail: data }));
@@ -136,12 +145,29 @@ export const WebSocketProvider = ({ children }) => {
         }
 
         if (data.type === "new_comment") {
-          window.dispatchEvent(new CustomEvent("NEW_COMMENT", { detail: data }));
 
+          sendSystemNotification({
+            type: "SHOW_WS_NOTIFICATION",
+            title: "Nouveau Commentaire",
+            body: data.content || "Il y a du nouveau sur votre compte.",
+            url: `/post/${data.post_id}?commentId=${data.comment_id}`
+          });
+
+          window.dispatchEvent(new CustomEvent("NEW_COMMENT", { detail: data }));
+          return
         }
 
         if (data.type === "new_post") {
+
+          sendSystemNotification({
+            type: "SHOW_WS_NOTIFICATION",
+            title: "Nouvelle publication",
+            body: data.content || "Il y a du nouveau sur votre compte.",
+            url: `/post/${data.post_id}`
+          });
+
           window.dispatchEvent(new CustomEvent("NEW_POST", { detail: data }));
+          return 
         }
       };
 
@@ -223,14 +249,19 @@ export const WebSocketProvider = ({ children }) => {
     }
   };
 
-  const markAsRead = async () => {
-    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+  const markAsRead = async (id) => {
+
+    setNotifications(prev =>
+      prev.map(n => n.id === id ? { ...n, is_read: true } : n)
+    );
+
     try {
-      const result = await markNotificationsAsRead();
+      const result = await markNotificationAsRead(id);
       console.log(result);
     } catch (error) {
       console.log("Erreur: ", error);
     }
+    
   };
 
   const removeNotifications = (idsToDelete) => {
@@ -282,7 +313,9 @@ export const WebSocketProvider = ({ children }) => {
       markAsRead,
       removeNotifications,
       unreadChatsCount,
-      refreshUnreadCount
+      setUnreadChatsCount,
+      refreshUnreadCount,
+      activeConvRef
     }}>
       {children}
     </WebSocketContext.Provider>
