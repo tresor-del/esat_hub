@@ -54,7 +54,7 @@ async def register_device(request: Request, db: Session = Depends(get_db)):
             
             # Envoi de la notification de bienvenue
             notif_service = NotificationService(db)
-            notif_service._send_firebase_push(
+            notif_service.send_firebase_push(
                 recipient_id=payload.user_id,
                 title="Bienvenue sur l'application EsatHub !",
                 body="Ravi de vous compter parmi nous."
