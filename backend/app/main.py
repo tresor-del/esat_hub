@@ -63,7 +63,7 @@ def get_cors_origins():
     """Get CORS origins from settings or default to localhost for dev"""
     if hasattr(settings, 'CORS_ORIGINS') and settings.CORS_ORIGINS:
         return [origin.strip() for origin in settings.CORS_ORIGINS.split(',')]
-    return ["http://localhost:5173", "http://localhost:3000"]
+    return ["http://localhost:5173", "http://localhost:3000", ]
 
 app.add_middleware(
     CORSMiddleware,

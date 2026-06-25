@@ -29,26 +29,15 @@ async def handle_new_post(current_user, room_id, post):
             
             if room_id is None:
                 recipients = auth_service.get_all_users()
-                notif_content = notification_contents.new_post(
-                    user=current_user,
-                    post_title=post.title,
-                    is_general=is_general,
-                    post_type=post.post_type
-                )
                 
             else:
                 recipients = auth_service.get_users_by_room_id(room_id)
-                notif_content = notification_contents.new_post(
-                    user=current_user,
-                    post_title=post.title,
-                    is_general=is_general,
-                    post_type=post.post_type
-                )
                 
 
             await notif_service.send_bulk_notifications(
                 notification_type="new_post",
-                content=notif_content,
+                title=f"Nouvelle publication de {post.user.first_name}",
+                content=post.title,
                 recipients=recipients,
                 sender=sender,
                 post_id=post.id,

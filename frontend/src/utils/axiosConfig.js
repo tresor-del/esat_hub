@@ -1,5 +1,11 @@
-// utils/axiosConfig.js (renommer de .jsx à .js)
+import axiosRetry from 'axios-retry'
 import axios from "axios";
+import { Preferences } from '@capacitor/preferences';
+
+const getToken = async (key) => {
+  const { value } = await Preferences.get({ key });
+  return value;
+};
 
 // URL de base de l'API
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -8,6 +14,30 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const api = axios.create({
   baseURL: API_BASE_URL
 });
+
+// // Les retries sur les erreurs réseaux
+// let isRetrying = null
+
+// axiosRetry(api, {
+//   retries: 5,
+//   retryDelay: axiosRetry.exponentialDelay,
+//   retryCondition: (error) => !error.response || error.response.status >=500,
+//   onRetry: (retryCount) => {
+//     if (!isRetrying) {
+//       isRetrying = true
+//       window.dispatchEvent(new CustomEvent('app:retry', {detail: { retryCount }}))
+//     }
+//   }
+// })
+
+// // Quand une requête réussit après retry
+// api.interceptors.response.use((response) => {
+//   if (isRetrying) {
+//     isRetrying = false
+//     window.dispatchEvent(new CustomEvent('app:retry-success'))
+//   }
+//   return response
+// })
 
 let isRefreshing = false;
 let failedQueue = [];
@@ -28,8 +58,8 @@ const processQueue = (error, token = null) => {
 
 // Intercepteur pour ajouter le token d'authentification à chaque requête
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("access_token");
+  async (config) => {
+    const token = await getToken("access_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -46,7 +76,7 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 &&
       !request._retry &&
-      localStorage.getItem("refresh_token")
+      await getToken("refresh_token")
     ) {
 
       request._retry = true;
@@ -67,7 +97,7 @@ api.interceptors.response.use(
 
       // mécanisme pour récupérer le token si aucun processus de récupération n'est en cours
       isRefreshing = true;
-      const refreshToken = localStorage.getItem("refresh_token")
+      const refreshToken = await getToken("refresh_token")
 
       try {
         // essayer de récuperer un nouveau token par axios
@@ -79,9 +109,9 @@ api.interceptors.response.use(
         // Mise à jour du stockage et des headers par défaut
         const newAccessToken = res.data.access_token;
         const newRefreshToken = res.data.refresh_token
-        localStorage.setItem("access_token", newAccessToken);
-        localStorage.removeItem("refresh_token");
-        localStorage.setItem("refresh_token", newRefreshToken)
+        await Preferences.set({ key: "access_token", value: newAccessToken });
+        await Preferences.remove({ key: "refresh_token" });
+        await Preferences.set({ key: "refresh_token", value: newRefreshToken });
         api.defaults.headers.Authorization = "Bearer " + newAccessToken;
 
         // evenement pour permettre au ws d'utiliser le nouveau token pour les requetes
@@ -105,8 +135,9 @@ api.interceptors.response.use(
         isRefreshing = false;
 
         // nettoyage complet
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
+
+        await Preferences.remove({ key: "access_token" });
+        await Preferences.remove({ key: "refresh_token" });
 
         // notification globale pour rédiriger les requêtes vers le login
         window.dispatchEvent(
@@ -117,6 +148,7 @@ api.interceptors.response.use(
       }
 
     }
+
     return Promise.reject(error);
   },
 );

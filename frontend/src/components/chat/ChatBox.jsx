@@ -11,7 +11,7 @@ import { uploadChatFile } from '../../services/chatApi';
 import { useSearchParams } from 'react-router-dom';
 
 const ChatBox = ({ recipient, onClose, isMobile, onMessage }) => {
-    const { refreshUnreadCount, activeConvRef, unreadChatsCount, messages, sendMessage, user } = useWebSocket();
+    const { refreshUnreadCount, activeConvRef, unreadChatsCount, messages, sendMessage, upsertMessage, user } = useWebSocket();
     const [text, setText] = useState("");
     const [localHistory, setLocalHistory] = useState([]);
     const [loadingHistory, setLoadingHistory] = useState(true);
@@ -34,6 +34,8 @@ const ChatBox = ({ recipient, onClose, isMobile, onMessage }) => {
         };
     }, [recipient.id]);
 
+    const generateLocalId = () => `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
     const handleFileSelect = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -45,10 +47,29 @@ const ChatBox = ({ recipient, onClose, isMobile, onMessage }) => {
             alert("Seules les images et PDFs sont acceptés");
             return;
         }
-        // if (file.size > 5 * 1024 * 1024) {
-        //     alert("Fichier trop volumineux (max 5MB)");
-        //     return;
-        // }
+
+        const localId = generateLocalId();
+        const pendingFileMsg = {
+            sender_id: currentUser.id,
+            recipient_id: recipient.id,
+            content: "",
+            timestamp: new Date().toISOString(),
+            status: 'sending',
+            local_id: localId,
+            media: {
+                file,
+                file_name: file.name,
+                mime_type: file.type,
+            }
+        };
+
+        upsertMessage(recipient.id, pendingFileMsg);
+        onMessage({
+            last_message_content: "📎 Fichier",
+            last_message_timestamp: new Date().toISOString(),
+            unread_count: 0,
+            user: recipient,
+        });
 
         try {
             setUploadingFile(true);
@@ -56,34 +77,18 @@ const ChatBox = ({ recipient, onClose, isMobile, onMessage }) => {
             formData.append("file", file);
 
             const result = await uploadChatFile(formData);
-            console.log(result)
-
-            // Envoie via WS avec le media_id
-            sendMessage(recipient.id, "", result.media_id);
-
-            onMessage({
-                last_message_content: "📎 Fichier",
-                last_message_timestamp: new Date().toISOString(),
-                unread_count: 0,
-                user: recipient,
-            });
-
-            const optimisticMsg = {
-                sender_id: currentUser.id,
-                content: "",
-                timestamp: new Date().toISOString(),
-                is_read: false,
+            const metadata = {
                 media: {
-                    id: result.media_id,
+                    ...pendingFileMsg.media,
+                    media_id: result.media_id,
                     file_path: result.file_path,
-                    file_name: file.name,
-                    mime_type: file.type,
                 }
             };
-            setLocalHistory(prev => [...prev, optimisticMsg]);
 
+            await sendMessage(recipient.id, "", result.media_id, localId, metadata);
         } catch (err) {
             console.error("Erreur upload:", err);
+            upsertMessage(recipient.id, { local_id: localId, status: 'failed', error: 'upload_failed' });
             alert("Erreur lors de l'envoi du fichier");
         } finally {
             setUploadingFile(false);
@@ -187,21 +192,58 @@ const ChatBox = ({ recipient, onClose, isMobile, onMessage }) => {
     };
     // ------------------------------
 
-    const handleSend = (e) => {
+    const handleSend = async (e) => {
         e.preventDefault();
-        if (text.trim()) {
-            sendMessage(recipient.id, text);
-            const data = {
-                last_message_content: text,
-                last_message_timestamp: new Date().toISOString(),
-                last_sender_id: currentUser.id,
-                unread_count: 0,
-                user: currentUser,
+        const trimmedText = text.trim();
+        if (!trimmedText) return;
+
+        const localId = generateLocalId();
+        await sendMessage(recipient.id, trimmedText, null, localId, {
+            content: trimmedText,
+        });
+
+        const data = {
+            last_message_content: trimmedText,
+            last_message_timestamp: new Date().toISOString(),
+            last_sender_id: currentUser.id,
+            unread_count: 0,
+            user: currentUser,
+        };
+        onMessage(data);
+        setText("");
+        setShowEmojiPicker(false);
+    };
+
+    const retryMessage = async (msg) => {
+        if (!msg.local_id) return;
+        upsertMessage(recipient.id, { local_id: msg.local_id, status: 'sending', error: null });
+
+        if (msg.media?.file && !msg.media?.media_id) {
+            try {
+                setUploadingFile(true);
+                const formData = new FormData();
+                formData.append('file', msg.media.file);
+                const result = await uploadChatFile(formData);
+                const metadata = {
+                    media: {
+                        ...msg.media,
+                        media_id: result.media_id,
+                        file_path: result.file_path,
+                    }
+                };
+                await sendMessage(recipient.id, '', result.media_id, msg.local_id, metadata);
+            } catch (error) {
+                console.error('Erreur retry upload:', error);
+                upsertMessage(recipient.id, { local_id: msg.local_id, status: 'failed', error: 'upload_failed' });
+            } finally {
+                setUploadingFile(false);
             }
-            onMessage(data)
-            setText("");
-            setShowEmojiPicker(false);
+            return;
         }
+
+        await sendMessage(recipient.id, msg.content || '', msg.media?.media_id, msg.local_id, {
+            media: msg.media,
+        });
     };
 
     const onEmojiClick = (emojiData) => {
@@ -245,10 +287,8 @@ const ChatBox = ({ recipient, onClose, isMobile, onMessage }) => {
                         const showDateBadge = currentDateLabel !== lastDateLabel;
                         lastDateLabel = currentDateLabel;
 
-                        // vérfier si l'auteur du message précédent est le mm que celui du nouveau
-                        const prevMsg = conversation[i - 1]
-                        const isGrouped = prevMsg && prevMsg.sender_id === msg.sender_id && !showDateBadge;
-
+                        const senderId = msg.sender_id || msg.sender?.id;
+                        const isOutgoing = senderId === currentUser.id;
 
                         return (
                             <React.Fragment key={i}>
@@ -258,60 +298,45 @@ const ChatBox = ({ recipient, onClose, isMobile, onMessage }) => {
                                     </div>
                                 )}
 
-                                <div className={`chat-message-wrapper `} >
+                                <div className={`chat-message-wrapper ${isOutgoing ? 'outgoing' : 'incoming'}`}>
+                                    <div className={`chat-message-content ${isOutgoing ? 'outgoing' : 'incoming'}`}>
+                                        {msg.content && <span>{msg.content}</span>}
 
-                                    {/* En-tête : avatar + nom + heure */}
-                                    <div className={`chat-message-header ${isGrouped ? "grouped" : ""}`}>
-                                        {!isGrouped ? (
-                                            msg.sender_id === recipient.id ? (
-                                                <Avatar user={recipient} size="default" />
+                                        {msg.media && (
+                                            msg.media.mime_type?.startsWith("image/") ? (
+                                                <img
+                                                    src={msg.media.file_path}
+                                                    alt="image"
+                                                    className="chat-media-image"
+                                                    onClick={() => window.open(msg.media.file_path, "_blank")}
+                                                />
                                             ) : (
-                                                <Avatar user={currentUser} size="default" />
+                                                <a
+                                                    href={msg.media.file_path}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="chat-media-doc"
+                                                >
+                                                    📄 {msg.media.file_name || "Document"}
+                                                </a>
                                             )
-                                        ) : (
-                                            <div className="avatar-placeholder" />
                                         )}
 
-                                        <div className='name'>
-
-                                            <span className="name-h">
-                                                {!isGrouped && (
-                                                    msg.sender_id === recipient.id
-                                                        ? `${recipient.first_name} ${recipient.last_name}`
-                                                        : `${currentUser.first_name} ${currentUser.last_name}`
-                                                )}
-
-                                            </span>
-
-                                            <div className={`content ${msg.sender_id === currentUser.id ? "outgoing" : "incoming"}`}>
-                                                {msg.content && <span>{msg.content}</span>}
-
-                                                {msg.media && (
-                                                    msg.media.mime_type?.startsWith("image/") ? (
-                                                        <img
-                                                            src={msg.media.file_path}
-                                                            alt="image"
-                                                            className="chat-media-image"
-                                                            onClick={() => window.open(msg.media.file_path, "_blank")}
-                                                        />
-                                                    ) : (
-                                                        <a
-                                                            href={msg.media.file_path}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            className="chat-media-doc"
-                                                        >
-                                                            📄 {msg.media.file_name || "Document"}
-                                                        </a>
-                                                    )
-                                                )}
-
-                                                <span className="chat-message-time">
-                                                    {formatChatTimestamp(msg.timestamp)}
-                                                </span>
+                                        {msg.status === 'sending' && (
+                                            <span className="chat-message-status sending">Envoi...</span>
+                                        )}
+                                        {msg.status === 'failed' && (
+                                            <div className="chat-message-status failed">
+                                                <span>Échec</span>
+                                                <button type="button" className="chat-retry-btn" onClick={() => retryMessage(msg)}>
+                                                    Renvoyer
+                                                </button>
                                             </div>
+                                        )}
 
-                                        </div>
+                                        <span className="chat-message-time">
+                                            {formatChatTimestamp(msg.timestamp)}
+                                        </span>
                                     </div>
                                 </div>
                             </React.Fragment>

@@ -108,7 +108,7 @@ const PostDetail = () => {
         <div className="post-content">
           {/* Bouton retour */}
           <div className="return-to-post-btn" onClick={goHome}>
-            <FiArrowLeft />
+            <FiArrowLeft /> Post
           </div>
 
           {loading ? (
@@ -120,7 +120,7 @@ const PostDetail = () => {
               post={post}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              detail={true}
+              // detail={true}
             />
           )}
             

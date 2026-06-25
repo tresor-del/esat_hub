@@ -51,11 +51,11 @@ async def handle_chat_message(
 
         await notif_service.send_notification(NotificationResponse(
             type="chat",
+            title=sender.first_name,
             content=decrypt(saved_msg.content),
             is_read=False,
             recipient=admin_service.users.create_user_response(recip),
             sender=admin_service.users.create_user_response(sender),
-            post_id=None,
             comment_id=None
         ))
     except Exception:

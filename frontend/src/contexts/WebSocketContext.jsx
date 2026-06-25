@@ -5,6 +5,12 @@ import { useAuth } from './AuthContext';
 import { getNotifications, markNotificationsAsRead, markNotificationAsRead } from '../services/api';
 import { getUnreadMsgTotal } from '../services/chatApi';
 import { sendSystemNotification } from "../services/notificationService";
+import { Preferences } from "@capacitor/preferences";
+
+const getToken = async (key) => {
+  const { value } = await Preferences.get({ key });
+  return value;
+};
 
 const wsUrl = import.meta.env.VITE_WS_BASE_URL;
 
@@ -28,7 +34,7 @@ export const WebSocketProvider = ({ children }) => {
       const result = await getNotifications();
       if (result?.notifications) {
         setNotifications(prev => {
-          console.log("notifications avant merge:", prev.map(n => n.id));
+          // console.log("notifications avant merge:", prev.map(n => n.id));
           const existingIds = new Set(prev.map(n => n.id));
           const uniqueFromDb = result.notifications.filter(n => !existingIds.has(n.id));
           return [...prev, ...uniqueFromDb];
@@ -56,155 +62,159 @@ export const WebSocketProvider = ({ children }) => {
   const createWebSocketRef = useRef(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) return;
+    const init = async () => {
+      const token = await getToken("access_token");
+      if (!token) return;
 
-    if (window.AppInventor && user?.id) {
-      console.log("Transmission de l'UUID de l'utilisateur à Kodular :", user.id);
-      window.AppInventor.setWebViewString(String(user.id));
-    }
-
-    shouldReconnect.current = true;
-
-    const createWebSocket = (wsToken) => {
-      // ── SÉCURITÉ : Si un socket est déjà OUVERT ou en cours de CONNEXION, on ne fait rien
-      if (wsRef.current && (wsRef.current.readyState === WebSocket.OPEN || wsRef.current.readyState === WebSocket.CONNECTING)) {
-        console.log("WebSocket déjà actif ou en cours de connexion. Annulation.");
-        return;
+      if (window.AppInventor && user?.id) {
+        console.log("Transmission de l'UUID de l'utilisateur à Kodular :", user.id);
+        window.AppInventor.setWebViewString(String(user.id));
       }
 
-      if (wsRef.current) wsRef.current.close();
+      shouldReconnect.current = true;
 
-      // On garde l'URL globale d'origine
-      const ws = new WebSocket(`${wsUrl}?token=${wsToken}`);
-      wsRef.current = ws;
+      const createWebSocket = (wsToken) => {
+        // ── SÉCURITÉ : Si un socket est déjà OUVERT ou en cours de CONNEXION, on ne fait rien
+        if (wsRef.current && (wsRef.current.readyState === WebSocket.OPEN || wsRef.current.readyState === WebSocket.CONNECTING)) {
+          console.log("WebSocket déjà actif ou en cours de connexion. Annulation.");
+          return;
+        }
 
-      ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
+        if (wsRef.current) wsRef.current.close();
 
-        // 1. GESTION DU CHAT
-        if (data.from === "chat") {
-          const interlocutorId = data.sender.id === user.id ? data.recipient_id : data.sender.id;
+        // On garde l'URL globale d'origine
+        const ws = new WebSocket(`${wsUrl}?token=${wsToken}`);
+        wsRef.current = ws;
 
-          setMessages(prev => ({
-            ...prev,
-            [interlocutorId]: [...(prev[interlocutorId] || []), data]
-          }));
+        ws.onmessage = (event) => {
+          const data = JSON.parse(event.data);
 
-          const isIncoming = data.sender.id !== user.id;
-          if (isIncoming) {
+          // 1. GESTION DU CHAT
+          if (data.from === "chat") {
+            const interlocutorId = data.sender.id === user.id ? data.recipient_id : data.sender.id;
 
-            const isReadingThisConv = activeConvRef.current === data.sender.id;
-            if (!isReadingThisConv) {
-              setUnreadChatsCount(prev => prev + 1);
+            setMessages(prev => ({
+              ...prev,
+              [interlocutorId]: [...(prev[interlocutorId] || []), data]
+            }));
 
-              sendSystemNotification({
-                type: "SHOW_WS_NOTIFICATION",
-                title: data.sender.first_name,
-                body: data.content || "Vous avez reçu un message.",
-                url: `/chat?user=${data.sender.id}`,
-                icon: data.sender?.avatar_path,
-              });
+            const isIncoming = data.sender.id !== user.id;
+            if (isIncoming) {
+
+              const isReadingThisConv = activeConvRef.current === data.sender.id;
+              if (!isReadingThisConv) {
+                setUnreadChatsCount(prev => prev + 1);
+
+                // sendSystemNotification({
+                //   type: "SHOW_WS_NOTIFICATION",
+                //   title: data.sender.first_name,
+                //   body: data.content || "Vous avez reçu un message.",
+                //   url: `/chat?user=${data.sender.id}`,
+                //   icon: data.sender?.avatar_path,
+                // });
+              }
+
+
             }
+
+            window.dispatchEvent(new CustomEvent("CHAT_UPDATED", {
+              detail: { ...data, isIncoming }
+            }));
+
+            return; // On stoppe ici pour le cas du chat
+          }
+
+          // GESTION DES NOTIFICATIONS GLOBALES / ÉVÉNEMENTS
+          if (data.recipient?.id === user?.id) {
+            setNotifications(prev => {
+              if (prev.some(n => n.id === data.id)) return prev;
+              return [{ ...data, is_read: false }, ...prev];
+            });
+
+            // Appel sécurisé pour les alertes globales
+
+            // sendSystemNotification({
+            //   type: "SHOW_WS_NOTIFICATION",
+            //   title: data.title || "None",
+            //   body: data.content || "Il y a du nouveau sur votre compte.",
+            //   url: "/"
+            // });
 
 
           }
 
-          window.dispatchEvent(new CustomEvent("CHAT_UPDATED", {
-            detail: { ...data, isIncoming }
-          }));
 
-          return; // On stoppe ici pour le cas du chat
-        }
+          // GESTION DES ACTIONS SPÉCIFIQUES
 
-        // GESTION DES NOTIFICATIONS GLOBALES / ÉVÉNEMENTS
-        if (data.recipient?.id === user?.id) {
-          setNotifications(prev => {
-            if (prev.some(n => n.id === data.id)) return prev;
-            return [{ ...data, is_read: false }, ...prev];
-          });
+          if (data.event === "NEW_ATTENDANCE") {
+            window.dispatchEvent(new CustomEvent("NEW_ATTENDANCE", { detail: data }));
+            return;
+          }
 
-          // Appel sécurisé pour les alertes globales
+          if (data.type === "new_comment") {
 
-          // sendSystemNotification({
-          //   type: "SHOW_WS_NOTIFICATION",
-          //   title: data.title || "None",
-          //   body: data.content || "Il y a du nouveau sur votre compte.",
-          //   url: "/"
-          // });
+            // sendSystemNotification({
+            //   type: "SHOW_WS_NOTIFICATION",
+            //   title: "Nouveau Commentaire",
+            //   body: data.content || "Il y a du nouveau sur votre compte.",
+            //   url: `/post/${data.post_id}?commentId=${data.comment_id}`
+            // });
+
+            window.dispatchEvent(new CustomEvent("NEW_COMMENT", { detail: data }));
+            return
+          }
+
+          if (data.type === "new_post") {
+
+            // sendSystemNotification({
+            //   type: "SHOW_WS_NOTIFICATION",
+            //   title: "Nouvelle publication",
+            //   body: data.content || "Il y a du nouveau sur votre compte.",
+            //   url: `/post/${data.post_id}`
+            // });
+
+            window.dispatchEvent(new CustomEvent("NEW_POST", { detail: data }));
+            return
+          }
+        };
 
 
-        }
+        ws.onclose = (e) => {
+          if (e.code === 1008) {
+            console.log("Accès refusé (403), on arrête la reconnexion.");
+            shouldReconnect.current = false;
+            return;
+          }
 
+          // Reconnexion automatique après 3 secondes
+          if (shouldReconnect.current) {
+            setTimeout(async () => {
+              const token = await getToken("access_token");
+              if (token && createWebSocketRef.current) {
+                console.log("🔄 Reconnexion WebSocket...");
+                createWebSocketRef.current(token);
+              }
+            }, 3000);
+          }
+        };
 
-        // GESTION DES ACTIONS SPÉCIFIQUES
-
-        if (data.event === "NEW_ATTENDANCE") {
-          window.dispatchEvent(new CustomEvent("NEW_ATTENDANCE", { detail: data }));
-          return;
-        }
-
-        if (data.type === "new_comment") {
-
-          sendSystemNotification({
-            type: "SHOW_WS_NOTIFICATION",
-            title: "Nouveau Commentaire",
-            body: data.content || "Il y a du nouveau sur votre compte.",
-            url: `/post/${data.post_id}?commentId=${data.comment_id}`
-          });
-
-          window.dispatchEvent(new CustomEvent("NEW_COMMENT", { detail: data }));
-          return
-        }
-
-        if (data.type === "new_post") {
-
-          sendSystemNotification({
-            type: "SHOW_WS_NOTIFICATION",
-            title: "Nouvelle publication",
-            body: data.content || "Il y a du nouveau sur votre compte.",
-            url: `/post/${data.post_id}`
-          });
-
-          window.dispatchEvent(new CustomEvent("NEW_POST", { detail: data }));
-          return 
-        }
       };
 
+      // Stocke createWebSocket dans le ref pour y accéder ailleurs
+      createWebSocketRef.current = createWebSocket;
 
-      ws.onclose = (e) => {
-        if (e.code === 1008) {
-          console.log("Accès refusé (403), on arrête la reconnexion.");
-          shouldReconnect.current = false;
-          return;
-        }
+      loadNotifications();
+      loadInitialUnread();
+      createWebSocket(token);
 
-        // Reconnexion automatique après 3 secondes
-        if (shouldReconnect.current) {
-          setTimeout(() => {
-            const token = localStorage.getItem("access_token");
-            if (token && createWebSocketRef.current) {
-              console.log("🔄 Reconnexion WebSocket...");
-              createWebSocketRef.current(token);
-            }
-          }, 3000);
-        }
+      return () => {
+        shouldReconnect.current = false;
+        clearTimeout(reconnectTimeout.current);
+        wsRef.current?.close();
       };
-
     };
+    init();
 
-    // Stocke createWebSocket dans le ref pour y accéder ailleurs
-    createWebSocketRef.current = createWebSocket;
-
-    loadNotifications();
-    loadInitialUnread();
-    createWebSocket(token);
-
-    return () => {
-      shouldReconnect.current = false;
-      clearTimeout(reconnectTimeout.current);
-      wsRef.current?.close();
-    };
   }, [user?.id]);
 
   // Écoute TOKEN_REFRESHED quand une requete http déclenche le refresh token
@@ -219,34 +229,58 @@ export const WebSocketProvider = ({ children }) => {
     return () => window.removeEventListener("TOKEN_REFRESHED", handleTokenRefresh);
   }, []);
 
-  // FONCTION POUR ENVOYER UN MESSAGE DE CHAT
-  const sendMessage = (recipientId, content, mediaId) => {
+  const generateLocalId = () => `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  const upsertMessage = (recipientId, message) => {
+    setMessages(prev => {
+      const list = prev[recipientId] || [];
+      const index = list.findIndex(m => m.local_id === message.local_id);
+      if (index >= 0) {
+        const updatedList = [...list];
+        updatedList[index] = { ...updatedList[index], ...message };
+        return { ...prev, [recipientId]: updatedList };
+      }
+      return { ...prev, [recipientId]: [...list, message] };
+    });
+  };
+
+  const sendMessage = async (recipientId, content, mediaId, localId = null, metadata = {}) => {
+    const messageId = localId || generateLocalId();
+    const timestamp = new Date().toISOString();
+    const pendingMessage = {
+      sender_id: user.id,
+      recipient_id: recipientId,
+      content,
+      timestamp,
+      status: 'sending',
+      local_id: messageId,
+      ...metadata,
+    };
+
+    upsertMessage(recipientId, pendingMessage);
+
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       const payload = {
         recipient_id: recipientId,
         message: content,
-        media_id: mediaId
-      }
-
-      // On l'envoie au serveur via le socket unique
-      wsRef.current.send(JSON.stringify(payload));
-
-      // On l'ajoute à notre affichage local
-      const myMsg = {
-        sender_id: user.id,
-        recipient_id: recipientId,
-        content: content,
-        timestamp: new Date().toISOString()
+        media_id: mediaId,
+        local_id: messageId,
       };
 
-      // On stocke notre propre message dans la boîte dédiée à ce destinataire
-      setMessages(prev => ({
-        ...prev,
-        [recipientId]: [...(prev[recipientId] || []), myMsg]
-      }));
-    } else {
-      console.warn("WebSocket non connecté, message non envoyé");
+      try {
+        wsRef.current.send(JSON.stringify(payload));
+        upsertMessage(recipientId, { local_id: messageId, status: 'sent' });
+        return { success: true, local_id: messageId };
+      } catch (error) {
+        console.error('Erreur envoi WS:', error);
+        upsertMessage(recipientId, { local_id: messageId, status: 'failed', error: 'send_error' });
+        return { success: false, error, local_id: messageId };
+      }
     }
+
+    console.warn('WebSocket non connecté, message non envoyé');
+    upsertMessage(recipientId, { local_id: messageId, status: 'failed', error: 'ws_closed' });
+    return { success: false, error: 'WebSocket non connecté', local_id: messageId };
   };
 
   const markAsRead = async (id) => {
@@ -261,7 +295,7 @@ export const WebSocketProvider = ({ children }) => {
     } catch (error) {
       console.log("Erreur: ", error);
     }
-    
+
   };
 
   const removeNotifications = (idsToDelete) => {
@@ -275,7 +309,7 @@ export const WebSocketProvider = ({ children }) => {
 
     const interval = setInterval(async () => {
       // Vérifie si le token va bientôt expirer
-      const token = localStorage.getItem("access_token");
+      const token = await getToken("access_token");
       if (!token) return;
 
       const { exp } = JSON.parse(atob(token.split('.')[1]));
@@ -284,12 +318,12 @@ export const WebSocketProvider = ({ children }) => {
       // Si moins de 5 minutes restantes, refresh proactif
       if (expiresIn < 5 * 60 * 1000) {
         try {
-          const refreshToken = localStorage.getItem("refresh_token");
+          const refreshToken = await getToken("refresh_token");
           const res = await axios.post(`${API_BASE_URL}/auth/refresh`, {
             refresh_token: refreshToken
           });
-          localStorage.setItem("access_token", res.data.access_token);
-          localStorage.setItem("refresh_token", res.data.refresh_token);
+          await Preferences.set({ key: "access_token", value: res.data.access_token });
+          await Preferences.set({ key: "refresh_token", value: res.data.refresh_token });
           // TOKEN_REFRESHED va reconnecter le WS automatiquement
           window.dispatchEvent(new CustomEvent("TOKEN_REFRESHED", {
             detail: { token: res.data.access_token }
@@ -309,6 +343,7 @@ export const WebSocketProvider = ({ children }) => {
       notifications,
       messages,
       sendMessage,
+      upsertMessage,
       unreadCount,
       markAsRead,
       removeNotifications,

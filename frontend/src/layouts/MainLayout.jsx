@@ -5,10 +5,70 @@ import Footer from "../components/common/Footer";
 import React, { useState, useEffect } from "react";
 import WelcomeModal from "../components/common/WelcomeModal";
 import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../contexts/toastContext";
 
 const MainLayout = () => {
   const { user } = useAuth();
   const [showWelcome, setShowWelcome] = useState(false);
+
+  // gestion des erreurs réseau
+  const { toast } = useToast()
+
+  // useEffect(() => {
+  //   const handleRetry = (e) => {
+  //     toast({
+  //       message: `Connexion instable — tentative ${e.detail.retryCount}/5...`,
+  //       type: 'warning',
+  //       duration: 3000
+  //     })
+  //   }
+
+  //   const handleRetrySuccess = () => {
+  //     toast({
+  //       message: 'Connexion rétablie !',
+  //       type: 'success',
+  //       duration: 3000
+  //     })
+  //   }
+
+  //   window.addEventListener('app:retry', handleRetry)
+  //   window.addEventListener('app:retry-success', handleRetrySuccess)
+
+  //   return () => {
+  //     window.removeEventListener('app:retry', handleRetry)
+  //     window.removeEventListener('app:retry-success', handleRetrySuccess)
+  //   }
+  // }, [toast])
+
+  const [isOffline, setIsOffline] = useState(false)
+
+  useEffect(() => {
+    const handleOffline = () => {
+      setIsOffline(true)
+      toast({
+        message: 'Vous êtes hors connexion !',
+        type: 'error',
+        duration: 10000
+      })
+    }
+
+    const handleOnline = () => {
+      setIsOffline(false)
+      toast({
+        message: 'Connexion rétablie !',
+        type: 'success',
+        duration: 10000
+      })
+    }
+
+    window.addEventListener('offline', handleOffline)
+    window.addEventListener('online', handleOnline)
+
+    return () => {
+      window.removeEventListener('offline', handleOffline)
+      window.removeEventListener('online', handleOnline)
+    }
+  }, [toast])
 
   useEffect(() => {
     if (user?.id) {
@@ -42,8 +102,9 @@ const MainLayout = () => {
       {showWelcome && (
         <WelcomeModal user={user} onClose={handleCloseWelcome} />
       )}
-      <Navbar className={ isProfilePage || isEditPage || isCreatePage || isChatPage || isRoomPage || postDetail ? "navbar-hidden-mobile": ""} />
+      <Navbar className={isProfilePage || isEditPage || isCreatePage || isChatPage || isRoomPage || postDetail ? "navbar-hidden-mobile" : ""} />
       <Outlet />
+
       {/* <Footer hahah prince est un génie className={isProfilePage || isEditPage ||isCreatePage || isRoomPage || isHomePage || isChatPage || postDetail ? "footer-hidden-desktop": ""} /> */}
     </>
   );

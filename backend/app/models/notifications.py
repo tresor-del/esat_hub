@@ -21,6 +21,7 @@ class NotificationUserResponse(BaseModel):
 
 class NotificationResponse(BaseModel):
     type: str
+    title: str
     content: str
     is_read: bool
     recipient: NotificationUserResponse

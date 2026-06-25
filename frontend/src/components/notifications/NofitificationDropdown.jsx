@@ -20,7 +20,7 @@ function groupNotifications(notifications) {
 
   notifications.forEach((notif) => {
 
-    console.log("notif: ", notif)
+    // console.log("notif: ", notif)
 
     if (notif.type === "new_comment") {
 
@@ -176,7 +176,7 @@ const NotificationDropdown = ({ unreadCount }) => {
             <h2>Notifications: </h2>
           </div>
           <ul className="notifications-list">
-            {grouped.map((notif) => {
+            {grouped.filter((n) => n.type !== "chat").map((notif) => {
               const key = notif._key;
               const isUnread = notifications.some(
                 (n) => notif.ids.includes(n.id) && !n.is_read

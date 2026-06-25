@@ -13,7 +13,7 @@ export const getMediaUrl = (media) =>
     media?.file_path || media?.url || media?.path || "";
 
 export const buildShareUrl = (media) =>
-    `${window.location.origin}${window.location.pathname}?source=share&id=${media.id}`;
+    `https://esat-hub.vercel.app/room?source=share&id=${media.id}`;
 
 export const formatMediaType = (media) => {
     if (isImageMedia(media))    return "Image";

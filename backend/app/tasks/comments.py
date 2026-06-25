@@ -22,27 +22,22 @@ async def handle_new_comment_task(comment_id: UUID, sender_id: UUID):
         
         if comment.parent_id is None:
             recipient_id = post.user_id
-            is_reply = False
+            title = f'{sender.first_name} à répondu à votre commentaire sur le post: {post.title}'
         else:
             parent_comment = db.query(Comment).get(comment.parent_id)
             recipient_id = parent_comment.user_id
-            is_reply = True
+            title = f'{sender.first_name} à commenté votre post: {post.title}'
 
         if recipient_id == sender_id:
             return
 
-        content = notification_contents.new_comment(
-            user=sender,
-            post_title=post.title,
-            comment_preview=comment.content[:50],
-            is_reply=is_reply
-        )
 
         recipient = db.query(User).get(recipient_id)
         
         notif_data = NotificationResponse(
             type="new_comment",
-            content=content,
+            title=title ,
+            content=comment.content,
             is_read=False,
             recipient=NotificationUserResponse.model_validate(recipient),
             sender=NotificationUserResponse.model_validate(sender),

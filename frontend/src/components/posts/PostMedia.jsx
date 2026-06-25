@@ -25,7 +25,7 @@ const PostMedia = ({ post, bust, size = "small" }) => {
 
   const imgRef = useRef(null);
 
-  console.log(post)
+  // console.log(post)
 
   // ÉTAT DE CHARGEMENT DE L'IMAGE
   const [isImageLoading, setIsImageLoading] = useState(true);
