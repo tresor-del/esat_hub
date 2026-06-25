@@ -4,9 +4,17 @@
   "description": "Frontend React pour Enrollix avec authentification",
   "private": true,
   "dependencies": {
+    "@capacitor-firebase/messaging": "^8.3.0",
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/preferences": "^8.0.1",
     "@tabler/icons-react": "^3.44.0",
+    "@tanstack/query-sync-storage-persister": "^5.101.1",
     "@tanstack/react-query": "^5.100.9",
+    "@tanstack/react-query-persist-client": "^5.101.1",
     "axios": "^1.6.2",
+    "axios-retry": "^4.5.0",
     "date-fns": "^4.1.0",
     "emoji-picker-react": "^4.19.1",
     "firebase": "^12.13.0",
@@ -26,6 +34,7 @@
     "swiper": "^12.2.0"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@tailwindcss/cli": "^4.3.0",
     "@vitejs/plugin-react": "^4.2.1",
     "tailwindcss": "^4.3.0",

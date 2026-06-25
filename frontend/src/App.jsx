@@ -14,7 +14,6 @@ import WelcomeModal from "./components/common/WelcomeModal";
 
 import "./styles/Users/UserProfile.css";
 import "./App.css";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import MainLayout from "./layouts/MainLayout";
 import EmptyLayout from "./layouts/EmptyLayout";
@@ -37,8 +36,25 @@ const Privacy = lazy(() => import("./pages/legal/Privacy"));
 const Terms = lazy(() => import("./pages/legal/Terms"));
 const UpdateBanner = lazy(() => import("./components/common/UpdateBanner"))
 
+// cache persistants
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { persistQueryClient } from '@tanstack/react-query-persist-client';
+import { capacitorPersister } from './lib/capacitorQueryPersister';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      gcTime: 1000 * 60 * 60 * 24, // 24h — garder le cache 24h
+      staleTime: 1000 * 60 * 5,    // 5min — considérer les données fraîches 5min
+    },
+  },
+});
+
+persistQueryClient({
+  queryClient,
+  persister: capacitorPersister,
+  maxAge: 1000 * 60 * 60 * 24, // 24h
+});
 
 const AppRoutes = () => {
   const { loading, isAuth, logout } = useAuth();

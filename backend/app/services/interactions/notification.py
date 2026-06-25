@@ -19,7 +19,7 @@ class NotificationService:
     def __init__(self, db: Session):
         self._db = db
 
-    def send_firebase_push(self, recipient_id: UUID, title: str, body: str, url: str = None) -> None:
+    def send_firebase_push(self, recipient_id: UUID, title: str, body: str, url: str = None, image: str=None) -> None:
         """
         Méthode interne pour pousser une bannière Android via Firebase Cloud Messaging.
         """
@@ -54,19 +54,22 @@ class NotificationService:
                     android=messaging.AndroidConfig(
                         priority="high",  
                         notification=messaging.AndroidNotification(
+                            channel_id="esathub_channel",
                             priority="high",  
                             sound="default",  
+                            image=image if image else None
                         ),
                     ),
                     webpush=messaging.WebpushConfig(
                         notification=messaging.WebpushNotification(
                             title=title,
                             body=body,
-                            icon="/icon-192x192.png", # Aligné avec votre vite.config.js
+                            icon=image if image else "https://res.cloudinary.com/dwaen56ml/image/upload/v1782388980/icon-512x512_b9kfdr.png", # Aligné avec votre vite.config.js
                             badge="/badge-72.png",
+                            image=image if image else None
                         ),
                         data={
-                            "url": "/notifications" 
+                            "url": str(url or "/notifications") 
                         }
                     ),
                     data={
@@ -113,26 +116,28 @@ class NotificationService:
                 return 
             
             
-            title_mapping = {
-                "chat": "Nouveau message",
-                "new_comment": "Nouveau commentaire",
-                "new_post": "Nouveau post",
-                "COMMENTAIRE_SUPPRIMÉ": "Commentaire supprimé",
-                "POST_SUPPRIMÉ": "Post supprimé",
-                "POST_STATUS_UPDATE": "Status du post mis à jour",
-                "ROLE_UPDATE": "Role mis à jour",
-                "ACCOUNT_DELETED": "Status mis à jour",
-            }
+            # title_mapping = {
+            #     "chat": f"{data.sender.first_name}",
+            #     "new_comment": "Nouveau commentaire",
+            #     "new_post": "Nouveau post",
+            #     "COMMENTAIRE_SUPPRIMÉ": "Commentaire supprimé",
+            #     "POST_SUPPRIMÉ": "Post supprimé",
+            #     "POST_STATUS_UPDATE": "Status du post mis à jour",
+            #     "ROLE_UPDATE": "Role mis à jour",
+            #     "ACCOUNT_DELETED": "Status mis à jour",
+            # }
 
-            notif_title = title_mapping.get(data_in_db.type, "Nouvelle notification")
+            # notif_title = title_mapping.get(data_in_db.type, "Nouvelle notification")
             
             # On déclenche l'envoi Firebase de manière non-bloquante
             await asyncio.to_thread(
                 partial(
                    self.send_firebase_push, # la fonction bloquante
                     data_in_db.recipient_id, 
-                    notif_title,             
+                    data_in_db.title,             
                     data_in_db.content, 
+                    None,
+                    data.sender.avatar_path
                 )
                  
             )

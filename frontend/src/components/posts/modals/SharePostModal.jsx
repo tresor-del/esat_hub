@@ -3,7 +3,7 @@ import React, { useCallback, useState } from "react";
 const SharePostModal = ({ post, onClose }) => {
     const [copied, setCopied] = useState(false);
 
-    const shareUrl  = `${window.location.origin}${window.location.pathname}post/${post.id}`;
+    const shareUrl  = `https://esat-hub.vercel.app/post/${post.id}`;
     const waMessage = encodeURIComponent(`${post.title} : ${shareUrl}`);
 
     const handleCopy = useCallback(async () => {

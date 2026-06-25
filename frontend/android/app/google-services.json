@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "539552032054",
+    "project_id": "esathub-79a0c",
+    "storage_bucket": "esathub-79a0c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:539552032054:android:2aee54c54b9694fd1cff97",
+        "android_client_info": {
+          "package_name": "com.esathub.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1l_McAVNyUzpk_RwGBCGR429LpGGGjfQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:539552032054:android:127297ee522ea6b81cff97",
+        "android_client_info": {
+          "package_name": "esat.hub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1l_McAVNyUzpk_RwGBCGR429LpGGGjfQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

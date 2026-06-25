@@ -10,7 +10,7 @@ export default defineConfig({
       // 1. Basculer sur l'injection de manifeste personnalisé
       strategies: 'injectManifest',
       srcDir: 'public',       // Indique où chercher votre fichier de base
-      filename: 'sw.js',      // Nom de votre fichier Service Worker personnalisé
+      filename: 'firebase-messaging-sw.js',      // Nom de votre fichier Service Worker personnalisé
       registerType: 'autoUpdate',
       
       devOptions: {
