@@ -70,9 +70,9 @@ class NotificationService:
                         }
                     ),
                     data={
-                        "title": title,
-                        "body": body,
-                        "url": url
+                        "title": str(title or ""),
+                        "body": str(body or ""),
+                        "url": str(url or "")
                     },
                     token=device.device_token,
                 )
