@@ -6,10 +6,14 @@ import React, { useState, useEffect } from "react";
 import WelcomeModal from "../components/common/WelcomeModal";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/toastContext";
+import { useCreatePostModal } from "../contexts/createPostContext";
+import CreatePost from "../pages/CreatePost";
 
 const MainLayout = () => {
   const { user } = useAuth();
   const [showWelcome, setShowWelcome] = useState(false);
+
+  const { createPostModale, closeCreatePost } = useCreatePostModal();
 
   // gestion des erreurs réseau
   const { toast } = useToast()
@@ -102,7 +106,17 @@ const MainLayout = () => {
       {showWelcome && (
         <WelcomeModal user={user} onClose={handleCloseWelcome} />
       )}
-      <Navbar className={isProfilePage || isEditPage || isCreatePage || isChatPage || isRoomPage || postDetail ? "navbar-hidden-mobile" : ""} />
+
+      {createPostModale && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <button className="modal-close" onClick={closeCreatePost}>✕</button>
+            <CreatePost onClose={closeCreatePost} />
+          </div>
+        </div>
+      )}
+
+      <Navbar b={postDetail ? "navbar-b-hidden-mobile" : ""} className={isProfilePage || isEditPage || isCreatePage || isChatPage || isRoomPage || postDetail ? "navbar-hidden-mobile" : ""} />
       <Outlet />
 
       {/* <Footer hahah prince est un génie className={isProfilePage || isEditPage ||isCreatePage || isRoomPage || isHomePage || isChatPage || postDetail ? "footer-hidden-desktop": ""} /> */}

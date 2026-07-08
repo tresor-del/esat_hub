@@ -12,6 +12,11 @@ const getToken = async (key) => {
   return value;
 };
 
+const shouldLogoutOnAuthError = (error) => {
+  const status = error?.response?.status;
+  return status === 401 || status === 403;
+};
+
 const wsUrl = import.meta.env.VITE_WS_BASE_URL;
 
 const WebSocketContext = createContext();
@@ -130,17 +135,6 @@ export const WebSocketProvider = ({ children }) => {
               if (prev.some(n => n.id === data.id)) return prev;
               return [{ ...data, is_read: false }, ...prev];
             });
-
-            // Appel sécurisé pour les alertes globales
-
-            // sendSystemNotification({
-            //   type: "SHOW_WS_NOTIFICATION",
-            //   title: data.title || "None",
-            //   body: data.content || "Il y a du nouveau sur votre compte.",
-            //   url: "/"
-            // });
-
-
           }
 
 
@@ -153,26 +147,11 @@ export const WebSocketProvider = ({ children }) => {
 
           if (data.type === "new_comment") {
 
-            // sendSystemNotification({
-            //   type: "SHOW_WS_NOTIFICATION",
-            //   title: "Nouveau Commentaire",
-            //   body: data.content || "Il y a du nouveau sur votre compte.",
-            //   url: `/post/${data.post_id}?commentId=${data.comment_id}`
-            // });
-
             window.dispatchEvent(new CustomEvent("NEW_COMMENT", { detail: data }));
             return
           }
 
           if (data.type === "new_post") {
-
-            // sendSystemNotification({
-            //   type: "SHOW_WS_NOTIFICATION",
-            //   title: "Nouvelle publication",
-            //   body: data.content || "Il y a du nouveau sur votre compte.",
-            //   url: `/post/${data.post_id}`
-            // });
-
             window.dispatchEvent(new CustomEvent("NEW_POST", { detail: data }));
             return
           }
@@ -191,7 +170,7 @@ export const WebSocketProvider = ({ children }) => {
             setTimeout(async () => {
               const token = await getToken("access_token");
               if (token && createWebSocketRef.current) {
-                console.log("🔄 Reconnexion WebSocket...");
+                console.log("Reconnexion WebSocket...");
                 createWebSocketRef.current(token);
               }
             }, 3000);
@@ -329,7 +308,11 @@ export const WebSocketProvider = ({ children }) => {
             detail: { token: res.data.access_token }
           }));
         } catch (e) {
-          window.dispatchEvent(new CustomEvent("app:logout", { detail: { reason: "unauthorized" } }));
+          if (shouldLogoutOnAuthError(e)) {
+            window.dispatchEvent(new CustomEvent("app:logout", { detail: { reason: "unauthorized" } }));
+          } else {
+            console.warn("Échec du refresh du token WebSocket sans déconnexion :", e);
+          }
         }
       }
     }, 5 * 60 * 1000); // vérifie toutes les minutes

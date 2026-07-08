@@ -76,6 +76,7 @@ class User(Base):
 
     # Relations
     posts = relationship("Post", back_populates="user",cascade="all, delete-orphan")
+    post_likes = relationship("PostLike", back_populates="user", cascade="all, delete-orphan")
     email_verification_tokens = relationship("EmailVerificationToken",cascade="all, delete-orphan")
     comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
     notifications = relationship("Notification", foreign_keys="Notification.recipient_id", back_populates="recipient")

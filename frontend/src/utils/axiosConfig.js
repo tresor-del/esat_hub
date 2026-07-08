@@ -42,6 +42,11 @@ const api = axios.create({
 let isRefreshing = false;
 let failedQueue = [];
 
+const shouldLogoutOnAuthError = (error) => {
+  const status = error?.response?.status;
+  return status === 401 || status === 403;
+};
+
 // fonction qui gère toutes les requêtes stockée dans la file d'attente
 const processQueue = (error, token = null) => {
 
@@ -130,19 +135,18 @@ api.interceptors.response.use(
 
       } catch (refreshError) {
 
-        // si le refresh est expiré aussi
         processQueue(refreshError, null);
         isRefreshing = false;
 
-        // nettoyage complet
+        if (shouldLogoutOnAuthError(refreshError)) {
+          await Preferences.remove({ key: "access_token" });
+          await Preferences.remove({ key: "refresh_token" });
 
-        await Preferences.remove({ key: "access_token" });
-        await Preferences.remove({ key: "refresh_token" });
+          window.dispatchEvent(
+            new CustomEvent("app:logout", { detail: { reason: "unauthorized" } }),
+          );
+        }
 
-        // notification globale pour rédiriger les requêtes vers le login
-        window.dispatchEvent(
-          new CustomEvent("app:logout", { detail: { reason: "unauthorized" } }),
-        );
         return Promise.reject(refreshError);
 
       }

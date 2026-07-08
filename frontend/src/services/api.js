@@ -156,6 +156,11 @@ export const deletePost = async (postId) => {
   return response.data;
 };
 
+export const togglePostLike = async (postId) => {
+  const response = await api.post(`/posts/${postId}/like`);
+  return response.data;
+};
+
 export const getPostFileUrl = (post, bust = null) => {
   // const base = `${API_BASE_URL}/files/posts/${postId}`;
   const base = post.file_path ;
@@ -202,7 +207,7 @@ export const downloadPostFile = async (postId, fileName) => {
 
 /* Commentaires */
 
-export const getComments = async (postId, skip = 0, limit = 10) => {
+export const getComments = async (postId, skip = 0, limit = 5) => {
   const params = new URLSearchParams({ skip, limit });
   const response = await api.get(`${API_BASE_URL}/comments/posts/${postId}/comments?${params}`)
   return response.data

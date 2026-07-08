@@ -187,7 +187,7 @@ class RoomService:
         #     raise HTTPException(400, "QR Code expiré")
 
         # Regénérer l'image QR depuis le token stocké
-        url = f"{HOST}/scan?token={session.qr_token}"
+        url = f"{HOST}/attendance/scan?token={session.qr_token}"
         img = qrcode.make(url)
         buf = io.BytesIO()
         img.save(buf, format="PNG")

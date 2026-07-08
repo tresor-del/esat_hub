@@ -9,12 +9,13 @@ from typing import Optional
 from app.api.deps.auth import get_current_user
 from app.api.deps.services import get_post_service, get_file_service, get_auth_service
 from app.api.deps.db import get_db
-from app.models.post import PostResponse, PostListResponse, PostType
+from app.models.post import PostResponse, PostListResponse, PostType, PostLikeResponse
 from app.services.common.files import FileService  
 from app.db.schemas.user import User
 from app.services.social.posts import PostService
 from app.core.config import settings
 from app.tasks.posts import handle_new_post
+from app.tasks.likes import handle_new_like
 
 
 logger = logging.getLogger(__name__)
@@ -124,7 +125,8 @@ def read_posts(
         post_type=post_type.value if post_type else None,
         user_id=target_user_id,
         room_id=room_id,
-        include_all=all_posts
+        include_all=all_posts,
+        current_user_id=current_user.id
     )
     
     return PostListResponse(total=total, posts=posts)
@@ -146,6 +148,31 @@ def read_post(
         )
     
     return db_post
+
+@router.post("/posts/{post_id}/like", response_model=PostLikeResponse)
+def toggle_post_like(
+    post_id: UUID,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    post_service: PostService = Depends(get_post_service),
+):
+    """Ajouter ou retirer un like sur un post."""
+    result = post_service.toggle_like(post_id=post_id, user_id=current_user.id)
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post non trouvé"
+        )
+    
+    try:
+        background_tasks.add_task(handle_new_like, post_id, current_user, result.get("liked_by_me"))
+    except Exception:
+        logger.error("Échec ajout background task pour post %s", post_id, exc_info=True)
+        
+    
+    return result
+
 
 @router.put("/posts/{post_id}", response_model=PostResponse)
 async def update_post(

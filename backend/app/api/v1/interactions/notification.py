@@ -1,3 +1,4 @@
+import logging
 from uuid import UUID
 
 import json
@@ -18,31 +19,17 @@ from app.models.user_device import DeviceRegistration
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 
+logger = logging.getLogger(__name__)
 
 @router.post("/register", status_code=status.HTTP_200_OK)
-async def register_device(request: Request, db: Session = Depends(get_db)):
+async def register_device(payload: DeviceRegistration, db: Session = Depends(get_db)):
     try:
-        # 1. On récupère le texte brut que Kodular envoie très bien
-        body = await request.body()
-        raw_json = body.decode('utf-8')
-        
-        # 2. On convertit manuellement la chaîne en dictionnaire Python
-        data_dict = json.loads(raw_json)
-        
-        # 3. On force la validation Pydantic manuellement
-        try:
-            payload = DeviceRegistration(**data_dict)
-        except ValidationError as val_err:
-            print(f"Erreur de validation Pydantic : {val_err.errors()}")
-            raise HTTPException(status_code=400, detail="Données JSON mal formées pour le schéma")
-
-        # 4. Votre logique de base de données (inchangée)
         existing_device = db.query(UserDevice).filter(UserDevice.device_token == payload.device_token).first()
         
         if existing_device:
             existing_device.user_id = payload.user_id
             db.commit()
-            print(f"Jeton mis à jour pour l'utilisateur : {payload.user_id}")
+            logger.info(f"Jeton mis à jour pour l'utilisateur : {payload.user_id}")
         else:
             new_device = UserDevice(
                 user_id=payload.user_id,
@@ -50,7 +37,7 @@ async def register_device(request: Request, db: Session = Depends(get_db)):
             )
             db.add(new_device)
             db.commit()
-            print(f"Nouvel appareil enregistré pour l'utilisateur : {payload.user_id}")
+            logger.info(f"Nouvel appareil enregistré pour l'utilisateur : {payload.user_id}")
             
             # Envoi de la notification de bienvenue
             notif_service = NotificationService(db)
@@ -64,7 +51,7 @@ async def register_device(request: Request, db: Session = Depends(get_db)):
         
     except Exception as e:
         db.rollback()
-        print(f"Erreur interne de la route register : {str(e)}")
+        logger.error(f"Erreur interne de la route register : {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erreur lors de l'enregistrement de l'appareil : {str(e)}"

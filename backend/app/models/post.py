@@ -49,6 +49,16 @@ class PostResponse(PostBase):
     status: str
     # comments:  list["CommentResponse"] = []
     comments_count: int = 0
+    likes_count: int = 0
+    liked_by_me: bool = False
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PostLikeResponse(BaseModel):
+    post_id: UUID
+    liked_by_me: bool
+    likes_count: int
 
     model_config = ConfigDict(from_attributes=True)
 

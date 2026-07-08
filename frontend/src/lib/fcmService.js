@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 import { getToken } from "firebase/messaging";
+import { messaging } from '../config/firebase';
 import api from '../utils/axiosConfig';
 
 export const initFCM = async (userId) => {
@@ -23,6 +24,7 @@ export const initFCM = async (userId) => {
 
   } else {
     // Web browser
+     console.log("Branche WEB atteinte")
     if (typeof Notification === "undefined") return;
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') return;

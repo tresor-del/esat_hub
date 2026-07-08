@@ -1,6 +1,3 @@
-/* ==========================================
-   CONTENEUR PRINCIPAL DE RECHERCHE
-   ========================================== */
 .search-dropdown-wrapper {
   display: flex;
   justify-content: center;
@@ -11,19 +8,21 @@
 }
 
 /* Structure de la barre (Formulaire) */
-.search-input-container, .search-input-container-chat{
+.search-input-container,
+.search-input-container-chat {
   display: flex;
   align-items: center;
-  min-width: 100px;
+  min-width: 300px;
   background-color: #f0f2f5;
-  padding: 6px 12px;
-  border-radius: 50px; /* Effet pilule moderne */
+  padding: 0;
+  border-radius: 50px;
+  /* Effet pilule moderne */
   transition: background-color 0.2s ease, box-shadow 0.2s ease;
   border: 1px solid #ddd;
 }
 
-.search-input-container-chat{
-    min-width: unset !important;
+.search-input-container-chat {
+  min-width: unset !important;
 }
 
 .search-input-container:focus-within {
@@ -57,7 +56,7 @@
 }
 
 .search-input-container:focus-within .search-icon-inside {
-  color: #0066ff; /* L'icône passe au bleu lors de la saisie */
+  color: #0066ff;
 }
 
 /* L'input natif */
@@ -65,7 +64,8 @@
   width: 100%;
   border: none;
   background: transparent;
-  padding: 4px 4px 4px 32px; /* Espace à gauche pour l'icône */
+  padding: 4px 4px 4px 32px;
+  /* Espace à gauche pour l'icône */
   font-size: 15px;
   color: #050505;
   outline: none;
@@ -76,20 +76,18 @@
 }
 
 
-/* ==========================================
-   MENU DROPDOWN & RÉSULTATS
-   ========================================== */
 .search-dropdown-wrapper .menu-dropdown {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
-  width: 100%; 
+  width: 100%;
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px); /* Effet de flou moderne sous le menu */
+  backdrop-filter: blur(10px);
+  /* Effet de flou moderne sous le menu */
   border-radius: 16px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(0, 0, 0, 0.05);
-  z-index: 1000;
+  z-index: 100000;
   overflow: hidden;
 }
 
@@ -137,7 +135,8 @@
 
 .result-info {
   display: flex;
-  flex-direction: column; /* Aligne les textes verticalement pour plus de clarté */
+  flex-direction: column;
+  /* Aligne les textes verticalement pour plus de clarté */
   gap: 2px;
 }
 
@@ -168,4 +167,33 @@
   font-size: 14px;
   padding: 24px 0;
   margin: 0;
+}
+
+@media (max-width: 768px) {
+
+  .search-dropdown-wrapper .menu-dropdown {
+    position: fixed;
+    top: 60px;
+    
+    /* top: calc(100% + 8px); */
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    /* Effet de flou moderne sous le menu */
+    border-radius: unset;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    z-index: 100000;
+    overflow: hidden;
+    height: calc(100vh - 60px);
+  }
+
+  .search-dropdown-wrapper {
+    max-width: 100%;
+  }
+
+  .search-input-container {
+    min-width: 300px !important;
+    padding: 0;
+  }
 }

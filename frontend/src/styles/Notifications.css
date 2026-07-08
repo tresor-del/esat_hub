@@ -60,6 +60,7 @@
   width: 100%;
   word-break: break-word;
   overflow-wrap: break-word;
+  font-size: 1.2rem;
 }
 
 
@@ -88,9 +89,9 @@
   color: #666;
 }
 
-.notification-time-unread {
-  background-color: #666;
-}
+/* .notification-time--unread {
+  background-color: #fff !important;
+} */
 
 .notification-content {
   display: flex;
@@ -202,10 +203,10 @@
   /* Une barre bleue sur le côté */
 }
 
-.notification-item--unread p {
+/* .notification-item--unread p {
   font-weight: 600;
   color: #000;
-}
+} */
 
 /* Au survol */
 .notification-item:hover {

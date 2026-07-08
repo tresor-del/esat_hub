@@ -13,12 +13,6 @@ const SearchFilters = ({
       <form className="search-form" onSubmit={(e) => e.preventDefault()}>
         <div className={`${chat ? "search-input-container-chat" : "search-input-container"} ${compact ? "search-input-wrapper" : ""}`}>
           
-          {/* Avatar utilisateur connecté */}
-          {user && (
-            <div className="search-avatar-prefix">
-              <Avatar user={user} size="small" />
-            </div>
-          )}
 
           {/* Zone de saisie avec icône */}
           <div className="search-field-group">

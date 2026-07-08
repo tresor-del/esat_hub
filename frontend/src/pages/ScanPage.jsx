@@ -23,7 +23,7 @@ const ScanPage = () => {
     }
 
     if (!user) {
-      navigate(`/login?next=${encodeURIComponent("/scan?token=" + token)}`);
+      navigate(`/login?next=${encodeURIComponent("/attendance/scan?token=" + token)}`);
       return;
     }
 

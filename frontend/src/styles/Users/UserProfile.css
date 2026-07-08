@@ -226,6 +226,15 @@
   margin-top: .25rem;
 }
 
+.avatar-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #bbb;
+  border-radius: 10px;
+  padding: 5px;
+}
+
 @media (max-width: 900px) {
   .profile-main-grid {
     grid-template-columns: 1fr;

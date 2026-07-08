@@ -9,6 +9,7 @@ import PostMedia from "../../components/posts/PostMedia";
 import CommentSection from "../../components/comments/CommentSection";
 import PostCard from "../../components/posts/Postcard";
 import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
+import { useQuery } from "@tanstack/react-query";
 import "../../styles/Comments/CommentSection.css"
 import "../../styles/Posts/PostDetail.css"
 import "../../styles/Posts/PostMedia.css"
@@ -18,8 +19,8 @@ const PostDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [post, setPost] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // const [post, setPost] = useState(null);
+  // const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [commentCount, setCommentCount] = useState(0)
   const [commentsLoaded, setCommentsLoaded] = useState(false);
@@ -46,30 +47,16 @@ const PostDetail = () => {
     }
   }
 
-
-  useEffect(() => {
-    loadPost();
-
-  }, [id, location.state?.updatedAt]);
-
   useEffect(() => {
     setTimeout(() => {
       scrollToComment();
     }, 100);
   }, [])
 
-  const loadPost = async () => {
-    try {
-      setLoading(true);
-      const result = await getPost(id);
-      setPost(result);
-    } catch (err) {
-      console.error(err);
-      setError("Erreur lors du chargement du post");
-    } finally {
-      setLoading(false);
-    }
-  };
+ const { data: post, isLoading: loading } = useQuery({
+    queryKey: ["post", id],
+    queryFn: () => getPost(id),
+});
 
    const handleEdit = (post) => {
     navigate(`/edit/${post.id}`);
@@ -120,7 +107,8 @@ const PostDetail = () => {
               post={post}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              // detail={true}
+              detail={true}
+              commentCount={commentCount}
             />
           )}
             

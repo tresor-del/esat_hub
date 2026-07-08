@@ -1,5 +1,3 @@
-// ─── CreatePost/index.jsx ─────────────────────────────────────────────────────
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreatePost } from "./hooks/useCreatePost";
@@ -7,6 +5,8 @@ import FileUploadZone from "./components/fileUploadZone";
 import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../../components/ui/Avatar";
 import HomeSidebar from "../Home/components/HomeSidebar";
+import { FiArrowLeft } from "react-icons/fi";
+
 import "../../styles/Posts/PostEdit.css"
 import "../../styles/Home.css"
 import "../../styles/Auth/Auth.css"
@@ -14,6 +14,7 @@ import "../../styles/Auth/Auth.css"
 const CreatePost = ({ onClose }) => {
     const navigate = useNavigate();
     const { user: fullUser } = useAuth();
+    const onMobile = window.innerWidth < 768
 
     const {
         formData,
@@ -31,8 +32,8 @@ const CreatePost = ({ onClose }) => {
         <div className="post-edit-modal-layout">
             <div className="card post-edit-modal-card">
                 <div className="card-header">
-
-                    <h2 className="card-title">Créer un nouveau poste</h2>
+                    {onMobile && <FiArrowLeft size={30} onClick={() => onClose()} />}
+                    <h2 className="card-title">Nouveau poste</h2>
                 </div>
 
 
@@ -48,7 +49,7 @@ const CreatePost = ({ onClose }) => {
                             {/* Type */}
                             <div className="form-group">
                                 <label htmlFor="post_type" className="form-label">
-                                    Type de poste *
+                                    Type *
                                 </label>
                                 <select
                                     id="post_type"
@@ -67,7 +68,7 @@ const CreatePost = ({ onClose }) => {
                             {/* Visibilité */}
                             <div className="form-group">
                                 <label htmlFor="post_scope" className="form-label">
-                                    Visibilité du poste *
+                                    Visibilité *
                                 </label>
                                 <select
                                     id="post_scope"

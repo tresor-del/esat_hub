@@ -38,6 +38,8 @@ export const useHomeData = () => {
 
     const posts = postsData?.pages.flatMap((p) => p.posts) ?? [];
 
+    console.log(posts)
+
     // Filtre les posts privés selon la room de l'utilisateur
     const filteredPosts = posts.filter(
         (post) => post.room_id === null || post.room_id === userAuth?.user_room_id

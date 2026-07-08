@@ -85,7 +85,6 @@ const Home = () => {
 
     const hasNext = false;
 
-    // ── Render ────────────────────────────────────────────────────────────────
 
     return (
         <div className="container">
@@ -118,7 +117,7 @@ const Home = () => {
                             </div>
                         ) : (
                             <div className="posts-list">
-                                <CreatePostBar fullUser={fullUser} userAuth={userAuth} handleCreate={openCreatePost} closeModale={closeCreatePost} />
+                                {/* <CreatePostBar fullUser={fullUser} userAuth={userAuth} handleCreate={openCreatePost} closeModale={closeCreatePost} /> */}
 
                                 {filteredPosts.map((post) => (
                                     <PostCard
@@ -154,20 +153,6 @@ const Home = () => {
                             </button>
 
                             <PostEdit id={editPostId} onClose={closeEditModal} />
-
-                        </div>
-                    </div>
-                )}
-
-                {createPostModale && (
-                    <div className="modal-overlay">
-                        <div className="modal-container">
-
-                            <button className="modal-close" onClick={closeCreatePost}>
-                                ✕
-                            </button>
-
-                            <CreatePost onClose={closeCreatePost} />
 
                         </div>
                     </div>
