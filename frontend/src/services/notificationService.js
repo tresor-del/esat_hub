@@ -6,7 +6,7 @@ export const requestNotificationPermission = async () =>{
     const registration = await navigator.serviceWorker.ready;
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: import.meta.env.VITE_VAPID_PUBLIC_KEY,
+      applicationServerKey: import.meta.env.VITE_VAPID_KEY,
     });
 
     return JSON.stringify(subscription);

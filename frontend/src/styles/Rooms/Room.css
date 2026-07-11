@@ -813,10 +813,6 @@
         gap: 14px;
     }
 
-    .navbar-hidden-mobile {
-        display: none;
-    }
-
     .media-detail-modal {
         width: min(100%, 100%);
         margin: 0 12px;
@@ -921,7 +917,7 @@
     }
 
     .navbar-hidden-mobile {
-        display: none;
+        display: none !important;
     }
 
     .b-btn {

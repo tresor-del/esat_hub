@@ -36,13 +36,11 @@ const ChatPage = () => {
 
     const [searchParams, setSearchParams] = useSearchParams();
 
-
     useEffect(() => {
         const loadRecent = async () => {
             setLoadingRecentChats(true);
             try {
                 const data = await getRecentChat();
-                console.log(data)
                 setRecentChats(data || []);
             } catch (error) {
                 console.error("Erreur chargement récents:", error);
