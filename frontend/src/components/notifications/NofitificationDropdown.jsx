@@ -22,7 +22,7 @@ function groupNotifications(notifications) {
 
     // console.log("notif: ", notif)
 
-    if (notif.type === "new_comment") {
+    if (notif.type === "new_comment" || notif.type === "new_like") {
 
       // Clé unique pour chaque dictionnaire
       const key = `${notif.type}-${notif.post?.id}`;
@@ -76,17 +76,24 @@ function groupNotifications(notifications) {
 function buildNotifText(notif) {
 
   if (notif.type === "new_post") {
-    return `<strong>${notif.sender.first_name} ${notif.sender.last_name}</strong> vient de publier ${notif.post?.post_type === "photo" ? "une photo" : ""} ${notif.post?.post_type === "document" ? "un document" : ""} ${notif.post?.room_id ? "dans votre salle" : ""}.`
+    return `Nouvelle publication: <strong>${notif.sender.first_name} ${notif.sender.last_name}</strong> à publié ${notif.post?.post_type === "photo" ? "une nouvelle photo" : ""} ${notif.post?.post_type === "document" ? "un nouveau document" : ""} ${notif.post?.room_id ? "dans votre salle" : ""}.`
   }
 
   if (notif.type === "new_comment") {
-    if (notif.count === 1) return `<strong>${notif.sender.first_name} ${notif.sender.last_name}</strong>  à commenté votre post`;
-    if (notif.count === 2) return `<strong> ${notif.latest_author} et 1</strong>  autre personne ont commenté votre post`;
-    return `<strong> ${notif.latest_author} et ${notif.count - 1}</strong>  personnes ont commenté votre post`;
+    if (notif.count === 1) return `Nouveau commentaire: <strong>${notif.sender.first_name} ${notif.sender.last_name}</strong>  à commenté votre post`;
+    if (notif.count === 2) return `Nouveaux commentaires: <strong> ${notif.latest_author}</strong>  et 1  autre personne ont commenté votre post`;
+    return `Nouveaux commentaires: <strong> ${notif.latest_author} et ${notif.count - 1}</strong>  personnes ont commenté votre post`;
+  }
+
+  if (notif.type === "new_like") {
+    if (notif.count === 1) return `Nouveau like: <strong>${notif.sender.first_name} ${notif.sender.last_name}</strong>  à aimé votre post`;
+    if (notif.count === 2) return `Nouveaux likes: <strong> ${notif.latest_author}</strong>  et 1  autre personne ont aimés votre post`;
+    return `Nouveaux likes: <strong> ${notif.latest_author} et ${notif.count - 1}</strong>  personnes ont aimé votre post`;
+  
   }
 
   if (notif.type === "new_media_in_room") {
-    return `<strong>${notif.sender.first_name} ${notif.sender.last_name}</strong> à ajouter un fichier dans votre salle.`
+    return `<strong>${notif.sender.first_name} ${notif.sender.last_name}</strong> à ajouté un fichier dans votre salle.`
   }
 
   if (notif.type === "chat") {

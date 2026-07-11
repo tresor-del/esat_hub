@@ -16,6 +16,7 @@ const ProfileEdit = ({ onClose }) => {
     const navigate = useNavigate();
     const { user, logout, updateUser } = useAuth();
     const queryClient = useQueryClient();
+    const onMobile = window.innerWidth < 768
 
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
@@ -143,6 +144,8 @@ const ProfileEdit = ({ onClose }) => {
         <div className="post-edit-modal-layout">
             <div className="card post-edit-modal-card">
                 <div className="card-header">
+                    {onMobile && <FiArrowLeft size={30} onClick={() => onClose()} />}
+
                     <h2 className="card-title">Modifier le profile</h2>
                 </div>
 
@@ -158,7 +161,7 @@ const ProfileEdit = ({ onClose }) => {
                             <Avatar user={user} size="xlarge" uploading={uploadingAvatar} />
 
                             <label className="avatar-upload-btn">
-                                <FiEdit2 size={16} />
+                                 Changer la photo
                                 <input
                                     type="file"
                                     accept="image/*"

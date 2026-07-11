@@ -40,6 +40,7 @@ const UpdateBanner = lazy(() => import("./components/common/UpdateBanner"))
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { persistQueryClient } from '@tanstack/react-query-persist-client';
 import { capacitorPersister } from './lib/capacitorQueryPersister';
+import {useDeepLinks} from "./hooks/useDeepLinks"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,9 +58,10 @@ persistQueryClient({
 });
 
 const AppRoutes = () => {
+  useDeepLinks();
+
   const { loading, isAuth, logout } = useAuth();
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const handleLogout = (event) => {
@@ -122,12 +124,12 @@ const AppRoutes = () => {
             <Route path="/post-page/:id" element={<PostDetailRoute />} />
             <Route path="/profile/:id" element={<UserProfil />} />
             <Route path="/profile/edit" element={<ProfileEdit />} />
-            <Route path="/room" element={<Room />} />
+            <Route path="/room/:id" element={<Room />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/about" element={<About />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
-            <Route path="/scan" element={<ScanPage />} />
+            <Route path="/attendance/scan" element={<ScanPage />} />
           </Route>
 
           <Route

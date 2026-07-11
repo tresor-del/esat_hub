@@ -5,6 +5,7 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import { MdComment, MdNoCell, MdNotInterested } from "react-icons/md";
 import CommentCard from "./CommentCard";
+import { incrementPostCommentCount } from "../../pages/Home/utils/postCacheHelper";
 import CommentSectionSkeleton from "../skeletons/CommentSectionSkeleton";
 import "../../styles/Comments/CommentSection.css";
 
@@ -105,6 +106,10 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                             ],
                         };
                     });
+
+
+                    incrementPostCommentCount(queryClient, postId, 1);
+
                 } catch (error) {
                     console.log("Erreur realtime reply:", error);
                 }
@@ -149,6 +154,8 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                 };
             });
 
+            incrementPostCommentCount(queryClient, postId, 1);
+
             // loadComments(); // Recharger pour voir le nouveau commentaire et sa structure
         } catch (err) {
             setError("Erreur lors de l'ajout: ", err);
@@ -186,6 +193,9 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                     })),
                 };
             });
+
+            incrementPostCommentCount(queryClient, postId, 1);
+
         } catch (err) {
             setError("Erreur lors de l'envoi de la réponse");
         } finally {
@@ -200,6 +210,7 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                 if (result) {
                     alert("Commentaire supprimé");
                 }
+                incrementPostCommentCount(queryClient, postId, -1);
             } catch (error) {
                 console.log("Erreur lors de la suppression: ", error);
                 alert("Erreur lors de la suppression, réessayez plus tard");
@@ -263,13 +274,13 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
         <div className="comment-section-container">
             {error && <p className="error-message">{error}</p>}
 
-            <div className="submitForm">
+            <div className="submitForm pd-mobile-t">
                 <textarea
                     placeholder="Écrivez un commentaire..."
                     className="comment-textarea"
                     value={content}
                     onChange={handleTextareaChange}
-                    rows="1" // Commence sur une seule ligne
+                    rows="1"
                 />
                 <button className="submitButton" onClick={handleSubmit} disabled={loading || !content.trim()}>
                     {loading ? "..." : "Publier"}

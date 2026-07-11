@@ -1,9 +1,10 @@
 import logging
-from pathlib import Path
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-
 from fastapi.staticfiles import StaticFiles
+
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
@@ -13,15 +14,14 @@ import sentry_sdk
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.starlette import StarletteIntegration
 
-from contextlib import asynccontextmanager
-
 from app.api.v1 import router as api_v1_router
 from app.core.logging import setup_logging
-from app.db.database import Base, engine
+from app.db.database import engine
 from app.core.config import settings
 from app.core.limiter import limiter
 from app.core.firebase import init_firebase
 
+# configuration sentry pour le monitoring
 if settings.ENV == "prod":
     sentry_sdk.init(
         dsn=settings.SENTRY_DSN,
@@ -38,10 +38,10 @@ REDIS_URL = settings.REDIS_URL
 async def lifespan(app: FastAPI):
     logger.info("Connexion à l'api...")
 
-    # initialisation de firebase
-    init_firebase()
+    # initialisation de firebase pour les notifications push
+    init_firebase(logger=logger)
 
-    # connexion à redis
+    # création de la connexion à redis et stockage dans l'état de l'app
     app.state.redis = await aioredis.from_url(REDIS_URL, decode_responses=True)
     
     yield
@@ -58,16 +58,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=settings.APP_NAME, lifespan=lifespan)
 
-# Configuration CORS - Restreint pour la production
-def get_cors_origins():
-    """Get CORS origins from settings or default to localhost for dev"""
-    if hasattr(settings, 'CORS_ORIGINS') and settings.CORS_ORIGINS:
-        return [origin.strip() for origin in settings.CORS_ORIGINS.split(',')]
-    return ["http://localhost:5173", "http://localhost:3000", ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=get_cors_origins(),
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -77,8 +71,10 @@ app.add_middleware(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-BASE_DIR = settings.UPLOAD_DIR
-app.mount("/static", StaticFiles(directory=BASE_DIR), name="uploads")
+# montage du dossier de stockage des fichiers pour le dev.
+if settings.ENV == "dev":
+    BASE_DIR = settings.UPLOAD_DIR
+    app.mount("/static", StaticFiles(directory=BASE_DIR), name="uploads")
 
 @app.get("/")
 async def accueil(request: Request):
@@ -86,7 +82,6 @@ async def accueil(request: Request):
 
 @app.api_route("/health", methods=["GET", "HEAD"])
 async def health_check():
-    """Health check endpoint for production monitoring"""
     return {
         "status": "healthy",
         "service": settings.APP_NAME,

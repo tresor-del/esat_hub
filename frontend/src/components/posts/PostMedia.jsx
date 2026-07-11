@@ -10,8 +10,6 @@ import axios from "axios";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-
-
 const PostMedia = ({ post, bust, size = "small" }) => {
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
   const [numPages, setNumPages] = useState(null);

@@ -1,4 +1,4 @@
-.comment-section-container{
+.comment-section-container {
     /* margin-top: 1rem; */
     width: 100% !important;
 }
@@ -193,7 +193,7 @@
     .commentBox {
         margin-bottom: 7rem !important;
     }
-    
+
     .comment-textarea {
         font-size: 1rem;
         max-height: 50px;
@@ -209,5 +209,6 @@
     .comment-section-container {
         min-height: 450px;
     }
+
 
 }

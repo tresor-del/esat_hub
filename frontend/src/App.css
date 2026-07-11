@@ -110,7 +110,7 @@ a:hover {
 }
 
 .container {
-  padding-top: 0.2rem !important;
+  /* padding-top: 0.2rem !important; */
   max-width: 1200px ;
   margin: 0 auto;
   /* padding: var(--spacing-lg) var(--spacing-md); */

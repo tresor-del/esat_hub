@@ -4,20 +4,21 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { getUserProfile, getPosts } from "../../../services/api";
 import { sendSystemNotification } from "../../../services/notificationService";
 
-const POSTS_PER_PAGE = 10;
+const POSTS_PER_PAGE = 5;
 
 export const useHomeData = () => {
     const { user: userAuth } = useAuth();
 
-    // ── Profil complet (avatar, bio…) ─────────────────────────────────────────
+    //  Profil complet 
     const { data: fullUser } = useQuery({
         queryKey: ["userProfile", userAuth?.id],
         queryFn: () => getUserProfile(userAuth.id),
+        // la requête doit se lancer que si l'utilisateur existe
         enabled: !!userAuth?.id,
         staleTime: Infinity,
     });
 
-    // ── Posts paginés ─────────────────────────────────────────────────────────
+    // Posts paginés 
     const {
         data: postsData,
         fetchNextPage,
@@ -36,38 +37,13 @@ export const useHomeData = () => {
         },
     });
 
+    // extraire, aplatir et regrouper les postes.
     const posts = postsData?.pages.flatMap((p) => p.posts) ?? [];
 
     // Filtre les posts privés selon la room de l'utilisateur
     const filteredPosts = posts.filter(
         (post) => post.room_id === null || post.room_id === userAuth?.user_room_id
     );
-
-    // ── Notification de bienvenue (une seule fois par utilisateur) ────────────
-    const setupWelcomeNotification = async () => {
-        if (window.AppInventor) return; // Ignoré dans Kodular
-
-        const key = `welcome_notif_sent_${userAuth?.id}`;
-        if (localStorage.getItem(key)) return;
-        if (!("Notification" in window)) return;
-
-        const permission = await Notification.requestPermission();
-        if (permission !== "granted") return;
-
-        if (navigator.serviceWorker) {
-            await navigator.serviceWorker.ready;
-            sendSystemNotification({
-                type: "SHOW_WS_NOTIFICATION",
-                title: `${userAuth?.profil_name}`,
-                body: "Bienvenue sur EsatHub!",
-            });
-            localStorage.setItem(key, "true");
-        }
-    };
-
-    useEffect(() => {
-        setupWelcomeNotification();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return {
         userAuth,

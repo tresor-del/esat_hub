@@ -32,7 +32,7 @@ const useAttendanceSession = (activeCourseSession, onSessionClosed) => {
             if (remaining === 0) clearInterval(intervalRef.current);
         };
 
-        tick(); // premier tick immédiat
+        tick();
         intervalRef.current = setInterval(tick, 1000);
 
         return () => clearInterval(intervalRef.current);

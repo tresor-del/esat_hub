@@ -1,10 +1,12 @@
 import React, { useCallback, useState } from "react";
 import { buildShareUrl } from "../../utils/mediaHelpers";
+import { SiWhatsapp } from "react-icons/si";
+import { FiCheck, FiLink } from "react-icons/fi";
 
 const ShareModal = ({ media, onClose }) => {
     const [copied, setCopied] = useState(false);
 
-    const shareUrl  = buildShareUrl(media);
+    const shareUrl = buildShareUrl(media);
     const waMessage = encodeURIComponent(`Fichier partagé depuis ESAT Hub : ${shareUrl}`);
 
     const handleCopy = useCallback(async () => {
@@ -24,31 +26,38 @@ const ShareModal = ({ media, onClose }) => {
     }, [shareUrl]);
 
     return (
-        <div className="media-upload-card-container" onClick={onClose}>
-            <div className="media-upload-card" onClick={(e) => e.stopPropagation()}>
-                <div className="media-upload-header">
-                    <h3>Partager via</h3>
-                    <button type="button" className="modal-close-btn" onClick={onClose}>
-                        ✕
-                    </button>
+        <div className="pam-overlay" onClick={onClose}>
+            <div className="pam-sheet" onClick={(e) => e.stopPropagation()}>
+                <div className="pam-handle" />
+                <div className="pam-header">
+                    <span className="pam-title">Partager via</span>
+                    <button className="pam-close-btn" onClick={onClose} aria-label="Fermer">✕</button>
                 </div>
-                <div className="share-options">
+                <div className="pam-actions">
                     <a
                         href={`https://wa.me/?text=${waMessage}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="share-option share-option--whatsapp"
+                        className="pam-action pam-action--whatsapp"
                     >
-                        <span>WhatsApp</span>
+                        <span className="pam-action-icon"><SiWhatsapp /></span>
+                        <span className="pam-action-label">WhatsApp</span>
                     </a>
+
                     <button
                         type="button"
-                        className="share-option share-option--copy"
+                        className={`pam-action ${copied ? "pam-action--copied" : "pam-action--copy"}`}
                         onClick={handleCopy}
                     >
-                        <span>{copied ? "Lien copié !" : "Copier le lien"}</span>
+                        <span className="pam-action-icon">
+                            {copied ? <FiCheck /> : <FiLink />}
+                        </span>
+                        <span className="pam-action-label">
+                            {copied ? "Lien copié !" : "Copier le lien"}
+                        </span>
                     </button>
                 </div>
+
             </div>
         </div>
     );

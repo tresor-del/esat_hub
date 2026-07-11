@@ -3,16 +3,19 @@ from uuid import UUID
 from sqlalchemy.orm import Session, joinedload, selectinload
 from sqlalchemy import func, select
 
-from app.db.schemas.post import Post
+from app.db.schemas.post import Post, PostLike
 from app.db.schemas.comments import Comment
 from app.db.schemas.user import User
+import logging
+
+from sqlalchemy.exc import IntegrityError
+logger = logging.getLogger(__name__)
 
 
 class PostService:
     def __init__(self, session: Session):
         self._db = session
     
-    # ==================== POSTS ====================
     
     def create_post(
         self,
@@ -51,7 +54,8 @@ class PostService:
         post_type: Optional[str] = None,
         user_id: Optional[UUID] = None,
         room_id: Optional[UUID] = None,
-        include_all: bool = False
+        include_all: bool = False,
+        current_user_id: Optional[UUID] = None
     ) -> Tuple[List[dict], int]:
         """
         Récupère les posts avec compteurs de likes et comments
@@ -99,6 +103,13 @@ class PostService:
         posts = []
         for post, count in results:
             post.comments_count = count
+            post.likes_count = self._db.query(func.count(PostLike.id)).filter(PostLike.post_id == post.id).scalar() or 0
+            post.liked_by_me = False
+            if current_user_id:
+                post.liked_by_me = self._db.query(PostLike.id).filter(
+                    PostLike.post_id == post.id,
+                    PostLike.user_id == current_user_id
+                ).first() is not None
             posts.append(post)
         
         return posts, total
@@ -124,6 +135,13 @@ class PostService:
         
         # Charger l'utilisateur
         user = self._db.query(User).filter(User.id == post.user_id).first()
+        post.likes_count = self._db.query(func.count(PostLike.id)).filter(PostLike.post_id == post.id).scalar() or 0
+        post.liked_by_me = False
+        if current_user_id:
+            post.liked_by_me = self._db.query(PostLike.id).filter(
+                PostLike.post_id == post.id,
+                PostLike.user_id == current_user_id
+            ).first() is not None
         
         return post
     
@@ -169,4 +187,36 @@ class PostService:
         self._db.delete(db_post)
         self._db.commit()
         return True
-    
+
+    def toggle_like(self, post_id: UUID, user_id: UUID) -> Optional[dict]:
+        db_post = self._db.query(Post).filter(Post.id == post_id).first()
+        if db_post is None:
+            return None
+
+        existing_like = self._db.query(PostLike).filter(
+            PostLike.post_id == post_id,
+            PostLike.user_id == user_id,
+        ).with_for_update().first()
+
+        if existing_like:
+            self._db.delete(existing_like)
+            liked_by_me = False
+            try:
+                self._db.commit()
+            except Exception:
+                self._db.rollback()
+                raise
+        else:
+            try:
+                self._db.add(PostLike(post_id=post_id, user_id=user_id))
+                self._db.commit()
+                liked_by_me = True
+            except IntegrityError:
+                self._db.rollback()
+                liked_by_me = True
+
+        likes_count = self._db.query(func.count(PostLike.id)).filter(
+            PostLike.post_id == post_id
+        ).scalar() or 0
+        return {"post_id": post_id, "liked_by_me": liked_by_me, "likes_count": likes_count}
+

@@ -6,6 +6,7 @@ const ToastContext = createContext(null);
 export const ToastProvider = ({ children }) => {
     const [toasts, setToasts] = useState([]);
 
+    // créer les fonction une seule fois.
     const toast = useCallback(({ message, type = "success", duration = 3000 }) => {
         const id = Date.now();
         setToasts((prev) => [...prev, { id, message, type }]);
@@ -22,6 +23,7 @@ export const ToastProvider = ({ children }) => {
     );
 };
 
+// fonction d'affichage des messages.
 const ToastContainer = ({ toasts }) => {
     if (toasts.length === 0) return null;
     return (

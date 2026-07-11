@@ -1,10 +1,11 @@
-from fastapi import logger
-
+import logging
 from app.models.user import UserResponse
 from app.api.deps.services import get_auth_service, get_notification_service
 from app.core.notifications import notification_contents
 from app.tasks.deps import get_tasks_db
 from app.models.notifications import NotificationUserResponse
+
+logger = logging.getLogger(__name__)
 
 async def handle_new_post(current_user, room_id, post):
     try:

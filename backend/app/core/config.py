@@ -1,6 +1,8 @@
 from datetime import date
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
+from typing import List
 
 class Settings(BaseSettings):
     
@@ -58,11 +60,6 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379"
 
     SENTRY_DSN: str = ""
-
-    @property
-    def emails_enabled(self) -> bool:
-        return bool(self.SMTP_HOST and self.EMAILS_FROM_EMAIL)
-    
     
     SUPER_ADMIN_FIRST_NAME: str = ""
     SUPER_ADMIN_LAST_NAME: str = ""
@@ -91,5 +88,12 @@ class Settings(BaseSettings):
     ENCRYPTION_KEY: str = ""
 
 
+    @property
+    def emails_enabled(self) -> bool:
+        return bool(self.SMTP_HOST and self.EMAILS_FROM_EMAIL)
+    
+    @field_validator("CORS_ORIGINS")
+    def parse_origins(cls, v: str) -> List[str]:
+        return v.split(",") if v else [] 
     
 settings = Settings()

@@ -1,7 +1,3 @@
-// ─── useMediaActions.js ───────────────────────────────────────────────────────
-// Handles media interactions: open detail, share, delete, deep-link on mount.
-// Keeps all side-effects out of the view components.
-
 import { useCallback, useEffect, useState } from "react";
 import { useQueryClient }                   from "@tanstack/react-query";
 import { deleteRoomMedia }                  from "../../../services/api";
@@ -9,20 +5,19 @@ import { isImageMedia, buildShareUrl }      from "../utils/mediaHelpers";
 
 /**
  * @param {string|null} roomId
- * @param {Array}       roomMedia  — from useRoomData
- * @param {Function}    setView    — to switch to "media" tab on deep-link
+ * @param {Array}       roomMedia 
+ * @param {Function}    setView  
  */
 export const useMediaActions = (roomId, roomMedia, setView) => {
     const queryClient = useQueryClient();
 
-    // ── Modal state ───────────────────────────────────────────────────────────
     const [uploadModalOpen, setUploadModalOpen] = useState(false);
     const [editingMedia,    setEditingMedia]    = useState(null);
     const [detailMediaId,   setDetailMediaId]   = useState(null);
     const [shareMedia,      setShareMedia]      = useState(null);
     const [imagePreview,    setImagePreview]    = useState(null);
 
-    // ── Deep-link: parse URL on mount ─────────────────────────────────────────
+    // analyser l'url, exclure l'id s'il y en a et afficher le modal
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         if (params.get("source") === "share") {
@@ -32,9 +27,9 @@ export const useMediaActions = (roomId, roomMedia, setView) => {
                 setDetailMediaId(id);
             }
         }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    // ── Deep-link: open the right modal once media list is ready ──────────────
+    }, []); 
+    
+    // afficher le modal des fichiers si sélectionné
     useEffect(() => {
         if (!detailMediaId || roomMedia.length === 0) return;
         const target = roomMedia.find((m) => String(m.id) === String(detailMediaId));
@@ -42,18 +37,15 @@ export const useMediaActions = (roomId, roomMedia, setView) => {
 
         if (isImageMedia(target)) {
             setImagePreview(target);
-            setDetailMediaId(null); // clear so it doesn't re-trigger
+            setDetailMediaId(null); 
         }
-        // Documents stay open via detailMediaId → selectedDetailMedia in index.jsx
     }, [detailMediaId, roomMedia]);
 
-    // ── Invalidation helper ───────────────────────────────────────────────────
     const invalidateMedia = useCallback(
         () => queryClient.invalidateQueries(["roomMedia", roomId]),
         [queryClient, roomId]
     );
 
-    // ── Handlers ──────────────────────────────────────────────────────────────
 
     const handleOpenDetail = useCallback((media) => {
         if (isImageMedia(media)) {
@@ -99,7 +91,7 @@ export const useMediaActions = (roomId, roomMedia, setView) => {
     }, []);
 
     return {
-        // modal visibility
+        // visibilité des modals
         uploadModalOpen,
         editingMedia,
         detailMediaId,
@@ -112,7 +104,7 @@ export const useMediaActions = (roomId, roomMedia, setView) => {
         handleUploadSuccess,
         openAddModal,
         openEditModal,
-        // close handlers
+        //gestionnaires de fermerture;
         closeUploadModal:  () => { setUploadModalOpen(false); setEditingMedia(null); },
         closeDetailModal:  () => setDetailMediaId(null),
         closeShareModal:   () => setShareMedia(null),

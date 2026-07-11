@@ -1,13 +1,9 @@
-// ─── useRoomData.js ───────────────────────────────────────────────────────────
-// Centralises all data fetching for the Room page.
-// Returns raw data + loading flags; no side-effects or UI logic.
-
 import { useQuery } from "@tanstack/react-query";
 import { useAuth }  from "../../../contexts/AuthContext";
 import { getUserRoom, getPosts, getRoomMedia } from "../../../services/api";
 
 /**
- * @param {"users"|"posts"|"media"} view  — controls which queries are enabled
+ * @param {"users"|"posts"|"media"} view  
  */
 export const useRoomData = (view) => {
     const { user: authUser } = useAuth();
@@ -18,7 +14,7 @@ export const useRoomData = (view) => {
     } = useQuery({
         queryKey: ["userRoom"],
         queryFn:  getUserRoom,
-        staleTime: 1000 * 60 * 30, // 30 min — room changes rarely
+        staleTime: 1000 * 60 * 30, 
         enabled:  !!authUser,
     });
 

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FiX } from "react-icons/fi";
+import { FiHeart, FiX } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
 import CommentSection from "../../components/comments/CommentSection";
 import PostAuthorInfo from "../../components/posts/PostAuthorInfo";
 import { usePostDetail } from "../../components/posts/hooks/usePostDetail";
 import { formatRelativeDate } from "../../utils/dateFormatter";
+import { togglePostLike } from "../../services/api";
 import "../../styles/Posts/PostDetail.css"
 
 const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
@@ -19,10 +20,34 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
   } = usePostDetail({ onClose, onPostDeleted });
 
   const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
+  const [likesCount, setLikesCount] = useState(post?.likes_count ?? 0);
+  const [likedByMe, setLikedByMe] = useState(post?.liked_by_me ?? false);
+  const [loadingLike, setLoadingLike] = useState(false);
 
   useEffect(() => {
     if (postId) loadPost(postId);
   }, [postId]);
+
+  useEffect(() => {
+    setLikesCount(post?.likes_count ?? 0);
+    setLikedByMe(post?.liked_by_me ?? false);
+  }, [post?.id, post?.likes_count, post?.liked_by_me]);
+
+  const handleLikeClick = async (e) => {
+    e.stopPropagation();
+    if (!post?.id || loadingLike) return;
+
+    setLoadingLike(true);
+    try {
+      const result = await togglePostLike(post.id);
+      setLikedByMe(result.liked_by_me);
+      setLikesCount(result.likes_count);
+    } catch (error) {
+      console.error("Erreur lors du like du post:", error);
+    } finally {
+      setLoadingLike(false);
+    }
+  };
 
   const handleImageLoad = (e) => {
     setImgSize({
@@ -73,6 +98,10 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
             <p>
               {post?.description}
             </p>
+            <button type="button" className={`post-action-btn ${likedByMe ? "liked" : ""}`} onClick={handleLikeClick} disabled={loadingLike}>
+              <FiHeart size={20} fill={likedByMe ? "#ef4444" : "none"} color={likedByMe ? "#ef4444" : undefined} />
+              {likesCount}
+            </button>
           </div>
           <CommentSection
             postId={post?.id}

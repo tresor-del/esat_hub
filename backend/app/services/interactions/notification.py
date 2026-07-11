@@ -1,3 +1,4 @@
+import logging
 import asyncio
 from functools import partial
 from typing import List
@@ -13,6 +14,7 @@ from app.models.notifications import NotificationResponse, NotificationListRespo
 from app.services.realtime.ws_manager import ws_manager
 from app.services.social.posts import PostService
 
+logger = logging.getLogger(__name__)
 
 class NotificationService:
 
@@ -31,20 +33,20 @@ class NotificationService:
                 UserDevice.device_token != ""
             ).all()
             
-            print(f"FCM : Nombre d'apparleils valides trouvés pour l'envoi : {len(devices)}")
+            logger.info(f"FCM : Nombre d'apparleils valides trouvés pour l'envoi : {len(devices)}")
             
             if not devices:
-                print("ℹFCM : Aucun appareil avec un jeton valide trouvé en base de données.")
+                logger.error("FCM : Aucun appareil avec un jeton valide trouvé en base de données.")
                 return
                 
             # On envoie la bannière à chaque téléphone trouvé
             for device in devices:
                 # Sécurité supplémentaire juste avant la construction du message
                 if not device.device_token or device.device_token.strip() == "":
-                    print("Sécurité : Jeton vide détecté dans la boucle, ignoré.")
+                    logger.error("Sécurité : Jeton vide détecté dans la boucle, ignoré.")
                     continue
                     
-                print(f"FCM : Tentative d'envoi au token : {device.device_token[:15]}...")
+                logger.info(f"FCM : Tentative d'envoi au token : {device.device_token[:15]}...")
                 
                 message = messaging.Message(
                     notification=messaging.Notification(
@@ -64,7 +66,7 @@ class NotificationService:
                         notification=messaging.WebpushNotification(
                             title=title,
                             body=body,
-                            icon=image if image else "https://res.cloudinary.com/dwaen56ml/image/upload/v1782388980/icon-512x512_b9kfdr.png", # Aligné avec votre vite.config.js
+                            icon=image if image else "https://res.cloudinary.com/dwaen56ml/image/upload/v1782388980/icon-512x512_b9kfdr.png",
                             badge="/badge-72.png",
                             image=image if image else None
                         ),
@@ -82,15 +84,15 @@ class NotificationService:
                 
                 try:
                     response = messaging.send(message)
-                    print(f"FCM : Bannière envoyée avec succès ! ID: {response}")
+                    logger.info(f"FCM : Bannière envoyée avec succès ! ID: {response}")
                 except Exception as fcm_err:
-                    print(f"FCM : Erreur d'envoi pour le token {device.device_token[:10]}... : {fcm_err}")
+                    logger.error(f"FCM : Erreur d'envoi pour le token {device.device_token[:10]}... : {fcm_err}")
                     # Nettoyage automatique de la base si le token n'est plus reconnu par Firebase
                     self._db.delete(device)
                     self._db.commit()
                     
         except Exception as e:
-            print(f"Erreur globale lors du traitement FCM : {e}")
+            logger.error(f"Erreur globale lors du traitement FCM : {e}")
     
     async def send_notification(self, data: NotificationResponse) -> None:
         try:
@@ -109,43 +111,31 @@ class NotificationService:
         
             notif_data = NotificationResponseUser.model_validate(data_in_db).model_dump(mode="json")
 
-            delivered_via_ws = await ws_manager.send_personal_notification(notif_data)
+            if d_data.recipient.id != d_data.sender.id:
+                
+                delivered_via_ws = await ws_manager.send_personal_notification(notif_data)
 
-            if delivered_via_ws:
-                print("délivré via ws")
-                return 
-            
-            
-            # title_mapping = {
-            #     "chat": f"{data.sender.first_name}",
-            #     "new_comment": "Nouveau commentaire",
-            #     "new_post": "Nouveau post",
-            #     "COMMENTAIRE_SUPPRIMÉ": "Commentaire supprimé",
-            #     "POST_SUPPRIMÉ": "Post supprimé",
-            #     "POST_STATUS_UPDATE": "Status du post mis à jour",
-            #     "ROLE_UPDATE": "Role mis à jour",
-            #     "ACCOUNT_DELETED": "Status mis à jour",
-            # }
+                # if delivered_via_ws:
+                #     print("délivré via ws")
+                #     return 
 
-            # notif_title = title_mapping.get(data_in_db.type, "Nouvelle notification")
-            
-            # On déclenche l'envoi Firebase de manière non-bloquante
-            await asyncio.to_thread(
-                partial(
-                   self.send_firebase_push, # la fonction bloquante
-                    data_in_db.recipient_id, 
-                    data_in_db.title,             
-                    data_in_db.content, 
-                    None,
-                    data.sender.avatar_path
-                )
-                 
+                # On déclenche l'envoi Firebase de manière non-bloquante
+                await asyncio.to_thread(
+                    partial(
+                    self.send_firebase_push, # la fonction bloquante
+                        data_in_db.recipient_id, 
+                        data_in_db.title,             
+                        data_in_db.content, 
+                        None,
+                        data.sender.avatar_path
+                    )
+                    
             )
             
         except Exception as e:
             # On log l'erreur mais on ne bloque pas la réponse API
             # La notification n'est pas critiquement bloquante
-            print(f"Échec de l'envoi de la notification : {e}")
+            logger.error(f"Échec de l'envoi de la notification : {e}")
 
     async def send_bulk_notifications(
         self,
@@ -155,6 +145,7 @@ class NotificationService:
         sender: NotificationUserResponse | None = None,
         post_id: UUID | None = None,
         comment_id: UUID | None = None,
+        title: str | None = None
     ) -> None:
         """
         Envoie une notification à plusieurs destinataires.
@@ -178,6 +169,7 @@ class NotificationService:
                     sender=sender,
                     post=post_service.get_post(post_id),
                     comment_id=comment_id,
+                    title=title
                 )
                 await self.send_notification(notification)
             except Exception as e:

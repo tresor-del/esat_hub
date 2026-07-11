@@ -61,11 +61,13 @@
   box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
-  padding: 0 1rem;
+  justify-content: center;
+  padding: 0 3rem;
   box-sizing: border-box;
   width: 100%;
   overflow: visible;
   min-width: 0;
+
 }
 
 .navbar-container {
@@ -79,7 +81,7 @@
 
 .navbar-container.desktop {
   display: flex;
-  justify-content: space-between !important;
+  justify-content: center !important;
   align-items: center;
   /* gap: 1rem; */
 }
@@ -88,7 +90,8 @@
   display: flex;
   /* gap: 4rem; */
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-around;
+  gap: 4rem;
   flex: 1;
   min-width: 0;
 }
@@ -103,7 +106,7 @@
 .navbar-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  /* gap: 8px; */
   font-size: 1.5rem;
   font-weight: 700;
   
@@ -205,37 +208,40 @@
 
 .navbar-icon-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 8px 24px;
   border-radius: 12px;
   color: #64748b;
   background-color: transparent;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+@media (max-width: 578px) {
+  .navbar-icon-container {
+  padding: 4px 24px;
+  border-radius: unset;
+}
+}
+
 .navbar-icon-container svg {
   transition: transform 0.2s ease;
 }
 
-/* 🔄 Effet au survol */
 .navbar-icon-btn:hover .navbar-icon-container {
   color: #1e293b;
   background-color: #f1f5f9;
 }
 
-/* 🎨 Style de l'icône active (Sélectionnée) */
 .navbar-icon-btn.active .navbar-icon-container {
   color: #0066ff;
-  background-color: #eff6ff;
+  /* background-color: #eff6ff; */
 }
 
-/* ⚡ Petit effet de rebond au clic */
 .navbar-icon-btn:active .navbar-icon-container svg {
   transform: scale(0.9);
 }
 
-/* 🔔 Le badge de notification rouge moderne */
 .notification-badge {
   position: absolute;
   top: 4px;
@@ -253,8 +259,6 @@
 .icon-with-badge {
   position: relative;
 }
-
-
 
 .notification-trigger {
   position: relative;
@@ -297,6 +301,21 @@
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;
+  border: 1px solid #bbb;
+}
+
+.btn-create:hover {
+  background-color: #ccc;
+}
+
+@media (max-width: 768px) {
+  .btn-create {
+    flex-direction: column;
+opacity: 0.7;
+font-weight: unset;
+  border: unset;
+  padding: unset;
+  }
 }
 
 /* ── Lien navbar ─────────────────────────────── */
@@ -324,7 +343,22 @@
   flex-direction: column;
   align-items: stretch;
   padding: 0;
+  transition: transform 0.3s ease-in-out;
+  background-color: transparent !important;
+  border: none;
+  box-shadow: none;
+}
 
+.navbar--mobile .navbar-topbar {
+  background-color: #fff;
+}
+
+#navbar--mobile.cache  div:nth-child(1){
+  transform: translateY(-100%);
+}
+
+#navbar--mobile.cache .navbar-mobile-bottom{
+  transform: translateY(200%) !important;
 }
 
 .navbar--mobile .navbar-container {
@@ -388,9 +422,9 @@
 /* ── Mobile bottom action bar ───────────────── */
 .navbar-mobile-bottom {
   position: fixed;
-  left: 5px;
-  right: 5px;
-  bottom: 10px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -398,8 +432,8 @@
   background: var(--bg-secondary);
   gap: 8px;
   border: 1px solid #ddd;
-  border-radius: 30px;
   z-index: 1000;
+  padding: 5px;
 }
 
 .navbar-mobile-bottom .mobile-action {
@@ -413,9 +447,7 @@
   background: transparent;
   border: none;
   border-radius: 0;
-  gap: 4px;
   border-bottom: 3px solid transparent;
-  padding-bottom: 2px;
   transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 

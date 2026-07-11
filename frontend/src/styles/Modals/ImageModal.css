@@ -29,7 +29,7 @@
 
 .img-modal-image {
   max-width: 100%;
-  max-height: 100vh;
+  max-height: 90vh;
   object-fit: contain;
   border-radius: 12px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);

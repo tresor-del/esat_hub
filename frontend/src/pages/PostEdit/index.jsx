@@ -12,12 +12,15 @@ import "../../styles/Posts/PostCreate.css"
 import "../../styles/Home.css"
 import "../../styles/Chat/Chat.css"
 import "../../styles/Auth/Auth.css"
+import { FiArrowLeft } from "react-icons/fi";
+
 
 const PostEdit = ({ id, onClose }) => {
     const params = useParams();
     const postId = id || params.id;
     const { user: fullUser } = useAuth();
     const navigate = useNavigate();
+    const onMobile = window.innerWidth < 768
 
     const {
         post,
@@ -58,6 +61,8 @@ const PostEdit = ({ id, onClose }) => {
         <div className="post-edit-modal-layout">
             <div className="card post-edit-modal-card">
                 <div className="card-header">
+                    {onMobile && <FiArrowLeft size={30} onClick={() => onClose()} />}
+
                     <h2 className="card-title">Modifier le post</h2>
                 </div>
 

@@ -19,6 +19,7 @@ import ImageModal from "../../components/ui/ImageModal";
 const Room = () => {
     const [view, setView] = useState("users");
 
+    // hook pour les données de la salle de classe
     const {
         room,
         loadingRoom,
@@ -44,6 +45,7 @@ const Room = () => {
         closeImagePreview,
     } = useMediaActions(room?.id, roomMedia, setView);
 
+    
     const selectedDetailMedia = useMemo(
         () =>
             detailMediaId
@@ -52,13 +54,16 @@ const Room = () => {
         [roomMedia, detailMediaId]
     );
 
-    if (loadingRoom) return <div className='spinner-container'>
-                                        <div className="spinner"></div>
-                                    </div>;
     if (!room) return <div className="room-error">Aucune salle trouvée.</div>;
 
     return (
         <div className="room-container">
+
+            {loadingRoom &&
+                <div className='spinner-container'>
+                    <div className="spinner"></div>
+                </div>
+            }
 
             <RoomSidebar room={room} view={view} onViewChange={setView} />
 
@@ -86,7 +91,7 @@ const Room = () => {
                 )}
             </div>
 
-            {/* ── Portalled modals ── */}
+            {/* Affichage des modales */}
 
             {uploadModalOpen && (
                 <MediaUploadModal
