@@ -1,16 +1,13 @@
 import React, { useCallback, useState } from "react";
 import { FiLink, FiCheck } from "react-icons/fi";
 import { SiWhatsapp } from "react-icons/si";
-import "../../../styles/Posts/PostActionsMenu.css"; 
+import "../../../styles/Posts/PostActionsMenu.css";
 import "../../../styles/Posts/SharePostModal.css";
 
 const SharePostModal = ({ post, onClose }) => {
   const [copied, setCopied] = useState(false);
-
-
-    const onMobile = window.innerWidth < 768
-
-  const shareUrl  = `http://localhost:5173/post/${post.id}`;
+  const onMobile = window.innerWidth < 768
+  const shareUrl = `https://esat-hub.vercel.app/post/${post.id}`;
   const waMessage = encodeURIComponent(`${post.title} : ${shareUrl}`);
 
   const handleCopy = useCallback(async () => {

@@ -116,7 +116,7 @@ const MainLayout = () => {
         </div>
       )}
 
-      <Navbar b={postDetail ? "navbar-b-hidden-mobile" : ""} className={isProfilePage || isEditPage || isCreatePage || isChatPage || isRoomPage || postDetail ? "navbar-hidden-mobile" : ""} />
+      <Navbar className={isProfilePage || isEditPage || isCreatePage || isChatPage || isRoomPage || postDetail ? "navbar-hidden-mobile" : ""} />
       <Outlet />
 
       {/* <Footer hahah prince est un génie className={isProfilePage || isEditPage ||isCreatePage || isRoomPage || isHomePage || isChatPage || postDetail ? "footer-hidden-desktop": ""} /> */}

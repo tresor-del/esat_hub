@@ -109,7 +109,7 @@
   /* gap: 8px; */
   font-size: 1.5rem;
   font-weight: 700;
-  
+
   color: #0066ff;
   font-family: 'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   letter-spacing: -0.03em;
@@ -219,9 +219,9 @@
 
 @media (max-width: 578px) {
   .navbar-icon-container {
-  padding: 4px 24px;
-  border-radius: unset;
-}
+    padding: 4px 24px;
+    border-radius: unset;
+  }
 }
 
 .navbar-icon-container svg {
@@ -311,10 +311,10 @@
 @media (max-width: 768px) {
   .btn-create {
     flex-direction: column;
-opacity: 0.7;
-font-weight: unset;
-  border: unset;
-  padding: unset;
+    opacity: 0.7;
+    font-weight: unset;
+    border: unset;
+    padding: unset;
   }
 }
 
@@ -353,11 +353,11 @@ font-weight: unset;
   background-color: #fff;
 }
 
-#navbar--mobile.cache  div:nth-child(1){
+#navbar--mobile.cache div:nth-child(1) {
   transform: translateY(-100%);
 }
 
-#navbar--mobile.cache .navbar-mobile-bottom{
+#navbar--mobile.cache .navbar-mobile-bottom {
   transform: translateY(200%) !important;
 }
 
@@ -386,11 +386,17 @@ font-weight: unset;
   transition: max-height 0.25s ease, opacity 0.25s ease;
 }
 
-/* .navbar-topbar.hidden { */
-/* max-height: 0;
+.navbar-topbar.hidden {
+  max-height: 0;
   opacity: 0;
   pointer-events: none;
-} */
+}
+
+.navbar-mobile-bottom.hidden {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
 
 /* ── Drawer mobile ───────────────────────────── */
 

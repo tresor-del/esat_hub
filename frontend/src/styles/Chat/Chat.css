@@ -631,14 +631,6 @@
     border-bottom: none !important;
   }
 
-  /* .navbar-hidden-mobile {
-    display: none;
-  } */
-
-  .navbar-hidden-mobile {
-    display: none !important;
-  }
-
   .footer-hidden-desktop {
     display: none !important;
   }

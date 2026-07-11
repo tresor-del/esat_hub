@@ -32,8 +32,14 @@ const Navbar = (props) => {
 
   const [showTopBar, setShowTopBar] = useState(() => {
     const mobile = window.innerWidth <= 768;
-    return !mobile || !location.pathname.startsWith("/room");
+    return !mobile ;
   });
+
+  const [showBottomBar, setShowBottomBar] = useState(() => {
+    const mobile = window.innerWidth <= 768;
+    return !mobile ;
+  });
+
 
   useEffect(() => {
     let dernierePosition = 0;
@@ -75,11 +81,27 @@ const Navbar = (props) => {
       return;
     }
 
-    if (location.pathname.startsWith("/room")) {
+    const excludedPaths = 
+      location.pathname.startsWith("/room") ||
+      location.pathname.startsWith("/chat") ||
+      location.pathname.startsWith("/profile") ||
+      location.pathname.startsWith("/post-page/");
+
+    const excludedOnB = 
+      location.pathname.startsWith("/post-page/");
+
+    if (excludedPaths) {
       setShowTopBar(false);
     } else {
       setShowTopBar(true);
     }
+
+     if (excludedOnB) {
+      setShowBottomBar(false);
+    } else {
+      setShowBottomBar(true);
+    }
+
   }, [isMobile, location.pathname]);
 
   const activeSection = (() => {
@@ -221,7 +243,7 @@ const Navbar = (props) => {
     <nav className={`navbar navbar--mobile `} id="navbar--mobile">
 
       {/* Barre supérieure */}
-      <div className={`navbar-container navbar-topbar ${props.className} ${showTopBar ? "" : "hidden"} `}>
+      <div className={`navbar-container navbar-topbar ${showTopBar ? "" : "hidden"} `}>
 
         {/* Logo */}
         {/* {getLogo} */}
@@ -252,7 +274,7 @@ const Navbar = (props) => {
 
       {/* Barre d'actions mobile en bas du navbar (mobile only) */}
       {isMobile && (
-        <div className={`navbar-mobile-bottom ${props.b} }`}>
+        <div className={`navbar-mobile-bottom ${showBottomBar ? "" : "hidden"}  }`}>
           <button
             className={`navbar-icon-btn mobile-action ${activeSection === "home" ? "active" : ""}`}
             aria-label="Accueil"
@@ -271,7 +293,7 @@ const Navbar = (props) => {
             className={`navbar-icon-btn mobile-action ${activeSection === "rooms" ? "active" : ""}`}
             aria-label="Salles"
             onClick={() => {
-              navigate("/room");
+              navigate(`/room/${room.id}`);
               closeMenu();
             }}
           >
