@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { FiInbox } from "react-icons/fi";
 import { useInView } from 'react-intersection-observer';
-import { useParams } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 
 import { useHomeData } from "./hooks/useHomeData";
 import HomeSidebar from "./components/HomeSidebar";
@@ -13,13 +12,13 @@ import CreatePostBar from "./components/CreatePostBar";
 import PostCard from "../../components/posts/Postcard";
 import PostDetailModal from "../../components/posts/postDetailModal";
 import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
-import UserTour from "../../components/common/Usertour";
 import { deletePost } from "../../services/api";
-import "../../styles/Home.css";
 import HomeSidebarAppInfo from "./components/HomeSidebarAppInfo";
 import PostEdit from "../PostEdit";
 import CreatePost from "../CreatePost";
 import { useCreatePostModal } from "../../contexts/createPostContext";
+import { useToast } from "../../contexts/toastContext";
+import "../../styles/Home.css";
 
 const Home = () => {
     const navigate = useNavigate();
@@ -27,8 +26,11 @@ const Home = () => {
     const [editPostId, setEditPostId] = React.useState(null);
     const { createPostModale, openCreatePost, closeCreatePost } = useCreatePostModal();
     const { id: modalPostId } = useParams();
+    const { toast } = useToast();
     const isMobile = window.innerWidth < 768;
 
+    // si on visite la page de détail d'un post sur mobile,
+    // on redirige vers le vrai lien
     useEffect(() => {
         if (modalPostId && isMobile) {
             // Seulement sur mobile, remplace par la vraie page
@@ -36,6 +38,7 @@ const Home = () => {
         }
     }, [modalPostId]);
 
+    // hook personnalisé pour gérer les données de la page d'acceuil.
     const {
         userAuth,
         fullUser,
@@ -47,7 +50,6 @@ const Home = () => {
         isFetching,
     } = useHomeData();
 
-    // ── Handlers ──────────────────────────────────────────────────────────────
 
     const handleEdit = (post) => {
         setEditPostId(post.id);
@@ -64,14 +66,14 @@ const Home = () => {
         try {
             await deletePost(post.id);
             queryClient.invalidateQueries({ queryKey: ["posts"] });
-            alert("Poste supprimé avec succès");
+            toast({ message: "Post Supprimé avec succès" })
         } catch (err) {
             console.error("Erreur lors de la suppression:", err);
-            alert("Erreur lors de la suppression du poste");
+            toast({ message: "Erreur lors de la suppression du poste", type: "error" });
         }
     };
 
-    // infinite scroll
+    // mécanisme d'infinite scroll
     const { ref, inView } = useInView({
         threshold: 0.1,
     });
@@ -82,17 +84,11 @@ const Home = () => {
         }
     }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-
-    const hasNext = false;
-
-
     return (
         <div className="container">
             <HomeSidebar fullUser={fullUser} userAuth={userAuth} className="profile" />
 
             <div className="main-content home">
-                {/* {!isLoading && filteredPosts.length > 0 && <UserTour />} */}
-
 
                 {/* Liste des posts */}
                 {isLoading || (filteredPosts.length === 0 && isFetching) ? (
@@ -117,7 +113,15 @@ const Home = () => {
                             </div>
                         ) : (
                             <div className="posts-list">
-                                {/* <CreatePostBar fullUser={fullUser} userAuth={userAuth} handleCreate={openCreatePost} closeModale={closeCreatePost} /> */}
+                                {!isMobile &&
+
+                                    <CreatePostBar
+                                        fullUser={fullUser}
+                                        userAuth={userAuth}
+                                        handleCreate={openCreatePost}
+                                        closeModale={closeCreatePost}
+                                    />
+                                }
 
                                 {filteredPosts.map((post) => (
                                     <PostCard
@@ -132,7 +136,7 @@ const Home = () => {
                         )}
 
                         {hasNextPage && (
-                            <div ref={ref} style={{ minHeight: '50px' }}>
+                            <div ref={ref} className="posts-skeleton-list" style={{ minHeight: '50px' }}>
                                 {isFetchingNextPage && (
                                     <div>
                                         <PostCardSkeleton />

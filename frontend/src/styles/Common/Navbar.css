@@ -61,11 +61,13 @@
   box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
-  padding: 0 1rem;
+  justify-content: center;
+  padding: 0 3rem;
   box-sizing: border-box;
   width: 100%;
   overflow: visible;
   min-width: 0;
+
 }
 
 .navbar-container {
@@ -79,7 +81,7 @@
 
 .navbar-container.desktop {
   display: flex;
-  justify-content: space-between !important;
+  justify-content: center !important;
   align-items: center;
   /* gap: 1rem; */
 }
@@ -88,7 +90,8 @@
   display: flex;
   /* gap: 4rem; */
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-around;
+  gap: 4rem;
   flex: 1;
   min-width: 0;
 }
@@ -103,7 +106,7 @@
 .navbar-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  /* gap: 8px; */
   font-size: 1.5rem;
   font-weight: 700;
   
@@ -205,9 +208,9 @@
 
 .navbar-icon-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 8px 24px;
   border-radius: 12px;
   color: #64748b;
   background-color: transparent;

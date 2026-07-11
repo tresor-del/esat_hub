@@ -13,6 +13,7 @@ import { FaChalkboardTeacher } from "react-icons/fa";
 import "../../styles/Common/Navbar.css";
 import Avatar from "../ui/Avatar";
 import Logo from "./Logo";
+import { useRoomData } from "../../pages/room/hooks/useRoomData";
 
 const Navbar = (props) => {
   const { user, isAuth } = useAuth();
@@ -21,10 +22,7 @@ const Navbar = (props) => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [showTopBar, setShowTopBar] = useState(() => {
-    const mobile = window.innerWidth <= 768;
-    return !mobile || !location.pathname.startsWith("/room");
-  });
+  const {room} = useRoomData();
   const lastScrollY = useRef(0);
   const lastShowTopBarChange = useRef(0);
   const { openCreatePost } = useCreatePostModal();
@@ -32,25 +30,30 @@ const Navbar = (props) => {
   const closeMenu = () => setIsMenuOpen(false);
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
+  const [showTopBar, setShowTopBar] = useState(() => {
+    const mobile = window.innerWidth <= 768;
+    return !mobile || !location.pathname.startsWith("/room");
+  });
+
   useEffect(() => {
-  let dernierePosition = 0;
+    let dernierePosition = 0;
 
-  const handleScrollMobile = () => {
-    const navbar = document.getElementById('navbar--mobile');
-    if (!navbar) return;
+    const handleScrollMobile = () => {
+      const navbar = document.getElementById('navbar--mobile');
+      if (!navbar) return;
 
-    const positionActuelle = window.pageYOffset || document.documentElement.scrollTop;
-    if (positionActuelle > dernierePosition && positionActuelle > 100) {
-      navbar.classList.add('cache');
-    } else {
-      navbar.classList.remove('cache');
-    }
-    dernierePosition = positionActuelle <= 0 ? 0 : positionActuelle;
-  };
+      const positionActuelle = window.pageYOffset || document.documentElement.scrollTop;
+      if (positionActuelle > dernierePosition && positionActuelle > 100) {
+        navbar.classList.add('cache');
+      } else {
+        navbar.classList.remove('cache');
+      }
+      dernierePosition = positionActuelle <= 0 ? 0 : positionActuelle;
+    };
 
-  window.addEventListener('scroll', handleScrollMobile);
-  return () => window.removeEventListener('scroll', handleScrollMobile); // cleanup
-}, []);
+    window.addEventListener('scroll', handleScrollMobile);
+    return () => window.removeEventListener('scroll', handleScrollMobile); // cleanup
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -114,6 +117,7 @@ const Navbar = (props) => {
     >
       <div className="icon-with-badge navbar-icon-container">
         <FiHome size={24} strokeWidth={activeSection === "home" ? 2.2 : 1.8} />
+        Posts
       </div>
     </button>
   );
@@ -121,11 +125,12 @@ const Navbar = (props) => {
   const RoomsButton = (
     <button
       className={`navbar-icon-btn ${activeSection === "rooms" ? "active" : ""}`}
-      onClick={() => { navigate("/room"); closeMenu(); }}
+      onClick={() => { navigate(`/room/${room.id}`); closeMenu(); }}
       aria-label="Salles"
     >
       <div className="icon-with-badge navbar-icon-container">
         <FaChalkboardTeacher size={24} strokeWidth={activeSection === "rooms" ? 2.2 : 1.8} />
+        Classe
       </div>
     </button>
   );
@@ -143,6 +148,7 @@ const Navbar = (props) => {
         {unreadChatsCount > 0 && (
           <span className="notification-badge">{unreadChatsCount}</span>
         )}
+        Messages
       </div>
     </button>
   );
@@ -289,7 +295,7 @@ const Navbar = (props) => {
                 <span className="notification-badge">{unreadChatsCount}</span>
               )}
             </div>
-            chat
+            Messages
           </button>
 
           {CreateButton}

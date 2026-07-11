@@ -36,7 +36,7 @@ class NotificationService:
             logger.info(f"FCM : Nombre d'apparleils valides trouvés pour l'envoi : {len(devices)}")
             
             if not devices:
-                logger.error("ℹFCM : Aucun appareil avec un jeton valide trouvé en base de données.")
+                logger.error("FCM : Aucun appareil avec un jeton valide trouvé en base de données.")
                 return
                 
             # On envoie la bannière à chaque téléphone trouvé
@@ -111,23 +111,25 @@ class NotificationService:
         
             notif_data = NotificationResponseUser.model_validate(data_in_db).model_dump(mode="json")
 
-            delivered_via_ws = await ws_manager.send_personal_notification(notif_data)
+            if d_data.recipient.id != d_data.sender.id:
+                
+                delivered_via_ws = await ws_manager.send_personal_notification(notif_data)
 
-            if delivered_via_ws:
-                print("délivré via ws")
-                return 
+                # if delivered_via_ws:
+                #     print("délivré via ws")
+                #     return 
 
-            # On déclenche l'envoi Firebase de manière non-bloquante
-            await asyncio.to_thread(
-                partial(
-                   self.send_firebase_push, # la fonction bloquante
-                    data_in_db.recipient_id, 
-                    data_in_db.title,             
-                    data_in_db.content, 
-                    None,
-                    data.sender.avatar_path
-                )
-                 
+                # On déclenche l'envoi Firebase de manière non-bloquante
+                await asyncio.to_thread(
+                    partial(
+                    self.send_firebase_push, # la fonction bloquante
+                        data_in_db.recipient_id, 
+                        data_in_db.title,             
+                        data_in_db.content, 
+                        None,
+                        data.sender.avatar_path
+                    )
+                    
             )
             
         except Exception as e:

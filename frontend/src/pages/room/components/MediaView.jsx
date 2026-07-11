@@ -5,9 +5,9 @@ import MediaCard from "./MediaCard";
 /**
  * @prop {Array}    roomMedia
  * @prop {boolean}  loading
- * @prop {Function} onOpenAdd    — open upload modal
- * @prop {Function} onOpenDetail — open detail modal for a media
- * @prop {Function} onShare      — open share modal for a media
+ * @prop {Function} onOpenAdd    
+ * @prop {Function} onOpenDetail 
+ * @prop {Function} onShare 
  */
 const MediaView = ({ roomMedia = [], loading, onOpenAdd, onOpenDetail, onShare }) => {
     const [searchQuery, setSearchQuery] = useState("");

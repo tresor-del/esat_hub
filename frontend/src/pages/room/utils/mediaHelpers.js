@@ -1,6 +1,3 @@
-// ─── mediaHelpers.js ─────────────────────────────────────────────────────────
-// Pure utility functions shared across Room components.
-// No React imports — safe to use anywhere.
 
 export const isImageMedia = (media) =>
     media?.mime_type?.startsWith("image/");
