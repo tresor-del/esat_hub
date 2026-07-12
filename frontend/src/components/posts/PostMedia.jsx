@@ -1,6 +1,6 @@
 // PostMedia.js
 import { version } from 'react-pdf/package.json';
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { getPostFileUrl } from "../../services/api";
 import api from "../../utils/axiosConfig";
 import { Document, Page, pdfjs } from "react-pdf";
@@ -9,6 +9,16 @@ import ImageModal from "../ui/ImageModal";
 import axios from "axios";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+// Référence STABLE (créée une seule fois) pour éviter que react-pdf
+// ne détruise/recrée le PDFDocumentProxy à chaque re-render de PostMedia
+const PDF_OPTIONS = {
+  cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
+  cMapPacked: true,
+};
+
+
+
 
 const PostMedia = ({ post, bust, size = "small" }) => {
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
@@ -23,8 +33,6 @@ const PostMedia = ({ post, bust, size = "small" }) => {
 
   const imgRef = useRef(null);
 
-  // console.log(post)
-
   // ÉTAT DE CHARGEMENT DE L'IMAGE
   const [isImageLoading, setIsImageLoading] = useState(true);
 
@@ -38,6 +46,13 @@ const PostMedia = ({ post, bust, size = "small" }) => {
   };
 
   const config = dimensions[size] || dimensions.normal;
+
+  // Référence stable pour le fichier du modal plein écran
+  // (évite de recalculer une nouvelle string à chaque render)
+  const fullFileUrl = useMemo(
+    () => getPostFileUrl(post, effectiveBust),
+    [post, effectiveBust]
+  );
 
   // Reset les états quand le post change
   useEffect(() => {
@@ -78,22 +93,8 @@ const PostMedia = ({ post, bust, size = "small" }) => {
 
       try {
         setLoading(true);
-        // const response = await api.get(`/files/posts/${post.id}`, {
-        //   responseType: "blob",
-        //   params: effectiveBust ? { v: effectiveBust } : {},
-        // });
-
-        // const blob = new Blob([response.data], { type: "application/pdf" });
-        // objectUrl = URL.createObjectURL(blob);
-
-        // if (!cancelled) {
-        //   setPdfBlobUrl(objectUrl);
-        // }
 
         const directUrl = getPostFileUrl(post, effectiveBust);
-
-        // setPdfBlobUrl(directUrl);
-        // setPdfError(false);
 
         // Si c'est un lien Cloudinary et qu'on est en taille "small" (aperçu du fil d'actualité)
         if (directUrl.includes("cloudinary.com") && size === "small") {
@@ -119,6 +120,26 @@ const PostMedia = ({ post, bust, size = "small" }) => {
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [post.id, effectiveBust, size]);
+
+
+  // Hook utilitaire pour suivre la taille de la fenêtre
+  const useWindowSize = () => {
+    const [size, setSize] = useState({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+
+    useEffect(() => {
+      const handleResize = () => {
+        setSize({ width: window.innerWidth, height: window.innerHeight });
+      };
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    return size;
+  };
+
 
   // ==================== PHOTOS ====================
   if (post.post_type && post.post_type === "photo" || post.mime_type?.startsWith("image/")) {
@@ -241,10 +262,7 @@ const PostMedia = ({ post, bust, size = "small" }) => {
               file={pdfBlobUrl}
               onLoadSuccess={({ numPages }) => setNumPages(numPages)}
               onLoadError={() => setPdfError(true)}
-              options={{
-                cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
-                cMapPacked: true,
-              }}
+              options={PDF_OPTIONS}
             >
               <Page
                 pageNumber={currentPage}
@@ -306,17 +324,15 @@ const PostMedia = ({ post, bust, size = "small" }) => {
               {/* Zone principale de visualisation du document */}
               <div className="pdf-modal-body">
                 <Document
-                  file={getPostFileUrl(post, effectiveBust)}
+                  file={fullFileUrl}
                   onLoadSuccess={({ numPages }) => setNumPages(numPages)}
                   onLoadError={() => setPdfError(true)}
-                  options={{
-                    cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
-                    cMapPacked: true,
-                  }}
+                  options={PDF_OPTIONS}
                 >
                   <Page
                     pageNumber={currentPage}
-                    height={window.innerHeight - 160}
+                    height={size.height - 100}
+                    width={size.width < 700 ? size.width - 20 : undefined}
                     renderTextLayer={false}
                     renderAnnotationLayer={false}
                     onRenderError={() => console.log("Rendu annulé ou interrompu")}
@@ -352,7 +368,6 @@ const PostMedia = ({ post, bust, size = "small" }) => {
             </div>
           </div>
         )}
-
 
       </div>
     );

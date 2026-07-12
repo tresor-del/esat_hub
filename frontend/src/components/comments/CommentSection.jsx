@@ -29,7 +29,7 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
     } = useInfiniteQuery({
         queryKey: ["comments", postId],
         queryFn: async ({ pageParam = 0 }) => {
-            return getComments(postId, pageParam, 5);
+            return getComments(postId, pageParam, 2);
         },
         getNextPageParam: (lastPage, allPages) => {
             const totalLoaded = allPages.flatMap(p => p.comments).length;
@@ -120,12 +120,13 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
         return () => window.removeEventListener("NEW_COMMENT", handleRealtimeComment);
     }, [postId, user?.id, comments]); // Crucial d'avoir comments ici
 
-    // Notifier le parent du nombre de commentaires
+    // Notifier le parent du nombre total de commentaires
     useEffect(() => {
         if (onCommentAdded) {
-            onCommentAdded(comments.length);
+            const totalComments = commentsData?.pages?.[0]?.total ?? comments.length;
+            onCommentAdded(totalComments);
         }
-    }, [comments, onCommentAdded]);
+    }, [commentsData, comments.length, onCommentAdded]);
 
     // Ajouter un commentaire racine
     const handleSubmit = async () => {
@@ -222,7 +223,6 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
         try {
             const response = await updateComment(commentId, new_content);
             if (response) {
-                alert("Commentaire modifié avec succès");
                 queryClient.setQueryData(["comments", postId], (prev) => {
                     if (!prev) return prev;
                     return {
@@ -238,7 +238,6 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
             }
         } catch (error) {
             console.log("Erreur lors de la mise à jour: ", error);
-            alert("Erreur lors de la mise à jour du commentaire")
         }
     }
 
@@ -293,7 +292,7 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                         <div className="empty-container-icon">
                             <MdComment />
                         </div>
-                        <p>pas de commentaire</p>
+                        <p>Soyez le premier à commenter.</p>
                     </div>
                 ) :
                     (

@@ -112,9 +112,13 @@ class AuthService:
             self._db.delete(user)
             self._db.commit()
     
-    def get_all_users(self, page: int = 1, page_size: int = 20) -> list[User]:
-        """Récupère tous les utilisateurs"""
+    def get_all_users(self, page: int = 1, page_size: int = 20, room_id: str = None) -> list[User]:
+        """Récupère tous les utilisateurs, optionnellement filtrés par room_id"""
         statement = select(User).filter(User.status == UserStatus.ACTIVE)
+        
+        if room_id:
+            statement = statement.filter(User.user_room_id == room_id)
+        
         result = paginate_query(self._db, statement, page, page_size)
         return result
     

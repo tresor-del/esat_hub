@@ -10,6 +10,7 @@ import CommentSection from "../../components/comments/CommentSection";
 import PostCard from "../../components/posts/Postcard";
 import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
 import { useQuery } from "@tanstack/react-query";
+import { useToast } from "../../contexts/toastContext";
 import "../../styles/Comments/CommentSection.css"
 import "../../styles/Posts/PostDetail.css"
 import "../../styles/Posts/PostMedia.css"
@@ -18,7 +19,7 @@ const PostDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-
+  const { toast } = useToast();
   // const [post, setPost] = useState(null);
   // const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -58,11 +59,17 @@ const PostDetail = () => {
     queryFn: () => getPost(id),
 });
 
-   const handleEdit = (post) => {
+  useEffect(() => {
+    if (post?.comments_count !== undefined) {
+      setCommentCount(post.comments_count);
+    }
+  }, [post?.comments_count]);
+
+  const handleEdit = (post) => {
     navigate(`/edit/${post.id}`);
   };
 
-   const handleDelete = async (post) => {
+  const handleDelete = async (post) => {
     if (!confirm("Voulez-vous vraiment supprimer ce post ?")) return;
 
     try {
@@ -70,7 +77,7 @@ const PostDetail = () => {
       navigate("/");
     } catch (err) {
       console.error(err);
-      alert("Impossible de supprimer le post.");
+      toast({ message: "Une erreur s'est produite.", type: "error" });
     }
   };
 

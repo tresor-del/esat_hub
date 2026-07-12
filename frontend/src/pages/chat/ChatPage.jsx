@@ -8,6 +8,7 @@ import { searchPosts } from '../../services/api';
 import { getAllUsers, markMessagesAsReadApi } from '../../services/chatApi';
 import Avatar from '../../components/ui/Avatar';
 import ChatBox from '../../components/chat/ChatBox';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import "../../styles/Chat/Chat.css"
 import "../../styles/Home.css"
 import { getRecentChat } from '../../services/chatApi';
@@ -24,75 +25,51 @@ const ChatPage = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [view, setView] = useState("recent")
-    const [recentChats, setRecentChats] = useState([]);
-    const [loadingRecentChats, setLoadingRecentChats] = useState(true);
     const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
     const [isChatOpen, setIsChatOpen] = useState(false);
-    const [allUsers, setAllUsers] = useState([]);
-    const [loadingUsers, setLoadingUsers] = useState(true);
     const { user: fullUser } = useAuth();
+    const queryClient = useQueryClient();
 
     const navigate = useNavigate()
 
     const [searchParams, setSearchParams] = useSearchParams();
 
-    useEffect(() => {
-        const loadRecent = async () => {
-            setLoadingRecentChats(true);
-            try {
-                const data = await getRecentChat();
-                setRecentChats(data || []);
-            } catch (error) {
-                console.error("Erreur chargement récents:", error);
-            } finally {
-                setLoadingRecentChats(false);
-            }
-        };
+    const { data: recentChats = [], isLoading: loadingRecentChats } = useQuery({
+        queryKey: ['recentChats'],
+        queryFn: getRecentChat,
+        staleTime: 30_000, // évite un refetch agressif à chaque focus
+    });
 
-        const getAll = async () => {
-            try {
-                setLoadingUsers(true)
-                const data = await getAllUsers();
-                setAllUsers(data || []);
-            } catch (error) {
-                console.error("Erreur lors de la reception des users:", error);
-
-            } finally {
-                setLoadingUsers(false)
-            }
-        }
-
-        getAll();
-        loadRecent();
-    }, []);
+    const { data: allUsers = [], isLoading: loadingUsers } = useQuery({
+        queryKey: ['allUsers'],
+        queryFn: getAllUsers,
+        staleTime: 5 * 60_000, // les users changent rarement
+    });
 
     useEffect(() => {
         const handleChatUpdate = (event) => {
-            console.log("CHAT_UPDATED reçu:", event.detail);
             const msg = event.detail;
             const isActiveConv = activeRecipientRef.current?.id === msg.sender.id;
 
-            setRecentChats(prev => prev.map(chat => {
-
-                const isThisChat = chat.user?.id === msg.sender.id || chat.user?.id === msg.recipient_id;
-                if (!isThisChat) return chat;
-
-                return {
-                    ...chat,
-                    last_message_content: msg.content,
-                    last_message_timestamp: msg.timestamp,
-                    // Non lu seulement si message entrant ET pas dans la conv active
-                    unread_count: msg.isIncoming && !isActiveConv
-                        ? chat.unread_count + 1
-                        : chat.unread_count
-                };
-
-            }));
-
-            setRecentChats(prev => prev.sort(
-                (a, b) => new Date(b.last_message_timestamp) - new Date(a.last_message_timestamp)
-            ))
+            queryClient.setQueryData(['recentChats'], (prev = []) => {
+                const updated = prev.map(chat => {
+                    const isThisChat = chat.user?.id === msg.sender.id || chat.user?.id === msg.recipient_id;
+                    if (!isThisChat) return chat;
+                    return {
+                        ...chat,
+                        last_message_content: msg.content,
+                        last_message_timestamp: msg.timestamp,
+                        unread_count: msg.isIncoming && !isActiveConv
+                            ? chat.unread_count + 1
+                            : chat.unread_count
+                    };
+                });
+                return [...updated].sort(
+                    (a, b) => new Date(b.last_message_timestamp) - new Date(a.last_message_timestamp)
+                );
+            });
         };
+
         window.addEventListener("CHAT_UPDATED", handleChatUpdate);
         return () => window.removeEventListener("CHAT_UPDATED", handleChatUpdate);
     }, []);
@@ -120,40 +97,53 @@ const ChatPage = () => {
     }, [searchParams, allUsers, activeRecipient]);
 
     const handleSelectRecipient = async (recipient) => {
-        // 1. ACTIONS INITIALES INSTANTANÉES (L'interface change de suite)
         activeConvRef.current = recipient.id;
         setActiveRecipient(recipient);
         setSearchParams({ user: recipient.id });
         activeRecipientRef.current = recipient;
 
-        if (isMobileView) {
-            setIsChatOpen(true);
-        }
+        if (isMobileView) setIsChatOpen(true);
 
-        // Trouver combien de messages non lus avait cette conv
         const chat = recentChats.find(c => c.user?.id === recipient.id);
         const previousUnread = chat?.unread_count || 0;
 
-        // 2. MISE À JOUR LOCALE DU COMPTEUR (Pas d'attente d'API)
-        setRecentChats(prev => prev.map(chat =>
-            // CORRECTION SÉCURITÉ : Vérifier chat.user?.id au lieu de chat.id 
-            // car u.user?.id est utilisé dans le .map de votre JSX
-            (chat.user?.id === recipient.id || chat.user?.id === recipient.id)
-                ? { ...chat, unread_count: 0 }
-                : chat
-        ));
+        queryClient.setQueryData(['recentChats'], (prev = []) =>
+            prev.map(chat =>
+                chat.user?.id === recipient.id
+                    ? { ...chat, unread_count: 0 }
+                    : chat
+            )
+        );
 
-        // Décrémenter immédiatement le badge global
         if (previousUnread > 0) {
-            setUnreadChatsCount(prev => Math.max(0, prev - previousUnread)); // ← nécessite d'exposer ce setter
+            setUnreadChatsCount(prev => Math.max(0, prev - previousUnread));
         }
 
         try {
-            await markMessagesAsReadApi(recipient.id); // ← d'abord marquer comme lu
-            await refreshUnreadCount();                 // ← ENSUITE refresh, avec la DB à jour
+            await markMessagesAsReadApi(recipient.id);
+            await refreshUnreadCount();
         } catch (error) {
             console.error("Erreur requêtes arrière-plan chat:", error);
         }
+    };
+
+    const handleMsgEvent = (msg) => {
+        queryClient.setQueryData(['recentChats'], (prev = []) => {
+            const updated = prev.map(chat => {
+                const isThisChat = chat.user?.id === activeRecipientRef.current?.id;
+                if (!isThisChat) return chat;
+                return {
+                    ...chat,
+                    last_message_content: msg.last_message_content,
+                    last_message_timestamp: msg.last_message_timestamp,
+                    last_sender_id: msg.last_sender_id,
+                    unread_count: 0,
+                };
+            });
+            return [...updated].sort(
+                (a, b) => new Date(b.last_message_timestamp) - new Date(a.last_message_timestamp)
+            );
+        });
     };
 
     const handleCloseChat = () => {
@@ -190,30 +180,6 @@ const ChatPage = () => {
             minute: 'numeric',
         }).format(new Date(timestamp));
     };
-
-    const handleMsgEvent = (msg) => {
-
-        setRecentChats(prev => prev.map(chat => {
-
-            const isThisChat = chat.user?.id === activeRecipientRef.current?.id;
-            if (!isThisChat) return chat;
-
-            return {
-                ...chat,
-                last_message_content: msg.last_message_content,
-                last_message_timestamp: msg.last_message_timestamp,
-                last_sender_id: msg.last_sender_id,
-                // Non lu seulement si message entrant ET pas dans la conv active
-                unread_count: 0,
-            };
-
-
-        }));
-
-        setRecentChats(prev => prev.sort(
-            (a, b) => new Date(b.last_message_timestamp) - new Date(a.last_message_timestamp)
-        ))
-    }
 
 
     return (

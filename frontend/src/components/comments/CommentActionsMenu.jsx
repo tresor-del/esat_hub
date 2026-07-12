@@ -1,9 +1,9 @@
 import React from "react";
-import { FiEdit, FiTrash2, FiMoreVertical } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiMoreVertical } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
-import DropdownMenu from "../ui/DropdownMenu";
+import "../../styles/Posts/PostActionsMenu.css";
 
-const CommentActionsMenu = ({ comment, onEdit, onDelete }) => {
+const CommentActionsMenu = ({ comment, onEdit, onDelete, onClose }) => {
   const { user } = useAuth();
   const isAuthor = user?.id && comment.user?.id && user.id === comment.user.id;
   const isAdmin = user?.role === "ADMIN";
@@ -11,46 +11,50 @@ const CommentActionsMenu = ({ comment, onEdit, onDelete }) => {
   if (!isAuthor && !isAdmin) return null;
 
   return (
-    <DropdownMenu trigger={<FiMoreVertical />} align="right">
-      {isAuthor && onEdit && (
-        <button
-          className="post-action-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit();
-          }}
-          style={{
-            color: "var(--reddit-blue)",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-          }}
-        >
-          <FiEdit />
-          <span>Modifier</span>
-        </button>
-      )}
 
-      {(isAuthor || isAdmin) &&onDelete && (
-        <button
-          className="post-action-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(comment);
-          }}
-          style={{
-            color: "#d32f2f",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            marginTop: 6,
-          }}
-        >
-          <FiTrash2 />
-          <span>Supprimer</span>
-        </button>
-      )}
-    </DropdownMenu>
+    <div className="pam-overlay" onClick={onClose}>
+
+      <div className="pam-sheet" onClick={(e) => e.stopPropagation()}>
+
+        {/* Handle bar mobile */}
+        <div className="pam-handle" />
+
+        <div className="pam-header">
+          <span className="pam-title">Actions</span>
+          <button className="pam-close-btn" onClick={onClose} aria-label="Fermer">✕</button>
+        </div>
+
+        <div className="pam-actions">
+          {isAuthor && onEdit && (
+            <button
+              className="pam-action pam-action--edit"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+            >
+              <span className="pam-action-icon"><FiEdit2 /></span>
+
+              <span className="pam-action-label">Modifier</span>
+            </button>
+          )}
+
+          {(isAuthor || isAdmin) && onDelete && (
+            <button
+              className="pam-action pam-action--delete"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(comment);
+              }}
+            >
+              <span className="pam-action-icon"><FiTrash2 /></span>
+              <span className="pam-action-label"> Supprimer</span>
+            </button>
+          )}
+        </div>
+
+      </div>
+    </div>
   );
 };
 

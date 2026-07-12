@@ -132,6 +132,10 @@ const Home = () => {
                                         onView={handleView}
                                     />
                                 ))}
+
+                                <div className="posts-end">
+                                    Vous avez tout vu.
+                                </div>
                             </div>
                         )}
 

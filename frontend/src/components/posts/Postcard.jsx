@@ -50,7 +50,7 @@ const PostCard = ({
   //   staleTime: 1000 * 60,
   // });
 
-  const commentsLength = post.comments_count ?? 0;
+  const commentsLength = commentCount ?? post.comments_count ?? 0;
 
   // useEffect(() => {
   //   setLikesCount(post?.likes_count ?? 0);

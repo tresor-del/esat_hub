@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FiHeart, FiX } from "react-icons/fi";
+import { FiHeart, FiX, FiMessageCircle, FiShare2 } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
 import CommentSection from "../../components/comments/CommentSection";
 import PostAuthorInfo from "../../components/posts/PostAuthorInfo";
@@ -17,6 +17,7 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
     error,
     loadPost,
     handleCommentAdded,
+    commentCount,
   } = usePostDetail({ onClose, onPostDeleted });
 
   const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
@@ -98,11 +99,17 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
             <p>
               {post?.description}
             </p>
-            <button type="button" className={`post-action-btn ${likedByMe ? "liked" : ""}`} onClick={handleLikeClick} disabled={loadingLike}>
-              <FiHeart size={20} fill={likedByMe ? "#ef4444" : "none"} color={likedByMe ? "#ef4444" : undefined} />
-              {likesCount}
-            </button>
+
+            <div className="post-action" >
+              <button type="button" className={`post-action-btn ${likedByMe ? "liked" : ""}`} onClick={handleLikeClick} disabled={loadingLike}>
+                <FiHeart size={20} fill={likedByMe ? "#ef4444" : "none"} color={likedByMe ? "#ef4444" : undefined} />
+                {likesCount}
+              </button>
+              <span className="post-action-btn"> <FiMessageCircle size={25} /> {commentCount ?? post?.comments_count ?? 0}</span>
+            </div>
+
           </div>
+
           <CommentSection
             postId={post?.id}
             user={user}

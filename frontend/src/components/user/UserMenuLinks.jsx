@@ -35,15 +35,15 @@ export const UserMenuLinks = ({ user, isAdmin, onAction, isDesktop = false }) =>
 
         <div className="um-divider" />
 
-        <button onClick={() => go(`/bout}`)} className="footer-link">
+        <button onClick={() => go(`/about`)} className="footer-link">
           <span className="um-icon"><FiInfo /></span>
           <span>À propos d'Esathub</span>
         </button>
-        <button onClick={() => go(`/privacy}`)} className="footer-link">
+        <button onClick={() => go(`/privacy`)} className="footer-link">
           <span className="um-icon"><FiFileText /></span>
           Confidentialité
         </button>
-        <button onClick={() => go(`/terms}`)} className="footer-link">
+        <button onClick={() => go(`/terms`)} className="footer-link">
           <span className="um-icon"><FiLock /></span>
           Condition d'utilisation
         </button>

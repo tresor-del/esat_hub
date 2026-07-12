@@ -99,27 +99,78 @@
     margin-top: 10px;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
+}
+
+.edit-comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .input-response {
-    padding: 8px;
+    padding: 10px 12px;
     border: 1px solid #ddd;
     border-radius: 18px;
     background-color: #f0f2f5;
     outline: none;
+    font-size: 14px;
+    font-family: inherit;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.input-response:focus {
+    background-color: #fff;
+    border-color: #1877f2;
+}
+
+.response-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.response-buttons button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.response-buttons button:first-child {
+    background-color: #1877f2;
+    color: white;
+}
+
+.response-buttons button:first-child:hover:not(:disabled) {
+    background-color: #0a66c2;
+}
+
+.response-buttons button:first-child:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.response-buttons button:last-child {
+    background-color: #e4e6eb;
+    color: #050505;
+}
+
+.response-buttons button:last-child:hover {
+    background-color: #d0d2d7;
 }
 
 .submitForm {
     display: flex;
     align-items: flex-end;
-    /* Aligne le bouton en bas si le texte est long */
     gap: 10px;
     background: #f8f9fa;
     padding: 10px;
     /* border-radius: 20px; */
     border: 1px solid #ddd;
-    margin-top: 1rem;
     padding: 5px;
 }
 
