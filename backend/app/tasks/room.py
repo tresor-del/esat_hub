@@ -18,12 +18,16 @@ async def handle_room_notifications(current_user, type):
 
         # contenu de la notification
         if type == "new_media_in_room":
-            notif_content = f"{sender.profil_name} a ajouté un fichier dans votre salle"
+            notif_content = f"{sender.first_name} {sender.last_name} a ajouté un fichier dans votre salle"
+            title="Nouveau Fichier"
+        if type == "new_asnmt_in_room":
+            notif_content = f"{current_user.full_name} a envoyer un devoir."
+            title="Nouveau Devor"
 
         await notif_service.send_bulk_notifications(
             notification_type=type,
             content=notif_content,
             recipients=recipients,
             sender=sender,
-            title="Nouveau Fichier"
+            title=title
         )

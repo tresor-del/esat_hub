@@ -15,6 +15,7 @@ import MediaUploadModal from "./components/modals/MediaUploadModal";
 import MediaDetailModal from "./components/modals/MediaDetailModal";
 import ShareModal from "./components/modals/ShareModal";
 import ImageModal from "../../components/ui/ImageModal";
+import AsnmtView from "./components/AsnmtView";
 
 const Room = () => {
     const [view, setView] = useState("users");
@@ -89,6 +90,11 @@ const Room = () => {
                 {view === "attendance" && (
                     <AttendanceView />
                 )}
+
+                {view === "asnmt" && (
+                    <AsnmtView />
+                )}
+
             </div>
 
             {/* Affichage des modales */}

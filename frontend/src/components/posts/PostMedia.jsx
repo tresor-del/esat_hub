@@ -18,8 +18,6 @@ const PDF_OPTIONS = {
 };
 
 
-
-
 const PostMedia = ({ post, bust, size = "small" }) => {
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
   const [numPages, setNumPages] = useState(null);
@@ -307,11 +305,11 @@ const PostMedia = ({ post, bust, size = "small" }) => {
             <div className="pdf-modal-content" onClick={(e) => e.stopPropagation()}>
 
               {/* Bouton de fermeture épuré */}
-              <button className="pdf-modal-close" onClick={() => setIsPdfModalOpen(false)} aria-label="Fermer">
+              <div className="pdf-modal-btns" >
+                <button  onClick={() => setIsPdfModalOpen(false)} aria-label="Fermer">
                 ✕
               </button>
               <a
-                className="img-modal-btn download"
                 href={getPostFileUrl(post)}
                 download={`esathub-img-${Date.now()}.jpg`}
                 target="_blank"
@@ -320,6 +318,8 @@ const PostMedia = ({ post, bust, size = "small" }) => {
               >
                 📥
               </a>
+              </div>
+              
 
               {/* Zone principale de visualisation du document */}
               <div className="pdf-modal-body">

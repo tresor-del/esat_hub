@@ -16,7 +16,6 @@ from app.tasks.room import handle_room_notifications
 
 router = APIRouter(prefix="/rooms", tags=["Room"])
 
-
 @router.post("/add-media", response_model=MediaResponse)
 async def upload_room_media(
     background_tasks: BackgroundTasks,
@@ -49,7 +48,7 @@ async def upload_room_media(
     if not file_path and not original_filename:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Fichier non supporté pour le type de post"
+            detail="Fichier non supporté"
         )
 
     mime_type = file.content_type

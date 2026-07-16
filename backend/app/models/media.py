@@ -12,10 +12,13 @@ class MediaBase(BaseModel):
     file_path: Optional[str]
     file_name: Optional[str]
     mime_type: Optional[str]
-
+    model_config = ConfigDict(from_attributes=True)
+    
 class MediaCreate(MediaBase):
     user_id: uuid.UUID
     room_id: Optional[uuid.UUID] = None
+    assignment_id: Optional[uuid.UUID] = None
+    submission_id: Optional[uuid.UUID] = None
 
 class MediaUpdate(BaseModel):
     title: Optional[str] = None
@@ -32,6 +35,8 @@ class MediaResponse(MediaBase):
     updated_at: datetime.datetime
     user: UserResponse
     room: RoomResponse
+    assignment_id: Optional[uuid.UUID] = None
+    submission_id: Optional[uuid.UUID] = None
 
     model_config = ConfigDict(from_attributes=True)
 

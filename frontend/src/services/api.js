@@ -68,7 +68,6 @@ export const login = async (username, password) => {
 };
 
 export const register = async (data) => {
-  console.log("Données envoyées :", data);
   const response = await api.post("/auth/register", data);
   return response.data;
 };
@@ -309,6 +308,12 @@ export const closeAttendanceSession = async (sessionId) => {
 
 export const getAttendanceHistory = () =>
     api.get("rooms/attendance/history").then(r => r.data);
+
+export const getAsnmts = async () => {
+  const res = await api.get(`rooms/assignments`);
+  console.log('devoir: ', res.data)
+  return res.data
+}
 
 /**
  * =========================================

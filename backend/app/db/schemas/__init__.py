@@ -8,3 +8,4 @@ from .message import Message
 from .user_device import UserDevice
 from .media import Media
 from .revoked_token import RevokedToken
+from .assignment import Assignment, AssignmentSubmission

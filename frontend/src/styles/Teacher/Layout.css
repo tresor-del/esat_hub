@@ -1,0 +1,5 @@
+.t-layout {
+    padding: 1rem 10rem 0 10rem;
+    background-color: var(--bg-secondary);
+    min-height: 100vh;
+}

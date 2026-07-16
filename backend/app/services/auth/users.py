@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.db.schemas.user import User, UserStatus
+from app.db.schemas.user import User, UserStatus, UserRole
 from app.db.schemas.email_verification import EmailVerificationToken
 from app.models.user import  UserInDatabase
 from app.core.config import settings
@@ -61,6 +61,7 @@ class AuthService:
     def get_user(self, user_id: uuid.UUID) -> User | None:
         return self._db.query(User).filter(User.id == user_id).first()
     
+    
     def get_admin(self)-> User | None:
         return self._db.query(User).filter(User.username == settings.SUPER_ADMIN_USERNAME).first()
     
@@ -114,7 +115,10 @@ class AuthService:
     
     def get_all_users(self, page: int = 1, page_size: int = 20, room_id: str = None) -> list[User]:
         """Récupère tous les utilisateurs, optionnellement filtrés par room_id"""
-        statement = select(User).filter(User.status == UserStatus.ACTIVE)
+        statement = select(User).filter(
+            User.status == UserStatus.ACTIVE,
+            User.role == UserRole.STUDENT
+        )
         
         if room_id:
             statement = statement.filter(User.user_room_id == room_id)
@@ -124,11 +128,14 @@ class AuthService:
     
     def get_users_by_room_id(self, room_id: uuid.UUID, page: int = 1, page_size: int = 20) -> list[User]:
         """Récupère tous les utilisateurs d'une salle spécifique"""
-        statement = select(User).filter(User.user_room_id == room_id)
+        statement = select(User).filter(
+            User.user_room_id == room_id,
+            User.role == UserRole.STUDENT
+        )
         result = paginate_query(self._db, statement, page, page_size)
         return result
     
     def get_user_by_rfid_uid(self, uid: str) -> list[User]:
-        """Récupère tous les utilisateurs d'une salle spécifique"""
+        """Récupère un utilisateur en se basant sur le numéro de la carte rfid"""
         return self._db.query(User).filter(User.rfid_uid == uid).first()
     

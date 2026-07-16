@@ -1,0 +1,13 @@
+.t-nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.name{
+    font-size: 2rem;
+}
+
+.name h1 {
+    color: var(--text-muted-dark) ;
+}

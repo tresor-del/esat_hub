@@ -1,9 +1,12 @@
+from typing import List
+
 from fastapi import HTTPException
 import jwt, io, qrcode, base64
 import datetime
 from datetime import timedelta
 from uuid import UUID, uuid4
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -13,6 +16,7 @@ from app.models.room import RoomResponse
 from app.db.schemas.media import Media
 from app.models.media import MediaCreate, MediaUpdate, MediaListResponse, MediaResponse
 from app.services.realtime.ws_manager import ws_manager
+from app.db.schemas.assignment import Assignment, AssignmentStatus
 
 SECRET = settings.SECRET_KEY
 QR_DURATION_MINUTES = 15
@@ -199,6 +203,8 @@ class RoomService:
             "expires_at": session.expires_at,
             "course": session.course,
         }
+        
+# ATTENDANCE
 
     def get_session_records(self, session_id: str, rep_id: str) -> list:
         """GET /sessions/{id}/records — Prof voit la liste des présents"""
@@ -354,3 +360,12 @@ class RoomService:
             "last_name": student.last_name
         }
 
+# ASSIGNMENTS
+
+    def get_assignments(self, current_user: User) -> List[Assignment]:
+        stmt = select(Assignment).where(
+            Assignment.room_id == current_user.user_room_id,
+            Assignment.status == AssignmentStatus.PUBLISHED
+        )
+        asnmts = self._db.execute(stmt).scalars().all()
+        return asnmts

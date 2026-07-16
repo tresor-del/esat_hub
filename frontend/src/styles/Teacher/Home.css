@@ -1,0 +1,19 @@
+
+.home-page {
+    min-height: 100vh;
+}
+
+.title {
+    padding: 2rem 0 0 0;
+    font-size: 1.5rem;
+}
+
+.sep {
+    border-top: 1px solid var(--text-muted);
+}
+
+.actions-btns {
+    padding: 1rem 0 0 0;
+    display: flex;
+    gap: 1rem;
+}

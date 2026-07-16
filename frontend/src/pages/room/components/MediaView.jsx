@@ -61,7 +61,9 @@ const MediaView = ({ roomMedia = [], loading, onOpenAdd, onOpenDetail, onShare }
             ) : (
                 <div className="room-media-list">
                     {filteredMedia.length > 0 ? (
-                        filteredMedia.map((media) => (
+                        filteredMedia
+                        .filter((m) => m.submission_id === null && m.assignment_id == null)  
+                        .map((media) => (
                             <MediaCard
                                 key={media.id}
                                 media={media}

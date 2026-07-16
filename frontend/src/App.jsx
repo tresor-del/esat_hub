@@ -15,7 +15,8 @@ import WelcomeModal from "./components/common/WelcomeModal";
 import "./styles/Users/UserProfile.css";
 import "./App.css";
 
-import MainLayout from "./layouts/MainLayout";
+import StudentLayout from "./layouts/StudentLayout";
+import TeacherLayout from "./layouts/TeacherLayout";
 import EmptyLayout from "./layouts/EmptyLayout";
 import { CreatePostProvider } from "./contexts/createPostContext";
 import { ToastProvider } from "./contexts/toastContext";
@@ -23,6 +24,8 @@ import PostDetailRoute from "./components/posts/PostDetailRoute";
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
+const TRegister = lazy(() => import("./pages/auth/TeacherRegister"))
+
 const Home = lazy(() => import("./pages/Home/index"));
 const PostDetail = lazy(() => import("./pages/posts/postDetail"));
 const UserProfil = lazy(() => import("./pages/profile/UserProfil"));
@@ -36,17 +39,19 @@ const Privacy = lazy(() => import("./pages/legal/Privacy"));
 const Terms = lazy(() => import("./pages/legal/Terms"));
 const UpdateBanner = lazy(() => import("./components/common/UpdateBanner"))
 
+const TeacherHome = lazy(() => import("./pages/teacher/Home"))
+
 // cache persistants
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { persistQueryClient } from '@tanstack/react-query-persist-client';
 import { capacitorPersister } from './lib/capacitorQueryPersister';
-import {useDeepLinks} from "./hooks/useDeepLinks"
+import { useDeepLinks } from "./hooks/useDeepLinks"
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      gcTime: 1000 * 60 * 60 * 24, // 24h — garder le cache 24h
-      staleTime: 1000 * 60 * 5,    // 5min — considérer les données fraîches 5min
+      gcTime: 1000 * 60 * 60 * 24, // 24h garder le cache 24h
+      staleTime: 1000 * 60 * 5,    // 5min considérer les données fraîches 5min
     },
   },
 });
@@ -60,7 +65,7 @@ persistQueryClient({
 const AppRoutes = () => {
   useDeepLinks();
 
-  const { loading, isAuth, logout } = useAuth();
+  const { loading, isAuth, logout, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -102,19 +107,42 @@ const AppRoutes = () => {
           <Route element={<EmptyLayout />}>
             <Route
               path="/login"
-              element={isAuth() ? <Navigate to="/" replace /> : <Login />}
+              element={
+                isAuth() ? (
+                  <Navigate to={user?.role === "TEACHER" ? "/teacher" : "/"} replace />
+                ) : (
+                  <Login />
+                )
+              }
             />
             <Route
-              path="/register"
+              path="/register-student"
               element={isAuth() ? <Navigate to="/" replace /> : <Register />}
             />
+            <Route
+              path="/register-teacher"
+              element={isAuth() ? <Navigate to="/" replace /> : <TRegister />}
+            />
 
+          </Route>
+
+          <Route element={
+            <ProtectedRoute>
+              <TeacherLayout />
+            </ProtectedRoute>
+          }
+          >
+            <Route path="/teacher" element={<TeacherHome />} />
+            <Route
+              path="*"
+              element={<Navigate to={isAuth() ? "/teacher" : "/login"} replace />}
+            />
           </Route>
 
           <Route
             element={
               <ProtectedRoute>
-                <MainLayout />
+                <StudentLayout />
               </ProtectedRoute>
             }
           >

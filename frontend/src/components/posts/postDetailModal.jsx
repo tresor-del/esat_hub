@@ -3,6 +3,7 @@ import { FiHeart, FiX, FiMessageCircle, FiShare2 } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
 import CommentSection from "../../components/comments/CommentSection";
 import PostAuthorInfo from "../../components/posts/PostAuthorInfo";
+import PostMedia from "../../components/posts/PostMedia";
 import { usePostDetail } from "../../components/posts/hooks/usePostDetail";
 import { formatRelativeDate } from "../../utils/dateFormatter";
 import { togglePostLike } from "../../services/api";
@@ -77,12 +78,16 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
         {/* IMAGE */}
         <div className="post-detail-media">
 
-          {post?.file_path && (
+          {post?.file_path && post?.post_type === "photo" && (
             <img
               src={post.file_path}
               alt={post.title}
               className="post-image"
             />
+          )}
+
+          {post?.file_path && post?.post_type === "document" && (
+            <PostMedia post={post}/>
           )}
 
         </div>

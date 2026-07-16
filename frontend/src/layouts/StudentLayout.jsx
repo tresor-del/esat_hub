@@ -9,7 +9,7 @@ import { useToast } from "../contexts/toastContext";
 import { useCreatePostModal } from "../contexts/createPostContext";
 import CreatePost from "../pages/CreatePost";
 
-const MainLayout = () => {
+const StudentLayout = () => {
   const { user } = useAuth();
   const [showWelcome, setShowWelcome] = useState(false);
 
@@ -93,15 +93,8 @@ const MainLayout = () => {
     }
   };
 
-  const isRoomPage = window.location.pathname == "/room"
-  const postDetail = window.location.pathname.startsWith("/post-page/")
-  const isHomePage = window.location.pathname == "/"
-  const isChatPage = window.location.pathname == "/chat"
-  const isCreatePage = window.location.pathname == "/create"
-  const isEditPage = window.location.pathname.startsWith("/edit/")
-  const isProfilePage = window.location.pathname.startsWith("/profile/")
-
   return (
+
     <>
       {showWelcome && (
         <WelcomeModal user={user} onClose={handleCloseWelcome} />
@@ -116,12 +109,14 @@ const MainLayout = () => {
         </div>
       )}
 
-      <Navbar className={isProfilePage || isEditPage || isCreatePage || isChatPage || isRoomPage || postDetail ? "navbar-hidden-mobile" : ""} />
+      <Navbar />
       <Outlet />
 
       {/* <Footer hahah prince est un génie className={isProfilePage || isEditPage ||isCreatePage || isRoomPage || isHomePage || isChatPage || postDetail ? "footer-hidden-desktop": ""} /> */}
     </>
+
+
   );
 };
 
-export default MainLayout;
+export default StudentLayout;

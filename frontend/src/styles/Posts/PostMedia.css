@@ -109,6 +109,7 @@
   position: relative;
 }
 
+
 /* Version large */
 .pdf-viewer.large {
   width: 100%;
@@ -444,6 +445,12 @@
 
 /* Adaptation pour les petits écrans de smartphones */
 @media (max-width: 480px) {
+
+  .pdf-modal-close {
+    top: unset;
+    bottom: 30px !important;
+  }
+
   .pdf-preview-clickable {
     max-width: 100%; /* Prend toute la largeur disponible sur mobile */
     /* height: 200px;   Hauteur légèrement réduite pour les petits écrans */
@@ -524,19 +531,21 @@
   height: auto !important;
 }
 
-.pdf-modal-close {
+.pdf-modal-btns {
   position: fixed;
-  top: 16px;
-  right: 20px;
+  top: 30px;
   z-index: 10000;
   font-size: 1.8rem;
-  background: rgba(255,255,255,0.1);
   border: none;
   color: #fff;
   border-radius: 50%;
   width: 42px;
   height: 42px;
   cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
 }
 
 .pdf-modal-toolbar {
@@ -547,10 +556,6 @@
   z-index: 10000;
 }
 
-.pdf-modal-close:hover {
-  background: #ef4444;
-  border-color: transparent;
-}
 
 .pdf-modal-body {
   flex: 1;
