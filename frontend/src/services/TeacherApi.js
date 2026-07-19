@@ -40,8 +40,26 @@ export const createAs = async (data) => {
             });
     }
 
-    console.log(formData)
-
     const response = await api.post(`/teacher/assignments`, formData)
     return response.data
+}
+
+
+// Assignments for students:
+
+export const createSubmission = async (data) => {
+    const formData = new FormData();
+    formData.append("feedback", data.feedback);
+    formData.append("assignment_id", data.assignmentId);
+
+    if (data.files) {
+        data.files
+            .filter((file) => file != null)
+            .forEach((file) => {
+                formData.append("files", file);
+            });
+    }
+
+    const response = await api.post(`/rooms/assignments`, formData)
+    console.log(response.data)
 }

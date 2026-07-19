@@ -9,6 +9,8 @@ from app.models.room import RoomResponse
 from app.models.media import MediaResponse
 
 
+# ASSIGNMENT
+
 class AssignmentBase(BaseModel):
     title: str
     description: Optional[str] = None
@@ -59,3 +61,22 @@ class AssignmentSubmissionResponse(AssignmentSubmissionBase):
     student: UserResponse
 
 AssignmentResponse.model_rebuild()
+
+# SUBMISSIONS
+
+class SubmissionBase(BaseModel):
+    assignment_id: uuid.UUID
+    student_id: uuid.UUID
+    feedback: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
+    
+class SubmissionCreate(SubmissionBase):
+    pass
+
+class SubmissionResponse(SubmissionBase):
+    is_late: bool
+    submitted_at: datetime
+    grade: Optional[int] = None
+    media: Optional[List[MediaResponse]] = []
+    student: UserResponse
+    assignment: AssignmentResponse

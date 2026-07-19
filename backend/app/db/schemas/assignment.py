@@ -1,8 +1,20 @@
+from datetime import timezone, datetime
 import enum
 import uuid
 
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Enum, Boolean, Column, DateTime, ForeignKey, Integer, String, UniqueConstraint, func
+from sqlalchemy import (
+    Enum, 
+    Boolean, 
+    Column, 
+    DateTime, 
+    ForeignKey, 
+    Integer, 
+    String, 
+    UniqueConstraint, 
+    func,
+    event
+)
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
@@ -56,11 +68,16 @@ class AssignmentSubmission(Base):
     grade = Column(Integer, nullable=True)
     feedback = Column(String, nullable=True)
     
-    # Contrainte : un étudiant ne peut soumettre qu'une fois par devoir (ou versionner si tu veux permettre les resoumissions)
+    # Contrainte : un étudiant ne peut soumettre qu'une fois par devoir
     __table_args__ = (UniqueConstraint('assignment_id', 'student_id', name='uq_assignment_student'),)
 
     assignment = relationship("Assignment", back_populates="submissions")
     student = relationship("User", foreign_keys=[student_id])
     media = relationship("Media", back_populates="submission", cascade="all, delete-orphan")
+
     
-    
+@event.listens_for(AssignmentSubmission, "before_insert")
+def before_insert(mapper, connection, target):
+    if target.assignment and target.assignment.due_date:
+        submission_time = target.submitted_at or datetime.now(datetime.timezone.utc())
+        target.is_late = submission_time > target.assignment.due_date

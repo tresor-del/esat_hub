@@ -3,13 +3,15 @@ import React, { useState, useEffect } from 'react';
 export const Countdown = ({ dueDate }) => {
   const [timeLeft, setTimeLeft] = useState('');
 
+  const TE = "Temps écoulé !"
+
   useEffect(() => {
     const calculateTimeLeft = () => {
       const difference = +new Date(dueDate) - +new Date();
       
       // Si la date est dépassée
       if (difference <= 0) {
-        setTimeLeft("Temps écoulé !");
+        setTimeLeft(TE);
         return;
       }
 
@@ -38,5 +40,5 @@ export const Countdown = ({ dueDate }) => {
     return () => clearInterval(timer);
   }, [dueDate]);
 
-  return <span className="countdown-timer">{timeLeft}</span>;
+  return <span className="countdown-timer" >{timeLeft}</span>;
 };

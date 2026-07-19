@@ -16,7 +16,8 @@ from app.models.room import RoomResponse
 from app.db.schemas.media import Media
 from app.models.media import MediaCreate, MediaUpdate, MediaListResponse, MediaResponse
 from app.services.realtime.ws_manager import ws_manager
-from app.db.schemas.assignment import Assignment, AssignmentStatus
+from app.db.schemas.assignment import Assignment, AssignmentStatus, AssignmentSubmission
+from app.models.assignment import SubmissionCreate
 
 SECRET = settings.SECRET_KEY
 QR_DURATION_MINUTES = 15
@@ -369,3 +370,25 @@ class RoomService:
         )
         asnmts = self._db.execute(stmt).scalars().all()
         return asnmts
+    
+    def create_asnmt(self, data: SubmissionCreate, current_user: User) -> AssignmentSubmission:
+
+        stmt = select(Assignment).where(
+            Assignment.id == data.assignment_id,
+            Assignment.room_id == current_user.user_room_id,
+            Assignment.status == AssignmentStatus.PUBLISHED
+        )
+        asnmt = self._db.execute(stmt).scalars().first()
+        if not asnmt: 
+            raise HTTPException(
+                status_code=403,
+                detail="Non autorisé à envoyer des solutions pour ce devoir"
+            )
+        
+        sub = AssignmentSubmission(**data.model_dump())
+        self._db.add(sub)
+        self._db.commit()
+        self._db.refresh(sub)
+        
+        return sub
+        
