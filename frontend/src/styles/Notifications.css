@@ -1,8 +1,6 @@
 .notifications-page {
-  max-width: 700px;
   margin: 0 auto;
   padding: 20px;
-  overflow: scroll;
 
 }
 
@@ -21,33 +19,54 @@
 .notifications-container {
   display: flex;
   flex-direction: column;
+  max-width: 450px;
 }
 
 .notifications-header {
   margin-bottom: 10px;
 }
 
+.notifications-header h2 {
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: #333;
+  padding: 10px;
+}
+
 .notifications-list {
   display: flex;
   flex-direction: column;
-  width: 400px;
   height: calc(100vh - 150px);
-  overflow: scroll;
+
+  overflow: auto;
+}
+
+.notif-date-sep {
+  padding: 10px;
+  text-transform: capitalize;
+  font-weight: 600;
 }
 
 .notification-item {
   background: #fff;
-  padding: 15px;
+  padding: 5px;
   display: flex;
   gap: 10px;
   cursor: pointer;
   justify-content: space-between;
 }
 
+.notification-text {
+  width: 100%;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  font-size: 1.2rem;
+}
+
+
 .notif-item-content {
   display: flex;
   gap: 10px;
-  align-items: center;
 }
 
 .notification-item:hover {
@@ -70,9 +89,9 @@
   color: #666;
 }
 
-.notification-time-unread {
-  background-color: #666;
-}
+/* .notification-time--unread {
+  background-color: #fff !important;
+} */
 
 .notification-content {
   display: flex;
@@ -174,27 +193,20 @@
   border: 2px solid white;
 } */
 
-/* Style de base pour chaque item */
-.notification-item {
-  padding: 12px;
-  border-bottom: 1px solid #eee;
-  transition: background-color 0.3s;
-  cursor: pointer;
-}
+
 
 /* Style spécifique pour les NON LUES */
-.notification-item.unread {
-  background-color: #f0f7ff;
+.notification-item--unread {
+  background-color: #ccc;
   /* Un bleu très léger */
   border-left: 4px solid #007bff;
   /* Une barre bleue sur le côté */
 }
 
-/* Optionnel : mettre le texte en gras pour les non lues */
-.notification-item.unread p {
+/* .notification-item--unread p {
   font-weight: 600;
   color: #000;
-}
+} */
 
 /* Au survol */
 .notification-item:hover {

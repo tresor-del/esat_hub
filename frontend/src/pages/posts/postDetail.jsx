@@ -9,17 +9,19 @@ import PostMedia from "../../components/posts/PostMedia";
 import CommentSection from "../../components/comments/CommentSection";
 import PostCard from "../../components/posts/Postcard";
 import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
-import "../../styles/CommentSection.css"
-import "../../styles/PostDetail.css"
-import "../../styles/PostMedia.css"
+import { useQuery } from "@tanstack/react-query";
+import { useToast } from "../../contexts/toastContext";
+import "../../styles/Comments/CommentSection.css"
+import "../../styles/Posts/PostDetail.css"
+import "../../styles/Posts/PostMedia.css"
 
 const PostDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-
-  const [post, setPost] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  // const [post, setPost] = useState(null);
+  // const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [commentCount, setCommentCount] = useState(0)
   const [commentsLoaded, setCommentsLoaded] = useState(false);
@@ -46,36 +48,28 @@ const PostDetail = () => {
     }
   }
 
-
-  useEffect(() => {
-    loadPost();
-
-  }, [id, location.state?.updatedAt]);
-
   useEffect(() => {
     setTimeout(() => {
       scrollToComment();
     }, 100);
   }, [])
 
-  const loadPost = async () => {
-    try {
-      setLoading(true);
-      const result = await getPost(id);
-      setPost(result);
-    } catch (err) {
-      console.error(err);
-      setError("Erreur lors du chargement du post");
-    } finally {
-      setLoading(false);
-    }
-  };
+ const { data: post, isLoading: loading } = useQuery({
+    queryKey: ["post", id],
+    queryFn: () => getPost(id),
+});
 
-   const handleEdit = (post) => {
+  useEffect(() => {
+    if (post?.comments_count !== undefined) {
+      setCommentCount(post.comments_count);
+    }
+  }, [post?.comments_count]);
+
+  const handleEdit = (post) => {
     navigate(`/edit/${post.id}`);
   };
 
-   const handleDelete = async (post) => {
+  const handleDelete = async (post) => {
     if (!confirm("Voulez-vous vraiment supprimer ce post ?")) return;
 
     try {
@@ -83,7 +77,7 @@ const PostDetail = () => {
       navigate("/");
     } catch (err) {
       console.error(err);
-      alert("Impossible de supprimer le post.");
+      toast({ message: "Une erreur s'est produite.", type: "error" });
     }
   };
 
@@ -108,7 +102,7 @@ const PostDetail = () => {
         <div className="post-content">
           {/* Bouton retour */}
           <div className="return-to-post-btn" onClick={goHome}>
-            <FiArrowLeft />
+            <FiArrowLeft /> Post
           </div>
 
           {loading ? (
@@ -121,6 +115,7 @@ const PostDetail = () => {
               onEdit={handleEdit}
               onDelete={handleDelete}
               detail={true}
+              commentCount={commentCount}
             />
           )}
             

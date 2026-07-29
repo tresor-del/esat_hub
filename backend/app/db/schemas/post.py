@@ -1,5 +1,4 @@
-# app/db/schemas/post.py (VERSION MISE À JOUR)
-from sqlalchemy import UUID, Column, Integer, String, Text, DateTime, Enum, ForeignKey
+from sqlalchemy import UUID, Column, Integer, String, Text, DateTime, Enum, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 import datetime
 import enum
@@ -19,6 +18,19 @@ class PostType(str, enum.Enum):
 class PostStatus(str, enum.Enum):
     ACTIVE = "ACTIVE"
     INACTIVE = "INACTIVE"
+
+
+class PostLike(Base):
+    __tablename__ = "post_likes"
+    __table_args__ = (UniqueConstraint("post_id", "user_id", name="uq_post_like_user_post"),)
+
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
+    post_id = Column(UUID(as_uuid=True), ForeignKey("posts.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
+
+    post = relationship("Post", back_populates="likes")
+    user = relationship("User", back_populates="post_likes")
 
 
 class Post(Base):
@@ -43,6 +55,7 @@ class Post(Base):
 
     comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
     notifications = relationship("Notification", back_populates="post_rel", cascade="all, delete-orphan")
+    likes = relationship("PostLike", back_populates="post", cascade="all, delete-orphan")
 
     room_id = Column(UUID(as_uuid=True), ForeignKey("rooms.id"), nullable=True)
     post_room = relationship("Room", back_populates="posts")

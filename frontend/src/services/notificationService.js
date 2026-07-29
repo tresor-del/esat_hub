@@ -1,9 +1,25 @@
+export const requestNotificationPermission = async () =>{
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") return null;
 
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: import.meta.env.VITE_VAPID_KEY,
+    });
+
+    return JSON.stringify(subscription);
+  } catch (err) {
+    console.error("Erreur permission notification:", err);
+    return null;
+  }
+}
 
 // Fonction utilitaire interne pour envoyer de façon robuste au Service Worker actif
 export const sendSystemNotification = (payload) => {
 
-    // const isAppBackground = document.visibilityState === "hidden";
+    const isAppBackground = document.visibilityState === "hidden";
     const hasPermission = Notification.permission === "granted";
 
     if (hasPermission) {

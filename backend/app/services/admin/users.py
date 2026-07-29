@@ -4,6 +4,7 @@ from uuid import UUID
 from app.db.schemas.user import User, UserRole, UserStatus
 from app.services.admin.base import BaseAdminService
 from app.models.user import UserListResponse, UserResponse, UserSearchResponse
+from app.db.schemas.room import Room
 
 
 class AdminUsersService(BaseAdminService):
@@ -15,7 +16,8 @@ class AdminUsersService(BaseAdminService):
         role: Optional[str] = None,
         status: Optional[str] = None,
         domain: Optional[str] = None,
-        year: Optional[str] = None
+        year: Optional[str] = None,
+        room_name: Optional[str] = None
     ) -> UserListResponse:
         """
         Retourne tous les utilisateurs avec des filtres optionnels
@@ -30,6 +32,9 @@ class AdminUsersService(BaseAdminService):
             query = query.filter(User.domain == domain)
         if year:
             query = query.filter(User.year == year)
+        if room_name:
+            room = self._db.query(Room).filter(Room.name == room_name).first()
+            query = query.filter(User.user_room_id == room.id)
 
         total = query.count()
         users = query.offset(skip).limit(limit).all()
@@ -113,4 +118,5 @@ class AdminUsersService(BaseAdminService):
             is_verified=user.is_verified,
             username=user.username,
             user_room_id=user.user_room_id,
+            avatar_path=user.avatar_path
         )

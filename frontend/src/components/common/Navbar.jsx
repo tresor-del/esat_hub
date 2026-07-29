@@ -3,13 +3,17 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useWebSocket } from "../../contexts/WebSocketContext";
 import UserMenu from "../user/UserMenu";
+import { useHomeData } from "../../pages/Home/hooks/useHomeData";
 import NotificationDropdown from "../notifications/NofitificationDropdown"
 import SearchDropdown from "../search/SearchDropdown";
 import InstallPWA from "./InstallPWA";
-import { FiMenu, FiX, FiMessageCircle, FiHome, FiUsers } from "react-icons/fi";
-import "../../styles/Navbar.css";
+import { useCreatePostModal } from "../../contexts/createPostContext";
+import { FiMenu, FiX, FiMessageCircle, FiHome, FiUsers, FiPlus, FiSearch, FiServer } from "react-icons/fi";
+import { FaChalkboardTeacher } from "react-icons/fa";
+import "../../styles/Common/Navbar.css";
 import Avatar from "../ui/Avatar";
 import Logo from "./Logo";
+import { useRoomData } from "../../pages/room/hooks/useRoomData";
 
 const Navbar = (props) => {
   const { user, isAuth } = useAuth();
@@ -18,15 +22,44 @@ const Navbar = (props) => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [showTopBar, setShowTopBar] = useState(() => {
-    const mobile = window.innerWidth <= 768;
-    return !mobile || !location.pathname.startsWith("/room");
-  });
+  const {room} = useRoomData();
   const lastScrollY = useRef(0);
   const lastShowTopBarChange = useRef(0);
+  const { openCreatePost } = useCreatePostModal();
 
   const closeMenu = () => setIsMenuOpen(false);
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
+
+  const [showTopBar, setShowTopBar] = useState(() => {
+    const mobile = window.innerWidth <= 768;
+    return !mobile ;
+  });
+
+  const [showBottomBar, setShowBottomBar] = useState(() => {
+    const mobile = window.innerWidth <= 768;
+    return !mobile ;
+  });
+
+
+  useEffect(() => {
+    let dernierePosition = 0;
+
+    const handleScrollMobile = () => {
+      const navbar = document.getElementById('navbar--mobile');
+      if (!navbar) return;
+
+      const positionActuelle = window.pageYOffset || document.documentElement.scrollTop;
+      if (positionActuelle > dernierePosition && positionActuelle > 100) {
+        navbar.classList.add('cache');
+      } else {
+        navbar.classList.remove('cache');
+      }
+      dernierePosition = positionActuelle <= 0 ? 0 : positionActuelle;
+    };
+
+    window.addEventListener('scroll', handleScrollMobile);
+    return () => window.removeEventListener('scroll', handleScrollMobile); // cleanup
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -42,40 +75,33 @@ const Navbar = (props) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  useEffect(() => {
-    if (!isMobile) {
-      return;
-    }
-
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY || window.pageYOffset;
-      const isScrollingDown = currentScrollY > lastScrollY.current && currentScrollY > 40;
-      const newShowTopBar = !isScrollingDown;
-      
-      // Debounce: only update if enough time has passed
-      const now = Date.now();
-      if (now - lastShowTopBarChange.current > 150) {
-        setShowTopBar(newShowTopBar);
-        lastShowTopBarChange.current = now;
-      }
-      
-      lastScrollY.current = currentScrollY;
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isMobile]);
 
   useEffect(() => {
     if (!isMobile) {
       return;
     }
 
-    if (location.pathname.startsWith("/room")) {
+    const excludedPaths = 
+      location.pathname.startsWith("/room") ||
+      location.pathname.startsWith("/chat") ||
+      location.pathname.startsWith("/profile") ||
+      location.pathname.startsWith("/post-page/");
+
+    const excludedOnB = 
+      location.pathname.startsWith("/post-page/");
+
+    if (excludedPaths) {
       setShowTopBar(false);
     } else {
       setShowTopBar(true);
     }
+
+     if (excludedOnB) {
+      setShowBottomBar(false);
+    } else {
+      setShowBottomBar(true);
+    }
+
   }, [isMobile, location.pathname]);
 
   const activeSection = (() => {
@@ -112,7 +138,8 @@ const Navbar = (props) => {
       aria-label="Accueil"
     >
       <div className="icon-with-badge navbar-icon-container">
-        <FiHome size={30} style={{ opacity: activeSection === "home" ? 1 : 0.7 }} />
+        <FiHome size={24} strokeWidth={activeSection === "home" ? 2.2 : 1.8} />
+        Posts
       </div>
     </button>
   );
@@ -120,11 +147,12 @@ const Navbar = (props) => {
   const RoomsButton = (
     <button
       className={`navbar-icon-btn ${activeSection === "rooms" ? "active" : ""}`}
-      onClick={() => { navigate("/room"); closeMenu(); }}
+      onClick={() => { navigate(`/room/${room.id}`); closeMenu(); }}
       aria-label="Salles"
     >
       <div className="icon-with-badge navbar-icon-container">
-        <FiUsers size={30} style={{ opacity: activeSection === "rooms" ? 1 : 0.7 }} />
+        <FaChalkboardTeacher size={24} strokeWidth={activeSection === "rooms" ? 2.2 : 1.8} />
+        Classe
       </div>
     </button>
   );
@@ -137,19 +165,22 @@ const Navbar = (props) => {
       data-step="2"
       data-intro="Accedez au chat ici !"
     >
-      <div className="icon-with-badge navbar-icon-container ">
-        <FiMessageCircle size={30} style={{ opacity: activeSection === "chat" ? 1 : 0.7 }} />
+      <div className="icon-with-badge navbar-icon-container">
+        <FiMessageCircle size={24} strokeWidth={activeSection === "chat" ? 2.2 : 1.8} />
         {unreadChatsCount > 0 && (
           <span className="notification-badge">{unreadChatsCount}</span>
         )}
+        Messages
       </div>
     </button>
   );
 
+
   const CreateButton = (
-    <Link to="/create" className="btn btn-primary btn-create" onClick={closeMenu}>
-      + Créer
-    </Link>
+    <div className="btn btn-create" onClick={() => { openCreatePost(); closeMenu(); }}>
+      <FiPlus size={25} />
+      <span>Créer</span>
+    </div>
   );
 
   const AuthLinks = (
@@ -174,7 +205,12 @@ const Navbar = (props) => {
       <div className="navbar-container desktop">
 
         {/* Gauche : logo */}
-        {getLogo}
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          {getLogo}
+
+          <SearchDropdown />
+        </div>
+
 
         {/* Centre : home + rooms + chat */}
         <div className="navbar-center">
@@ -187,9 +223,9 @@ const Navbar = (props) => {
         <div className="navbar-actions">
           {isAuth() ? (
             <>
-              {/* {CreateButton} */}
+              {CreateButton}
               <NotificationDropdown unreadCount={unreadCount} />
-              
+
               <UserMenu />
             </>
           ) : (
@@ -202,32 +238,23 @@ const Navbar = (props) => {
   );
 
   /* ── VERSION MOBILE ──────────────────────────── */
-  /*
-   * Layout barre : [☰] [Logo] [Recherche──flex] [Cloche]
-   * Drawer (si ouvert) : Chat, Créer, UserMenu
-   */
 
   const MobileNavbar = (
-    <nav className={`navbar navbar--mobile`}>
+    <nav className={`navbar navbar--mobile `} id="navbar--mobile">
 
       {/* Barre supérieure */}
-      <div className={`navbar-container navbar-topbar ${showTopBar ? "" : "hidden"} ${props.className}`}>
+      <div className={`navbar-container navbar-topbar ${showTopBar ? "" : "hidden"} `}>
 
         {/* Logo */}
-        {getLogo}
+        {/* {getLogo} */}
 
-        {/* Cloche — toujours visible dans la barre */}
-        {isAuth() && (
-          <div className="navbar-actions">
-            {CreateButton}
-            {user ? (
-              <Avatar user={user} openModal={false} onClick={() => navigate(`/profile/${user.id}`)} data-step="5" />
-            ) : (
-              <div className="skeleton-avatar skeleton-blink" style={{ width: '32px', height: '32px' }} />
-            )}
-            {/* <UserMenu /> */}
-          </div>
-        )}
+
+        <UserMenu />
+
+        <SearchDropdown />
+
+
+        <NotificationDropdown unreadCount={unreadCount} />
 
       </div>
 
@@ -247,7 +274,7 @@ const Navbar = (props) => {
 
       {/* Barre d'actions mobile en bas du navbar (mobile only) */}
       {isMobile && (
-        <div className="navbar-mobile-bottom">
+        <div className={`navbar-mobile-bottom ${showBottomBar ? "" : "hidden"}  }`}>
           <button
             className={`navbar-icon-btn mobile-action ${activeSection === "home" ? "active" : ""}`}
             aria-label="Accueil"
@@ -259,19 +286,21 @@ const Navbar = (props) => {
             <div className="icon-with-badge navbar-icon-container">
               <FiHome size={25} style={{ opacity: activeSection === "home" ? 1 : 0.7 }} />
             </div>
+            Posts
           </button>
 
           <button
             className={`navbar-icon-btn mobile-action ${activeSection === "rooms" ? "active" : ""}`}
             aria-label="Salles"
             onClick={() => {
-              navigate("/room");
+              navigate(`/room/${room.id}`);
               closeMenu();
             }}
           >
             <div className="icon-with-badge navbar-icon-container">
               <FiUsers size={25} style={{ opacity: activeSection === "rooms" ? 1 : 0.7 }} />
             </div>
+            Classe
           </button>
 
           <button
@@ -288,9 +317,10 @@ const Navbar = (props) => {
                 <span className="notification-badge">{unreadChatsCount}</span>
               )}
             </div>
+            Messages
           </button>
 
-          <NotificationDropdown unreadCount={unreadCount} /> 
+          {CreateButton}
 
         </div>
 

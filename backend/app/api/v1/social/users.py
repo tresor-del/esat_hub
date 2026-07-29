@@ -11,6 +11,7 @@ from app.api.deps.db import get_db
 from app.core.config import settings
 from app.api.deps.services import get_auth_service
 from app.models.user import UserUpdate
+from app.services.auth.users import AuthService
 
 
 os.makedirs(settings.AVATAR_DIR, exist_ok=True)
@@ -23,11 +24,11 @@ def get_current_user_profile(
 ):
     return current_user
 
-@router.put("/me")
+@router.patch("/me")
 def update_current_user_profile(
     user_update: UserUpdate,
     current_user: User = Depends(get_current_user),
-    user_service = Depends(get_auth_service)
+    user_service: AuthService = Depends(get_auth_service)
 ):
     updated_user = user_service.update_user(current_user.id, user_update)
     return updated_user
@@ -36,9 +37,10 @@ def update_current_user_profile(
 def get_all_users(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    user_service = Depends(get_auth_service)
+    user_service = Depends(get_auth_service),
+    room_id: str = None
 ):
-    users = user_service.get_all_users()
+    users = user_service.get_all_users(room_id=room_id)
     return users
 
 @router.get("/{user_id}")

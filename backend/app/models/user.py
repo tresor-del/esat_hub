@@ -21,6 +21,9 @@ class UserBase(BaseModel):
     birthday: Optional[datetime] = None
     card_number: Optional[str] = None
     status: Optional[str] = None
+    is_room_rep: Optional[bool] = None
+    full_name: Optional[str] = None
+    subject: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -42,6 +45,10 @@ class UserUpdate(BaseModel):
     birthday: Optional[datetime] = None
     card_number: Optional[str] = None
     phone_number: Optional[str] = None
+    old_password: Optional[str] = None
+    new_password: Optional[str] = None
+    full_name: Optional[str] = None
+    subject: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

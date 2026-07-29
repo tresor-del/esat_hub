@@ -1,5 +1,5 @@
 import React from "react";
-import "../../styles/Legal.css"
+import "../../styles/Legals/Legal.css"
 
 const Privacy = () => (
   <div className="legal-container">

@@ -1,62 +1,94 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { FiLogOut, FiSettings, FiMessageCircle, FiUser } from "react-icons/fi";
-import { HiOutlineHome } from "react-icons/hi";
-
+import { FiLogOut, FiSettings, FiUser, FiInfo, FiFileText, FiLock } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
-import { useWebSocket } from "../../contexts/WebSocketContext";
-import DropdownMenu from "../ui/DropdownMenu";
+import "../../styles/Users/UserMenu.css";
 import Avatar from "../ui/Avatar";
-import "../../styles/UserMenu.css";
-
-/* ─────────────────────────────────────────────────
-   UserMenuLinks
-   Liste des actions utilisateur (réutilisable dans
-   le drawer mobile ou le dropdown desktop).
-
-   Props :
-     user     – objet utilisateur courant
-     isAdmin  – booléen
-     onAction – callback appelé après chaque action
-                (ex. fermer le drawer)
-   ───────────────────────────────────────────────── */
 
 export const UserMenuLinks = ({ user, isAdmin, onAction, isDesktop = false }) => {
-    const { logout } = useAuth();
-    const navigate = useNavigate();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const isStudent = user.role === "STUDENT";
+  const isTeacher = user.role === "TEACHER";
 
-    const go = (path) => {
-        navigate(path);
-        onAction?.();
-    };
+  const go = (path) => {
+    navigate(path);
+    onAction?.();
+  };
 
-    return (
-        <>
+  return (
+    <div className="um-menu">
+      {/* En-tête utilisateur */}
+      {user && (
+        <div style={{ display: "flex", alignItems: "center", padding: "10px" }}>
+          <Avatar user={user} />
+          <div className="um-header">
 
-            {isDesktop && (
-
-                <button onClick={() => go(`profile/${user.id}`)}>
-                    <FiUser /> Profile
-                </button>
-            )}
-            <button className="user-menu-btn" onClick={() => go("/room")}>
-                <HiOutlineHome /> {isDesktop ? "Room" : "Aller dans la salle" }
-            </button>
-
-            {isAdmin && (
-                <button onClick={() => go("/admin")}>
-                    <FiSettings /> Admin
-                </button>
+            {isStudent && (
+              <>
+                <p className="um-name">{user.first_name} {user.last_name}</p>
+                <p className="um-role">Étudiant</p>
+              </>
             )}
 
-            <button
-                className="user-logout-btn"
-                onClick={() => { logout(); onAction?.(); }}
-            >
-                <FiLogOut /> {isDesktop ? "Logout" : "Se déconnecter" }
+            {isTeacher && (
+              <>
+                <p className="um-name">{user.full_name}</p>
+                <p className="um-role">Enseignant</p>
+              </>
+            )}
+
+          </div>
+        </div>
+      )}
+
+      <div className="um-section">
+        {user.role === "STUDENT" && (
+          <>
+            <button className="um-item" onClick={() => go(`/profile/${user.id}`)}>
+              <span className="um-icon"><FiUser /></span>
+              <span>Mon profil</span>
             </button>
-        </>
-    );
+
+
+            <div className="um-divider" />
+
+            <button onClick={() => go(`/about`)} className="footer-link">
+              <span className="um-icon"><FiInfo /></span>
+              <span>À propos d'Esathub</span>
+            </button>
+            <button onClick={() => go(`/privacy`)} className="footer-link">
+              <span className="um-icon"><FiFileText /></span>
+              Confidentialité
+            </button>
+            <button onClick={() => go(`/terms`)} className="footer-link">
+              <span className="um-icon"><FiLock /></span>
+              Condition d'utilisation
+            </button>
+          </>
+
+        )}
+        {isAdmin && (
+          <button className="um-item" onClick={() => go("/admin")}>
+            <span className="um-icon"><FiSettings /></span>
+            <span>Administration</span>
+          </button>
+        )}
+      </div>
+
+      <div className="um-divider" />
+
+      <div className="um-section">
+        <button
+          className="um-item um-item--danger"
+          onClick={() => { logout(); onAction?.(); }}
+        >
+          <span className="um-icon"><FiLogOut /></span>
+          <span>Se déconnecter</span>
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default UserMenuLinks;

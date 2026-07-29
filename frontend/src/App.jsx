@@ -12,37 +12,61 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Logo from "./components/common/Logo";
 import WelcomeModal from "./components/common/WelcomeModal";
 
-import "./styles/UserProfile.css";
+import "./styles/Users/UserProfile.css";
 import "./App.css";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import MainLayout from "./layouts/MainLayout";
+import StudentLayout from "./layouts/StudentLayout";
+import TeacherLayout from "./layouts/TeacherLayout";
 import EmptyLayout from "./layouts/EmptyLayout";
+import { CreatePostProvider } from "./contexts/createPostContext";
+import { ToastProvider } from "./contexts/toastContext";
+import PostDetailRoute from "./components/posts/PostDetailRoute";
 
 const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
-const ConfirmEmail = lazy(() => import("./pages/auth/ComfirmEmail"));
-const Home = lazy(() => import("./pages/posts/Home"));
-const CreatePost = lazy(() => import("./pages/posts/CreatePost"));
+const TRegister = lazy(() => import("./pages/auth/TeacherRegister"))
+
+const Home = lazy(() => import("./pages/Home/index"));
 const PostDetail = lazy(() => import("./pages/posts/postDetail"));
-const PostEdit = lazy(() => import("./pages/posts/PostEdit"));
 const UserProfil = lazy(() => import("./pages/profile/UserProfil"));
 const ProfileEdit = lazy(() => import("./pages/profile/ProfileEdit"));
-const Room = lazy(() => import("./pages/room/Room"));
+const Room = lazy(() => import("./pages/room/index"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const ChatPage = lazy(() => import("./pages/chat/ChatPage"));
+const ScanPage = lazy(() => import("./pages/ScanPage"));
 const About = lazy(() => import("./pages/legal/About"));
 const Privacy = lazy(() => import("./pages/legal/Privacy"));
 const Terms = lazy(() => import("./pages/legal/Terms"));
-const UpdateBanner = lazy(() => import("./components/common/UpdateBanner") )
+const UpdateBanner = lazy(() => import("./components/common/UpdateBanner"))
 
+const TeacherHome = lazy(() => import("./pages/teacher/Home"))
 
-const queryClient = new QueryClient();
+// cache persistants
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { persistQueryClient } from '@tanstack/react-query-persist-client';
+import { capacitorPersister } from './lib/capacitorQueryPersister';
+import { useDeepLinks } from "./hooks/useDeepLinks"
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      gcTime: 1000 * 60 * 60 * 24, // 24h garder le cache 24h
+      staleTime: 1000 * 60 * 5,    // 5min considérer les données fraîches 5min
+    },
+  },
+});
+
+persistQueryClient({
+  queryClient,
+  persister: capacitorPersister,
+  maxAge: 1000 * 60 * 60 * 24, // 24h
+});
 
 const AppRoutes = () => {
-  const { loading, isAuth, logout } = useAuth();
-  const navigate = useNavigate();
+  useDeepLinks();
 
+  const { loading, isAuth, logout, user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleLogout = (event) => {
@@ -83,35 +107,57 @@ const AppRoutes = () => {
           <Route element={<EmptyLayout />}>
             <Route
               path="/login"
-              element={isAuth() ? <Navigate to="/" replace /> : <Login />}
+              element={
+                isAuth() ? (
+                  <Navigate to={user?.role === "TEACHER" ? "/teacher" : "/"} replace />
+                ) : (
+                  <Login />
+                )
+              }
             />
             <Route
-              path="/register"
+              path="/register-student"
               element={isAuth() ? <Navigate to="/" replace /> : <Register />}
             />
-            <Route path="/confirm-email" element={<ConfirmEmail />} />
+            <Route
+              path="/register-teacher"
+              element={isAuth() ? <Navigate to="/" replace /> : <TRegister />}
+            />
 
+          </Route>
+
+          <Route element={
+            <ProtectedRoute>
+              <TeacherLayout />
+            </ProtectedRoute>
+          }
+          >
+            <Route path="/teacher" element={<TeacherHome />} />
+            <Route
+              path="*"
+              element={<Navigate to={isAuth() ? "/teacher" : "/login"} replace />}
+            />
           </Route>
 
           <Route
             element={
               <ProtectedRoute>
-                <MainLayout />
+                <StudentLayout />
               </ProtectedRoute>
             }
           >
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/" element={<Home />} />
-            <Route path="/create" element={<CreatePost />} />
-            <Route path="/edit/:id" element={<PostEdit />} />
-            <Route path="/post/:id" element={<PostDetail />} />
+            <Route path="/post/:id" element={<Home />} />
+            <Route path="/post-page/:id" element={<PostDetailRoute />} />
             <Route path="/profile/:id" element={<UserProfil />} />
             <Route path="/profile/edit" element={<ProfileEdit />} />
-            <Route path="/room" element={<Room />} />
+            <Route path="/room/:id" element={<Room />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/about" element={<About />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/attendance/scan" element={<ScanPage />} />
           </Route>
 
           <Route
@@ -130,8 +176,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <AuthProvider>
-          <AppRoutes />
-
+          <ToastProvider>
+            <CreatePostProvider>
+              <AppRoutes />
+            </CreatePostProvider>
+          </ToastProvider>
         </AuthProvider>
       </Router>
     </QueryClientProvider>

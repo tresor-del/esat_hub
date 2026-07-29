@@ -1,0 +1,415 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+/* ── Wrapper plein écran ── */
+.auth-container {
+  display: flex;
+  min-height: 100vh;
+  background: #f0f4f9;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ════════════════════════
+   PANNEAU GAUCHE – Brand
+════════════════════════ */
+.auth-brand-panel {
+  flex: 0 0 42%;
+  background: linear-gradient(to right, #0f4c81, #0079d3);
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  justify-content: center;
+  padding: 60px 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Cercles décoratifs en arrière-plan */
+.auth-brand-panel::before,
+.auth-brand-panel::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+}
+
+.auth-brand-panel::before {
+  width: 380px;
+  height: 380px;
+  top: -100px;
+  right: -100px;
+}
+
+.auth-brand-panel::after {
+  width: 280px;
+  height: 280px;
+  bottom: -80px;
+  left: -80px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Petit cercle flottant supplémentaire */
+.brand-circle-accent {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  bottom: 120px;
+  right: 40px;
+  pointer-events: none;
+}
+
+/* Contenu brand */
+.auth-brand-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+  text-align: center;
+  animation: brandFadeIn 0.7s ease both;
+}
+
+.presentations {
+  display: flex;
+}
+
+.presentations img {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 1rem;
+}
+
+@keyframes brandFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-brand-logo-wrap {
+  margin-bottom: 28px;
+}
+
+
+.auth-brand-name {
+  font-family: 'Sora', sans-serif;
+  font-size: 38px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -1px;
+  margin: 0 0 6px;
+}
+
+.auth-school-name {
+  font-family: 'Sora', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: -1px;
+  margin: 0 0 6px;
+}
+
+.auth-brand-tagline {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.65;
+  max-width: 280px;
+  margin: 0 auto 40px;
+  font-weight: 400;
+}
+
+/* Pillules de stats / features */
+.auth-brand-pills {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.auth-brand-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 40px;
+  padding: 10px 18px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13.5px;
+  font-weight: 500;
+  backdrop-filter: blur(6px);
+  animation: pillSlide 0.5s ease both;
+}
+
+.auth-brand-pill:nth-child(1) {
+  animation-delay: 0.15s;
+}
+
+.auth-brand-pill:nth-child(2) {
+  animation-delay: 0.28s;
+}
+
+.auth-brand-pill:nth-child(3) {
+  animation-delay: 0.41s;
+}
+
+@keyframes pillSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.auth-brand-pill-icon {
+  font-size: 17px;
+  line-height: 1;
+}
+
+/* ════════════════════════
+   PANNEAU DROIT – Formulaire
+════════════════════════ */
+.auth-form-panel {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 48px 40px;
+  min-height: 0;
+  height: 100vh;
+  overflow-y: scroll;
+  background: #f0f4f9;
+}
+
+.auth-card {
+  width: 100%;
+  /* max-width: 480px; */
+  /* background: #ffffff; */
+  /* border: 1px solid rgba(0,0,0,0.07); */
+  /* border-radius: 20px; */
+  padding: 44px 40px;
+  /* box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07); */
+  animation: cardIn 0.5s ease both;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* On masque le logo dans la carte (il est sur le panneau gauche) */
+.auth-logo {
+  display: none;
+}
+
+/* Titre */
+.auth-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 28px;
+  color: #0f1923;
+  letter-spacing: -0.4px;
+  text-align: center;
+}
+
+/* ── Inputs modernes ── */
+.form-input,
+.form-textarea,
+.form-select {
+  padding: 12px 16px;
+  border: 1.5px solid #dde3ec;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: 'Inter', inherit;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  background-color: #f7f9fc;
+  color: #0f1923;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+}
+
+.form-select {
+  height: 55px;
+  font-size: 1.1rem;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #0079d3;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 121, 211, 0.12);
+}
+
+.form-input::placeholder {
+  color: #a0aab4;
+}
+
+/* ── Labels ── */
+.form-label {
+  font-weight: 600;
+  color: #5a6472;
+  font-size: 1.1rem;
+  /* text-transform: uppercase; */
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* ── Bouton submit ── */
+.btn-primary {
+  background: linear-gradient(135deg, #0f4c81, #0079d3);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(0, 121, 211, 0.30);
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.93;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 121, 211, 0.38);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.btn-primary.btn-full {
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  margin-top: 8px;
+}
+
+/* ── Alerte ── */
+.alert {
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.alert-error {
+  background: #fff1f0;
+  border: 1px solid #ffc9c9;
+  color: #c0392b;
+}
+
+.alert-success {
+  background: #f0faf4;
+  border: 1px solid #b2dfce;
+  color: #1a7a4e;
+}
+
+/* ── Lien bas de page ── */
+.auth-link {
+  text-align: center;
+  margin: 2rem;
+  color: #6b7685;
+  font-size: 14px;
+}
+
+.auth-link a {
+  font-weight: 600;
+  color: #0079d3;
+  text-decoration: none;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
+}
+
+/* ── États de validation ── */
+.form-input.is-valid {
+  border-color: #4CAF50;
+  background-color: #f0faf0;
+}
+
+.form-input.is-invalid {
+  border-color: #f44336;
+  background-color: #fff5f5;
+}
+
+/* ════════════════════════
+   MOBILE  ≤ 768px
+════════════════════════ */
+@media (max-width: 768px) {
+  .auth-container {
+    flex-direction: column;
+    /* background: linear-gradient(135deg, #0f4c81, #0079d3);  */
+  }
+
+  /* Panneau brand : compact en haut */
+  .auth-brand-panel {
+    background: linear-gradient(to bottom, #0f4c81, #0079d3);
+  }
+
+  .auth-brand-pills {
+    display: none;
+  }
+
+  .auth-brand-name {
+    font-size: 28px;
+  }
+
+  .auth-brand-tagline {
+    font-size: 14px;
+    margin-bottom: 0;
+  }
+
+  /* Panneau formulaire prend toute la place */
+  .auth-form-panel {
+    flex: 1;
+    background: transparent;
+    padding: 24px 16px 40px;
+  }
+
+  .auth-card {
+    border-radius: 20px;
+    padding: 20px 10px;
+    /* box-shadow: 0 8px 40px rgba(0,0,0,0.18); */
+  }
+
+  .presentations {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+}

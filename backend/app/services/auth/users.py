@@ -1,11 +1,14 @@
 import re
 import uuid
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.db.schemas.user import User, UserStatus
+from app.db.schemas.user import User, UserStatus, UserRole
 from app.db.schemas.email_verification import EmailVerificationToken
 from app.models.user import  UserInDatabase
 from app.core.config import settings
+from app.db.security import hash_password, verify_password
+from app.services.utils.pagination import paginate_query
 
 
 class AuthService:
@@ -15,7 +18,10 @@ class AuthService:
         
 
     def get_username(self, profil_name: str, school_name: str) -> str|None:
+
+        # on enlever les espaces et le rendre minuscule
         validated_profil_name = profil_name.strip().lower()
+        # expression régulière pour valider le nom de profile
         if re.match("^[a-z0-9_]+$", validated_profil_name):
             validated_school_name = school_name.strip().lower()
             username = f"{validated_profil_name}@{validated_school_name}"
@@ -24,14 +30,9 @@ class AuthService:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Le nom de profil n'est pas valide"
         )
-
-    def confirm_user(self, user: User, record: EmailVerificationToken):
-        user.status = UserStatus.ACTIVE
-        self._db.delete(record)
-        self._db.commit()
-        self._db.refresh(user)
         
     def check_duplicated_email(self, user_email: str) -> bool:
+
         user = self._db.query(User).filter(User.email == user_email).first()
         
         if not user:
@@ -44,7 +45,6 @@ class AuthService:
             
         return True
 
-    
     def check_duplicated_profil_name(self, profil_name: str) -> bool:
         result = self._db.query(User).filter(User.profil_name == profil_name).first()
         return True if result else False
@@ -61,6 +61,7 @@ class AuthService:
     def get_user(self, user_id: uuid.UUID) -> User | None:
         return self._db.query(User).filter(User.id == user_id).first()
     
+    
     def get_admin(self)-> User | None:
         return self._db.query(User).filter(User.username == settings.SUPER_ADMIN_USERNAME).first()
     
@@ -68,8 +69,36 @@ class AuthService:
         user = self.get_user(user_id)
         if not user:
             return None
-        
+
         update_data = user_update.model_dump(exclude_unset=True)
+
+
+        # Ignorer les champs password vides
+        if not update_data.get("new_password"):
+            update_data.pop("new_password", None)
+            update_data.pop("old_password", None)
+
+        if "new_password" in update_data:
+            new_password = update_data.get("new_password")
+            old_password = update_data.get("old_password")
+
+            if not old_password:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="L'ancien mot de passe est obligatoire."
+                )
+            
+            if not verify_password(old_password, user.hashed_password):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Mot de passe incorrect"
+                )   
+            
+            user.hashed_password = hash_password(new_password)
+
+            update_data.pop("old_password", None)
+            update_data.pop("new_password", None)
+
         for key, value in update_data.items():
             if hasattr(user, key):
                 setattr(user, key, value)
@@ -84,12 +113,29 @@ class AuthService:
             self._db.delete(user)
             self._db.commit()
     
-    def get_all_users(self) -> list[User]:
-        """Récupère tous les utilisateurs"""
-        return self._db.query(User).filter(User.status == UserStatus.ACTIVE).all()
+    def get_all_users(self, page: int = 1, page_size: int = 20, room_id: str = None) -> list[User]:
+        """Récupère tous les utilisateurs, optionnellement filtrés par room_id"""
+        statement = select(User).filter(
+            User.status == UserStatus.ACTIVE,
+            User.role == UserRole.STUDENT
+        )
+        
+        if room_id:
+            statement = statement.filter(User.user_room_id == room_id)
+        
+        result = paginate_query(self._db, statement, page, page_size)
+        return result
     
-    def get_users_by_room_id(self, room_id: uuid.UUID) -> list[User]:
+    def get_users_by_room_id(self, room_id: uuid.UUID, page: int = 1, page_size: int = 20) -> list[User]:
         """Récupère tous les utilisateurs d'une salle spécifique"""
-        return self._db.query(User).filter(User.user_room_id == room_id).all()
+        statement = select(User).filter(
+            User.user_room_id == room_id,
+            User.role == UserRole.STUDENT
+        )
+        result = paginate_query(self._db, statement, page, page_size)
+        return result
     
+    def get_user_by_rfid_uid(self, uid: str) -> list[User]:
+        """Récupère un utilisateur en se basant sur le numéro de la carte rfid"""
+        return self._db.query(User).filter(User.rfid_uid == uid).first()
     

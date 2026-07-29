@@ -53,7 +53,7 @@ def authenticate_user(db: Session, username: str, password: str):
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Cet utilisateur n'existe pas.",
         )
     
     # Vérifier si le mot de passe est incorrect
@@ -63,11 +63,11 @@ def authenticate_user(db: Session, username: str, password: str):
             detail="Incorrect email or password",
         )
     
-    # Vérifier si l'email est vérifié
+    # Vérifier si l'utilisateur à été vérifié
     if not user.status == "ACTIVE":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Email not verified. Please check your inbox."
+            detail="Utilisateur pas encore vérifié."
         )
     
     return user

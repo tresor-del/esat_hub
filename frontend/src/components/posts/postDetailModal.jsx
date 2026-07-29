@@ -1,93 +1,131 @@
 import React, { useEffect, useState } from "react";
-import { FiX } from "react-icons/fi"; // Remplacement par une icône de fermeture
-import { getPost, deletePost } from "../../services/api";
+import { FiHeart, FiX, FiMessageCircle, FiShare2 } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
 import CommentSection from "../../components/comments/CommentSection";
-import PostCard from "../../components/posts/Postcard";
-import PostCardSkeleton from "../../components/skeletons/PostcardSkeleton";
-import "../../styles/CommentSection.css";
-import "../../styles/PostDetail.css";
+import PostAuthorInfo from "../../components/posts/PostAuthorInfo";
+import PostMedia from "../../components/posts/PostMedia";
+import { usePostDetail } from "../../components/posts/hooks/usePostDetail";
+import { formatRelativeDate } from "../../utils/dateFormatter";
+import { togglePostLike } from "../../services/api";
+import "../../styles/Posts/PostDetail.css"
 
 const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
   const { user } = useAuth();
-  const [post, setPost] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [commentCount, setCommentCount] = useState(0);
+
+  const {
+    post,
+    loading,
+    error,
+    loadPost,
+    handleCommentAdded,
+    commentCount,
+  } = usePostDetail({ onClose, onPostDeleted });
+
+  const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
+  const [likesCount, setLikesCount] = useState(post?.likes_count ?? 0);
+  const [likedByMe, setLikedByMe] = useState(post?.liked_by_me ?? false);
+  const [loadingLike, setLoadingLike] = useState(false);
 
   useEffect(() => {
-    if (postId) {
-      loadPost();
-    }
+    if (postId) loadPost(postId);
   }, [postId]);
 
-  const loadPost = async () => {
+  useEffect(() => {
+    setLikesCount(post?.likes_count ?? 0);
+    setLikedByMe(post?.liked_by_me ?? false);
+  }, [post?.id, post?.likes_count, post?.liked_by_me]);
+
+  const handleLikeClick = async (e) => {
+    e.stopPropagation();
+    if (!post?.id || loadingLike) return;
+
+    setLoadingLike(true);
     try {
-      setLoading(true);
-      const result = await getPost(postId);
-      setPost(result);
-    } catch (err) {
-      console.error(err);
-      setError("Erreur lors du chargement du post");
+      const result = await togglePostLike(post.id);
+      setLikedByMe(result.liked_by_me);
+      setLikesCount(result.likes_count);
+    } catch (error) {
+      console.error("Erreur lors du like du post:", error);
     } finally {
-      setLoading(false);
+      setLoadingLike(false);
     }
   };
 
-  const handleEdit = (currentPost) => {
-    // Si vous êtes en production dans un modal, vous pouvez rediriger ou ouvrir un sous-modal
-    window.location.href = `/edit/${currentPost.id}`;
-  };
-
-  const handleDelete = async (currentPost) => {
-    if (!confirm("Voulez-vous vraiment supprimer ce post ?")) return;
-    try {
-      await deletePost(currentPost.id);
-      onClose(); // Ferme le modal
-      if (onPostDeleted) onPostDeleted(currentPost.id); // Notifie le parent pour rafraîchir la liste
-    } catch (err) {
-      console.error(err);
-      alert("Impossible de supprimer le post.");
-    }
-  };
-
-  const handleCommentAdded = (count) => {
-    setCommentCount(count);
+  const handleImageLoad = (e) => {
+    setImgSize({
+      width: e.target.naturalWidth,
+      height: e.target.naturalHeight,
+    });
   };
 
   if (error) return <p className="alert alert-error">{error}</p>;
 
+  const toggleReadMore = (e) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  }
+
   return (
     <div className="post-detail-modal" onClick={onClose}>
-      <div className="post-card-container" onClick={(e) => e.stopPropagation()}>
-        <div className="post-content">
-          
-          {/* Bouton de fermeture moderne en haut à droite */}
-          <div className="return-to-post-btn" onClick={onClose}>
-            <FiX size={20} />
+
+      <div className="return-to-post-btn" onClick={onClose}>
+        <FiX size={33} />
+      </div>
+
+
+      <div className="post-detail-content" onClick={(e) => e.stopPropagation()}>
+
+        {/* IMAGE ET DOCUMENTS */}
+
+        {post?.file_path && (
+          <div className="post-detail-media">
+
+            {post?.post_type === "photo" && (
+              <img
+                src={post.file_path}
+                alt={post.title}
+                className="post-image"
+              />
+            )}
+
+            {post?.post_type === "document" && (
+              <PostMedia post={post} />
+            )}
+
+          </div>
+        )}
+
+        {/* Post détail */}
+        <div className="post-detail-info">
+          <div className="post-detail-header">
+            <PostAuthorInfo user={post?.user} postDate={formatRelativeDate(post?.created_at)} />
+          </div>
+          <div>
+            <p>
+              <strong>{post?.title}</strong>
+            </p>
+            <p>
+              {post?.description}
+            </p>
+
+            <div className="post-action" >
+              <button type="button" className={`post-action-btn ${likedByMe ? "liked" : ""}`} onClick={handleLikeClick} disabled={loadingLike}>
+                <FiHeart size={20} fill={likedByMe ? "#ef4444" : "none"} color={likedByMe ? "#ef4444" : undefined} />
+                {likesCount}
+              </button>
+              <span className="post-action-btn"> <FiMessageCircle size={25} /> {commentCount ?? post?.comments_count ?? 0}</span>
+            </div>
+
           </div>
 
-          {loading ? (
-            <PostCardSkeleton />
-          ) : (
-            <PostCard
-              key={post.id}
-              post={post}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              detail={true}
-            />
-          )}
+          <CommentSection
+            postId={post?.id}
+            user={user}
+            onCommentAdded={handleCommentAdded}
+          />
 
-          <br />
-          {!loading && post && (
-            <CommentSection
-              postId={post.id}
-              user={user}
-              onCommentAdded={handleCommentAdded}
-            />
-          )}
         </div>
+
       </div>
     </div>
   );

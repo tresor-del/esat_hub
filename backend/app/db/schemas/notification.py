@@ -11,6 +11,7 @@ class Notification(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
     type = Column(String, nullable=False)
+    title = Column(String, nullable=True)
     content = Column(Text, nullable=False)
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.UTC))
@@ -22,7 +23,8 @@ class Notification(Base):
     sender = relationship("User", foreign_keys=[sender_id])
 
     post_id = Column(UUID(as_uuid=True), ForeignKey("posts.id"), index=True,  nullable=True)
-    post_rel = relationship("Post", back_populates="notifications")
+    post = relationship("Post", back_populates="notifications", overlaps="post_rel")
+    post_rel = relationship("Post")
 
     comment_id = Column(UUID(as_uuid=True), ForeignKey("comments.id", ondelete="CASCADE"), index=True, nullable=True)
     comment_rel = relationship("Comment", back_populates="notifications")

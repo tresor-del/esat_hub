@@ -188,6 +188,17 @@
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         }
 
+        .imgs {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .imgs img {
+            max-width: 100%;
+            border-radius: 24px
+        }
+
         .footer {
             padding-top: 80px;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -220,14 +231,19 @@
             <div class="logo-section">
                 <img class="logo-img" src="frontend/public/logo_circle.png" alt="ESAT-HUB Logo" />
                 <span class="badge">ESAT-HUB • Web & Mobile Platform</span>
+                <span class="badge">Exclusive to ESAT-Togo students</span>
             </div>
+
             <h1>A modern platform for school activities, chat, and project management.</h1>
             <p class="lead">
-                ESAT-HUB centralizes communication, news sharing, room management, and real-time notifications for students and staff at ESAT-Togo.
-                Powered by a decoupled architecture (FastAPI, React PWA, PostgreSQL), it provides a robust foundation for collaborative and educational experiences.
+                ESAT-HUB centralizes communication, news sharing, room management, real-time notifications, attendance
+                system with RFID scan for students and staff at ESAT-Togo.
+                Powered by a decoupled architecture (FastAPI, React PWA, PostgreSQL), it provides a robust foundation
+                for collaborative and educational experiences.
             </p>
             <div class="hero-actions">
-                <a class="button primary" href="https://github.com/tresor-del/esat_hub" target="_blank">View source code</a>
+                <a class="button primary" href="https://github.com/tresor-del/esat_hub" target="_blank">View source
+                    code</a>
             </div>
         </header>
 
@@ -239,6 +255,10 @@
             <div class="feature">
                 <strong>Chat & WebSocket</strong>
                 <span>Instant messaging and real-time notifications for seamless communication.</span>
+            </div>
+            <div class="feature">
+                <strong>Attendance</strong>
+                <span>Mark students attendance via QR Code and RFID scan</span>
             </div>
             <div class="feature">
                 <strong>Administration</strong>
@@ -256,6 +276,14 @@
                 <span class="badge tech">Notifications : Firebase (FCM) & VAPID</span>
                 <span class="badge tech">Mobile / PWA : Workbox & Service Workers</span>
                 <span class="badge tech">Media Storage : Cloudinary API</span>
+            </div>
+        </section>
+
+        <section>
+            <h2>Screenshots</h2>
+            <div class="imgs">
+                <img src="frontend/public/presentation_smartphones.png" alt="" >
+                <img src="frontend/public/presentation_desktop.png" alt="" >
             </div>
         </section>
 

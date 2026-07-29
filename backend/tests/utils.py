@@ -28,9 +28,9 @@ def random_user_data() -> UserCreate:
         level=random_enum(Level),
         year=random_enum(Year),
         major=random_enum(Major),
-        role=random_enum(UserRole)
+        role=UserRole.STUDENT
     )
-
+    
     return user_data
 
 def random_user_in_db() -> tuple[UserInDatabase, str]:

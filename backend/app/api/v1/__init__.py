@@ -6,6 +6,7 @@ from .interactions import router as inter_router
 from .realtime import router as rt_router
 from .social import router as social_router
 from .common import router as c_router
+from .teachers import router as t_router
 
 router = APIRouter()
 
@@ -15,3 +16,4 @@ router.include_router(inter_router)
 router.include_router(rt_router)
 router.include_router(social_router)
 router.include_router(c_router)
+router.include_router(t_router)

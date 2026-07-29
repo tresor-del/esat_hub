@@ -1,6 +1,8 @@
 from datetime import date
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
+from typing import List
 
 class Settings(BaseSettings):
     
@@ -9,6 +11,8 @@ class Settings(BaseSettings):
         env_ignore_empty=True,
         extra="ignore",
     )
+
+    ENV: str = "dev"
     
     SECRET_KEY: str 
     ALGORITHM: str = "HS256"
@@ -38,11 +42,11 @@ class Settings(BaseSettings):
 
     # Extensions de fichiers autorisées
     ALLOWED_PHOTO_EXTENSIONS: set = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
-    ALLOWED_DOCUMENT_EXTENSIONS: set = {".pdf", ".doc", ".docx", ".txt", ".xlsx", ".xls", ".ppt", ".pptx"}
+    ALLOWED_DOCUMENT_EXTENSIONS: set = {".pdf", ".doc", ".docx", ".txt", ".xlsx", ".xls", ".ppt", ".pptx", ".zip"}
 
     DEFAULT_AVATAR: str = "static/default_avatar.jpg"
 
-    FRONTEND_HOST: str = "http://localhost:5173"
+    FRONTEND_HOST: str = ""
 
     SMTP_HOST: str
     SMTP_PORT: int
@@ -53,10 +57,9 @@ class Settings(BaseSettings):
     SMTP_TLS: bool = True
     SMTP_SSL: bool = False
 
-    @property
-    def emails_enabled(self) -> bool:
-        return bool(self.SMTP_HOST and self.EMAILS_FROM_EMAIL)
-    
+    REDIS_URL: str = "redis://localhost:6379"
+
+    SENTRY_DSN: str = ""
     
     SUPER_ADMIN_FIRST_NAME: str = ""
     SUPER_ADMIN_LAST_NAME: str = ""
@@ -81,7 +84,16 @@ class Settings(BaseSettings):
     BREVO_API_KEY: str = ""
 
     FIREBASE_CREDENTIALS_PATH: str = ""
+    
+    ENCRYPTION_KEY: str = ""
 
 
+    @property
+    def emails_enabled(self) -> bool:
+        return bool(self.SMTP_HOST and self.EMAILS_FROM_EMAIL)
+    
+    @field_validator("CORS_ORIGINS")
+    def parse_origins(cls, v: str) -> List[str]:
+        return v.split(",") if v else [] 
     
 settings = Settings()

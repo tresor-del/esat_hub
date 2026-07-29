@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
+import { useQueryClient } from "@tanstack/react-query";
 import { updateProfile, getUserProfile, uploadAvatar } from "../../services/api";
 import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../../components/ui/Avatar";
 import { FiEdit2 } from "react-icons/fi";
-import "../../styles/Auth.css";
-import "../../styles/UserProfile.css"
+import { useToast } from "../../contexts/toastContext";
+import "../../styles/Auth/Auth.css";
+import "../../styles/Posts/PostEdit.css"
+import "../../styles/Users/UserProfile.css"
 
-const ProfileEdit = () => {
+const ProfileEdit = ({ onClose }) => {
+    const { toast } = useToast();
     const navigate = useNavigate();
     const { user, logout, updateUser } = useAuth();
+    const queryClient = useQueryClient();
+    const onMobile = window.innerWidth < 768
 
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
-    // const [profile, setProfile] = useState(null);
 
     const [formData, setFormData] = useState({
         first_name: user.first_name || '',
@@ -28,43 +33,13 @@ const ProfileEdit = () => {
         phone_number: user.phone_number || '',
         card_number: user.card_number || '',
         birthday: user.birthday || '',
+        old_password: '',
+        new_password: '',
     });
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
-
-    // useEffect(() => {
-    //     loadProfile();
-    // }, []);
-
-    // const loadProfile = async () => {
-    //     try {
-    //         setLoading(true);
-    //         const result = await getUserProfile(user.id);
-    //         setProfile(result);
-    //         setFormData({
-    //             first_name: result.first_name || '',
-    //             last_name: result.last_name || '',
-    //             profil_name: result.profil_name || '',
-    //             email: result.email || '',
-    //             school_name: result.school_name || '',
-    //             domain: result.domain || '',
-    //             level: result.level || '',
-    //             major: result.major || '',
-    //             year: result.year || '',
-    //             phone_number: result.phone_number || '',
-    //             card_number: result.card_number || '',
-    //             birthday: result.birthday || '',
-    //         });
-    //     } catch (err) {
-    //         console.error('Erreur chargement profil:', err);
-    //         setError('Impossible de charger le profil');
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
 
     const handleAvatarUpload = async (e) => {
         const file = e.target.files[0];
@@ -85,17 +60,19 @@ const ProfileEdit = () => {
         try {
             setUploadingAvatar(true);
             const result = await uploadAvatar(file);
+            console.log(result)
             localStorage.setItem(`avatar_bust_${user.id}`, Date.now());
             // Recharger le profil
             updateUser({ avatar_path: result.avatar_path });
+            queryClient.invalidateQueries({ queryKey: ["userProfile", user.id] });
+            toast({ message: "Photo de profil mise à jour avec succès" })
         } catch (err) {
             console.error("Erreur lors de l'upload:", err);
-            alert("Impossible de mettre à jour la photo de profil");
+            toast({ message: "Une erreur s'est produite, veuillez réessayer.", type: "error" })
         } finally {
             setUploadingAvatar(false);
         }
     };
-
 
     const handleChange = (e) => {
         setFormData({
@@ -123,19 +100,23 @@ const ProfileEdit = () => {
             return;
         }
 
+        // Construire le payload sans les champs password vides
+        const payload = { ...formData };
+        if (!payload.new_password) {
+            delete payload.new_password;
+            delete payload.old_password;
+        }
+
         try {
             await updateProfile(formData);
-            setSuccess(true);
-            setTimeout(() => {
-                navigate(`/profile/${user.id}`);
-            }, 2000);
+            queryClient.invalidateQueries({ queryKey: ["userProfile", user.id] });
+            toast({ message: "Profil mis à jour !" });
+            onClose();
         } catch (err) {
-            console.error('Erreur mise à jour:', err);
-            if (err.response?.status === 400) {
-                setError('Données invalides ou profil_name déjà utilisé');
-            } else {
-                setError('Erreur lors de la mise à jour');
-            }
+            const message = err.response?.status === 400
+                ? "Données invalides ou profil_name déjà utilisé"
+                : "Erreur lors de la mise à jour";
+            toast({ message, type: "error" });
         } finally {
             setLoading(false);
         }
@@ -160,8 +141,14 @@ const ProfileEdit = () => {
     }
 
     return (
-        <div className="auth-container">
-            <div className="auth-card edit-profile-card">
+        <div className="post-edit-modal-layout">
+            <div className="card post-edit-modal-card">
+                <div className="card-header">
+                    {onMobile && <FiArrowLeft size={30} onClick={() => onClose()} />}
+
+                    <h2 className="card-title">Modifier le profile</h2>
+                </div>
+
                 {error && (
                     <div className="alert alert-error">
                         {error}
@@ -174,7 +161,7 @@ const ProfileEdit = () => {
                             <Avatar user={user} size="xlarge" uploading={uploadingAvatar} />
 
                             <label className="avatar-upload-btn">
-                                <FiEdit2 size={16} />
+                                 Changer la photo
                                 <input
                                     type="file"
                                     accept="image/*"
@@ -188,24 +175,12 @@ const ProfileEdit = () => {
 
                     <div className="profile-info">
 
-                        <div className="form-group">
-                            <label htmlFor="first_name" className="form-label">
-                                Numéro de carte
-                            </label>
-                            <input
-                                type="text"
-                                id="card_number"
-                                name="card_number"
-                                className="form-input"
-                                value={formData.card_number}
-                                onChange={handleChange}
-                                disabled={loading}
-                            />
-                        </div>
+                        <h1 className="group-title">Informations Personnelles: </h1>
+                        <hr />
 
                         <div className="form-group">
                             <label htmlFor="first_name" className="form-label">
-                                Prénom *
+                                Prénom
                             </label>
                             <input
                                 type="text"
@@ -214,14 +189,13 @@ const ProfileEdit = () => {
                                 className="form-input"
                                 value={formData.first_name}
                                 onChange={handleChange}
-                                required
                                 disabled={loading}
                             />
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="last_name" className="form-label">
-                                Nom *
+                                Nom
                             </label>
                             <input
                                 type="text"
@@ -251,24 +225,8 @@ const ProfileEdit = () => {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="profil_name" className="form-label">
-                                Nom de profil *
-                            </label>
-                            <input
-                                type="text"
-                                id="profil_name"
-                                name="profil_name"
-                                className="form-input"
-                                value={formData.profil_name}
-                                onChange={handleChange}
-                                required
-                                disabled={loading}
-                            />
-                        </div>
-
-                        <div className="form-group">
                             <label htmlFor="email" className="form-label">
-                                Email *
+                                Email
                             </label>
                             <input
                                 type="email"
@@ -277,7 +235,6 @@ const ProfileEdit = () => {
                                 className="form-input"
                                 value={formData.email}
                                 onChange={handleChange}
-                                required
                                 disabled={loading}
                             />
                         </div>
@@ -293,7 +250,42 @@ const ProfileEdit = () => {
                                 className="form-input"
                                 value={formData.phone_number}
                                 onChange={handleChange}
-                                required
+                                disabled={loading}
+                            />
+                        </div>
+
+                        <h1 className="group-title">Informations du Compte: </h1>
+                        <hr />
+
+                        <div className="form-group">
+                            <label htmlFor="profil_name" className="form-label">
+                                Nom de profil
+                            </label>
+                            <input
+                                type="text"
+                                id="profil_name"
+                                name="profil_name"
+                                className="form-input"
+                                value={formData.profil_name}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                        </div>
+
+                        <h1 className="group-title">Informations Académiques: </h1>
+                        <hr />
+
+                        <div className="form-group">
+                            <label htmlFor="first_name" className="form-label">
+                                Numéro de carte
+                            </label>
+                            <input
+                                type="text"
+                                id="card_number"
+                                name="card_number"
+                                className="form-input"
+                                value={formData.card_number}
+                                onChange={handleChange}
                                 disabled={loading}
                             />
                         </div>
@@ -382,14 +374,61 @@ const ProfileEdit = () => {
                                 <option value="CYBERSECURITE">Cybersécurité</option>
                             </select>
                         </div>
-                        <button
-                            type="submit"
-                            className="btn btn-primary btn-full"
-                            disabled={loading}
-                        >
-                            <FiSave size={16} style={{ marginRight: '8px' }} />
-                            {loading ? 'Enregistrement...' : 'Enregistrer'}
-                        </button>
+
+                        <h1 className="group-title red-zone">Modifier le mot de passe:</h1>
+                        <hr />
+
+                        <div className="form-group">
+                            <label htmlFor="profil_name" className="form-label">
+                                Ancien mot de passe
+                            </label>
+                            <input
+                                type="password"
+                                className="form-input"
+                                id="old_password"
+                                name="old_password"
+                                className="form-input"
+                                value={formData.old_password}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="profil_name" className="form-label">
+                                Nouveau mot de passe
+                            </label>
+                            <input
+                                type="password"
+                                id="new_password"
+                                name="new_password"
+                                className="form-input"
+                                value={formData.new_password}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                        </div>
+
+                        <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+                            <button
+                                type="submit"
+                                className="btn btn-secondary"
+                                disabled={loading}
+                                onClick={() => onClose()}
+                            >
+                                Annuler
+                            </button>
+
+                            <button
+                                type="submit"
+                                className="btn btn-primary"
+                                disabled={loading}
+                            >
+                                <FiSave size={16} style={{ marginRight: '8px' }} />
+                                {loading ? 'Enregistrement...' : 'Enregistrer'}
+                            </button>
+                        </div>
+
                     </div>
 
                 </form>

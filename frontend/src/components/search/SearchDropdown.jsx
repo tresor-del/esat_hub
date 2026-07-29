@@ -8,12 +8,12 @@ import { useNavigate } from 'react-router-dom';
 import { formatRelativeDate } from '../../utils/dateFormatter';
 import { useRef, useEffect } from 'react';
 import Avatar from '../ui/Avatar';
-import "../../styles/Search.css"
+import "../../styles/Common/Search.css"
 import { useAuth } from '../../contexts/AuthContext';
 
 const SearchDropdown = () => {
   const [results, setResults] = useState([]);
-  const { user } = useAuth;
+  const { user } = useAuth();
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
   const searchRef = useRef(null);
@@ -68,19 +68,27 @@ const SearchDropdown = () => {
         <div className="menu-dropdown align-center">
           <div className="search-result-container">
 
+            <h2 style={{ padding: "10px" }}>Résultat des recherches</h2>
+
             {/* Vérifie si on a au moins un post ou un utilisateur */}
             {(results.posts_list?.posts.length > 0 || results.users_list?.users.length > 0) ? (
               <div className="results-list">
 
+
                 {/* SECTION UTILISATEURS */}
                 {results.users_list?.users.length > 0 && (
                   <div className="results-section">
-                    <h5>Users</h5>
+                    <h5>Étudiants : </h5>
                     {results.users_list.users.map(user => (
-                      <div key={user.id} className="result-item" onClick={() => navigate(`/profile/${user.username}`)}>
+                      <div key={user.id} className="result-item"
+                        onClick={() => {
+                          navigate(`/profile/${user.id}`);
+                          setQuery("");
+                        }}
+                      >
                         <Avatar user={user} size="small" />
                         <div className="result-info">
-                          <span className="result-title">{highlightText(user.username, query)}</span>
+                          <span className="result-title">{highlightText(`${user.first_name} ${user.last_name}`, query)}</span>
                         </div>
                       </div>
                     ))}
@@ -95,7 +103,7 @@ const SearchDropdown = () => {
                       <div key={post.id} className="result-item" onClick={() => navigate(`/post/${post.id}`)}>
                         <Avatar user={post.user} size="small" />
                         <div className="result-info">
-                          <span className="result-subtitle">{post.user?.username}</span>
+                          <span className="result-subtitle">{post.user?.first_name}</span>
                           <span className="result-title">{highlightText(post.title, query)}</span>
                         </div>
                       </div>
