@@ -8,7 +8,7 @@ engine = create_engine(
     pool_pre_ping=True,       # Vérifie la connexion avant chaque utilisation 
     pool_recycle=300,        # Recycle les connexions toutes les 30 min
     pool_size=5,
-    max_overflow=10
+    # max_overflow=10
 )
 
 # permet de créer des sessions de base de données pour les requêtes

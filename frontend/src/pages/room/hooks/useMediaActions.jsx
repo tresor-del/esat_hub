@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { useQueryClient }                   from "@tanstack/react-query";
-import { deleteRoomMedia }                  from "../../../services/api";
-import { isImageMedia, buildShareUrl }      from "../utils/mediaHelpers";
+import { useQueryClient } from "@tanstack/react-query";
+import { deleteRoomMedia } from "../../../services/api";
+import { isImageMedia, buildShareUrl } from "../utils/mediaHelpers";
 
 /**
  * @param {string|null} roomId
@@ -12,10 +12,10 @@ export const useMediaActions = (roomId, roomMedia, setView) => {
     const queryClient = useQueryClient();
 
     const [uploadModalOpen, setUploadModalOpen] = useState(false);
-    const [editingMedia,    setEditingMedia]    = useState(null);
-    const [detailMediaId,   setDetailMediaId]   = useState(null);
-    const [shareMedia,      setShareMedia]      = useState(null);
-    const [imagePreview,    setImagePreview]    = useState(null);
+    const [editingMedia, setEditingMedia] = useState(null);
+    const [detailMediaId, setDetailMediaId] = useState(null);
+    const [shareMedia, setShareMedia] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
 
     // analyser l'url, exclure l'id s'il y en a et afficher le modal
     useEffect(() => {
@@ -27,8 +27,8 @@ export const useMediaActions = (roomId, roomMedia, setView) => {
                 setDetailMediaId(id);
             }
         }
-    }, []); 
-    
+    }, []);
+
     // afficher le modal des fichiers si sélectionné
     useEffect(() => {
         if (!detailMediaId || roomMedia.length === 0) return;
@@ -37,7 +37,7 @@ export const useMediaActions = (roomId, roomMedia, setView) => {
 
         if (isImageMedia(target)) {
             setImagePreview(target);
-            setDetailMediaId(null); 
+            setDetailMediaId(null);
         }
     }, [detailMediaId, roomMedia]);
 
@@ -105,9 +105,9 @@ export const useMediaActions = (roomId, roomMedia, setView) => {
         openAddModal,
         openEditModal,
         //gestionnaires de fermerture;
-        closeUploadModal:  () => { setUploadModalOpen(false); setEditingMedia(null); },
-        closeDetailModal:  () => setDetailMediaId(null),
-        closeShareModal:   () => setShareMedia(null),
+        closeUploadModal: () => { setUploadModalOpen(false); setEditingMedia(null); },
+        closeDetailModal: () => setDetailMediaId(null),
+        closeShareModal: () => setShareMedia(null),
         closeImagePreview: () => setImagePreview(null),
     };
 };

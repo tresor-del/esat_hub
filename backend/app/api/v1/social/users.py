@@ -37,9 +37,10 @@ def update_current_user_profile(
 def get_all_users(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    user_service = Depends(get_auth_service)
+    user_service = Depends(get_auth_service),
+    room_id: str = None
 ):
-    users = user_service.get_all_users()
+    users = user_service.get_all_users(room_id=room_id)
     return users
 
 @router.get("/{user_id}")

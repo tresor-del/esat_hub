@@ -9,10 +9,10 @@ from app.models.post import PostResponse
 
 class NotificationUserResponse(BaseModel):
     id: uuid.UUID
-    username: str
-    first_name: str
-    last_name: str
-    profil_name: str
+    username: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    profil_name: Optional[str] = None
     avatar_path: Optional[str] = None
     user_room_id: Optional[uuid.UUID] = None
 
@@ -20,9 +20,9 @@ class NotificationUserResponse(BaseModel):
 
 
 class NotificationResponse(BaseModel):
-    type: str
-    title: str
-    content: str
+    type: Optional[str] = None
+    title: Optional[str] = None
+    content: Optional[str] = None
     is_read: bool
     recipient: NotificationUserResponse
     sender: Optional[NotificationUserResponse] = None

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { FiHeart, FiX } from "react-icons/fi";
+import { FiHeart, FiX, FiMessageCircle, FiShare2 } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
 import CommentSection from "../../components/comments/CommentSection";
 import PostAuthorInfo from "../../components/posts/PostAuthorInfo";
+import PostMedia from "../../components/posts/PostMedia";
 import { usePostDetail } from "../../components/posts/hooks/usePostDetail";
 import { formatRelativeDate } from "../../utils/dateFormatter";
 import { togglePostLike } from "../../services/api";
@@ -17,6 +18,7 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
     error,
     loadPost,
     handleCommentAdded,
+    commentCount,
   } = usePostDetail({ onClose, onPostDeleted });
 
   const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
@@ -73,20 +75,27 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
 
       <div className="post-detail-content" onClick={(e) => e.stopPropagation()}>
 
-        {/* IMAGE */}
-        <div className="post-detail-media">
+        {/* IMAGE ET DOCUMENTS */}
 
-          {post?.file_path && (
-            <img
-              src={post.file_path}
-              alt={post.title}
-              className="post-image"
-            />
-          )}
+        {post?.file_path && (
+          <div className="post-detail-media">
 
-        </div>
+            {post?.post_type === "photo" && (
+              <img
+                src={post.file_path}
+                alt={post.title}
+                className="post-image"
+              />
+            )}
 
-        {/* COMMENTS */}
+            {post?.post_type === "document" && (
+              <PostMedia post={post} />
+            )}
+
+          </div>
+        )}
+
+        {/* Post détail */}
         <div className="post-detail-info">
           <div className="post-detail-header">
             <PostAuthorInfo user={post?.user} postDate={formatRelativeDate(post?.created_at)} />
@@ -98,11 +107,17 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
             <p>
               {post?.description}
             </p>
-            <button type="button" className={`post-action-btn ${likedByMe ? "liked" : ""}`} onClick={handleLikeClick} disabled={loadingLike}>
-              <FiHeart size={20} fill={likedByMe ? "#ef4444" : "none"} color={likedByMe ? "#ef4444" : undefined} />
-              {likesCount}
-            </button>
+
+            <div className="post-action" >
+              <button type="button" className={`post-action-btn ${likedByMe ? "liked" : ""}`} onClick={handleLikeClick} disabled={loadingLike}>
+                <FiHeart size={20} fill={likedByMe ? "#ef4444" : "none"} color={likedByMe ? "#ef4444" : undefined} />
+                {likesCount}
+              </button>
+              <span className="post-action-btn"> <FiMessageCircle size={25} /> {commentCount ?? post?.comments_count ?? 0}</span>
+            </div>
+
           </div>
+
           <CommentSection
             postId={post?.id}
             user={user}

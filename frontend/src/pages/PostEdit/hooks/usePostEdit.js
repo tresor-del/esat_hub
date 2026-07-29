@@ -1,14 +1,14 @@
-// ─── usePostEdit.js ───────────────────────────────────────────────────────────
-
+import { useToast } from "../../../contexts/toastContext";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
 import { getPost, getPostFileUrl, updatePost } from "../../../services/api";
+import { useQueryClient } from "@tanstack/react-query";
 
-export const usePostEdit = (id) => {
+export const usePostEdit = (id, onClose) => {
     const navigate = useNavigate();
     const { user } = useAuth();
-
+    const { toast } = useToast();
     const [post, setPost] = useState(null);
     const [formData, setFormData] = useState({
         title: "",
@@ -21,6 +21,8 @@ export const usePostEdit = (id) => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
+
+    const queryClient = useQueryClient();
 
     const isOnMobile = window.innerWidth <= 768;
 
@@ -115,14 +117,19 @@ export const usePostEdit = (id) => {
 
             await updatePost(id, data);
             localStorage.setItem(`post_bust_${id}`, Date.now());
-            if (isOnMobile) {
-                navigate(`/post/${id}`, { state: { updatedAt: Date.now() } });
-            } else {
-                navigate("/");
-            }
+
+            // if (isOnMobile) {
+            //     navigate(`/post/${id}`, { state: { updatedAt: Date.now() } });
+            // } else {
+            //     navigate("/");
+            // }
+            queryClient.invalidateQueries({ queryKey: ["posts"] })
+            toast({ message: "Post modifié avec succès", type: "success" });
+            onClose()
         } catch (err) {
             console.error(err);
             setError(err.response?.data?.detail || "Erreur lors de la modification du post");
+            toast({ message: "Erreur lors de la modification du post", type: "error" });
         } finally {
             setSaving(false);
         }

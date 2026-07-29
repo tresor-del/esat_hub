@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth }  from "../../../contexts/AuthContext";
-import { getUserRoom, getPosts, getRoomMedia } from "../../../services/api";
+import { getUserRoom, getPosts, getRoomMedia, getAsnmts } from "../../../services/api";
 
 /**
- * @param {"users"|"posts"|"media"} view  
+ * @param {"users"|"posts"|"media"|"asnmt"} view  
  */
 export const useRoomData = (view) => {
     const { user: authUser } = useAuth();
@@ -38,6 +38,16 @@ export const useRoomData = (view) => {
         enabled:  view === "media" && !!room?.id,
     });
 
+    const {
+        data: asnmts,
+        isLoading: loadingAsnmts
+    } = useQuery({
+        queryKey: ["roomAsnmts", room?.id],
+        queryFn: getAsnmts,
+        staleTime: 10 * 1000,
+        enabled: view === "asnmt" && !!room?.id
+    })
+
     return {
         room,
         loadingRoom,
@@ -45,5 +55,7 @@ export const useRoomData = (view) => {
         loadingPosts,
         roomMedia:  mediaData?.media || [],
         loadingMedia,
+        asnmts,
+        loadingAsnmts,
     };
 };

@@ -50,7 +50,6 @@ const Home = () => {
         isFetching,
     } = useHomeData();
 
-
     const handleEdit = (post) => {
         setEditPostId(post.id);
     };
@@ -132,6 +131,10 @@ const Home = () => {
                                         onView={handleView}
                                     />
                                 ))}
+
+                                <div className="posts-end">
+                                    Vous avez tout vu.
+                                </div>
                             </div>
                         )}
 
@@ -174,10 +177,7 @@ const Home = () => {
 
             </div>
 
-
             <HomeSidebarAppInfo />
-
-
         </div>
     );
 };

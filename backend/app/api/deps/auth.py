@@ -12,6 +12,7 @@ from app.core.config import settings
 from app.db.schemas.user import User
 from app.models.token import TokenData
 from app.api.deps.db import get_db
+from app.db.schemas.user import UserRole
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db), redis: aioredis.Redis = Depends(get_redis)):
@@ -55,7 +56,6 @@ async def get_current_admin(
     Dépendence pour vérifier que l'utilisateur connecté est un admin.
     Utilisé uniquement pour les routes admins.
     """
-    from app.db.schemas.user import UserRole
     
     # Vérifier si l'utilisateur est admin
     if current_user.role != UserRole.ADMIN:
@@ -65,3 +65,15 @@ async def get_current_admin(
         )
     return current_user
 
+async def get_current_teacher(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Session = Depends(get_db)
+) -> User:
+    
+    # Vérifier si l'utilisateur est un enseignant
+    if current_user.role != UserRole.TEACHER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Seul les profs sont autorisés."
+        )
+    return current_user

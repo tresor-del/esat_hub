@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { uploadRoomMedia, updateRoomMedia } from "../../../../services/api";
+import { useAuth } from "../../../../contexts/AuthContext";
 
 /**
  * @prop {object|null} editingMedia 
@@ -7,11 +8,12 @@ import { uploadRoomMedia, updateRoomMedia } from "../../../../services/api";
  * @prop {Function}    onSuccess 
  */
 const MediaUploadModal = ({ editingMedia, onClose, onSuccess }) => {
-    const [title,       setTitle]       = useState(editingMedia?.title       || "");
+    const [title, setTitle] = useState(editingMedia?.title || "");
     const [description, setDescription] = useState(editingMedia?.description || "");
-    const [file,        setFile]        = useState(null);
-    const [error,       setError]       = useState(null);
-    const [uploading,   setUploading]   = useState(false);
+    const [file, setFile] = useState(null);
+    const [error, setError] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const { user } = useAuth()
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -35,11 +37,14 @@ const MediaUploadModal = ({ editingMedia, onClose, onSuccess }) => {
                 if (file) formData.append("file", file);
                 await updateRoomMedia(editingMedia.id, formData);
             } else {
-                await uploadRoomMedia({
+                const data = {
                     title: title.trim(),
                     description: description.trim(),
                     file,
-                });
+                }
+                {user.role === "TEACHER" && data.append("teacher_id", user.id)}
+
+                await uploadRoomMedia(data);
             }
             onSuccess();
         } catch (err) {
@@ -105,8 +110,8 @@ const MediaUploadModal = ({ editingMedia, onClose, onSuccess }) => {
                             {uploading
                                 ? "Enregistrement..."
                                 : editingMedia
-                                ? "Mettre à jour"
-                                : "Ajouter"}
+                                    ? "Mettre à jour"
+                                    : "Ajouter"}
                         </button>
                     </div>
                 </form>

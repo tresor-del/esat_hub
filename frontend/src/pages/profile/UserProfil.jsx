@@ -190,7 +190,7 @@ const UserProfile = () => {
                 <div className="qr-wrapper">
 
                   <QRCodeSVG
-                    value={`${window.location.origin}/profile/${profile.id}`}
+                    value={`https://esathub.vercel.app/profile/${profile.id}`}
                     size={250}
                     bgColor={"#ffffff"}
                     fgColor={"#0f172a"}

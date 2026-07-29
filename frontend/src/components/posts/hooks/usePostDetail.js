@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { getPost, deletePost } from "../../../services/api";
@@ -45,6 +45,12 @@ export const usePostDetail = ({ onClose = null, onPostDeleted = null } = {}) => 
     };
 
     const handleCommentAdded = (count) => setCommentCount(count);
+
+    useEffect(() => {
+        if (post?.comments_count !== undefined) {
+            setCommentCount(post.comments_count);
+        }
+    }, [post?.comments_count]);
 
     return {
         post,

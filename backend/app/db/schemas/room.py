@@ -1,7 +1,8 @@
 import datetime
 import enum
 import uuid
-from sqlalchemy import Boolean, Column, UUID, DateTime, ForeignKey, Enum, String, UniqueConstraint
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Enum, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
@@ -28,6 +29,7 @@ class Room(Base):
 
     media = relationship("Media", back_populates="room", cascade="all, delete-orphan")
     course_sessions = relationship("CourseSession", back_populates="session_room")
+    assignments = relationship("Assignment", back_populates="room", cascade="all, delete-orphan")
 
 
 # tables pour le systeme de présence aux cours. 

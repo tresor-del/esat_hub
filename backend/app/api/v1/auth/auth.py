@@ -32,6 +32,7 @@ from app.tasks.mail import send_verification_task, resend_verification_task
 from app.models.notifications import NotificationResponse
 from app.services.admin.manager import AdminService
 from app.services.interactions.notification import NotificationService
+from app.db.schemas.user import UserRole
 
 logger = logging.getLogger(__name__)
 
@@ -60,13 +61,13 @@ async def login(
 
     try:
         notif_service.send_firebase_push(
-            recipient_id=user.id,  # L'UUID de l'utilisateur qui vient de se connecter
+            recipient_id=user.id,  
             title=f"Bonjour {user.profil_name}",
             body="Bienvenue sur EsatHub."
         )
     except Exception as push_err:
         # On capture l'erreur pour éviter de bloquer la connexion de l'utilisateur si FCM échoue
-        print(f"Impossible d'envoyer la notification de connexion : {push_err}")
+        logger.error(f"Impossible d'envoyer la notification de connexion : {push_err}")
 
     
     access_token = create_access_token(
@@ -185,12 +186,17 @@ def register(
 
     # if auth_service.check_duplicated_email(user_in.email):
     #     raise HTTPException(400, "Email already registered")
-    
-    if auth_service.check_duplicated_profil_name(user_in.profil_name):
-        raise HTTPException(400, "User with this profil name already exists")
+    if user_in.profil_name:
+        if auth_service.check_duplicated_profil_name(user_in.profil_name):
+            raise HTTPException(400, "User with this profil name already exists")
     
     # création de l'utilisateur
-    username = auth_service.get_username(user_in.profil_name, user_in.school_name)
+    username = ""
+    if user_in.role == UserRole.TEACHER:
+        username = auth_service.get_username(user_in.full_name.split(' ')[0], 'teacher')
+    if user_in.role == UserRole.STUDENT:
+        username = auth_service.get_username(user_in.profil_name, user_in.school_name)
+
     user_room_id = room_service.get_user_room_id(user_in.level, user_in.year)
     # print(user_room_id)
     user_data = UserInDatabase(
@@ -206,8 +212,11 @@ def register(
         major=user_in.major,
         year=user_in.year,
         user_room_id=user_room_id,
-        hashed_password=hash_password(user_in.password)
+        hashed_password=hash_password(user_in.password),
+        full_name=user_in.full_name,
+        subject=user_in.subject
     )
+    
     user = auth_service.create_user(user_data=user_data)
     admin = auth_service.get_admin()
 

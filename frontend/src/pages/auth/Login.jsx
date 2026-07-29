@@ -31,9 +31,7 @@ const Login = () => {
 
     try {
       const result = await login(formData.username, formData.password);
-      if (result.success) {
-        navigate('/');
-      } else {
+      if (!result.success) {
         setError(result.error);
       }
     } catch (err) {
@@ -91,7 +89,14 @@ const Login = () => {
 
       <div className="auth-link">
         Pas encore de compte ?{' '}
-        <Link to="/register">S'inscrire</Link>
+        <div>
+          <div>
+            Je suis etudiant: <Link to="/register-student">S'inscrire</Link>
+          </div>
+          <div>
+            Je suis prof: <Link to="/register-teacher">S'inscrire en tant que prof</Link>
+          </div>
+        </div>
       </div>
     </AuthLayout>
   );

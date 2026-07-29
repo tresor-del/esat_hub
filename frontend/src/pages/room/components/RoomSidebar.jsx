@@ -4,7 +4,7 @@ import { ROOM_DISPLAY_NAMES } from "../utils/mediaHelpers";
 
 /**
  * @prop {object}   room
- * @prop {"users"|"posts"|"media"} view
+ * @prop {"users"|"posts"|"media"|"asnmt"} view
  * @prop {Function} onViewChange
  */
 const RoomSidebar = ({ room, view, onViewChange }) => {
@@ -42,6 +42,16 @@ const RoomSidebar = ({ room, view, onViewChange }) => {
                 >
                     <FiUsers  />
                     <span className="btn-label">Présence</span>
+                </button>
+
+                <button
+                    type="button"
+                    className={`room-media-btn ${view === "ansmt" ? "active" : ""}`}
+                    onClick={() => onViewChange("asnmt")}
+                    aria-label="Système de gestion des devoirs en ligne."
+                >
+                    <FiUsers  />
+                    <span className="btn-label">Devoirs</span>
                 </button>
                 
             </div>

@@ -8,6 +8,8 @@ import Avatar from "../ui/Avatar";
 export const UserMenuLinks = ({ user, isAdmin, onAction, isDesktop = false }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const isStudent = user.role === "STUDENT";
+  const isTeacher = user.role === "TEACHER";
 
   const go = (path) => {
     navigate(path);
@@ -21,34 +23,51 @@ export const UserMenuLinks = ({ user, isAdmin, onAction, isDesktop = false }) =>
         <div style={{ display: "flex", alignItems: "center", padding: "10px" }}>
           <Avatar user={user} />
           <div className="um-header">
-            <p className="um-name">{user.first_name} {user.last_name}</p>
-            <p className="um-role">{isAdmin ? "Administrateur" : "Étudiant"}</p>
+
+            {isStudent && (
+              <>
+                <p className="um-name">{user.first_name} {user.last_name}</p>
+                <p className="um-role">Étudiant</p>
+              </>
+            )}
+
+            {isTeacher && (
+              <>
+                <p className="um-name">{user.full_name}</p>
+                <p className="um-role">Enseignant</p>
+              </>
+            )}
+
           </div>
         </div>
       )}
 
       <div className="um-section">
-        <button className="um-item" onClick={() => go(`/profile/${user.id}`)}>
-          <span className="um-icon"><FiUser /></span>
-          <span>Mon profil</span>
-        </button>
-
-        <div className="um-divider" />
-
-        <button onClick={() => go(`/bout}`)} className="footer-link">
-          <span className="um-icon"><FiInfo /></span>
-          <span>À propos d'Esathub</span>
-        </button>
-        <button onClick={() => go(`/privacy}`)} className="footer-link">
-          <span className="um-icon"><FiFileText /></span>
-          Confidentialité
-        </button>
-        <button onClick={() => go(`/terms}`)} className="footer-link">
-          <span className="um-icon"><FiLock /></span>
-          Condition d'utilisation
-        </button>
+        {user.role === "STUDENT" && (
+          <>
+            <button className="um-item" onClick={() => go(`/profile/${user.id}`)}>
+              <span className="um-icon"><FiUser /></span>
+              <span>Mon profil</span>
+            </button>
 
 
+            <div className="um-divider" />
+
+            <button onClick={() => go(`/about`)} className="footer-link">
+              <span className="um-icon"><FiInfo /></span>
+              <span>À propos d'Esathub</span>
+            </button>
+            <button onClick={() => go(`/privacy`)} className="footer-link">
+              <span className="um-icon"><FiFileText /></span>
+              Confidentialité
+            </button>
+            <button onClick={() => go(`/terms`)} className="footer-link">
+              <span className="um-icon"><FiLock /></span>
+              Condition d'utilisation
+            </button>
+          </>
+
+        )}
         {isAdmin && (
           <button className="um-item" onClick={() => go("/admin")}>
             <span className="um-icon"><FiSettings /></span>

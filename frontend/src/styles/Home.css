@@ -122,6 +122,10 @@
   line-height: 1.4;
 }
 
+.posts-end {
+  padding: 1rem;
+}
+
 /* Mode sombre optionnel : Si votre application gère le dark mode */
 @media (prefers-color-scheme: dark) {
 

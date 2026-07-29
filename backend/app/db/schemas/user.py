@@ -45,17 +45,17 @@ class UserStatus(str, enum.Enum):
     PENDING = "PENDING"
     INACTIVE = "INACTIVE"
 
-class User(Base):
+class   User(Base):
     __tablename__ = "users"
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
     rfid_uid = Column(String(50), unique=True, nullable=True, index=True)
 
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
+    first_name = Column(String, nullable=True)
+    last_name = Column(String, nullable=True)
     # unique=True crée déjà un index, donc index=True est techniquement redondant mais pas gênant
-    profil_name = Column(String, unique=True, index=True, nullable=False)
-    username = Column(String, unique=True, index=True, nullable=False)
+    profil_name = Column(String, unique=True, index=True, nullable=True)
+    username = Column(String, unique=True, index=True, nullable=True)
     email = Column(String, unique=True, index=True, nullable=False)
     phone_number = Column(String, unique=True, index=True, nullable=True)
     birthday = Column(Date, nullable=True, index=True)
@@ -72,7 +72,6 @@ class User(Base):
     qr_path = Column(String, nullable=True)
     hashed_password = Column(String, nullable=False)
     is_verified = Column(Boolean, server_default=text("false"), default=False)
-
 
     # Relations
     posts = relationship("Post", back_populates="user",cascade="all, delete-orphan")
@@ -99,8 +98,9 @@ class User(Base):
     media = relationship("Media", back_populates="user", cascade="all, delete-orphan")
 
     # POUR LES ENSEIGNANTS
-    teachs = Column(String, nullable=True)
+    subject = Column(String, nullable=True)
     full_name = Column(String, nullable=True)
+    assignments_created = relationship("Assignment", foreign_keys="[Assignment.teacher_id]", back_populates="teacher")
 
     school_name = Column(
         Enum(School, name="school", values_callable=lambda x: [e.value for e in x]), 
