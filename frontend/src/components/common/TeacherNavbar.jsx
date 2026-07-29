@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import Logo from "./Logo";
+import UserMenu from "../user/UserMenu";
 
 const TeacherNavbar = (props) => {
   const isMobile = window.innerWidth < 768;
@@ -32,7 +33,10 @@ const TeacherNavbar = (props) => {
           {getLogo}
         </div>
         <div className="name">
-          <h1>{user?.full_name}/{user?.subject}</h1>
+          {!isMobile && (
+            user.full_name
+          )}
+          <UserMenu />
         </div>
       </div>
     </>

@@ -35,7 +35,7 @@ const PostEdit = ({ id, onClose }) => {
         handleFileError,
         restoreExistingFile,
         handleSubmit,
-    } = usePostEdit(id);
+    } = usePostEdit(id, onClose);
 
     // ── Loading / error states ────────────────────────────────────────────────
 

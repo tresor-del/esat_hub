@@ -75,24 +75,27 @@ const PostDetailModal = ({ postId, onClose, onPostDeleted }) => {
 
       <div className="post-detail-content" onClick={(e) => e.stopPropagation()}>
 
-        {/* IMAGE */}
-        <div className="post-detail-media">
+        {/* IMAGE ET DOCUMENTS */}
 
-          {post?.file_path && post?.post_type === "photo" && (
-            <img
-              src={post.file_path}
-              alt={post.title}
-              className="post-image"
-            />
-          )}
+        {post?.file_path && (
+          <div className="post-detail-media">
 
-          {post?.file_path && post?.post_type === "document" && (
-            <PostMedia post={post}/>
-          )}
+            {post?.post_type === "photo" && (
+              <img
+                src={post.file_path}
+                alt={post.title}
+                className="post-image"
+              />
+            )}
 
-        </div>
+            {post?.post_type === "document" && (
+              <PostMedia post={post} />
+            )}
 
-        {/* COMMENTS */}
+          </div>
+        )}
+
+        {/* Post détail */}
         <div className="post-detail-info">
           <div className="post-detail-header">
             <PostAuthorInfo user={post?.user} postDate={formatRelativeDate(post?.created_at)} />

@@ -1,5 +1,3 @@
-// ─── MediaDetailModal.jsx ─────────────────────────────────────────────────────
-
 import React from "react";
 import { FiFileText } from "react-icons/fi";
 import {

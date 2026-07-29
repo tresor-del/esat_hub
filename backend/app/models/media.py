@@ -19,6 +19,7 @@ class MediaCreate(MediaBase):
     room_id: Optional[uuid.UUID] = None
     assignment_id: Optional[uuid.UUID] = None
     submission_id: Optional[uuid.UUID] = None
+    from_teacher: Optional[bool] = False
 
 class MediaUpdate(BaseModel):
     title: Optional[str] = None

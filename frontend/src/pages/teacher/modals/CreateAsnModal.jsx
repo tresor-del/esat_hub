@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { createAs, updateAssignment } from "../../../services/TeacherApi";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
@@ -16,8 +16,13 @@ const CreateAsnModal = ({ editingAsnmt, onClose, onSuccess, roomId }) => {
         return dateStr.split("T")[0]; // garde juste YYYY-MM-DD
     };
 
-    const [dueDate, setDueDate] = useState(formatDateForInput(editingAsnmt?.due_date));
+    const [dueDate, setDueDate] = useState(
+        editingAsnmt?.due_date ?
+            formatDateForInput(editingAsnmt?.due_date) :
+            new Date().toISOString().slice(0, 16)
+    );
     const [selectedFiles, setSelectedFiles] = useState(editingAsnmt?.media || []);
+    const fileRef = useRef();
     const [error, setError] = useState(null);
     const [uploading, setUploading] = useState(false);
     const queryClient = useQueryClient();
@@ -106,37 +111,53 @@ const CreateAsnModal = ({ editingAsnmt, onClose, onSuccess, roomId }) => {
                     <label>
                         Date limite
                         <input
-                            type="date"
+                            type="datetime-local"
                             id="due-date"
                             name="dueDate"
                             value={dueDate}
                             onChange={(e) => setDueDate(e.target.value)}
                         />
                     </label>
-                    <label>
-                        Fichier
-                        {(editingAsnmt && selectedFiles.length > 0) && (
-                            <ul className="existing-files-list">
-                                {selectedFiles.map((m) => (
-                                    <li key={m.id}>
-                                        {m.file_name}
-                                        <button
-                                            type="button"
-                                            onClick={() => setSelectedFiles(selectedFiles.filter(x => x.id !== m.id))}
-                                        >
-                                            Retirer
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                        <input
-                            type="file"
-                            onChange={handleFileChange}
-                            multiple
 
-                        />
-                    </label>
+                    <div>Fichiers: </div>
+
+                    {(editingAsnmt && selectedFiles.length > 0) && (
+                        <ul className="existing-files-list">
+                            {selectedFiles.map((m) => (
+                                <li key={m.id}>
+                                    {m.file_name}
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedFiles(selectedFiles.filter(x => x.id !== m.id))}
+                                    >
+                                        Retirer
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+
+                    <div className="asnmt-detail-media">
+                                {selectedFiles?.length > 0 && (
+                                    <>
+                                        {selectedFiles.map((m, index) => (
+                                            <a key={index}>
+                                                {m.name}
+                                                <button
+                                                    type="button"
+                                                    className="btn"
+                                                    onClick={() => setSelectedFiles(selectedFiles.filter(x => x.name !== m.name))}
+                                                >
+                                                    Retirer
+                                                </button>
+                                            </a>
+                                        ))}
+                                    </>
+                                )}
+                            </div>
+
+                    <input ref={fileRef} type="file" onChange={handleFileChange} multiple style={{display: "none"}} />
+                    <div className="btn btn-secondary" onClick={() => fileRef.current.click()}>Ajouter un fichier.</div>
 
                     {error && <div className="upload-error">{error}</div>}
 
@@ -157,7 +178,7 @@ const CreateAsnModal = ({ editingAsnmt, onClose, onSuccess, roomId }) => {
                                 ? "Enregistrement..."
                                 : editingAsnmt
                                     ? "Mettre à jour"
-                                    : "Ajouter"}
+                                    : "Créer le devoir"}
                         </button>
                     </div>
                 </form>

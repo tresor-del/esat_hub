@@ -3,11 +3,14 @@ import { FiFileText } from "react-icons/fi";
 import { getMediaUrl } from "../../utils/mediaHelpers";
 import { Countdown } from "../../utils/AsnmtCountDown";
 import { createSubmission } from "../../../../services/TeacherApi";
+import { useAuth } from "../../../../contexts/AuthContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AsnmtDetailModal = ({ asnmt, onClose }) => {
     if (!asnmt) return null;
+    const { user } = useAuth();
+    const queryClient = useQueryClient();
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const [feedback, setFeedback] = useState("");
     const fileInputRef = useRef();
 
     const handleFileChange = (e) => {
@@ -19,16 +22,21 @@ const AsnmtDetailModal = ({ asnmt, onClose }) => {
     const handleSubmitAsnmt = async (e) => {
         e.preventDefault();
         try {
-            console.log(asnmt.id)
             const response = await createSubmission({
-                feedback: feedback,
                 assignmentId: asnmt?.id,
                 files: selectedFiles
             })
-            
+
+            queryClient.invalidateQueries({ queryKey: ["assignments", asnmt.room_id] })
+            onClose();
+            // toast({message: "Devoir envoyé avec succès", type: "success"})
         } catch (error) {
             console.log(error)
         }
+    }
+
+    const getSub = () => {
+        return asnmt.submissions?.filter((a) => a.student_id === user.id)
     }
 
     return (
@@ -56,56 +64,65 @@ const AsnmtDetailModal = ({ asnmt, onClose }) => {
                     )}
                 </div>
 
-                <div className="sep"></div>
-                <h1 style={{ fontSize: "1.5rem" }}>Envoyer votre devoir</h1>
+                {getSub().length > 0 ? (
+                    <>
+                        <div style={{color: "red"}}>Vous avez déjà soumi votre devoir</div>
+                        <div>{getSub()[0].grade ? `Note: ${getSub()[0].grade}` : " Pas encore noté."}</div>
+                        {getSub()[0].feedback && (
 
-                <form action="" className="media-upload-form" onSubmit={handleSubmitAsnmt}>
-
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        multiple
-                        onChange={handleFileChange}
-                        style={{ display: "none" }}
-                    />
-
-                    <div className="btn btn-secondary" onClick={() => fileInputRef.current.click()}>
-                        Choisir des documents
-                    </div>
-
-                    <div className="asnmt-detail-media">
-                        {selectedFiles?.length > 0 && (
-                            <>
-                                {selectedFiles.map((m, index) => (
-                                    <a key={index}>
-                                        {m.name}
-                                        <button
-                                            type="button"
-                                            className="btn"
-                                            onClick={() => setSelectedFiles(selectedFiles.filter(x => x.name !== m.name))}
-                                        >
-                                            Retirer
-                                        </button>
-                                    </a>
-                                ))}
-                            </>
+                            <div><strong>{asnmt.teacher?.full_name}</strong>: {getSub()[0].feedback}</div>
                         )}
-                    </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="sep"></div>
+                        <h1 style={{ fontSize: "1.5rem" }}>Envoyer votre devoir !</h1>
 
-                    <label htmlFor="">
-                        Ajouter un commentaire:
-                        <input type="text" name="" id="" className="input" />
-                    </label>
+                        <form action="" className="media-upload-form" onSubmit={handleSubmitAsnmt}>
 
-                    {selectedFiles?.length > 0 ? (
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                multiple
+                                onChange={handleFileChange}
+                                style={{ display: "none" }}
+                            />
 
-                        <button className="btn btn-primary" type="submit">Envoyer mon devoir</button>
-                    ) : (
-                        <button disabled className="btn btn-primary" type="submit">Envoyer mon devoir</button>
+                            <div className="btn btn-secondary" onClick={() => fileInputRef.current.click()}>
+                                Choisir des documents
+                            </div>
 
-                    )}
+                            <div className="asnmt-detail-media">
+                                {selectedFiles?.length > 0 && (
+                                    <>
+                                        {selectedFiles.map((m, index) => (
+                                            <a key={index}>
+                                                {m.name}
+                                                <button
+                                                    type="button"
+                                                    className="btn"
+                                                    onClick={() => setSelectedFiles(selectedFiles.filter(x => x.name !== m.name))}
+                                                >
+                                                    Retirer
+                                                </button>
+                                            </a>
+                                        ))}
+                                    </>
+                                )}
+                            </div>
 
-                </form>
+                            {selectedFiles?.length > 0 ? (
+
+                                <button className="btn btn-primary" type="submit">Envoyer mon devoir</button>
+                            ) : (
+                                <button disabled className="btn btn-primary" type="submit">Envoyer mon devoir</button>
+
+                            )}
+
+                        </form>
+                    </>
+                )}
+
 
                 <div className="media-detail-footer">
                     <div>

@@ -1,8 +1,11 @@
+.room-view {
+    width: 100%;
+}
+
 .header {
     display: flex;
-    align-items: center;
+    width: 100%;
     justify-content: space-between;
-    gap: 1rem;
 }
 
 .header-t {
@@ -11,9 +14,7 @@
     gap: 1rem;
 }
 
-.header.div
-
-.go-back:hover {
+.header.div .go-back:hover {
     cursor: pointer;
 }
 
@@ -50,11 +51,6 @@
     background-color: var(--border-color-dark);
 }
 
-.header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
 
 .go-back:hover {
     cursor: pointer;
@@ -133,6 +129,10 @@
     color: var(--success);
 }
 
+.create {
+    width: 200px;
+}
+
 .status-archived {
     background-color: var(--bg-lighter);
     color: var(--text-muted);
@@ -208,9 +208,11 @@
 }
 
 .details-card {
-    max-width: 500px;
-    max-height: 80vh;
+    width: min(92vw, 760px);
+    max-width: 760px;
+    max-height: 88vh;
     overflow-y: auto;
+    padding: 24px;
 }
 
 .details-body {
@@ -236,6 +238,85 @@
 .details-description {
     color: var(--text-muted-darker);
     line-height: 1.5;
+}
+
+.details-submission-files {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.details-submission-files h5 {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.submission-item {
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius);
+    padding: 14px;
+    background-color: var(--bg-secondary);
+}
+
+.submission-review {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color-light);
+}
+
+.submission-review-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.submission-review-field input,
+.submission-review-field textarea {
+    width: 100%;
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius);
+    padding: 9px 10px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font: inherit;
+}
+
+.submission-review-field textarea {
+    min-height: 92px;
+    resize: vertical;
+}
+
+.submission-review-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.submission-save-btn {
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 4px 8px;
+    background-color: var(--reddit-blue);
+    color: var(--text-light);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.submission-save-btn:hover {
+    filter: brightness(1.05);
+}
+
+.submission-save-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
 }
 
 .details-section h4 {
@@ -280,15 +361,6 @@
     margin: 0;
 }
 
-.submission-item {
-    padding: 10px 12px;
-    background-color: var(--bg-hover);
-    border-radius: var(--border-radius);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
 .submission-student {
     display: flex;
     align-items: center;
@@ -318,4 +390,24 @@
     color: var(--text-muted);
     font-size: 0.85rem;
     font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .header {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .asnmt {
+    display: flex;
+    flex-direction: column;
+    align-items: unset;
+    gap: 1rem;
+    padding: 12px 16px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color-dark);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.15s ease;
+}
 }

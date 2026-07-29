@@ -10,10 +10,11 @@ from sqlalchemy.orm import Session
 from app.api.deps.auth import get_current_teacher
 from app.api.deps.db import get_db
 from app.db.schemas.user import User
-from app.models.assignment import AssignmentCreate, AssignmentResponse, AssignmentUpdate
+from app.models.assignment import AssignmentCreate, AssignmentResponse, AssignmentUpdate, SubmissionResponse, SubmissionUpdate
 from app.services.teachers.assignments import (
     create_assignment,
-    update_assignment, 
+    update_assignment,
+    update_assignment_submission,
     upload_asnmt_media,
     get_teacher_asnmts_by_room,
 )
@@ -39,15 +40,6 @@ async def create_asgnmt(
     teacher: User = Depends(get_current_teacher)
 ):
     
-    # créer le devoir
-    data = AssignmentCreate(
-        title=title,
-        description=description,
-        room_id=room_id,
-        subject=teacher.subject,
-        due_date=due_date,
-    )
-    res = create_assignment(db=db, asnmt_data=data, teacher_id=teacher.id)
     
     # Envoyer le fichiers dans un autre thread pool
     if files:
@@ -67,6 +59,16 @@ async def create_asgnmt(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Fichier non supporté"
                 )
+            
+            # créer le devoir
+            data = AssignmentCreate(
+                title=title,
+                description=description,
+                room_id=room_id,
+                subject=teacher.subject,
+                due_date=due_date,
+            )
+            res = create_assignment(db=db, asnmt_data=data, teacher_id=teacher.id)
 
             mime_type = file.content_type
             media_data = MediaCreate(
@@ -79,7 +81,7 @@ async def create_asgnmt(
                 assignment_id=res.id
             )
 
-            media = upload_asnmt_media(db=db, data=media_data)
+            _ = upload_asnmt_media(db=db, data=media_data)
             
     # envoyer des notifications à tout le monde dans la classe
     background_tasks.add_task(
@@ -101,8 +103,33 @@ def update_asnmt(
     
     return asnmt
 
+@router.patch("/{asnmt_id}/submissions/{submission_id}", response_model=SubmissionResponse)
+def update_submission(
+    asnmt_id: UUID,
+    submission_id: UUID,
+    payload: SubmissionUpdate,
+    db: Session = Depends(get_db),
+    teacher: User = Depends(get_current_teacher)
+):
+    submission = update_assignment_submission(db=db, submission_id=submission_id, new_data=payload)
+
+    if submission.assignment_id != asnmt_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Soumission introuvable"
+        )
+
+    if submission.assignment and submission.assignment.teacher_id != teacher.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Accès refusé"
+        )
+
+    return submission
+
+
 @router.get("/{room_id}", response_model=List[AssignmentResponse])
-def get_room_asnmt(
+def get_room_asnmts(
     room_id: UUID,
     asnmt_status: Optional[AssignmentStatus] = None,
     db: Session = Depends(get_db),

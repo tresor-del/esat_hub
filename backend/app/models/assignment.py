@@ -41,26 +41,24 @@ class AssignmentResponse(AssignmentBase):
     status: str
     room: RoomResponse
     media: List[MediaResponse] = []
-    submissions: List["AssignmentSubmissionResponse"] = []
+    submissions: List["SubmissionResponse"] = []
     
-class AssignmentSubmissionBase(BaseModel):
-    assignment_id: uuid.UUID
-    student_id: uuid.UUID
-    grade: Optional[int] = None
-    feedback: Optional[str] = None
+# class AssignmentSubmissionBase(BaseModel):
+#     assignment_id: uuid.UUID
+#     student_id: uuid.UUID
+#     grade: Optional[int] = None
+#     feedback: Optional[str] = None
     
-    model_config = ConfigDict(from_attributes=True)
+#     model_config = ConfigDict(from_attributes=True)
     
-class AssignmentSubmissionCreate(AssignmentSubmissionBase):
-    pass
+# class AssignmentSubmissionCreate(AssignmentSubmissionBase):
+#     pass
     
-class AssignmentSubmissionResponse(AssignmentSubmissionBase):
-    id: uuid.UUID
-    submitted_at: datetime
-    media: List[MediaResponse] = []
-    student: UserResponse
-
-AssignmentResponse.model_rebuild()
+# class AssignmentSubmissionResponse(AssignmentSubmissionBase):
+#     id: uuid.UUID
+#     submitted_at: datetime
+#     media: List[MediaResponse] = []
+#     student: UserResponse
 
 # SUBMISSIONS
 
@@ -69,14 +67,23 @@ class SubmissionBase(BaseModel):
     student_id: uuid.UUID
     feedback: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
+
+class SubmissionUpdate(BaseModel):
+    grade: Optional[int] = None
+    feedback: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
     
 class SubmissionCreate(SubmissionBase):
     pass
 
 class SubmissionResponse(SubmissionBase):
+    id: uuid.UUID
     is_late: bool
     submitted_at: datetime
     grade: Optional[int] = None
     media: Optional[List[MediaResponse]] = []
     student: UserResponse
-    assignment: AssignmentResponse
+    # assignment: AssignmentResponse
+    
+
+AssignmentResponse.model_rebuild()

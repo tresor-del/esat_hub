@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FiFile, FiUser, FiClock } from "react-icons/fi";
-import { rebuildName } from "../helpers/utils";
+import { useToast } from "../../../contexts/toastContext";
+import { updateSubmissionReview } from "../../../services/TeacherApi";
+import { downloadFile } from "../helpers/utils";
 
 const STATUS_LABELS = {
     DRAFT: "Brouillon",
@@ -11,14 +13,69 @@ const STATUS_LABELS = {
 
 /**
  * @prop {object} asnmt - le devoir dont on affiche les détails
- * @prop {Function} onClose
+ * @prop {Function} onClose - fonction pour fermer le modal
+ * @prop {Function} onSubmissionUpdated - fonction appelée après enregistrement d'une soumission
  */
-const AssignmentDetailsModal = ({ asnmt, onClose }) => {
+const AssignmentDetailsModal = ({ asnmt, onClose, onSubmissionUpdated }) => {
+    const { toast } = useToast();
+    const [drafts, setDrafts] = useState({});
+    const [savingId, setSavingId] = useState(null);
+
+    useEffect(() => {
+        const initialDrafts = {};
+        (asnmt?.submissions || []).forEach((sub) => {
+            initialDrafts[sub.id] = {
+                grade: sub.grade ?? "",
+                feedback: sub.feedback ?? "",
+            };
+        });
+        setDrafts(initialDrafts);
+    }, [asnmt]);
+
     if (!asnmt) return null;
+
+    const handleDraftChange = (submissionId, field, value) => {
+        setDrafts((prev) => ({
+            ...prev,
+            [submissionId]: {
+                ...prev[submissionId],
+                [field]: value,
+            },
+        }));
+    };
+
+    const handleSaveSubmission = async (submission) => {
+        const draft = drafts[submission.id] || {};
+        const payload = {
+            grade: draft.grade === "" ? null : Number(draft.grade),
+            feedback: draft.feedback?.trim() ? draft.feedback.trim() : null,
+        };
+
+        setSavingId(submission.id);
+        try {
+            await updateSubmissionReview(asnmt.id, submission.id, payload);
+            if (onSubmissionUpdated) {
+                onSubmissionUpdated();
+            }
+            toast({ message: "Soumission mise à jour", type: "success" });
+        } catch (error) {
+            console.error(error);
+            toast({ message: "Impossible d'enregistrer l'évaluation", type: "error" });
+        } finally {
+            setSavingId(null);
+        }
+    };
+
+    const formatSubmissionDate = (value) => {
+        if (!value) return "Date inconnue";
+
+        const date = new Date(value);
+        return `${date.toLocaleDateString("fr-FR")} à ${String(date.getHours()).padStart(2, "0")}h ${String(date.getMinutes()).padStart(2, "0")}`;
+    };
 
     return (
         <div className="media-upload-card-container" onClick={onClose}>
-            <div className="media-upload-card details-card" onClick={(e) => e.stopPropagation()}>
+            <div className="media-upload-card details-card t" onClick={(e) => e.stopPropagation()}>
 
                 <div className="media-upload-header">
                     <h3>{asnmt.title}</h3>
@@ -63,36 +120,82 @@ const AssignmentDetailsModal = ({ asnmt, onClose }) => {
                         </h4>
                         {asnmt.submissions?.length > 0 ? (
                             <ul className="submissions-list">
-                                {asnmt.submissions.map((sub) => (
-                                    <li key={sub.id} className="submission-item">
-                                        <div className="submission-student">
-                                            <FiUser size={14} />
-                                            {rebuildName(sub.student?.name) || "Élève inconnu"}
-                                        </div>
-                                        <div className="submission-info">
-                                            <span className="submission-date">
-                                                Soumis le {new Date(sub.submitted_at).toLocaleDateString('fr-FR')}
-                                            </span>
-                                            {sub.grade != null ? (
-                                                <span className="submission-grade">Note : {sub.grade}/20</span>
-                                            ) : (
-                                                <span className="submission-grade pending">Non noté</span>
+                                {asnmt.submissions.map((sub) => {
+                                    const studentName = [sub.student?.first_name, sub.student?.last_name].filter(Boolean).join(" ") || "Étudiant";
+                                    const currentDraft = drafts[sub.id] || { grade: sub.grade ?? "", feedback: sub.feedback ?? "" };
+
+                                    return (
+                                        <li key={sub.id} className="submission-item">
+                                            <div className="submission-student">
+                                                <FiUser size={14} />
+                                                {studentName}
+                                            </div>
+                                            <div className="submission-info">
+                                                <span className="submission-date">
+                                                    Soumis le {formatSubmissionDate(sub.submitted_at)}
+                                                    {sub.is_late ? " · en retard" : ""}
+                                                </span>
+                                                {sub.grade != null ? (
+                                                    <span className="submission-grade">Note : {sub.grade}</span>
+                                                ) : (
+                                                    <span className="submission-grade pending">Non noté</span>
+                                                )}
+                                            </div>
+
+                                            {sub.media?.length > 0 && (
+                                                <div className="details-submission-files">
+                                                    <h5>Pièces jointes</h5>
+                                                    <ul className="details-files-list">
+                                                        {sub.media.map((m) => (
+                                                            <li key={m.id}>
+                                                                <FiFile size={14} />
+                                                                <a
+                                                                    rel="noopener noreferrer"
+                                                                    onClick={(e) => downloadFile(e, m.file_path, m.file_name)}
+                                                                >
+                                                                    {m.file_name}
+                                                                </a>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
                                             )}
-                                        </div>
-                                        {sub.media?.length > 0 && (
-                                            <ul className="details-files-list">
-                                                {sub.media.map((m) => (
-                                                    <li key={m.id}>
-                                                        <FiFile size={14} />
-                                                        <a href={m.file_path} target="_blank" rel="noopener noreferrer">
-                                                            {m.file_name}
-                                                        </a>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </li>
-                                ))}
+
+                                            <div className="submission-review">
+                                                <label className="submission-review-field">
+                                                    <span>Note /20</span>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        max="20"
+                                                        step="1"
+                                                        value={currentDraft.grade}
+                                                        onChange={(e) => handleDraftChange(sub.id, "grade", e.target.value)}
+                                                    />
+                                                </label>
+                                                <label className="submission-review-field">
+                                                    <span>Feedback</span>
+                                                    <textarea
+                                                        rows={4}
+                                                        value={currentDraft.feedback}
+                                                        onChange={(e) => handleDraftChange(sub.id, "feedback", e.target.value)}
+                                                        placeholder="Ajoutez un commentaire ou des conseils de correction"
+                                                    />
+                                                </label>
+                                                <div className="submission-review-actions">
+                                                    <button
+                                                        type="button"
+                                                        className="submission-save-btn"
+                                                        onClick={() => handleSaveSubmission(sub)}
+                                                        disabled={savingId === sub.id}
+                                                    >
+                                                        {savingId === sub.id ? "Enregistrement..." : "Enregistrer"}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    );
+                                })}
                             </ul>
                         ) : (
                             <p className="details-empty">Aucune soumission pour l'instant.</p>

@@ -49,7 +49,6 @@ export const createAs = async (data) => {
 
 export const createSubmission = async (data) => {
     const formData = new FormData();
-    formData.append("feedback", data.feedback);
     formData.append("assignment_id", data.assignmentId);
 
     if (data.files) {
@@ -62,4 +61,9 @@ export const createSubmission = async (data) => {
 
     const response = await api.post(`/rooms/assignments`, formData)
     console.log(response.data)
+}
+
+export const updateSubmissionReview = async (assignmentId, submissionId, data) => {
+    const response = await api.patch(`/teacher/assignments/${assignmentId}/submissions/${submissionId}`, data);
+    return response.data;
 }

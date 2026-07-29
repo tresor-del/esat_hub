@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 
-from app.models.assignment import AssignmentCreate, AssignmentUpdate
-from app.db.schemas.assignment import Assignment, AssignmentStatus
+from app.models.assignment import AssignmentCreate, AssignmentUpdate, SubmissionUpdate
+from app.db.schemas.assignment import Assignment, AssignmentStatus, AssignmentSubmission
 from app.db.schemas.media import Media
 from app.models.media import MediaCreate, MediaResponse
 
@@ -55,6 +55,30 @@ def upload_asnmt_media(db: Session, data: MediaCreate) -> MediaResponse:
     db.commit()
     db.refresh(db_media)
     return MediaResponse.model_validate(db_media)
+
+
+def update_assignment_submission(
+    db: Session,
+    submission_id: UUID,
+    new_data: SubmissionUpdate,
+) -> AssignmentSubmission:
+    stmt = select(AssignmentSubmission).where(AssignmentSubmission.id == submission_id)
+    db_submission = db.execute(stmt).scalar()
+    if not db_submission:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Soumission non trouvée"
+        )
+
+    validated_data = new_data.model_dump(exclude_unset=True)
+    for key, value in validated_data.items():
+        setattr(db_submission, key, value)
+
+    db.add(db_submission)
+    db.commit()
+    db.refresh(db_submission)
+    return db_submission
+
 
 def get_teacher_asnmts_by_room(
     db: Session,

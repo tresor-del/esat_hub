@@ -2,7 +2,7 @@ import datetime
 import uuid
 
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Column, DateTime, String, ForeignKey
+from sqlalchemy import Boolean, Column, DateTime, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
@@ -21,6 +21,7 @@ class Media(Base):
     file_path = Column(String(500), nullable=True)
     file_name = Column(String(255), nullable=True)
     mime_type = Column(String(100), nullable=True)
+    from_teacher = Column(Boolean, nullable=True, default=False)
 
     created_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc), onupdate=lambda: datetime.datetime.now(datetime.timezone.utc))

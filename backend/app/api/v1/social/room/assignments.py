@@ -38,7 +38,6 @@ def get_asgnmts(
 @router.post("/", response_model=SubmissionResponse)
 async def create_asnmt(
     assignment_id: UUID = Form(...),
-    feedback: Optional[str] = Form(None),
     files: Optional[List[UploadFile]] = File(None),
     user: User = Depends(get_current_user),
     room_service: RoomService = Depends(get_room_service),
@@ -64,6 +63,15 @@ async def create_asnmt(
                     detail="Fichier non supporté"
                 )
 
+            # envoyer le devoir.
+            submission_data = SubmissionCreate(
+                assignment_id=assignment_id,
+                student_id=user.id
+            )
+            
+            submission = room_service.create_asnmt(data=submission_data, current_user=user)
+            
+            
             mime_type = file.content_type
             media_data = MediaCreate(
                 title="Assignment file",
@@ -72,16 +80,10 @@ async def create_asnmt(
                 mime_type=mime_type,
                 user_id=user.id,
                 room_id=user.user_room_id,
-                assignment_id=assignment_id
+                assignment_id=assignment_id,
+                submission_id=submission.id,
             )
 
             _ = upload_asnmt_media(db=db, data=media_data)
 
-    submission_data = SubmissionCreate(
-        assignment_id=assignment_id,
-        feedback=feedback,
-        student_id=user.id
-    )
-    
-    submission = room_service.create_asnmt(data=submission_data, current_user=user)
     return submission

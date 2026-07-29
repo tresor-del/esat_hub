@@ -70,7 +70,7 @@ const RoomView = ({ room, onclose }) => {
     return (
         <div className='room-view'>
 
-            <div className="header">
+            {/* <div className="header">
                 <div className='header-t'>
                     <div className="go-back" onClick={onclose}>
                         <FiArrowLeft size={25} />
@@ -83,11 +83,13 @@ const RoomView = ({ room, onclose }) => {
                 <div className="btn btn-primary create" onClick={() => setCreate(true)}>
                     Créer un devoir.
                 </div>
-            </div>
+            </div> */}
 
             <div className="asnmts">
                 {assignments?.length > 0 ? (
-                    assignments.map((asnmt) => (
+                    <>
+                    {assignments.map((asnmt) => (
+                        
                         <div key={asnmt.id} className='asnmt' onClick={() => setViewingAsnmt(asnmt)}>
                             <div className="asnmt-main">
                                 <div className="asnmt-title">{asnmt.title}</div>
@@ -107,7 +109,7 @@ const RoomView = ({ room, onclose }) => {
                                 </div>
                             </div>
 
-                            <div className="asnmt-actions"  onClick={(e) => e.stopPropagation()}>
+                            <div className="asnmt-actions" onClick={(e) => e.stopPropagation()}>
                                 <div className="status-dropdown">
                                     <button
                                         className="btn-icon"
@@ -145,12 +147,20 @@ const RoomView = ({ room, onclose }) => {
                                 </button> */}
                             </div>
                         </div>
-                    ))
+                    ))}
+                    <div className="btn btn-primary create" onClick={() => setCreate(true)}>
+                            Créer
+                        </div>
+                    </>
                 ) : (
                     <div className='empty'>
                         Aucun devoir dans la salle pour l'instant.
+                        <div className="btn btn-primary create" onClick={() => setCreate(true)}>
+                            Créer
+                        </div>
                     </div>
                 )}
+
 
             </div>
 
@@ -161,6 +171,9 @@ const RoomView = ({ room, onclose }) => {
                 <AssignmentDetailsModal
                     asnmt={viewingAsnmt}
                     onClose={() => setViewingAsnmt(null)}
+                    onSubmissionUpdated={() => {
+                        invalidateAssignments();
+                    }}
                 />
             )}
         </div>

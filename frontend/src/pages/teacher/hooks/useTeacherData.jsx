@@ -22,6 +22,14 @@ export const useTeacherData = (room = null) => {
         enabled: !!room?.id
     });
 
+    // les fichiers partagés 
+    const {
+        data: media,
+    } = useQuery({
+        queryKey: ["assignments", room?.id],
+        queryFn: () => getRoomAssignments(room?.id),
+        enabled: !!room?.id
+    });
 
   return {
     rooms,

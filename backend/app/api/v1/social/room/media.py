@@ -21,6 +21,7 @@ async def upload_room_media(
     background_tasks: BackgroundTasks,
     title: str = Form(...),
     description: Optional[str] = Form(None),
+    from_teacher: Optional[bool] = Form(False),
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     room_service: RoomService = Depends(get_room_service),
@@ -59,7 +60,8 @@ async def upload_room_media(
         file_name=original_filename,
         mime_type=mime_type,
         user_id=current_user.id,
-        room_id=room_id
+        room_id=room_id,
+        from_teacher=from_teacher
     )
 
     media = room_service.upload_room_media(data)

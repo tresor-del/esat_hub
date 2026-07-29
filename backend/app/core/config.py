@@ -42,7 +42,7 @@ class Settings(BaseSettings):
 
     # Extensions de fichiers autorisées
     ALLOWED_PHOTO_EXTENSIONS: set = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
-    ALLOWED_DOCUMENT_EXTENSIONS: set = {".pdf", ".doc", ".docx", ".txt", ".xlsx", ".xls", ".ppt", ".pptx"}
+    ALLOWED_DOCUMENT_EXTENSIONS: set = {".pdf", ".doc", ".docx", ".txt", ".xlsx", ".xls", ".ppt", ".pptx", ".zip"}
 
     DEFAULT_AVATAR: str = "static/default_avatar.jpg"
 
