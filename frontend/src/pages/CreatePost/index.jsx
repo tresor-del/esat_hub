@@ -139,7 +139,7 @@ const CreatePost = ({ onClose }) => {
                                 Annuler
                             </button>
                             <button type="submit" className="btn-submit" disabled={loading}>
-                                {loading ? "Création..." : "Créer le poste"}
+                                {loading ? "Publication..." : "Publier"}
                             </button>
                         </div>
                         

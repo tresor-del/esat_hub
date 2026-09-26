@@ -30,7 +30,7 @@ const CreatePostBar = ({fullUser, userAuth, handleCreate, closeModale }) => {
             </div>
 
             <div className="create-post-input-trigger" onClick={handleCreate}>
-                <span> <strong>{fullUser.profil_name}</strong>, faites un nouveau post ici</span>
+                <span> <strong>{fullUser.profil_name}</strong>, cliquez ici pour faire une publication</span>
             </div>
 
             <div className="create-post-actions" onClick={handleCreate}>

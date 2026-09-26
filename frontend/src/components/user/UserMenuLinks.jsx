@@ -24,7 +24,7 @@ export const UserMenuLinks = ({ user, isAdmin, onAction, isDesktop = false }) =>
           <Avatar user={user} />
           <div className="um-header">
 
-            {isStudent && (
+            {isStudent || isAdmin && (
               <>
                 <p className="um-name">{user.first_name} {user.last_name}</p>
                 <p className="um-role">Étudiant</p>
@@ -43,7 +43,7 @@ export const UserMenuLinks = ({ user, isAdmin, onAction, isDesktop = false }) =>
       )}
 
       <div className="um-section">
-        {user.role === "STUDENT" && (
+        {isStudent || isAdmin && (
           <>
             <button className="um-item" onClick={() => go(`/profile/${user.id}`)}>
               <span className="um-icon"><FiUser /></span>
