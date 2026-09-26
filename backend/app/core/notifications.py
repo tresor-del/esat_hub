@@ -24,29 +24,29 @@ class NotificationContentBuilder:
     
     @staticmethod
     def new_comment(
-        username: str,
+        user: str,
         post_title: str,
         comment_preview: str,
         is_reply: bool = False
     ) -> str:
         """Contenu pour un nouveau commentaire"""
         if is_reply:
-            return f"{username} a répondu à votre commentaire."
-        return f"{username} a commenté votre post."
+            return f"{user.first_name} {user.last_name} a répondu à votre commentaire."
+        return f"{user.first_name} {user.last_name} a commenté votre post."
     
     @staticmethod
     def new_post(
-        username: str,
+        user: str,
         post_title: str,
         post_type: str ,
         is_general: bool = False,
     ) -> str:
         """Contenu pour un nouveau post"""
         if post_type == "photo":
-            return f"{username} a publier une photo."
+            return f"{user.first_name} {user.last_name} a publier une photo."
         elif post_type == "document":
-            return f"{username} a publier un document."
-        return f"{username} a fait une publication."
+            return f"{user.first_name} {user.last_name} a publier un document."
+        return f"{user.first_name} {user.last_name} a fait une publication."
 
     @staticmethod
     def status_update(new_status: str) -> str:

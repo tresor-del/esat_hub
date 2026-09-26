@@ -1,0 +1,278 @@
+
+.home-page {
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.teacher-home-shell {
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.teacher-home-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.teacher-home-eyebrow {
+    margin: 0 0 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--reddit-blue);
+}
+
+.t-title {
+    margin: 0;
+    font-size: 2.2rem;
+}
+
+.teacher-home-subtitle {
+    margin: 0.35rem 0 0;
+    color: var(--text-secondary);
+    max-width: 680px;
+}
+
+.teacher-room-selector {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.teacher-view-content {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.teacher-room-selector__header {
+    margin-bottom: 1rem;
+}
+
+.teacher-room-selector__header h2,
+.teacher-room-title h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.25rem;
+}
+
+.teacher-room-selector__header p,
+.teacher-room-title p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.teacher-room-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.teacher-room-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: #fff;
+    padding: 1rem;
+    cursor: pointer;
+    text-align: left;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.teacher-room-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--reddit-blue);
+    box-shadow: var(--shadow-sm);
+}
+
+.teacher-room-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(0, 102, 255, 0.1);
+    color: var(--reddit-blue);
+}
+
+.teacher-room-card__title {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.teacher-room-card__meta {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+}
+
+.teacher-room-empty {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.teacher-room-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.35rem;
+    padding-top: 1rem;
+}
+
+.teacher-room-toolbar--detail {
+    margin-bottom: 0.75rem;
+}
+
+.teacher-room-title--detail h2 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+.teacher-room-title--detail p {
+    margin: 0.25rem 0 0;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.teacher-room-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--border-color);
+    background: #fff;
+    color: var(--text-primary);
+    border-radius: 999px;
+    padding: 0.55rem 0.75rem;
+    cursor: pointer;
+}
+
+.teacher-view-switcher {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.teacher-view-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--border-color);
+    background: #fff;
+    color: var(--text-secondary);
+    border-radius: 999px;
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.teacher-view-pill.active {
+    color: var(--reddit-blue);
+    background: rgba(0, 102, 255, 0.1);
+    border-color: var(--reddit-blue);
+}
+
+.teacher-mobile-actions {
+    display: none;
+}
+
+.teacher-section-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.teacher-section-kicker {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--reddit-blue);
+}
+
+.teacher-section-title {
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .home-page {
+        /* padding: 1rem 1rem 6.25rem; */
+    }
+
+    .t-title {
+        font-size: 1.8rem;
+    }
+
+    .teacher-room-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .teacher-room-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .teacher-view-switcher {
+        display: none;
+    }
+
+    .teacher-mobile-actions {
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        gap: 0.6rem;
+        padding: 0.75rem 0.25rem 0;
+        background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 45%, rgba(255,255,255,1) 100%);
+        z-index: 10;
+    }
+
+    .teacher-mobile-action {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        border: 1px solid var(--border-color);
+        background: #fff;
+        color: var(--text-secondary);
+        border-radius: 999px;
+        padding: 0.7rem 0.6rem;
+        font-size: 0.9rem;
+        box-shadow: var(--shadow-sm);
+        white-space: normal;
+        text-align: center;
+        line-height: 1.2;
+    }
+
+    .teacher-mobile-action span {
+        display: block;
+        font-size: 0.8rem;
+    }
+
+    .teacher-mobile-action.active {
+        color: var(--reddit-blue);
+        border-color: var(--reddit-blue);
+        background: rgba(0, 102, 255, 0.1);
+    }
+
+    .teacher-room-title--detail h2 {
+    
+    font-size: 1.7rem;
+}
+
+.teacher-room-toolbar {
+    margin: 0;
+    padding: 0;
+}
+}

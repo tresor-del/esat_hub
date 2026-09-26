@@ -1,8 +1,9 @@
-from pathlib import Path
 import uuid
+import asyncio
+from functools import partial 
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
-from fastapi.responses import FileResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import RedirectResponse, StreamingResponse
 
 from sqlalchemy.orm import Session
 from app.api.deps.auth import get_current_user
@@ -12,16 +13,15 @@ from app.db.schemas.user import User
 from app.core.config import settings
 from app.services.social.posts import PostService
 from app.services.common.files import FileService
+from app.services.realtime import chat_service
 
 router = APIRouter(prefix="/files", tags=["files"])
 
 
 @router.get("/posts/{post_id}")
 async def download_file(
-    post_id: uuid.UUID, 
-    db: Session = Depends(get_db),
+    post_id: uuid.UUID,
     post_service: PostService = Depends(get_post_service),
-    file_service: FileService = Depends(get_file_service)
 ):
     """Télécharger le fichier d'un post"""
     post = post_service.get_post(post_id=post_id)
@@ -31,28 +31,13 @@ async def download_file(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Post non trouvé"
         )
-    
-    # if file_service.check_file_exists(db_post.file_path):
-    #     raise HTTPException(
-    #         status_code=status.HTTP_404_NOT_FOUND,
-    #         detail="Fichier non trouvé"
-    #     )
-    
-    # return FileResponse(
-    #     path=db_post.file_path,
-    #     filename=db_post.file_name,
-    #     media_type=db_post.mime_type
-    # )
 
     if not post.file_path:
         raise HTTPException(status_code=404, detail="Lien du fichier introuvable")
-        
+    
+    # rediriger vers le stockage du fichier
     return RedirectResponse(url=post.file_path)
-
-    # return StreamingResponse(
-    #     file_service.stream_file(post.file_path), 
-    #     media_type=post.mime_type or "application/octet-stream"
-    # )
+    
 
 @router.post("/users/me/avatar")
 async def upload_avatar(
@@ -81,13 +66,16 @@ async def upload_avatar(
         file_service.delete_file_path(current_user.avatar_path)
     
     # Sauvegarder avec un nom unique
-    file_path = file_service.save_upload_file(
-        resized_file=image,
-        resized=True,
-        is_avatar=True,
-        is_post_file=False
-    )[0]
-
+    file_path, _ = await asyncio.to_thread(
+        partial(
+            file_service.save_upload_file,
+            resized_file=image,
+            resized=True,
+            is_avatar=True,
+            is_post_file=False
+        )
+    )
+    
     # Mettre à jour le chemin de l'avatar dans la base de données
     file_service.update_avatar(db, current_user, file_path)
 
@@ -97,29 +85,45 @@ async def upload_avatar(
 async def get_avatar(
     user_id: uuid.UUID, 
     db: Session = Depends(get_db), 
-    file_service: FileService = Depends(get_file_service),
-    user_service = Depends(get_auth_service)):
+    user_service = Depends(get_auth_service)
+):
     
     user = user_service.get_user(user_id)
     
-    if not user or not user.avatar_path or not file_service.check_file_exists(user.avatar_path):
+    if not user or not user.avatar_path :
         # Retourner un avatar par défaut
         # return FileResponse(settings.DEFAULT_AVATAR)
         return None
     
-    return StreamingResponse(
-        file_service.stream_file(user.avatar_path)
-    )
+    return RedirectResponse(url=user.avatar_path)
 
 @router.post("/chat/upload")
 async def upload_chat_file(
     file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
     file_service: FileService = Depends(get_file_service)
     ):
 
-    file_path, _ = file_service.save_upload_file(
-        upload_file=file
+    file_path, file_name = await asyncio.to_thread(
+        partial(
+            file_service.save_upload_file,
+            upload_file=file,
+            is_chat_file=True,
+        )
+    )
+    
+    media = chat_service.add_chat_media(
+        db,
+        current_user.id,
+        file_path,
+        file_name,
+        file.content_type
     )
 
-    # 3. Renvoyer le chemin relatif
-    return {"file_path": file_path}
+    # Renvoyer le chemin relatif
+    return {
+        "media_id": str(media.id),
+        "file_path": file_path,
+        "mime_type": file.content_type,
+    }

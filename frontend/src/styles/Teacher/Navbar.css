@@ -1,0 +1,38 @@
+.t-nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.name {
+    font-size: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 20px;
+}
+
+.name:hover {
+    background-color: var(--text-muted-light);
+    cursor: pointer;
+}
+
+.name h1 {
+    color: var(--text-muted-dark);
+}
+
+@media (max-width: 768px) {
+    .name {
+        font-size: 1.5rem;
+        display: flex;
+        gap: 1rem;
+        border: unset;
+        padding: 1rem;
+        border-radius: 20px;
+    }
+
+    .name:hover {
+        background-color: unset;
+        cursor: pointer;
+    }
+}

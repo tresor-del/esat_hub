@@ -1,4 +1,6 @@
+import logging
 import asyncio
+from functools import partial
 from typing import List
 from uuid import UUID
 from sqlalchemy.orm import Session
@@ -8,40 +10,43 @@ from app.db.schemas.user_device import UserDevice
 
 
 from app.db.schemas.notification import Notification
-from app.models.notifications import NotificationResponse, NotificationListResponse, NotificationResponseUser
-from app.models.user import UserResponse
+from app.models.notifications import NotificationResponse, NotificationListResponse, NotificationResponseUser, NotificationUserResponse
 from app.services.realtime.ws_manager import ws_manager
+from app.services.social.posts import PostService
 
+logger = logging.getLogger(__name__)
 
 class NotificationService:
 
     def __init__(self, db: Session):
         self._db = db
 
-    def send_firebase_push(self, recipient_id: UUID, title: str, body: str, url: str = None) -> None:
-        """Méthode interne pour pousser une bannière Android via Firebase Cloud Messaging."""
+    def send_firebase_push(self, recipient_id: UUID, title: str, body: str, url: str = None, image: str=None) -> None:
+        """
+        Méthode interne pour pousser une bannière Android via Firebase Cloud Messaging.
+        """
         try:
-            # 1. On cherche UNIQUEMENT les appareils qui ont un token valide, non vide et non nul
+            # On cherche UNIQUEMENT les appareils qui ont un token valide, non vide et non nul
             devices = self._db.query(UserDevice).filter(
                 UserDevice.user_id == recipient_id,
                 UserDevice.device_token != None,
                 UserDevice.device_token != ""
             ).all()
             
-            print(f"FCM : Nombre d'appareils valides trouvés pour l'envoi : {len(devices)}")
+            logger.info(f"FCM : Nombre d'apparleils valides trouvés pour l'envoi : {len(devices)}")
             
             if not devices:
-                print("ℹFCM : Aucun appareil avec un jeton valide trouvé en base de données.")
+                logger.error("FCM : Aucun appareil avec un jeton valide trouvé en base de données.")
                 return
                 
-            # 2. On envoie la bannière à chaque téléphone trouvé
+            # On envoie la bannière à chaque téléphone trouvé
             for device in devices:
                 # Sécurité supplémentaire juste avant la construction du message
                 if not device.device_token or device.device_token.strip() == "":
-                    print("Sécurité : Jeton vide détecté dans la boucle, ignoré.")
+                    logger.error("Sécurité : Jeton vide détecté dans la boucle, ignoré.")
                     continue
                     
-                print(f"FCM : Tentative d'envoi au token : {device.device_token[:15]}...")
+                logger.info(f"FCM : Tentative d'envoi au token : {device.device_token[:15]}...")
                 
                 message = messaging.Message(
                     notification=messaging.Notification(
@@ -51,132 +56,122 @@ class NotificationService:
                     android=messaging.AndroidConfig(
                         priority="high",  
                         notification=messaging.AndroidNotification(
+                            channel_id="esathub_channel",
                             priority="high",  
                             sound="default",  
+                            image=image if image else None
                         ),
                     ),
                     webpush=messaging.WebpushConfig(
                         notification=messaging.WebpushNotification(
                             title=title,
                             body=body,
-                            icon="/icon-192x192.png", # Aligné avec votre vite.config.js
+                            icon=image if image else "https://res.cloudinary.com/dwaen56ml/image/upload/v1782388980/icon-512x512_b9kfdr.png",
                             badge="/badge-72.png",
+                            image=image if image else None
                         ),
                         data={
-                            "url": "/notifications" 
+                            "url": str(url or "/notifications") 
                         }
                     ),
                     data={
-                        "title": title,
-                        "body": body,
-                        "url": url
+                        "title": str(title or ""),
+                        "body": str(body or ""),
+                        "url": str(url or "")
                     },
                     token=device.device_token,
                 )
                 
                 try:
                     response = messaging.send(message)
-                    print(f"FCM : Bannière envoyée avec succès ! ID: {response}")
+                    logger.info(f"FCM : Bannière envoyée avec succès ! ID: {response}")
                 except Exception as fcm_err:
-                    print(f"FCM : Erreur d'envoi pour le token {device.device_token[:10]}... : {fcm_err}")
+                    logger.error(f"FCM : Erreur d'envoi pour le token {device.device_token[:10]}... : {fcm_err}")
                     # Nettoyage automatique de la base si le token n'est plus reconnu par Firebase
                     self._db.delete(device)
                     self._db.commit()
                     
         except Exception as e:
-            print(f"Erreur globale lors du traitement FCM : {e}")
+            logger.error(f"Erreur globale lors du traitement FCM : {e}")
     
     async def send_notification(self, data: NotificationResponse) -> None:
         try:
 
             d_data = data.model_copy()
-            validate_data = d_data.model_dump(exclude={"sender", "recipient"})
+            validate_data = d_data.model_dump(exclude={"sender", "recipient", "post"})
             validate_data.update({
                 "recipient_id": d_data.recipient.id,
-                "sender_id": d_data.sender.id if d_data.sender else None
+                "sender_id": d_data.sender.id if d_data.sender else None,
+                "post_id": d_data.post.id if d_data.post else None,
             })
             data_in_db = Notification(**validate_data)
             self._db.add(data_in_db)
             self._db.commit()
             self._db.refresh(data_in_db)
+        
             notif_data = NotificationResponseUser.model_validate(data_in_db).model_dump(mode="json")
-            print(f"Notification enregistrée en base: {data_in_db.id}")
-            await ws_manager.send_personal_notification(notif_data)
-            print("notification envoyé au manager")
 
-            title_mapping = {
-                "chat": "Nouveau message",
-                "new_comment": "Nouveau commentaire",
-                "new_post": "Nouveau post",
-                "COMMENTAIRE_SUPPRIMÉ": "Commentaire supprimé",
-                "POST_SUPPRIMÉ": "Post supprimé",
-                "POST_STATUS_UPDATE": "Status du post mis à jour",
-                "ROLE_UPDATE": "Role mis à jour",
-                "ACCOUNT_DELETED": "Status mis à jour",
-            }
+            if d_data.recipient.id != d_data.sender.id:
+                
+                delivered_via_ws = await ws_manager.send_personal_notification(notif_data)
 
-            notif_title = title_mapping.get(data_in_db.type, "Nouvelle notification")
-            
-            # On déclenche l'envoi Firebase de manière non-bloquante
-            loop = asyncio.get_event_loop()
-            await loop.run_in_executor(
-                None,                    # utilise le thread pool par défaut
-                self.send_firebase_push, # la fonction bloquante
-                data_in_db.recipient_id, 
-                notif_title,             
-                data_in_db.content, 
+                # if delivered_via_ws:
+                #     print("délivré via ws")
+                #     return 
+
+                # On déclenche l'envoi Firebase de manière non-bloquante
+                await asyncio.to_thread(
+                    partial(
+                    self.send_firebase_push, # la fonction bloquante
+                        data_in_db.recipient_id, 
+                        data_in_db.title,             
+                        data_in_db.content, 
+                        None,
+                        data.sender.avatar_path
+                    )
+                    
             )
             
         except Exception as e:
             # On log l'erreur mais on ne bloque pas la réponse API
             # La notification n'est pas critiquement bloquante
-            print(f"Échec de l'envoi de la notification : {e}")
+            logger.error(f"Échec de l'envoi de la notification : {e}")
 
     async def send_bulk_notifications(
         self,
         notification_type: str,
         content: str,
         recipients: list,
-        sender: UserResponse | None = None,
+        sender: NotificationUserResponse | None = None,
         post_id: UUID | None = None,
         comment_id: UUID | None = None,
+        title: str | None = None
     ) -> None:
-        """Envoie une notification à plusieurs destinataires."""
-        print(f"Envoi de notifications en bulk: {notification_type} à {len(recipients)} destinataires")
+        """
+        Envoie une notification à plusieurs destinataires.
+        """
+        
+        post_service = PostService(self._db)
+
         for recipient in recipients:
-            print(f"Destinataire: {recipient.id}")
 
             if sender and recipient.id == sender.id:
                 continue
             
-            print(f"Envoi à {recipient.id}")
             try:
-                recipient_data = UserResponse(
-                    first_name=recipient.first_name,
-                    last_name=recipient.last_name,
-                    profil_name=recipient.profil_name,
-                    school_name=recipient.school_name,
-                    domain=recipient.domain,
-                    level=recipient.level,
-                    year=recipient.year,
-                    id=recipient.id,
-                    is_verified=recipient.is_verified,
-                    username=recipient.username,
-                    user_room_id=recipient.user_room_id,
-                    email=recipient.email,
-                )
-
+                recipient_data = NotificationUserResponse.model_validate(recipient)
+                
                 notification = NotificationResponse(
                     type=notification_type,
                     content=content,
                     is_read=False,
                     recipient=recipient_data,
                     sender=sender,
-                    post_id=post_id,
+                    post=post_service.get_post(post_id),
                     comment_id=comment_id,
+                    title=title
                 )
                 await self.send_notification(notification)
-                print(f"Notification envoyée à {recipient.id}")
             except Exception as e:
                 print(f"Erreur envoi notification à {recipient.id}: {e}")
 
@@ -184,7 +179,7 @@ class NotificationService:
         notification = self._db.query(Notification).where(Notification.id==notif_id).first()
         return notification
     
-    def get_notifications(self, user_id: UUID) -> List[Notification]:
+    def get_notifications(self, user_id: UUID) -> List[NotificationResponseUser]:
         notifications = self._db.query(Notification).where(Notification.recipient_id==user_id).all()
         return notifications
 

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { FiDownload } from 'react-icons/fi';
-import '../../styles/ImageModal.css';
+import '../../styles/Modals/ImageModal.css';
 
 const ImageModal = ({ src, alt, onClose }) => {
   

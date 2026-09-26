@@ -1,18 +1,18 @@
 from uuid import UUID
 
-from app.db.database import SessionLocal
+from app.tasks.deps import get_tasks_db
 from app.core.notifications import notification_contents
 from app.db.schemas.user import User
 from app.db.schemas.comments import Comment
 from app.db.schemas.post import Post
 from app.services.interactions.notification import NotificationService
-from app.models.notifications import NotificationResponse
+from app.models.notifications import NotificationResponse, NotificationUserResponse
 from app.models.user import UserResponse
 from app.services.realtime.ws_manager import ws_manager
 
 async def handle_new_comment_task(comment_id: UUID, sender_id: UUID):
 
-    with SessionLocal() as db:
+    with get_tasks_db() as db:
 
         comment = db.query(Comment).get(comment_id)
         sender = db.query(User).get(sender_id)
@@ -22,31 +22,26 @@ async def handle_new_comment_task(comment_id: UUID, sender_id: UUID):
         
         if comment.parent_id is None:
             recipient_id = post.user_id
-            is_reply = False
+            title = f'{sender.first_name} à répondu à votre commentaire sur le post: {post.title}'
         else:
             parent_comment = db.query(Comment).get(comment.parent_id)
             recipient_id = parent_comment.user_id
-            is_reply = True
+            title = f'{sender.first_name} à commenté votre post: {post.title}'
 
         if recipient_id == sender_id:
             return
 
-        content = notification_contents.new_comment(
-            username=sender.profil_name,
-            post_title=post.title,
-            comment_preview=comment.content[:50],
-            is_reply=is_reply
-        )
 
         recipient = db.query(User).get(recipient_id)
         
         notif_data = NotificationResponse(
             type="new_comment",
-            content=content,
+            title=title ,
+            content=comment.content,
             is_read=False,
-            recipient=UserResponse.model_validate(recipient),
-            sender=UserResponse.model_validate(sender),
-            post_id=post.id,
+            recipient=NotificationUserResponse.model_validate(recipient),
+            sender=NotificationUserResponse.model_validate(sender),
+            post=post,
             comment_id=comment.id
         )
 

@@ -3,91 +3,76 @@ import { useWebSocket } from '../../contexts/WebSocketContext';
 import { useNavigate } from 'react-router-dom';
 import SearchFilters from '../../components/ui/SearchFilters';
 import { FiArrowLeft } from 'react-icons/fi';
+import { useSearchParams } from 'react-router-dom';
 import { searchPosts } from '../../services/api';
 import { getAllUsers, markMessagesAsReadApi } from '../../services/chatApi';
 import Avatar from '../../components/ui/Avatar';
 import ChatBox from '../../components/chat/ChatBox';
-import "../../styles/Chat.css"
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import "../../styles/Chat/Chat.css"
+import "../../styles/Home.css"
 import { getRecentChat } from '../../services/chatApi';
 import { set } from 'date-fns';
 import Logo from '../../components/common/Logo';
 import { useAuth } from '../../contexts/AuthContext';
+import HomeSidebar from '../Home/components/HomeSidebar';
 
 const ChatPage = () => {
-    const { unreadChatsCount, refreshUnreadCount, messages } = useWebSocket();
+    const { unreadChatsCount, refreshUnreadCount, setUnreadChatsCount, activeConvRef, messages } = useWebSocket();
     const [activeRecipient, setActiveRecipient] = useState(null);
     // on utilise useRef pour avoir les valeurs courantes et eviter les closures
     const activeRecipientRef = useRef();
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [view, setView] = useState("recent")
-    const [recentChats, setRecentChats] = useState([]);
-    const [loadingRecentChats, setLoadingRecentChats] = useState(true);
     const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
     const [isChatOpen, setIsChatOpen] = useState(false);
-    const [allUsers, setAllUsers] = useState([]);
-    const [loadingUsers, setLoadingUsers] = useState(true);
     const { user: fullUser } = useAuth();
+    const queryClient = useQueryClient();
 
     const navigate = useNavigate()
 
+    const [searchParams, setSearchParams] = useSearchParams();
 
-    useEffect(() => {
-        const loadRecent = async () => {
-            setLoadingRecentChats(true);
-            try {
-                const data = await getRecentChat();
-                setRecentChats(data || []);
-            } catch (error) {
-                console.error("Erreur chargement récents:", error);
-            } finally {
-                setLoadingRecentChats(false);
-            }
-        };
+    const { data: recentChats = [], isLoading: loadingRecentChats } = useQuery({
+        queryKey: ['recentChats'],
+        queryFn: getRecentChat,
+        staleTime: 30_000, // évite un refetch agressif à chaque focus
+    });
 
-        const getAll = async () => {
-            try {
-                setLoadingUsers(true)
-                const data = await getAllUsers();
-                setAllUsers(data || []);
-            } catch (error) {
-                console.error("Erreur lors de la reception des users:", error);
-
-            } finally {
-                setLoadingUsers(false)
-            }
-        }
-
-        getAll();
-        loadRecent();
-    }, []);
+    const { data: allUsers = [], isLoading: loadingUsers } = useQuery({
+        queryKey: ['allUsers'],
+        queryFn: getAllUsers,
+        staleTime: 5 * 60_000, // les users changent rarement
+    });
 
     useEffect(() => {
         const handleChatUpdate = (event) => {
-
             const msg = event.detail;
-            const isActiveConv = activeRecipientRef.current?.id === msg.sender_id;
+            const isActiveConv = activeRecipientRef.current?.id === msg.sender.id;
 
-            setRecentChats(prev => prev.map(chat => {
-
-                const isThisChat = chat.id === msg.sender_id || chat.id === msg.recipient_id;
-                if (!isThisChat) return chat;
-
-                return {
-                    ...chat,
-                    last_message_content: msg.content,
-                    last_message_timestamp: msg.timestamp,
-                    // Non lu seulement si message entrant ET pas dans la conv active
-                    unread_count: msg.isIncoming && !isActiveConv
-                        ? chat.unread_count + 1
-                        : chat.unread_count
-                };
-            }));
+            queryClient.setQueryData(['recentChats'], (prev = []) => {
+                const updated = prev.map(chat => {
+                    const isThisChat = chat.user?.id === msg.sender.id || chat.user?.id === msg.recipient_id;
+                    if (!isThisChat) return chat;
+                    return {
+                        ...chat,
+                        last_message_content: msg.content,
+                        last_message_timestamp: msg.timestamp,
+                        unread_count: msg.isIncoming && !isActiveConv
+                            ? chat.unread_count + 1
+                            : chat.unread_count
+                    };
+                });
+                return [...updated].sort(
+                    (a, b) => new Date(b.last_message_timestamp) - new Date(a.last_message_timestamp)
+                );
+            });
         };
+
         window.addEventListener("CHAT_UPDATED", handleChatUpdate);
         return () => window.removeEventListener("CHAT_UPDATED", handleChatUpdate);
     }, []);
-
 
     useEffect(() => {
         const handleResize = () => {
@@ -101,39 +86,71 @@ const ChatPage = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // 1. ÉCOUTER l'URL au chargement : Si un ID est présent, on l'active
+    useEffect(() => {
+        const userIdInUrl = searchParams.get('user');
+        if (userIdInUrl && (!activeRecipient || activeRecipient.id !== userIdInUrl)) {
+            // Trouvez l'utilisateur dans votre liste globale et activez-le
+            const user = allUsers?.find(u => u.id === userIdInUrl);
+            if (user) handleSelectRecipient(user);
+        }
+    }, [searchParams, allUsers, activeRecipient]);
+
     const handleSelectRecipient = async (recipient) => {
-        // 1. ACTIONS INITIALES INSTANTANÉES (L'interface change de suite)
+        activeConvRef.current = recipient.id;
         setActiveRecipient(recipient);
+        setSearchParams({ user: recipient.id });
         activeRecipientRef.current = recipient;
 
-        if (isMobileView) {
-            setIsChatOpen(true);
+        if (isMobileView) setIsChatOpen(true);
+
+        const chat = recentChats.find(c => c.user?.id === recipient.id);
+        const previousUnread = chat?.unread_count || 0;
+
+        queryClient.setQueryData(['recentChats'], (prev = []) =>
+            prev.map(chat =>
+                chat.user?.id === recipient.id
+                    ? { ...chat, unread_count: 0 }
+                    : chat
+            )
+        );
+
+        if (previousUnread > 0) {
+            setUnreadChatsCount(prev => Math.max(0, prev - previousUnread));
         }
 
-        // 2. MISE À JOUR LOCALE DU COMPTEUR (Pas d'attente d'API)
-        setRecentChats(prev => prev.map(chat =>
-            // CORRECTION SÉCURITÉ : Vérifier chat.user?.id au lieu de chat.id 
-            // car u.user?.id est utilisé dans le .map de votre JSX
-            (chat.id === recipient.id || chat.user?.id === recipient.id)
-                ? { ...chat, unread_count: 0 }
-                : chat
-        ));
-
-        // 3. OPÉRATIONS RÉSEAU EN ARRIÈRE-PLAN (Exécutées en tâche de fond)
         try {
-            // Lancés en parallèle sans bloquer l'ouverture visuelle de ChatBox
-            await Promise.all([
-                markMessagesAsReadApi(recipient.id),
-                refreshUnreadCount()
-            ]);
+            await markMessagesAsReadApi(recipient.id);
+            await refreshUnreadCount();
         } catch (error) {
             console.error("Erreur requêtes arrière-plan chat:", error);
         }
     };
 
+    const handleMsgEvent = (msg) => {
+        queryClient.setQueryData(['recentChats'], (prev = []) => {
+            const updated = prev.map(chat => {
+                const isThisChat = chat.user?.id === activeRecipientRef.current?.id;
+                if (!isThisChat) return chat;
+                return {
+                    ...chat,
+                    last_message_content: msg.last_message_content,
+                    last_message_timestamp: msg.last_message_timestamp,
+                    last_sender_id: msg.last_sender_id,
+                    unread_count: 0,
+                };
+            });
+            return [...updated].sort(
+                (a, b) => new Date(b.last_message_timestamp) - new Date(a.last_message_timestamp)
+            );
+        });
+    };
+
     const handleCloseChat = () => {
+        activeConvRef.current = null;
         setIsChatOpen(false);
         setActiveRecipient(null);
+        setSearchParams({});
         activeRecipientRef.current = null;
     };
 
@@ -172,13 +189,13 @@ const ChatPage = () => {
                     <p>Messagerie</p>
                     <div className="search-filter-btns">
                         <button
-                            className={`btn ${view === 'recent' ? 'btn-primary' : 'btn-secondary'}`}
+                            className={` search-filter-btn ${view === 'recent' ? 'active' : ''}`}
                             onClick={handleSeeRecent}
                         >
-                            Récents
+                            Tout
                         </button>
                         <button
-                            className={`btn ${view === 'new' ? 'btn-primary' : 'btn-secondary'}`}
+                            className={`search-filter-btn ${view === 'new' ? 'active' : ''}`}
                             onClick={handleSeeNew}
                         >
                             Nouveau
@@ -235,6 +252,7 @@ const ChatPage = () => {
                                                         </div>
                                                         <div className='content-u'>
                                                             <p className="contact-preview">
+                                                                {u.last_sender_id === fullUser?.id ? "Vous : " : `${u.user.first_name} : `}
                                                                 {u.last_message_content || "Aucun message"}
                                                             </p>
                                                             {u.unread_count > 0 && (<span className='unread-msg-badge'>{u.unread_count}</span>)}
@@ -313,7 +331,7 @@ const ChatPage = () => {
                     {/* ZONE DE CHAT : Vide ou Active */}
                     <div className={`chat-zone ${isMobileView ? '' : 'desktop'} ${isMobileView && isChatOpen ? 'active' : ''}`}>
                         {activeRecipient ? (
-                            <ChatBox recipient={activeRecipient} onClose={handleCloseChat} isMobile={isMobileView} />
+                            <ChatBox recipient={activeRecipient} onClose={handleCloseChat} isMobile={isMobileView} onMessage={handleMsgEvent} />
                         ) : (
                             <div style={{ margin: 'auto', textAlign: 'center', color: '#888' }}>
                                 <div style={{ fontSize: '50px' }}>💬</div>
@@ -327,35 +345,7 @@ const ChatPage = () => {
 
             </div>
 
-            <div className="left-home-card on-chat">
-                <div className="left-card-header">
-                    <div className="left-card-avatar">
-                        <Avatar
-                            user={fullUser}
-                            size="large"
-                            onClick={() => navigate(`profile/${userAuth.id}`)}
-                        />
-                    </div>
-                    <div className="left-card-meta">
-                        <h3 className="left-card-name">{fullUser?.first_name} {fullUser?.last_name}</h3>
-
-                    </div>
-                </div>
-
-                <button className="left-card-button" onClick={() => navigate(`/profile/${fullUser.id}`)}>
-                    Voir votre profil
-                </button>
-
-                <div className='footer'>
-                    <a href="/about" className="footer-link">À propos</a>
-                    <a href="/privacy" className="footer-link">Confidentialité</a>
-                    <a href="/terms" className="footer-link">Condition d'utilisation</a>
-                    <h3 className="footer-link">Esat-Hub &copy; 2026</h3>
-                    <p className="footer-link"></p>
-                    <p className="credits" className="footer-link">Développé par <strong> <a href="https://github.com/tresor-del" target="blank">Trésor</a></strong></p>
-
-                </div>
-            </div>
+            <HomeSidebar fullUser={activeRecipient ? activeRecipient : fullUser} userAuth={activeRecipient ? activeRecipient : fullUser} className="profile" />
 
         </div>
 

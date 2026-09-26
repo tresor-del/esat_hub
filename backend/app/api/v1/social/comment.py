@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy.orm import Session
-from fastapi import APIRouter, status, HTTPException, Depends, BackgroundTasks
+from fastapi import APIRouter, Query, status, HTTPException, Depends, BackgroundTasks
 
 from app.api.deps.auth import get_current_user
 from app.api.deps.services import get_comment_service, get_post_service, get_auth_service
@@ -106,6 +106,8 @@ def delete_comment(
 @router.get("/posts/{post_id}/comments")
 def get_post_comments(
     post_id: uuid.UUID,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1, le=100),
     current_user: User = Depends(get_current_user),
     comment_service: CommentService = Depends(get_comment_service),
     post_service: PostService = Depends(get_post_service)
@@ -117,6 +119,6 @@ def get_post_comments(
             detail="Post not found"
         )
     
-    comments = comment_service.get_comments(post_id)
+    comments = comment_service.get_comments(post_id, skip, limit)
 
     return comments

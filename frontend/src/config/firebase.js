@@ -2,14 +2,19 @@ import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDhW5sLovvrJuGn6nIiWzxYsW9jCl6w_3Q",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "esathub-79a0c",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "539552032054",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:539552032054:web:c689ced1eef3022e1cff97",
 };
+
+if (!import.meta.env.VITE_FIREBASE_API_KEY || !import.meta.env.VITE_FIREBASE_PROJECT_ID || !import.meta.env.VITE_FIREBASE_APP_ID || !import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID) {
+  console.warn("Firebase env vars missing, using built-in fallback config.", firebaseConfig);
+}
 
 const app = initializeApp(firebaseConfig);
 export const messaging = getMessaging(app);
+export { firebaseConfig };
 
 export const requestNotificationPermission = async () => {
   try {

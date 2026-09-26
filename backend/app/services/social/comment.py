@@ -40,10 +40,10 @@ class CommentService:
         self._db.commit()
         return True
     
-    def get_comments(self, post_id: uuid.UUID) -> CommentListResponse:
-        statement = select(Comment).where(Comment.post_id == post_id)
+    def get_comments(self, post_id: uuid.UUID, skip=0, limit=10) -> CommentListResponse:
+        statement = select(Comment).where(Comment.post_id == post_id).offset(skip).limit(limit)
         comments = self._db.execute(statement).scalars().all()
-        total = len(comments)
+        total = self._db.query(Comment).filter(Comment.post_id == post_id).count()
         return CommentListResponse(total=total, comments=comments)
 
 

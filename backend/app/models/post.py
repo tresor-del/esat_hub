@@ -5,6 +5,9 @@ from typing import Optional
 from enum import Enum
 
 from app.models.user import UserResponse
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from app.models.comment import CommentResponse
 
 class PostType(str, Enum):
     PHOTO = "photo"
@@ -44,6 +47,18 @@ class PostResponse(PostBase):
     updated_at: datetime
     user: UserResponse
     status: str
+    # comments:  list["CommentResponse"] = []
+    comments_count: int = 0
+    likes_count: int = 0
+    liked_by_me: bool = False
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PostLikeResponse(BaseModel):
+    post_id: UUID
+    liked_by_me: bool
+    likes_count: int
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -58,3 +73,6 @@ class PostUpdateResponse(BaseModel):
 class PostStatsResponse(BaseModel):
     total_posts: int
     type_counts: Optional[dict] = None
+
+from app.models.comment import CommentResponse
+PostResponse.model_rebuild(_types_namespace={"CommentResponse": CommentResponse})

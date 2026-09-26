@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: row;
   align-items: flex-start;
+  gap: 0;
+  max-width: 1150px !important;
 }
 
 .main-content.home {
@@ -9,7 +11,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: start;
+  align-items: center;
   margin-bottom: 3rem;
   margin-top: 1rem;
 }
@@ -18,33 +20,59 @@
   position: sticky;
   top: 5rem;
   /* hauteur de ta navbar */
-  width: 280px;
+  /* width: 280px; */
   /* ou ce que tu veux */
   flex-shrink: 0;
   max-height: calc(100vh - 80px);
   overflow-y: auto;
-    background-color: #ffffff;
-  border: 1px solid #e8eaed;
+  background-color: #ffffff;
   border-radius: 10px;
   padding: 20px;
-  max-width: 280px;
+  max-width: 250px;
   width: 100%;
   box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
-  margin-right: 24px;
+  /* margin-right: 24px; */
+
+  /* border: 1px solid #eee; */
+  display: flex;
+  flex-direction: column;
 }
 
+.left-home-card.profile {
+  background: linear-gradient(to bottom, 
+    #0f4c81 0%, 
+    #0079d3 25%, 
+    #ffffff 25%, 
+    #ffffff 100%
+  );
+}
+
+.posts-list, .posts-skeleton-list, .empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding-top: 0.17rem;
+  width: 100%;
+}
 
 /* Conteneur principal prenant tout l'espace restant */
 .empty-state-container {
+  position: sticky;
+  /* top: 5rem; */
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 60vh;
+  /* min-height: 60vh; */
+  height: calc(100vh - 100px) !important;
   /* Occupe la majeure partie de la hauteur d'écran */
-  width: 100%;
+  width: 500px;
   padding: 24px;
   box-sizing: border-box;
   background-color: #ffffff;
+  border-radius: 1rem;
 }
 
 /* Carte centrale style Facebook / Réseau Social */
@@ -94,6 +122,10 @@
   line-height: 1.4;
 }
 
+.posts-end {
+  padding: 1rem;
+}
+
 /* Mode sombre optionnel : Si votre application gère le dark mode */
 @media (prefers-color-scheme: dark) {
 
@@ -117,8 +149,6 @@
 
 }
 
-
-
 @media (max-width: 768px) {
 
   .container {
@@ -135,7 +165,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: unset;
+    align-items: center;
     margin-top: unset;
     margin-bottom: 5rem;
   }
@@ -146,6 +177,14 @@
 
   .left-home-card {
     display: none;
+  }
+
+  /* .footer-hidden-desktop {
+    display: flex !important;
+  } */
+
+  .empty-state-container {
+    width: 100%;
   }
 }
 
@@ -173,6 +212,10 @@
     width: 100% !important;
     max-width: 680px !important;
   }
+
+   .posts-skeleton-list{
+    width: 100%;
+  }
 }
 
 .create-post-container {
@@ -185,8 +228,9 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-  border: 1px solid #f0f2f5;
-  width: 500px;
+  border: 1px solid #eee;
+  max-width: 600px;
+  width: 100%;
 }
 
 .create-post-container:hover {
@@ -239,11 +283,10 @@
 }
 
 
-
 .left-card-header {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  /* align-items: center; */
   gap: 14px;
   margin-bottom: 16px;
 }
@@ -259,7 +302,7 @@
 .left-card-footer div {
   display: flex;
   flex-direction: column;
-  justify-content:center;
+  justify-content: center;
   align-items: center;
 }
 
@@ -278,9 +321,15 @@
 
 .left-card-name {
   margin: 0 0 4px;
-  font-size: 1rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #0f172a;
+}
+
+.left-card-meta .i {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .left-card-role {
@@ -344,17 +393,27 @@
 
 .left-card-button {
   width: 100%;
-  padding: 10px 14px;
-  /* background-color: #0b74de; */
-  border: none;
-  border-radius: 10px;
-  /* color: #ffffff; */
-  font-size: 0.9rem;
-  font-weight: 600;
+  background-color: var(--reddit-blue);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 6px;
   cursor: pointer;
-  /* width: 200px; */
+  user-select: none;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease;
 }
 
 .left-card-button:hover {
-  background-color: #095bb5;
+  background-color: color-mix(in srgb, var(--reddit-blue) 90%, black);
+}
+
+.left-card-button:active {
+  transform: scale(0.98);
 }

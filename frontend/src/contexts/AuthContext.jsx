@@ -9,6 +9,17 @@ import {
   getUserProfile,
 } from "../services/api";
 import React from "react";
+import { Preferences } from "@capacitor/preferences";
+import { initFCM } from "../lib/fcmService";
+
+
+const getToken = async (key) => {
+  const { value } = await Preferences.get({ key });
+  return value;
+};
+const setToken = async (key, value) => await Preferences.set({ key, value });
+const removeToken = async (key) => await Preferences.remove({ key });
+
 
 // Création du contexte
 const AuthContext = createContext(null);
@@ -29,34 +40,36 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem("access_token");
+      const token = await getToken("access_token");
       if (token) {
         const decoded = jwtDecode(token); // { sub: "user_id", exp: ... }
         // si l'access token a expiré:
         if (decoded.exp * 1000 < Date.now()) {
           // tenter de récupérer le refresh token:
-          const refreshToken = localStorage.getItem("refresh_token");
+          const refreshToken = await getToken("refresh_token");
           if (refreshToken) {
             try {
               // tenter le refresh
               const res = await axios.post(`${API_BASE_URL}/auth/refresh`, {
                 refresh_token: refreshToken
               });
-              localStorage.setItem("access_token", res.data.access_token);
-              localStorage.setItem("refresh_token", res.data.refresh_token);
+              await setToken("access_token", res.data.access_token);
+              await setToken("refresh_token", res.data.refresh_token);
               // puis charger le profil normalement
               const newDecoded = jwtDecode(res.data.access_token);
               const profile = await getUserProfile(newDecoded.sub);
               setUser({ authenticated: true, ...profile });
             } catch (e) {
               // refresh expiré aussi → déconnexion réelle
-              localStorage.removeItem("access_token");
-              localStorage.removeItem("refresh_token");
-              setUser(null);
+              if (e.response?.status === 401) {
+                await removeToken("access_token");
+                await removeToken("refresh_token");
+                setUser(null);
+              }
             }
           } else {
 
-            localStorage.removeItem("access_token");
+            await removeToken("access_token");
             setUser(null);
           };
         } else {
@@ -71,7 +84,7 @@ export const AuthProvider = ({ children }) => {
             // Fallback to basic info
             let storedUsername = null;
             try {
-              storedUsername = localStorage.getItem("username");
+              storedUsername = await getToken("username");
             } catch (e) {
               storedUsername = null;
             }
@@ -97,12 +110,12 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       const data = await apiLogin(username, password);
-      localStorage.setItem("access_token", data.access_token);
-      localStorage.setItem("refresh_token", data.refresh_token)
+      await setToken("access_token", data.access_token);
+      await setToken("refresh_token", data.refresh_token)
 
       // Persist username so we can restore it after page reloads
       try {
-        localStorage.setItem("username", username);
+        await setToken("username", username);
       } catch (e) {
         // ignore storage errors
       }
@@ -113,6 +126,8 @@ export const AuthProvider = ({ children }) => {
         authenticated: true,
         ...userprofile,
       });
+
+      await initFCM(userprofile.id);
 
       return { success: true };
     } catch (error) {
@@ -135,15 +150,13 @@ export const AuthProvider = ({ children }) => {
   /**
    * Fonction de déconnexion
    */
-  const logout = () => {
+  const logout = async () => {
     // Supprimer le token
     apiLogout();
 
-    try {
-      localStorage.removeItem("username");
-    } catch (e) {
-      // ignore
-    }
+    await removeToken("access_token");
+    await removeToken("refresh_token");
+    await removeToken("username");
 
     // Réinitialiser l'état de l'utilisateur
     setUser(null);
@@ -152,10 +165,10 @@ export const AuthProvider = ({ children }) => {
   // Écouter les événements de déconnexion globaux (ex: axios envoie 'app:logout')
   // Permet à l'application de gérer la navigation/état depuis un point central
   useEffect(() => {
-    const onAppLogout = (e) => {
+    const onAppLogout = async (e) => {
       try {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("username");
+        await removeToken("access_token");
+        await removeToken("username");
       } catch (err) {
         // ignore
       }

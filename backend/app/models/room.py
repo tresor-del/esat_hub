@@ -1,8 +1,10 @@
+from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 from app.models.user import UserResponse
 from app.models.post import PostResponse
+from app.db.schemas.room import SessionStatus
 
 
 class RoomResponse(BaseModel):
@@ -26,3 +28,16 @@ class RoomResponseAdmin(BaseModel):
 class RoomStatsResponseAdmin(BaseModel):
     total_rooms: int
     rooms: list[RoomResponseAdmin]
+
+
+class CourseSessionResponse(BaseModel):
+    id: UUID
+    course: str
+    qr_token: str
+    created_at: datetime
+    expires_at: datetime
+    status: SessionStatus
+    session_author: UserResponse
+    session_room: RoomResponse
+
+    model_config = ConfigDict(from_attributes=True)
