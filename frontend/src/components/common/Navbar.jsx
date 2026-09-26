@@ -139,7 +139,7 @@ const Navbar = (props) => {
     >
       <div className="icon-with-badge navbar-icon-container">
         <FiHome size={24} strokeWidth={activeSection === "home" ? 2.2 : 1.8} />
-        Posts
+        Archives
       </div>
     </button>
   );
@@ -286,7 +286,7 @@ const Navbar = (props) => {
             <div className="icon-with-badge navbar-icon-container">
               <FiHome size={25} style={{ opacity: activeSection === "home" ? 1 : 0.7 }} />
             </div>
-            Posts
+            Archives
           </button>
 
           <button
