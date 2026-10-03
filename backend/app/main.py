@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
     logger.info("Fermerture des connexions...")
 
     # fermerture de la connexion avec redis
-    await app.state.redis.close()
+    await app.state.redis.aclose()
 
     # à la création de engine, l'app crée une pool pour et stock des tuyaux ouverts vers la base de données. 
     # ça permet de réutiliser ces tuyaux pour les requêtes suivantes sans devoir se reconnecter à chaque fois, ce qui améliore les performances.

@@ -3,7 +3,7 @@ from uuid import UUID
 
 from app.db.schemas.user import User, UserRole, UserStatus
 from app.services.admin.base import BaseAdminService
-from app.models.user import UserListResponse, UserResponse, UserSearchResponse
+from app.models.user import UserCreate, UserListResponse, UserResponse, UserSearchResponse
 from app.db.schemas.room import Room
 
 
