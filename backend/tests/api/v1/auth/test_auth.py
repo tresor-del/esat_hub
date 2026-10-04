@@ -144,7 +144,8 @@ def test_login_user_with_valid_credentials(client: TestClient, test_user_with_pa
     r = client.post(f"{settings.API_V1_STR}/auth/token", data=data)
     assert r.status_code == 200
     data = r.json()
-    assert "access_token" in data, "refresh_token" in data
+    assert data["access_token"]
+    assert data["refresh_token"]
     assert data["token_type"] == "bearer"
 
 def test_login_user_with_invalid_password(client: TestClient, test_user_with_password):
@@ -196,3 +197,23 @@ def test_refresh_token_wrong_type(client: TestClient, access_token_for_test_user
     assert r.status_code == 401
     data = r.json()
     assert data["detail"] == "Invalid refresh token"
+    
+### Profil name test ###
+
+def test_check_profil_name_availability(client: TestClient, db: Session):
+    user_data = random_user_data().model_dump(mode="json")
+    r = client.post(f"{settings.API_V1_STR}/auth/register", json=user_data)
+    assert r.status_code == 201
+
+    r = client.get(f"{settings.API_V1_STR}/auth/check-profil-name/{user_data['profil_name']}")
+    assert r.status_code == 200
+    assert r.json()["available"] is False
+    assert "déjà utilisé" in r.json()["message"]
+
+
+def test_check_profil_name_available_when_new(client: TestClient):
+    r = client.get(f"{settings.API_V1_STR}/auth/check-profil-name/uniqueprofil123")
+
+    assert r.status_code == 200
+    assert r.json()["available"] is True
+    assert r.json()["message"] == "Nom de profil disponible"

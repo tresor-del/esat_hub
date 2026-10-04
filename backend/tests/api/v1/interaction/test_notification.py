@@ -6,6 +6,7 @@ import io
 
 from app.core.config import settings
 from app.models.post import PostType
+from app.db.schemas.notification import Notification
 
 
 def _make_test_image_bytes() -> bytes:
@@ -25,46 +26,36 @@ def test_get_all_notifications_success(client: TestClient, auth_headers: dict, d
     )
 
     assert r.status_code == 200
-    # Should return a dict with notifications and total
     response_data = r.json()
-    assert "notifications" in response_data or isinstance(response_data, (list, dict))
+    assert response_data["total"] == 0
+    assert response_data["notifications"] == []
 
 
-def test_delete_single_notification_success(client: TestClient, auth_headers: dict, db: Session):
+def test_delete_single_notification_success(
+    client: TestClient,
+    auth_headers: dict,
+    test_user_with_password,
+    db: Session,
+):
     """Test deleting a single notification."""
-    # First create a post to potentially generate a notification
-    file_content = b"test file content"
-    files = {"file": ("test.txt", io.BytesIO(file_content), "text/plain")}
-    data = {
-        "title": "Test Post for Notification",
-        "description": "Test description",
-        "post_type": PostType.DOCUMENT.value,
-    }
-
-    r = client.post(
-        f"{settings.API_V1_STR}/posts/",
-        data=data,
-        files=files,
-        headers=auth_headers
+    user, _ = test_user_with_password
+    notification = Notification(
+        type="TEST",
+        content="Delete me",
+        recipient_id=user.id,
+        sender_id=user.id,
     )
-    assert r.status_code == 201
+    db.add(notification)
+    db.commit()
+    db.refresh(notification)
 
-    # Get notifications (may be empty but should work)
-    r = client.get(
-        f"{settings.API_V1_STR}/notifications/me/all",
-        headers=auth_headers
-    )
-    assert r.status_code == 200
-
-    # Try to delete a non-existent notification
-    fake_notif_id = str(uuid.uuid4())
     r = client.delete(
-        f"{settings.API_V1_STR}/notifications/me/delete/{fake_notif_id}",
+        f"{settings.API_V1_STR}/notifications/me/delete/{notification.id}",
         headers=auth_headers
     )
 
-    # Should return 404 for non-existent notification
-    assert r.status_code == 404
+    assert r.status_code == 200
+    assert db.get(Notification, notification.id) is None
 
 
 def test_delete_all_notifications_success(client: TestClient, auth_headers: dict, db: Session):

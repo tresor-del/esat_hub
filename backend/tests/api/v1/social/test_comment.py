@@ -52,18 +52,17 @@ def test_create_comment_success(client: TestClient, auth_headers: dict, db: Sess
         headers=auth_headers
     )
 
-    assert r.status_code in [200, 201]
+    assert r.status_code == 201
     response_data = r.json()
-    print(response_data)
     assert response_data["content"] == "This is a test comment"
-    assert response_data["post"]["id"] == post_id
+    assert response_data["post_id"] == post_id
 
 
 def test_create_comment_on_nonexistent_post(client: TestClient, auth_headers: dict, db: Session):
     """Test creating a comment on a non-existent post."""
     comment_data = {
         "content": "This is a test comment",
-        "post_id": 99999,
+        "post_id": str(uuid.uuid4()),
         "parent_id": None
     }
 
@@ -123,7 +122,7 @@ def test_create_reply_comment(client: TestClient, auth_headers: dict, db: Sessio
         headers=auth_headers
     )
 
-    assert r.status_code in [200, 201]
+    assert r.status_code == 201
     response_data = r.json()
     assert response_data["content"] == "Reply comment"
     assert response_data["parent_id"] == parent_comment_id
@@ -168,9 +167,10 @@ def test_get_comment_success(client: TestClient, auth_headers: dict, db: Session
         headers=auth_headers
     )
 
-    assert r.status_code in [200, 201]
+    assert r.status_code == 200
     assert r.json()["id"] == comment_id
     assert r.json()["content"] == "Comment to get"
+    assert r.json()["post_id"] == post_id
 
 
 def test_get_nonexistent_comment(client: TestClient, auth_headers: dict, db: Session):
@@ -224,11 +224,15 @@ def test_update_own_comment_success(client: TestClient, auth_headers: dict, db: 
         headers=auth_headers
     )
 
-    assert r.status_code in [200, 201]
+    assert r.status_code == 200
     assert r.json()["content"] == "Updated content"
 
 
-def test_update_another_user_comment_forbidden(client: TestClient, auth_headers: dict, db: Session, test_user_with_password: tuple):
+def test_update_another_user_comment_forbidden(
+    client: TestClient,
+    auth_headers: dict,
+    admin_auth_headers: dict,
+):
     """Test that a user cannot update another user's comment."""
     # First create a post and comment
     file_content = b"test file content"
@@ -261,9 +265,14 @@ def test_update_another_user_comment_forbidden(client: TestClient, auth_headers:
     assert r.status_code == 201
     comment_id = r.json()["id"]
 
-    # Try to update with a different user (we'd need to create another user for this test)
-    # For now, just verify the endpoint exists and returns 403 for wrong user
-    # This test would require creating a second user which is complex
+    response = client.put(
+        f"{settings.API_V1_STR}/comments/update/{comment_id}",
+        params={"new_content": "Unauthorized update"},
+        headers=admin_auth_headers,
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Not allowed"
 
 
 def test_delete_own_comment_success(client: TestClient, auth_headers: dict, db: Session):
@@ -305,7 +314,7 @@ def test_delete_own_comment_success(client: TestClient, auth_headers: dict, db: 
         headers=auth_headers
     )
 
-    assert r.status_code in [200, 201]
+    assert r.status_code == 200
     assert "deleted" in r.json()["message"].lower()
 
 
@@ -345,21 +354,68 @@ def test_get_post_comments(client: TestClient, auth_headers: dict, db: Session):
 
     # Get all comments for the post
     r = client.get(
-        f"{settings.API_V1_STR}/comments/posts/{post_id}/comments",
+        f"{settings.API_V1_STR}/comments/posts/{post_id}/comments?limit=2",
         headers=auth_headers
     )
 
-    assert r.status_code in [200, 201]
-    # Should have at least 3 comments
+    assert r.status_code == 200
     response_data = r.json()
-    assert response_data["total"] >= 3
+    assert response_data["total"] == 3
+    assert len(response_data["comments"]) == 2
+
+    next_page = client.get(
+        f"{settings.API_V1_STR}/comments/posts/{post_id}/comments?skip=2&limit=2",
+        headers=auth_headers,
+    )
+    assert next_page.status_code == 200
+    assert next_page.json()["total"] == 3
+    assert len(next_page.json()["comments"]) == 1
 
 
 def test_get_comments_for_nonexistent_post(client: TestClient, auth_headers: dict, db: Session):
     """Test getting comments for a non-existent post."""
     r = client.get(
-        f"{settings.API_V1_STR}/comments/posts/99999/comments",
+        f"{settings.API_V1_STR}/comments/posts/{uuid.uuid4()}/comments",
         headers=auth_headers
     )
 
     assert r.status_code == 404
+    assert r.json()["detail"] == "Post not found"
+
+
+def test_delete_another_users_comment_forbidden(
+    client: TestClient,
+    auth_headers: dict,
+    admin_auth_headers: dict,
+):
+    post_response = client.post(
+        f"{settings.API_V1_STR}/posts/",
+        data={"title": "Comment ownership", "post_type": PostType.DOCUMENT.value},
+        headers=auth_headers,
+    )
+    assert post_response.status_code == 201
+
+    comment_response = client.post(
+        f"{settings.API_V1_STR}/comments/create",
+        json={"content": "Owned comment", "post_id": post_response.json()["id"]},
+        headers=auth_headers,
+    )
+    assert comment_response.status_code == 201
+
+    response = client.delete(
+        f"{settings.API_V1_STR}/comments/delete/{comment_response.json()['id']}",
+        headers=admin_auth_headers,
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Not allowed"
+
+
+def test_delete_nonexistent_comment_returns_not_found(client: TestClient, auth_headers: dict):
+    response = client.delete(
+        f"{settings.API_V1_STR}/comments/delete/{uuid.uuid4()}",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Comment not found"

@@ -12,6 +12,10 @@ if TYPE_CHECKING:
 class PostType(str, Enum):
     PHOTO = "photo"
     DOCUMENT = "document"
+    ANNONCE = "annonce"
+    COURS = "cours"
+    DEVOIR = "devoir"
+    EVENEMENT = "evenement"
     TEXT = "text"
 
 class UserPublic(BaseModel):

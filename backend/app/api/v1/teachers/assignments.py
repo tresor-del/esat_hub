@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.api.deps.auth import get_current_teacher
 from app.api.deps.db import get_db
 from app.db.schemas.user import User
+from app.db.schemas.assignment import Assignment, AssignmentSubmission
 from app.models.assignment import AssignmentCreate, AssignmentResponse, AssignmentUpdate, SubmissionResponse, SubmissionUpdate
 from app.services.teachers.assignments import (
     create_assignment,
@@ -39,8 +40,15 @@ async def create_asgnmt(
     db: Session = Depends(get_db),
     teacher: User = Depends(get_current_teacher)
 ):
-    
-    
+    data = AssignmentCreate(
+        title=title,
+        description=description,
+        room_id=room_id,
+        subject=teacher.subject,
+        due_date=due_date,
+    )
+    res = create_assignment(db=db, asnmt_data=data, teacher_id=teacher.id)
+
     # Envoyer le fichiers dans un autre thread pool
     if files:
         for file in files:
@@ -50,7 +58,7 @@ async def create_asgnmt(
                     file_service.save_upload_file,
                     upload_file=file,
                     is_room_file=True,
-                    room_id=data.room_id
+                    room_id=room_id
                 )
             )
             
@@ -60,16 +68,6 @@ async def create_asgnmt(
                     detail="Fichier non supporté"
                 )
             
-            # créer le devoir
-            data = AssignmentCreate(
-                title=title,
-                description=description,
-                room_id=room_id,
-                subject=teacher.subject,
-                due_date=due_date,
-            )
-            res = create_assignment(db=db, asnmt_data=data, teacher_id=teacher.id)
-
             mime_type = file.content_type
             media_data = MediaCreate(
                 title=title,
@@ -99,6 +97,12 @@ def update_asnmt(
     db: Session = Depends(get_db),
     teacher: User = Depends(get_current_teacher)
 ):
+    assignment = db.query(Assignment).filter(Assignment.id == asnmt_id).first()
+    if not assignment:
+        raise HTTPException(status_code=404, detail="Devoir non trouvé")
+    if assignment.teacher_id != teacher.id:
+        raise HTTPException(status_code=403, detail="Accès refusé")
+
     asnmt = update_assignment(db=db, asnmt_id=asnmt_id, new_data=payload)
     
     return asnmt
@@ -111,19 +115,15 @@ def update_submission(
     db: Session = Depends(get_db),
     teacher: User = Depends(get_current_teacher)
 ):
+    submission = db.query(AssignmentSubmission).filter(
+        AssignmentSubmission.id == submission_id
+    ).first()
+    if not submission or submission.assignment_id != asnmt_id:
+        raise HTTPException(status_code=404, detail="Soumission introuvable")
+    if submission.assignment.teacher_id != teacher.id:
+        raise HTTPException(status_code=403, detail="Accès refusé")
+
     submission = update_assignment_submission(db=db, submission_id=submission_id, new_data=payload)
-
-    if submission.assignment_id != asnmt_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Soumission introuvable"
-        )
-
-    if submission.assignment and submission.assignment.teacher_id != teacher.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Accès refusé"
-        )
 
     return submission
 

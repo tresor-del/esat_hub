@@ -29,7 +29,7 @@ def test_update_current_user_profile(client: TestClient, test_user_with_password
         "domain": "AERONAUTIQUE"
     }
 
-    r = client.put(f"{settings.API_V1_STR}/users/me", json=update_payload, headers=headers)
+    r = client.patch(f"{settings.API_V1_STR}/users/me", json=update_payload, headers=headers)
 
     assert r.status_code == 200
     data = r.json()
@@ -64,3 +64,27 @@ def test_get_user_profile_not_found(client: TestClient, access_token_for_test_us
 
     assert r.status_code == 404
     assert r.json()["detail"] == "Utilisateur non trouvé"
+
+
+def test_get_all_users(client: TestClient, test_user_with_password, access_token_for_test_user):
+    user, _ = test_user_with_password
+    headers = {"Authorization": f"Bearer {access_token_for_test_user}"}
+
+    response = client.get(f"{settings.API_V1_STR}/users/all", headers=headers)
+
+    assert response.status_code == 200
+    assert any(item["id"] == str(user.id) for item in response.json())
+
+
+def test_get_all_users_filters_by_room(client: TestClient, access_token_for_test_user):
+    headers = {"Authorization": f"Bearer {access_token_for_test_user}"}
+    room_id = str(uuid.uuid4())
+
+    response = client.get(
+        f"{settings.API_V1_STR}/users/all",
+        params={"room_id": room_id},
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    assert response.json() == []
