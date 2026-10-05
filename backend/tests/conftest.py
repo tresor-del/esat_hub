@@ -22,6 +22,7 @@ from tests.utils import random_user_in_db
 from app.db.database import Base, engine
 from app.main import app
 from app.api.deps.db import get_db
+from app.api.deps.redis import get_redis
 from app.db.security import create_access_token, create_refresh_token
 from app.api.deps.services import get_auth_service
 
@@ -64,16 +65,51 @@ def db(setup_database):
         connection.close()
 
 @pytest.fixture(scope="function")
-def client(db):
+def client(db, fake_redis, monkeypatch):
 
     def get_test_db():
         yield db
 
+    async def get_test_redis():
+        return fake_redis
+
     # override de la dépendance get_db pour utiliser la session de test au lieu de la session de production
     app.dependency_overrides[get_db] = get_test_db
+    app.dependency_overrides[get_redis] = get_test_redis
+
+    async def ignore_background_task(*args, **kwargs):
+        return None
+
+    monkeypatch.setattr("app.api.v1.social.post.handle_new_post", ignore_background_task)
+    monkeypatch.setattr("app.api.v1.social.post.handle_new_like", ignore_background_task)
+    monkeypatch.setattr("app.api.v1.social.comment.handle_new_comment_task", ignore_background_task)
+    monkeypatch.setattr("app.api.v1.teachers.assignments.handle_room_notifications", ignore_background_task)
+    monkeypatch.setattr("app.api.v1.social.room.media.handle_room_notifications", ignore_background_task)
+
 
     with TestClient(app) as c:
         yield c
+    app.dependency_overrides.pop(get_db, None)
+    app.dependency_overrides.pop(get_redis, None)
+
+# Fake Redis for tests
+class FakeRedis:
+    def __init__(self):
+        self.values = {}
+
+    async def get(self, key):
+        return self.values.get(key)
+
+    async def setex(self, key, seconds, value):
+        self.values[key] = value
+
+    async def delete(self, key):
+        return int(self.values.pop(key, None) is not None)
+
+
+@pytest.fixture
+def fake_redis():
+    return FakeRedis()
 
 # Random user
 
@@ -91,8 +127,9 @@ def test_user_with_password(db):
     return test_user, password
 
 @pytest.fixture(scope="function")
-def auth_headers(test_user_with_password):
+def auth_headers(test_user_with_password, fake_redis):
     test_user, _ = test_user_with_password
+    fake_redis.values[f"session:{test_user.id}"] = "active"
     access_token = create_access_token(data={"sub": str(test_user.id)})
     return {"Authorization": f"Bearer {access_token}"}
 
@@ -101,8 +138,10 @@ def refresh_token_for_test_user(test_user_with_password):
     return create_refresh_token(data={"sub": str(test_user_with_password[0].id)})
 
 @pytest.fixture(scope="function")
-def access_token_for_test_user(test_user_with_password):
-    return create_access_token(data={"sub": str(test_user_with_password[0].id)})
+def access_token_for_test_user(test_user_with_password, fake_redis):
+    user = test_user_with_password[0]
+    fake_redis.values[f"session:{user.id}"] = "active"
+    return create_access_token(data={"sub": str(user.id)})
 
 # Admin user
 
@@ -118,6 +157,40 @@ def admin(db):
     return admin
 
 @pytest.fixture(scope="function")
-def admin_auth_headers(admin):
+def admin_auth_headers(admin, fake_redis):
+    fake_redis.values[f"session:{admin.id}"] = "active"
     access_token = create_access_token(data={"sub": str(admin.id)})
+    return {"Authorization": f"Bearer {access_token}"}
+
+
+@pytest.fixture(scope="function")
+def teacher(db):
+    teacher_data, _ = random_user_in_db()
+    teacher_data.role = UserRole.TEACHER
+    teacher_data.subject = "Mathematics"
+    teacher = User(**teacher_data.model_dump())
+    db.add(teacher)
+    db.commit()
+    db.refresh(teacher)
+    return teacher
+
+
+@pytest.fixture(scope="function")
+def teacher_auth_headers(teacher, fake_redis):
+    fake_redis.values[f"session:{teacher.id}"] = "active"
+    access_token = create_access_token(data={"sub": str(teacher.id)})
+    return {"Authorization": f"Bearer {access_token}"}
+
+
+@pytest.fixture(scope="function")
+def teacher_auth_headers_other(db, fake_redis):
+    teacher_data, _ = random_user_in_db()
+    teacher_data.role = UserRole.TEACHER
+    teacher_data.subject = "Physics"
+    other_teacher = User(**teacher_data.model_dump())
+    db.add(other_teacher)
+    db.commit()
+    db.refresh(other_teacher)
+    fake_redis.values[f"session:{other_teacher.id}"] = "active"
+    access_token = create_access_token(data={"sub": str(other_teacher.id)})
     return {"Authorization": f"Bearer {access_token}"}

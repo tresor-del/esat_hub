@@ -37,6 +37,7 @@ def test_download_post_file_success(client: TestClient, auth_headers: dict, db: 
 
     assert r.status_code == 200
     assert r.content == file_content
+    
 
 
 def _make_test_image_bytes() -> bytes:

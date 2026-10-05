@@ -16,13 +16,14 @@ from app.api.deps.db import get_db
 from app.api.deps.services import get_admin_service, get_auth_service, get_email_service, get_notification_service, get_room_service
 from app.models.token import Token
 from app.db.security import create_access_token, create_refresh_token, hash_password
-from app.models.user import UserCreate, UserInDatabase
+from app.models.user import UserCreate, UserInDatabase, UserResponse
 from app.models.message import Message
 from app.services.auth.email import EmailService
 from app.db.security import authenticate_user
 from app.services.auth.users import AuthService
 from app.models.token import RefreshToken
 from app.db.schemas.revoked_token import RevokedToken
+from app.db.schemas.user import User
 from app.services.social.room import RoomService
 from app.models.mail import EmailModel
 from app.core.limiter import limiter
@@ -174,18 +175,20 @@ def refresh_token(
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=Message)
-@limiter.limit("3/minute")
+# @limiter.limit("3/minute")
 def register(
     request: Request,
     user_in: UserCreate,
     background_tasks: BackgroundTasks,
     auth_service: AuthService = Depends(get_auth_service),
     admin_service: AdminService = Depends(get_admin_service),
-    room_service: RoomService = Depends(get_room_service)
+    room_service: RoomService = Depends(get_room_service),
+    db: Session = Depends(get_db)
 ):
 
-    # if auth_service.check_duplicated_email(user_in.email):
-    #     raise HTTPException(400, "Email already registered")
+    if auth_service.check_duplicated_email(user_in.email):
+        raise HTTPException(400, "Email already registered")
+    
     if user_in.profil_name:
         if auth_service.check_duplicated_profil_name(user_in.profil_name):
             raise HTTPException(400, "User with this profil name already exists")
@@ -218,18 +221,36 @@ def register(
     )
     
     user = auth_service.create_user(user_data=user_data)
-    admin = auth_service.get_admin()
+    # admin = auth_service.get_admin()
+    # admin = db.query(User).filter(User.username == settings.SUPER_ADMIN_USERNAME).first()
 
-    # Envoyer une notification à l'admin en arrière-plan pour la confirmation
-    notification = NotificationResponse(
-        type="STATUS_UPDATE",
-        content=f"Une confirmation de compte en attente",
-        is_read=False,
-        sender=admin_service.users.create_user_response(user),
-        recipient=admin_service.users.create_user_response(admin),
-    )
+    # admin = UserResponse(
+    #         first_name=admin.first_name,
+    #         last_name=admin.last_name,
+    #         profil_name=admin.profil_name,
+    #         school_name=admin.school_name.value if admin.school_name else None,
+    #         domain=admin.domain.value if admin.domain else None,
+    #         level=admin.level.value if admin.level else None,
+    #         year=admin.year.value if admin.year else None,
+    #         email=admin.email,
+    #         id=admin.id,
+    #         is_verified=admin.is_verified,
+    #         username=admin.adminname,
+    #         user_room_id=admin.user_room_id,
+    #         avatar_path=admin.avatar_path
+    #     )
+
+    # # Envoyer une notification à l'admin en arrière-plan pour la confirmation
+    # notification = NotificationResponse(
+    #     type="STATUS_UPDATE",
+    #     content=f"Une confirmation de compte en attente",
+    #     is_read=False,
+    #     sender=admin_service.users.create_user_response(user),
+    #     # recipient=admin_service.users.create_user_response(admin),
+    #     recipient=admin
+    # )
     
-    background_tasks.add_task(send_notification_task, notification)
+    # background_tasks.add_task(send_notification_task, notification)
     
     return Message(message="Registration successful.")
 
@@ -242,4 +263,3 @@ def check_profil_name_availability(
     if is_taken:
         return {"available": False, "message": "Ce nom de profil est déjà utilisé"}
     return {"available": True, "message": "Nom de profil disponible"}
-

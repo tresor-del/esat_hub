@@ -34,7 +34,7 @@ class TestAdminPostEndpoints:
         
         assert response.status_code == 200
         data = response.json()
-        assert data["id"] == post.id
+        assert data["id"] == str(post.id)
 
     def test_delete_post(self, client, db, admin_auth_headers, admin):
         """Test deleting a post."""

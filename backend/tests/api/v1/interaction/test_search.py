@@ -43,7 +43,9 @@ def test_general_search_with_results(client: TestClient, auth_headers: dict, db:
     )
 
     assert r.status_code == 200
-    # Should return results (format depends on search engine implementation)
+    result = r.json()
+    assert result["posts_list"]["total"] == 1
+    assert result["posts_list"]["posts"][0]["title"] == "Unique Searchable Title 12345"
 
 
 def test_general_search_without_results(client: TestClient, auth_headers: dict, db: Session):
@@ -55,7 +57,10 @@ def test_general_search_without_results(client: TestClient, auth_headers: dict, 
     )
 
     assert r.status_code == 200
-    # Should return empty results or appropriate response
+    assert r.json()["posts_list"]["total"] == 0
+    assert r.json()["posts_list"]["posts"] == []
+    assert r.json()["users_list"]["total"] == 0
+    assert r.json()["users_list"]["users"] == []
 
 
 def test_general_search_with_pagination(client: TestClient, auth_headers: dict, db: Session):
@@ -79,13 +84,27 @@ def test_general_search_with_pagination(client: TestClient, auth_headers: dict, 
         assert r.status_code == 201
 
     # Search with pagination
-    r = client.get(
+    first_page = client.get(
         f"{settings.API_V1_STR}/search/general",
         params={"q": "Search Test", "skip": 0, "limit": 2},
         headers=auth_headers
     )
+    second_page = client.get(
+        f"{settings.API_V1_STR}/search/general",
+        params={"q": "Search Test", "skip": 2, "limit": 2},
+        headers=auth_headers
+    )
 
-    assert r.status_code == 200
+    assert first_page.status_code == second_page.status_code == 200
+    first_result = first_page.json()["posts_list"]
+    second_result = second_page.json()["posts_list"]
+    assert first_result["total"] == 2
+    assert second_result["total"] == 1
+    assert len(first_result["posts"]) == 2
+    assert len(second_result["posts"]) == 1
+    assert not {post["id"] for post in first_result["posts"]} & {
+        post["id"] for post in second_result["posts"]
+    }
 
 
 def test_general_search_empty_query(client: TestClient, auth_headers: dict, db: Session):
@@ -96,8 +115,9 @@ def test_general_search_empty_query(client: TestClient, auth_headers: dict, db: 
         headers=auth_headers
     )
 
-    # Should handle empty query gracefully (depends on implementation)
-    assert r.status_code in [200, 400, 422]
+    assert r.status_code == 200
+    assert r.json()["posts_list"]["posts"] == []
+    assert r.json()["users_list"]["users"] == []
 
 
 def test_general_search_special_characters(client: TestClient, auth_headers: dict, db: Session):
@@ -108,8 +128,8 @@ def test_general_search_special_characters(client: TestClient, auth_headers: dic
         headers=auth_headers
     )
 
-    # Should handle special characters gracefully
-    assert r.status_code in [200, 400, 422]
+    assert r.status_code == 200
+    assert r.json()["posts_list"]["posts"] == []
 
 
 def test_general_search_unauthorized_without_token(client: TestClient):
@@ -149,6 +169,7 @@ def test_general_search_partial_match(client: TestClient, auth_headers: dict, db
     )
 
     assert r.status_code == 200
+    assert any(post["title"] == "Partial Match Test" for post in r.json()["posts_list"]["posts"])
 
 
 def test_general_search_case_insensitive(client: TestClient, auth_headers: dict, db: Session):
@@ -178,6 +199,7 @@ def test_general_search_case_insensitive(client: TestClient, auth_headers: dict,
     )
 
     assert r.status_code == 200
+    assert any(post["title"] == "Case Insensitive TEST" for post in r.json()["posts_list"]["posts"])
 
 
 def test_general_search_with_limit_parameter(client: TestClient, auth_headers: dict, db: Session):
@@ -189,6 +211,7 @@ def test_general_search_with_limit_parameter(client: TestClient, auth_headers: d
     )
 
     assert r.status_code == 200
+    assert len(r.json()["posts_list"]["posts"]) <= 5
 
 
 def test_general_search_with_skip_parameter(client: TestClient, auth_headers: dict, db: Session):
@@ -200,3 +223,4 @@ def test_general_search_with_skip_parameter(client: TestClient, auth_headers: di
     )
 
     assert r.status_code == 200
+    assert r.json()["posts_list"]["total"] <= len(r.json()["posts_list"]["posts"]) + 10

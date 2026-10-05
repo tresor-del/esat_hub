@@ -27,7 +27,7 @@ def get_asgnmts(
 ):
     if not user.user_room_id:
         raise HTTPException(
-            staus_code=status.HTTP_403_FORBIDDEN,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="User non associé à aucune classe"
         )
         
@@ -44,7 +44,13 @@ async def create_asnmt(
     db: Session = Depends(get_db)
 ):
     
-    # traitements des fichiers:
+    submission_data = SubmissionCreate(
+        assignment_id=assignment_id,
+        student_id=user.id,
+    )
+    submission = room_service.create_asnmt(data=submission_data, current_user=user)
+
+    # Traitement facultatif des fichiers joints à la soumission.
     if files:
         for file in files:
             file_service = FileService()
@@ -63,15 +69,6 @@ async def create_asnmt(
                     detail="Fichier non supporté"
                 )
 
-            # envoyer le devoir.
-            submission_data = SubmissionCreate(
-                assignment_id=assignment_id,
-                student_id=user.id
-            )
-            
-            submission = room_service.create_asnmt(data=submission_data, current_user=user)
-            
-            
             mime_type = file.content_type
             media_data = MediaCreate(
                 title="Assignment file",

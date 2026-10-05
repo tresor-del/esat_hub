@@ -1,5 +1,6 @@
 import os
 import uuid
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -38,7 +39,7 @@ def get_all_users(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     user_service = Depends(get_auth_service),
-    room_id: str = None
+    room_id: Optional[uuid.UUID] = None
 ):
     users = user_service.get_all_users(room_id=room_id)
     return users

@@ -113,7 +113,8 @@ class RoomService:
             return None
 
     def create_session(self, rep, course: str) -> dict:
-        session_id = str(uuid4())
+        session_uuid = uuid4()
+        session_id = str(session_uuid)
         expires_at = datetime.datetime.now(datetime.timezone.utc) + timedelta(minutes=QR_DURATION_MINUTES)
 
         # Token embarqué dans le QR
@@ -132,7 +133,7 @@ class RoomService:
 
         # Sauvegarder en base
         session = CourseSession(
-            id=session_id,
+            id=session_uuid,
             course=course,
             session_author_id=rep.id,
             qr_token=token,
@@ -151,22 +152,25 @@ class RoomService:
         except jwt.InvalidTokenError:
             raise HTTPException(400, "QR Code invalide")
 
+        session_uuid = UUID(payload["session_id"])
         session = self._db.query(CourseSession).filter_by(
-            id=payload["session_id"],
+            id=session_uuid,
             status=SessionStatus.ACTIVE
         ).first()
 
         if not session:
             raise HTTPException(404, "Session introuvable ou fermée")
 
+        student_uuid = UUID(student_id)
+
         # Vérifier doublon
         exists = self._db.query(AttendanceRecord).filter_by(
-            session_id=session.id, student_id=student_id
+            session_id=session.id, student_id=student_uuid
         ).first()
         if exists:
             raise HTTPException(409, "Présence déjà enregistrée")
 
-        record = AttendanceRecord(session_id=session.id, student_id=student_id)
+        record = AttendanceRecord(session_id=session.id, student_id=student_uuid)
         self._db.add(record); self._db.commit()
 
         # Broadcaster via WebSocket au prof en temps réel
@@ -179,9 +183,10 @@ class RoomService:
     
     def get_qr(self, session_id: str, rep_id: str) -> dict:
         """GET /sessions/{id}/qr — Prof récupère le QR d'une session existante"""
+        session_uuid = UUID(session_id)
         session = self._db.query(CourseSession).filter_by(
-            id=session_id,
-            session_author_id=rep_id 
+            id=session_uuid,
+            session_author_id=UUID(rep_id)
         ).first()
 
         if not session:
@@ -210,17 +215,18 @@ class RoomService:
     def get_session_records(self, session_id: str, rep_id: str) -> list:
         """GET /sessions/{id}/records — Prof voit la liste des présents"""
         session = self._db.query(CourseSession).filter_by(
-            id=session_id,
-            session_author_id=rep_id
+            id=UUID(session_id),
+            session_author_id=UUID(rep_id)
         ).first()
 
         if not session:
             raise HTTPException(404, "Session introuvable")
 
+        session_uuid = UUID(session_id)
         records = (
             self._db.query(AttendanceRecord, User)
             .join(User, AttendanceRecord.student_id == User.id)
-            .filter(AttendanceRecord.session_id == session_id)
+            .filter(AttendanceRecord.session_id == session_uuid)
             .order_by(AttendanceRecord.scanned_at.asc())
             .all()
         )
@@ -239,8 +245,8 @@ class RoomService:
     def close_session(self, session_id: str, rep_id: str) -> dict:
         """PATCH /sessions/{id}/close — Prof ferme la session"""
         session = self._db.query(CourseSession).filter_by(
-            id=session_id,
-            session_author_id=rep_id
+            id=UUID(session_id),
+            session_author_id=UUID(rep_id)
         ).first()
 
         if not session:
@@ -253,7 +259,7 @@ class RoomService:
 
         # Compter les présents pour le résumé final
         total_present = self._db.query(AttendanceRecord).filter_by(
-            session_id=session_id
+            session_id=session.id
         ).count()
 
         return {
@@ -265,7 +271,7 @@ class RoomService:
     def get_session_history(self, rep_id: str) -> list:
         sessions = (
             self._db.query(CourseSession)
-            .filter_by(session_author_id=rep_id, status=SessionStatus.CLOSED)
+            .filter_by(session_author_id=UUID(rep_id), status=SessionStatus.CLOSED)
             .order_by(CourseSession.expires_at.desc())
             .all()
         )
@@ -326,7 +332,7 @@ class RoomService:
 
         # Trouver la session de cours ACTIVE dans CETTE salle spécifique
         session = self._db.query(CourseSession).filter_by(
-            room_id=room_id,
+            room_id=UUID(room_id),
             status=SessionStatus.ACTIVE
         ).first()
 
