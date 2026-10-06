@@ -17,40 +17,33 @@ ESAT-HUB is a school activity platform that combines social posting, real-time c
 - Frontend: React, Vite, React Router, Firebase, PWA support
 - Database: PostgreSQL
 - Dependency management: Poetry (backend), npm (frontend)
-- Containerization: Docker Compose for PostgreSQL
+- Containerization: Docker Compose for the full local stack
 
 ## Quick start
-### 1. Start the database
+### 1. Configure the environment
 ```bash
-docker compose up -d db
+cp .env.example .env
 ```
 
-### 2. Backend
+### 2. Start the application
 ```bash
-cd backend
-poetry install
-poetry run alembic upgrade head
-./scripts/start_backend.sh
+docker compose up --build
 ```
 
-### 3. Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
+The frontend is available at <http://localhost:3000>, the API at <http://localhost:8000>, and the local email inbox at <http://localhost:8025>. PostgreSQL migrations run automatically when the backend starts. Database files persist in the `db_data` Docker volume, and uploaded files persist in `uploads_data`.
+
+Firebase push notifications remain disabled unless `FIREBASE_CREDENTIALS_PATH` points to a mounted service-account file. To stop the stack, press `Ctrl+C`; use `docker compose down` to remove its containers while keeping persistent data.
 
 ## Repository layout
 - `backend/`: FastAPI application and backend services
 - `frontend/`: React UI application
-- `docker-compose.yml`: Database service configuration
+- `docker-compose.yml`: Local application stack and dependent services
 - `scripts/`: Utility scripts to start services
 
-## Notes
-The root `docker-compose.yml` currently defines the PostgreSQL database service. Backend and frontend services are present but commented out and can be enabled if needed.
-
 ## Useful commands
-- `docker compose up -d db` – Launch Postgres
+- `docker compose up --build` – Build and launch the full stack
+- `docker compose down` – Stop and remove containers (persistent volumes are kept)
+- `docker compose logs -f backend` – Follow backend logs
 - `cd backend && poetry run pytest` – Run backend tests
 - `cd frontend && npm run build` – Build frontend for production
 
