@@ -36,6 +36,7 @@ async def get_all_users(
     status: Optional[str] = Query(None, description="Filter by status (ACTIVE, PENDING, INACTIVE)"),
     domain: Optional[str] = Query(None, description="Filter by domain"),
     year: Optional[str] = Query(None, description="Filter by year"),
+    room_name: Optional[str] = Query(None, description="Filter by room Name"),
     admin: User = Depends(get_current_admin),
     admin_service: AdminService = Depends(get_admin_service),
 ):
@@ -48,7 +49,8 @@ async def get_all_users(
         role=role,
         status=status,
         domain=domain,
-        year=year
+        year=year,
+        room_name=room_name
     )
     
     return result

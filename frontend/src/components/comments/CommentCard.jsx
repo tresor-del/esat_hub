@@ -4,11 +4,14 @@ import { formatRelativeDate } from "../../utils/dateFormatter";
 import { useLocation } from "react-router-dom";
 import { FiEdit, FiTrash2, FiMoreVertical } from "react-icons/fi";
 import CommentActionsMenu from "./CommentActionsMenu";
-import "../../styles/CommentSection.css"
+import "../../styles/Comments/CommentSection.css"
 import { useAuth } from "../../contexts/AuthContext";
+import { useToast } from "../../contexts/toastContext";
+import Avatar from "../ui/Avatar";
 import { getComment, getUserProfile } from "../../services/api";
 
 const CommentCard = ({ comment, user, onReplySubmit, loading, onEdit, onDelete }) => {
+    const { toast } = useToast();
     const [isReplying, setIsReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
 
@@ -19,18 +22,23 @@ const CommentCard = ({ comment, user, onReplySubmit, loading, onEdit, onDelete }
     const [showReplies, setShowReplies] = useState(isCommentInReplies);
 
     const [isEditing, setIsEditing] = useState(false);
-    const [editText, setEditText] = useState(comment.content)
+    const [editText, setEditText] = useState(comment.content);
+    const [showActionsMenu, setShowActionsMenu] = useState(false);
 
     const isOwner = user && user?.id === comment.user?.id
     const isAdmin = user && user?.role === "ADMIN";
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!replyText.trim()) return;
+        if (!replyText.trim()) {
+            toast({ message: "La réponse ne peut pas être vide", type: "error" });
+            return;
+        }
         onReplySubmit(comment.id, replyText);
         setReplyText("");
         setIsReplying(false);
-        setShowReplies(true); // Affiche les réponses après avoir répondu
+        setShowReplies(true);
+        toast({ message: "Réponse envoyée avec succès", type: "success" });
     };
 
     const hasReplies = comment.replies && comment.replies.length > 0;
@@ -47,27 +55,39 @@ const CommentCard = ({ comment, user, onReplySubmit, loading, onEdit, onDelete }
     };
 
     const handleDelete = async () => {
-        await onDelete(comment.id);
+        try {
+            await onDelete(comment.id);
+            toast({ message: "Commentaire supprimé avec succès", type: "success" });
+        } catch (error) {
+            toast({ message: "Erreur lors de la suppression du commentaire", type: "error" });
+        }
     };
 
     const handleEdit = async () => {
-        if (!editText.trim()) return;
+        if (!editText.trim()) {
+            toast({ message: "Le commentaire ne peut pas être vide", type: "error" });
+            return;
+        }
         try {
-            await onEdit(comment.id, editText)
+            await onEdit(comment.id, editText);
+            toast({ message: "Commentaire modifié avec succès", type: "success" });
         } catch (error) {
-            console.log(error)
+            toast({ message: "Erreur lors de la modification du commentaire", type: "error" });
         } finally {
             setIsEditing(false);
         }
-
     }
 
 
     return (
         <div className="comment-item" id={`comment-${comment.id}`}>
-            <div>
-                <div className="comment-info">
-                    <PostAuthorInfo user={comment.user} variant="default" />
+            <div className="comment-c">
+                <div>
+                    <Avatar user={comment.user} />
+                </div>
+                <div>
+                    <div className="comment-info">
+                    <h3><strong>{comment.user?.first_name}</strong></h3>
                     <span className="comment-date">{formatRelativeDate(comment.created_at)}</span>
                 </div>
 
@@ -146,10 +166,29 @@ const CommentCard = ({ comment, user, onReplySubmit, loading, onEdit, onDelete }
                         ))}
                     </div>
                 )}
+                </div>
+                
             </div>
             {(isAdmin || isOwner) && !isEditing && (
                 <div className="comment-options">
-                    <CommentActionsMenu comment={comment} onEdit={openEditMode} onDelete={handleDelete} />
+                    <button
+                        className="comment-options-btn"
+                        onClick={() => setShowActionsMenu(true)}
+                        aria-label="Actions"
+                    >
+                        <FiMoreVertical />
+                    </button>
+                    {showActionsMenu && (
+                        <CommentActionsMenu
+                            comment={comment}
+                            onEdit={() => {
+                                openEditMode();
+                                setShowActionsMenu(false);
+                            }}
+                            onDelete={handleDelete}
+                            onClose={() => setShowActionsMenu(false)}
+                        />
+                    )}
                 </div>
             )}
 

@@ -1,0 +1,451 @@
+/* ── Session card ───────────────────────────── */
+.session-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color-lighter);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.session-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color-lighter);
+}
+
+.session-course {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.session-course svg {
+  color: var(--reddit-blue);
+}
+
+.session-course-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.session-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-background-success, #f0faf4);
+  color: var(--color-text-success, #1a7a4e);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ── Barre de progression ────────────────────── */
+.timer-bar-wrap {
+  height: 3px;
+  background: var(--border-color-lighter);
+}
+
+.timer-bar {
+  height: 3px;
+  background: #22c55e;
+  transition: width 0.5s linear, background 0.5s;
+}
+
+/* ── Stats ───────────────────────────────────── */
+.session-card-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.session-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 20px 12px;
+  border-right: 1px solid var(--border-color-lighter);
+}
+
+.session-stat:last-child {
+  border-right: none;
+}
+
+.session-stat svg {
+  color: var(--text-secondary);
+}
+
+.session-stat-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.session-stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── Footer ──────────────────────────────────── */
+.session-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border-color-lighter);
+  gap: 10px;
+}
+
+.author-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.author-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--reddit-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.author-name {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.session-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-sm {
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color-lighter);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.15s;
+}
+
+.btn-sm:hover {
+  background: var(--bg-hover);
+}
+
+.btn-sm-primary {
+  background: rgba(0, 121, 211, 0.08);
+  color: var(--reddit-blue);
+  border-color: rgba(0, 121, 211, 0.2);
+}
+
+.btn-sm-primary:hover {
+  background: rgba(0, 121, 211, 0.15);
+}
+
+.btn-sm-danger {
+  background: rgba(239, 68, 68, 0.06);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.btn-sm-danger:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+/* ── Empty state ─────────────────────────────── */
+.empty-session {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.empty-session svg {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.empty-session p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.empty-session span {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.attendees-list {
+    margin: 12px 0;
+    border-top: 1px solid var(--border-color);
+    padding-top: 12px;
+}
+
+.attendees-list-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+}
+
+.attendees-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.attendee-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    font-size: 13px;
+}
+
+.attendee-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.attendee-time {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.history-modal {
+    max-width: 480px;
+    width: 100%;
+}
+
+.history-body {
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+
+.history-day-block {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.history-day-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.history-day-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.history-day-label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.history-day-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--accent-color, #3b82f6);
+    color: white;
+    font-weight: 500;
+}
+
+.history-sessions-list {
+    list-style: none;
+    padding: 0 0 10px 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.history-session-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    font-size: 13px;
+}
+
+.history-session-course {
+    color: var(--text-primary);
+}
+
+.history-session-count {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.history-empty {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 20px;
+    font-size: 13px;
+}
+
+.history-day-sessions-count {
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 2px 6px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+}
+
+/* Niveau 2 — session */
+.history-session-block {
+    list-style: none;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    margin-bottom: 6px;
+}
+
+.history-session-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--bg-secondary);
+    border: none;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.history-session-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.history-session-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+/* Niveau 3 — étudiants */
+.history-students-list {
+    list-style: none;
+    padding: 6px 8px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--bg-primary);
+}
+
+.history-student-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    background: var(--bg-secondary);
+}
+
+.history-student-rank {
+    font-size: 11px;
+    color: var(--text-secondary);
+    width: 20px;
+    flex-shrink: 0;
+}
+
+.history-student-name {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 1px;
+}
+
+.history-student-profil {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.history-student-empty {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 8px;
+    text-align: center;
+}

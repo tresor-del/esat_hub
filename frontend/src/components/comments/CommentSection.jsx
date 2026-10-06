@@ -1,40 +1,66 @@
 import React, { useEffect, useState } from "react";
 import { addComment, getComments, deleteComment, updateComment, getComment } from "../../services/api"; // Assure-toi que l'import est bon
 import { useLocation } from "react-router-dom";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
+import { MdComment, MdNoCell, MdNotInterested } from "react-icons/md";
 import CommentCard from "./CommentCard";
+import { incrementPostCommentCount } from "../../pages/Home/utils/postCacheHelper";
 import CommentSectionSkeleton from "../skeletons/CommentSectionSkeleton";
-import "../../styles/CommentSection.css";
+import "../../styles/Comments/CommentSection.css";
 
 const CommentSection = ({ postId, user, onCommentAdded }) => {
-    const [comments, setComments] = useState([]);
+    // const [comments, queryCli] = useState([]);
     const [content, setContent] = useState("");
     const [loading, setLoading] = useState(false);
-    const [loadingComment, setLoadingComment] = useState(false);
+    // const [loadingComment, setLoadingComment] = useState(false);
     const [error, setError] = useState("");
+    const queryClient = useQueryClient();
     const location = useLocation();
 
-
     // Charger les commentaires
-    const loadComments = async () => {
-        try {
-            setLoadingComment(true);
-            const result = await getComments(postId);
-            // On suppose que l'API renvoie { comments: [...], total: X }
-            if (result && result.comments) {
-                setComments(result.comments);
-            }
-        } catch (err) {
-            setError("Erreur lors du chargement des commentaires");
-        } finally {
-            setLoadingComment(false);
+    const {
+        data: commentsData,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading,
+        isFetching,
+    } = useInfiniteQuery({
+        queryKey: ["comments", postId],
+        queryFn: async ({ pageParam = 0 }) => {
+            return getComments(postId, pageParam, 2);
+        },
+        getNextPageParam: (lastPage, allPages) => {
+            const totalLoaded = allPages.flatMap(p => p.comments).length;
+            if (totalLoaded >= lastPage.total) return undefined;
+            return totalLoaded; // skip = nombre déjà chargés
+        },
+        enabled: !!postId,
+    });
+
+    const comments = commentsData?.pages.flatMap((c) => c.comments) ?? [];
+
+    // infinite scroll
+    const { ref, inView } = useInView({
+        threshold: 0.1,
+    });
+
+    useEffect(() => {
+        if (inView && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
         }
-    };
+    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+
+    const hasNext = false;
+    //
 
     useEffect(() => {
         const handleRealtimeComment = async (event) => {
             const comment_data = event.detail;
 
-            const isSamePost = String(comment_data.post_id) === String(postId);
+            const isSamePost = String(comment_data.post?.id) === String(postId);
             const isNotFromMe = comment_data.sender?.id !== user?.id;
 
             if (isSamePost && isNotFromMe) {
@@ -47,23 +73,43 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                     const newComment = await getComment(comment_data.comment_id);
                     if (!newComment) return;
 
-                    setComments(prev => {
-                        // SI C'EST UNE RÉPONSE (parent_id existe)
+                    queryClient.setQueryData(["comments", postId], (prev) => {
+                        if (!prev) return prev;
                         if (newComment.parent_id) {
-                            return prev.map(c => {
-                                if (c.id === newComment.parent_id) {
-                                    // On l'ajoute dans les replies du parent
-                                    const updatedReplies = c.replies ? [newComment, ...c.replies] : [newComment];
-                                    return { ...c, replies: updatedReplies };
-                                }
-                                return c;
-                            });
+                            return {
+                                ...prev,
+                                pages: prev.pages.map((page) => ({
+                                    ...page,
+                                    comments: page.comments.map((c) => {
+                                        if (c.id === newComment.parent_id) {
+                                            return {
+                                                ...c,
+                                                replies: [newComment, ...(c.replies ?? [])],
+                                            };
+                                        }
+                                        return c;
+                                    }),
+                                })),
+                            };
                         }
 
-                        // SI C'EST UN COMMENTAIRE RACINE
-                        if (prev.some(c => c.id === newComment.id)) return prev;
-                        return [newComment, ...prev];
+                        // Commentaire racine
+                        if (prev.pages[0].comments.some((c) => c.id === newComment.id)) return prev;
+                        return {
+                            ...prev,
+                            pages: [
+                                {
+                                    ...prev.pages[0],
+                                    comments: [newComment, ...prev.pages[0].comments],
+                                },
+                                ...prev.pages.slice(1),
+                            ],
+                        };
                     });
+
+
+                    incrementPostCommentCount(queryClient, postId, 1);
+
                 } catch (error) {
                     console.log("Erreur realtime reply:", error);
                 }
@@ -74,17 +120,13 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
         return () => window.removeEventListener("NEW_COMMENT", handleRealtimeComment);
     }, [postId, user?.id, comments]); // Crucial d'avoir comments ici
 
-
-    useEffect(() => {
-        loadComments();
-    }, [postId]);
-
-    // Notifier le parent du nombre de commentaires
+    // Notifier le parent du nombre total de commentaires
     useEffect(() => {
         if (onCommentAdded) {
-            onCommentAdded(comments.length);
+            const totalComments = commentsData?.pages?.[0]?.total ?? comments.length;
+            onCommentAdded(totalComments);
         }
-    }, [comments, onCommentAdded]);
+    }, [commentsData, comments.length, onCommentAdded]);
 
     // Ajouter un commentaire racine
     const handleSubmit = async () => {
@@ -98,11 +140,26 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                 parent_id: null
             };
             const response = await addComment(commentData);
+            console.log(response)
             setContent("");
-            setComments(prevComments => [response, ...prevComments]);
+
+            queryClient.setQueryData(["comments", postId], (prev) => {
+                if (!prev) return prev;
+                const updatedFirstPage = {
+                    ...prev.pages[0],
+                    comments: [response, ...prev.pages[0].comments],
+                };
+                return {
+                    ...prev,
+                    pages: [updatedFirstPage, ...prev.pages.slice(1)],
+                };
+            });
+
+            incrementPostCommentCount(queryClient, postId, 1);
+
             // loadComments(); // Recharger pour voir le nouveau commentaire et sa structure
         } catch (err) {
-            setError("Erreur lors de l'ajout");
+            setError("Erreur lors de l'ajout: ", err);
         } finally {
             setLoading(false);
         }
@@ -119,16 +176,27 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                 parent_id: parentId
             };
             const response = await addComment(responseData);
-            setComments(prevComments => {
-                return prevComments.map(c => {
-                    if (c.id === parentId) {
-                        // On ajoute la réponse dans le tableau replies du parent
-                        const updatedReplies = c.replies ? [response, ...c.replies] : [response];
-                        return { ...c, replies: updatedReplies };
-                    }
-                    return c;
-                });
+            queryClient.setQueryData(["comments", postId], (prev) => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    pages: prev.pages.map((page) => ({
+                        ...page,
+                        comments: page.comments.map((c) => {
+                            if (c.id === parentId) {
+                                return {
+                                    ...c,
+                                    replies: [response, ...(c.replies ?? [])],
+                                };
+                            }
+                            return c;
+                        }),
+                    })),
+                };
             });
+
+            incrementPostCommentCount(queryClient, postId, 1);
+
         } catch (err) {
             setError("Erreur lors de l'envoi de la réponse");
         } finally {
@@ -142,8 +210,8 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
                 const result = await deleteComment(commentId);
                 if (result) {
                     alert("Commentaire supprimé");
-                    loadComments();
                 }
+                incrementPostCommentCount(queryClient, postId, -1);
             } catch (error) {
                 console.log("Erreur lors de la suppression: ", error);
                 alert("Erreur lors de la suppression, réessayez plus tard");
@@ -155,12 +223,21 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
         try {
             const response = await updateComment(commentId, new_content);
             if (response) {
-                alert("Commentaire modifié avec succès");
-                setComments(prev => prev.map(c => c.id === commentId ? response : c));
+                queryClient.setQueryData(["comments", postId], (prev) => {
+                    if (!prev) return prev;
+                    return {
+                        ...prev,
+                        pages: prev.pages.map((page) => ({
+                            ...page,
+                            comments: page.comments.map((c) =>
+                                c.id === commentId ? response : c
+                            ),
+                        })),
+                    };
+                });
             }
         } catch (error) {
             console.log("Erreur lors de la mise à jour: ", error);
-            alert("Erreur lors de la mise à jour du commentaire")
         }
     }
 
@@ -173,21 +250,36 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
         element.style.height = `${element.scrollHeight}px`; // Applique la hauteur du contenu
     };
 
-    if (loadingComment && comments.length === 0) {
+    if (isLoading || (comments.length === 0 && isFetching)) {
         return <CommentSectionSkeleton />;
+    }
+
+    const CommentCardSkeleton = () => {
+
+        return <div className="skeleton-comment-card">
+            <div className="skeleton-comment-avatar skeleton-blink" />
+            <div className="skeleton-comment-content">
+                <div className="skeleton-comment-header">
+                    <div className="skeleton-comment-name skeleton-blink" />
+                    <div className="skeleton-comment-date skeleton-blink" />
+                </div>
+                <div className="skeleton-comment-text skeleton-blink" />
+                <div className="skeleton-comment-text short skeleton-blink" />
+            </div>
+        </div>
     }
 
     return (
         <div className="comment-section-container">
             {error && <p className="error-message">{error}</p>}
 
-            <div className="submitForm">
+            <div className="submitForm pd-mobile-t">
                 <textarea
                     placeholder="Écrivez un commentaire..."
                     className="comment-textarea"
                     value={content}
                     onChange={handleTextareaChange}
-                    rows="1" // Commence sur une seule ligne
+                    rows="1"
                 />
                 <button className="submitButton" onClick={handleSubmit} disabled={loading || !content.trim()}>
                     {loading ? "..." : "Publier"}
@@ -195,21 +287,43 @@ const CommentSection = ({ postId, user, onCommentAdded }) => {
             </div>
 
             <div className="commentBox">
-                {comments
-                    .filter(c => c.parent_id === null).sort((a, b) => {
-                        return new Date(b.created_at) - new Date(a.created_at)
-                    })
-                    .map((comment) => (
-                        <CommentCard
-                            key={comment.id}
-                            comment={comment}
-                            user={user}
-                            onReplySubmit={handleReply}
-                            loading={loading}
-                            onEdit={handleUpdateComment}
-                            onDelete={handleDeleteComment}
-                        />
-                    ))}
+                {comments.length === 0 ? (
+                    <div className="empty-container">
+                        <div className="empty-container-icon">
+                            <MdComment />
+                        </div>
+                        <p>Soyez le premier à commenter.</p>
+                    </div>
+                ) :
+                    (
+                        comments
+                            .filter(c => c.parent_id === null).sort((a, b) => {
+                                return new Date(b.created_at) - new Date(a.created_at)
+                            })
+                            .map((comment) => (
+                                <CommentCard
+                                    key={comment.id}
+                                    comment={comment}
+                                    user={user}
+                                    onReplySubmit={handleReply}
+                                    loading={loading}
+                                    onEdit={handleUpdateComment}
+                                    onDelete={handleDeleteComment}
+                                />
+                            ))
+                    )}
+
+                {hasNextPage && (
+                    <div ref={ref} style={{ minHeight: '50px' }}>
+                        {isFetchingNextPage && (
+                            <div>
+                                <CommentCardSkeleton />
+                                <CommentCardSkeleton />
+                            </div>
+                        )}
+                    </div>
+                )}
+
             </div>
         </div>
     );

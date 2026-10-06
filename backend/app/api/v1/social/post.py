@@ -1,3 +1,5 @@
+import asyncio
+from functools import partial
 import logging
 from uuid import UUID
 from fastapi import APIRouter, File, UploadFile, Form, Depends, HTTPException, status, Query, BackgroundTasks
@@ -7,12 +9,13 @@ from typing import Optional
 from app.api.deps.auth import get_current_user
 from app.api.deps.services import get_post_service, get_file_service, get_auth_service
 from app.api.deps.db import get_db
-from app.models.post import PostResponse, PostListResponse, PostType
+from app.models.post import PostResponse, PostListResponse, PostType, PostLikeResponse
 from app.services.common.files import FileService  
 from app.db.schemas.user import User
 from app.services.social.posts import PostService
 from app.core.config import settings
 from app.tasks.posts import handle_new_post
+from app.tasks.likes import handle_new_like
 
 
 logger = logging.getLogger(__name__)
@@ -22,7 +25,7 @@ router = APIRouter(tags=["posts"])
 settings.UPLOAD_DIR.mkdir(exist_ok=True)
 
 @router.post("/posts/", response_model=PostResponse, status_code=status.HTTP_201_CREATED)
-def create_post(
+async def create_post(
     background_tasks: BackgroundTasks,
     title: str = Form(...),
     description: Optional[str] = Form(None),
@@ -39,28 +42,39 @@ def create_post(
     original_filename = None
     mime_type = None
     
-    try:
-        if file:
-            file_path, original_filename = file_service.save_upload_file(
-                upload_file=file,
-                post_type=post_type.value
+    if file:
+        
+        try:
+            file_path, original_filename = await asyncio.to_thread(
+                partial(
+                    file_service.save_upload_file,
+                    upload_file=file,
+                    post_type=post_type.value,
+                    is_post_file=True,
+                )
+            )
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Erreur lors du traitement du fichier"
             )
 
-            if not file_path and not original_filename:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Fichier non supporté pour le type de post"
-                )
-            mime_type = file.content_type
+        if not file_path and not original_filename:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Fichier non supporté pour le type de post"
+            )
+        mime_type = file.content_type
 
-        # Validation de room_id
-        if room_id is not None:
-            if current_user.user_room_id != room_id:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Vous n'avez pas le droit de poster dans cette salle"
-                )
-        
+    # Validation de room_id
+    if room_id is not None:
+        if current_user.user_room_id != room_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Vous n'avez pas le droit de poster dans cette salle"
+            )
+                
+    try:
         post = post_service.create_post(
             title=title,
             description=description,
@@ -71,21 +85,18 @@ def create_post(
             user_id=current_user.id,
             room_id=room_id
         )
-
-        background_tasks.add_task(
-            handle_new_post,
-            current_user,
-            room_id,
-            post
-        )
-        
-        return post
-    
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Erreur lors de la création du post: {str(e)}"
+            detail="Impossible de créer le post"
         )
+
+    try:
+        background_tasks.add_task(handle_new_post, current_user, room_id, post)
+    except Exception:
+        logger.error("Échec ajout background task pour post %s", post.id, exc_info=True)
+        
+    return post
 
 @router.get("/posts/", response_model=PostListResponse)
 def read_posts(
@@ -114,7 +125,8 @@ def read_posts(
         post_type=post_type.value if post_type else None,
         user_id=target_user_id,
         room_id=room_id,
-        include_all=all_posts
+        include_all=all_posts,
+        current_user_id=current_user.id
     )
     
     return PostListResponse(total=total, posts=posts)
@@ -136,6 +148,31 @@ def read_post(
         )
     
     return db_post
+
+@router.post("/posts/{post_id}/like", response_model=PostLikeResponse)
+def toggle_post_like(
+    post_id: UUID,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    post_service: PostService = Depends(get_post_service),
+):
+    """Ajouter ou retirer un like sur un post."""
+    result = post_service.toggle_like(post_id=post_id, user_id=current_user.id)
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Post non trouvé"
+        )
+    
+    try:
+        background_tasks.add_task(handle_new_like, post_id, current_user, result.get("liked_by_me"))
+    except Exception:
+        logger.error("Échec ajout background task pour post %s", post_id, exc_info=True)
+        
+    
+    return result
+
 
 @router.put("/posts/{post_id}", response_model=PostResponse)
 async def update_post(

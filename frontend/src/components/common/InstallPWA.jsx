@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import "../../styles/Navbar.css"
+import "../../styles/Common/Navbar.css"
 
 const InstallPWA = () => {
   const [supportsPWA, setSupportsPWA] = useState(false);

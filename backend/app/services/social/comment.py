@@ -15,9 +15,9 @@ class CommentService:
         comment = self._db.query(Comment).filter(Comment.id == comment_id).first()
         return comment
 
-    def get_comment(self, comment_id: uuid.UUID) -> CommentResponse:
+    def get_comment(self, comment_id: uuid.UUID) -> CommentResponse | None:
         comment = self.get_comment_in_db(comment_id)
-        return CommentResponse.model_validate(comment)
+        return CommentResponse.model_validate(comment) if comment else None
     
     def create_comment(self, data: CommentCreate) -> CommentResponse:
         validate_data = data.model_dump()
@@ -40,10 +40,10 @@ class CommentService:
         self._db.commit()
         return True
     
-    def get_comments(self, post_id: uuid.UUID) -> CommentListResponse:
-        statement = select(Comment).where(Comment.post_id == post_id)
+    def get_comments(self, post_id: uuid.UUID, skip=0, limit=10) -> CommentListResponse:
+        statement = select(Comment).where(Comment.post_id == post_id).offset(skip).limit(limit)
         comments = self._db.execute(statement).scalars().all()
-        total = len(comments)
+        total = self._db.query(Comment).filter(Comment.post_id == post_id).count()
         return CommentListResponse(total=total, comments=comments)
 
 

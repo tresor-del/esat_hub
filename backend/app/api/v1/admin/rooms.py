@@ -10,6 +10,16 @@ from app.models.room import RoomListResponse, RoomResponseAdmin, RoomStatsRespon
 
 router = APIRouter()
 
+@router.post("/rooms/rep")
+def set_room_rep(
+    user_id: UUID,
+    admin: User = Depends(get_current_admin),
+    admin_service: AdminService = Depends(get_admin_service),
+):
+    
+    result = admin_service.rooms.set_room_rep(user_id)
+    
+    return result
 
 @router.get("/rooms", response_model=RoomListResponse)
 async def get_all_rooms(
@@ -59,3 +69,4 @@ async def get_room_by_id(
         post_count=len(room.posts) if hasattr(room, 'posts') else 0,
         member_count=len(room.users) if hasattr(room, 'users') else 0
     )
+

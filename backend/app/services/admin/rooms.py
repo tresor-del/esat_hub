@@ -3,6 +3,7 @@ from uuid import UUID
 from app.db.schemas.room import Room
 from app.services.admin.base import BaseAdminService
 from app.models.room import RoomListResponse, RoomResponseAdmin, RoomStatsResponseAdmin
+from app.db.schemas.user import User
 
 
 class AdminRoomsService(BaseAdminService):
@@ -51,3 +52,18 @@ class AdminRoomsService(BaseAdminService):
             total_rooms=total_rooms,
             rooms=room_counts
         )
+    
+    def set_room_rep(self, user_id: UUID):
+
+        user = self._db.query(User).filter(User.id == user_id).first()
+        room =  self._db.query(Room).filter(Room.id == user.user_room_id).first()
+
+        room.rep_id = user_id
+        user.is_room_rep = True
+        self._db.commit()
+        self._db.refresh(room)
+        self._db.refresh(user)
+
+        print(user.is_room_rep)
+
+        return room.rep_id

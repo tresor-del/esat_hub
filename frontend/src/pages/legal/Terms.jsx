@@ -1,5 +1,5 @@
 import React from "react";
-import "../../styles/Legal.css"
+import "../../styles/Legals/Legal.css"
 
 const Terms = () => (
   <div className="legal-container">

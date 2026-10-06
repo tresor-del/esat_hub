@@ -1,0 +1,38 @@
+
+/* WhatsApp */
+.pam-action--whatsapp .pam-action-icon {
+  background: #d4f5e2;
+  color: var(--green-whatsapp);
+}
+
+.pam-action--whatsapp:hover {
+  background: var(--bg-hover);
+  text-decoration: none;        /* annule le underline du <a> */
+}
+
+.pam-action--whatsapp .pam-action-label {
+  color: var(--text-primary);
+}
+
+/* Copier le lien */
+.pam-action--copy .pam-action-icon {
+  background: var(--bg-light-blue);
+  color: var(--reddit-blue);
+}
+
+/* État "Copié !" */
+.pam-action--copied .pam-action-icon {
+  background: #d1fae5;
+  color: var(--success);
+  animation: pam-pop 0.2s ease;
+}
+
+.pam-action--copied .pam-action-label {
+  color: var(--success);
+}
+
+@keyframes pam-pop {
+  0%   { transform: scale(0.8); }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}

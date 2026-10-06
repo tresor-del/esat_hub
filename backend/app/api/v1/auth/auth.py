@@ -8,18 +8,22 @@ from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
+from app.api.deps.redis import get_redis
+import redis.asyncio as aioredis
+
 from app.core.config import settings
 from app.api.deps.db import get_db
 from app.api.deps.services import get_admin_service, get_auth_service, get_email_service, get_notification_service, get_room_service
 from app.models.token import Token
 from app.db.security import create_access_token, create_refresh_token, hash_password
-from app.models.user import UserCreate, UserInDatabase
+from app.models.user import UserCreate, UserInDatabase, UserResponse
 from app.models.message import Message
 from app.services.auth.email import EmailService
 from app.db.security import authenticate_user
 from app.services.auth.users import AuthService
 from app.models.token import RefreshToken
 from app.db.schemas.revoked_token import RevokedToken
+from app.db.schemas.user import User
 from app.services.social.room import RoomService
 from app.models.mail import EmailModel
 from app.core.limiter import limiter
@@ -29,6 +33,7 @@ from app.tasks.mail import send_verification_task, resend_verification_task
 from app.models.notifications import NotificationResponse
 from app.services.admin.manager import AdminService
 from app.services.interactions.notification import NotificationService
+from app.db.schemas.user import UserRole
 
 logger = logging.getLogger(__name__)
 
@@ -36,10 +41,13 @@ router = APIRouter()
 
 
 @router.post("/token", response_model=Token)
-def login(
+@limiter.limit("5/minute")
+async def login(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
-    notif_service: NotificationService = Depends(get_notification_service)
+    notif_service: NotificationService = Depends(get_notification_service),
+    redis: aioredis.Redis = Depends(get_redis)
 ):
     user = authenticate_user(db=db, username=form_data.username, password=form_data.password)
     
@@ -54,13 +62,13 @@ def login(
 
     try:
         notif_service.send_firebase_push(
-            recipient_id=user.id,  # L'UUID de l'utilisateur qui vient de se connecter
+            recipient_id=user.id,  
             title=f"Bonjour {user.profil_name}",
             body="Bienvenue sur EsatHub."
         )
     except Exception as push_err:
         # On capture l'erreur pour éviter de bloquer la connexion de l'utilisateur si FCM échoue
-        print(f"Impossible d'envoyer la notification de connexion : {push_err}")
+        logger.error(f"Impossible d'envoyer la notification de connexion : {push_err}")
 
     
     access_token = create_access_token(
@@ -71,10 +79,18 @@ def login(
         data={"sub": str(user.id)},
     )
 
+    # enrégistrer la session sur redis
+    await redis.setex(f"session:{user.id}", 604800, "active")
+
     return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer") #nosec
 
 @router.post("/logout")
-def logout(body: RefreshToken, db: Session = Depends(get_db)):
+async def logout(
+    request: Request,
+    body: RefreshToken, 
+    db: Session = Depends(get_db), 
+    redis: aioredis.Redis = Depends(get_redis)
+):
     try:
         payload = jwt.decode(
             token=body.refresh_token,
@@ -99,6 +115,9 @@ def logout(body: RefreshToken, db: Session = Depends(get_db)):
             db.rollback()
             raise HTTPException(status_code=401, detail="Invalid refresh token")
 
+        # supprimer la session redit
+        await redis.delete(f"session:{payload.get('sub')}")
+
 
         return Message(message="Logout out successfully")
 
@@ -106,7 +125,12 @@ def logout(body: RefreshToken, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid token")
 
 @router.post("/refresh")
-def refresh_token(body: RefreshToken, db: Session = Depends(get_db)):
+@limiter.limit("20/minute")
+def refresh_token(
+    request: Request,
+    body: RefreshToken, 
+    db: Session = Depends(get_db)
+):
     
     try:
         payload = jwt.decode(
@@ -151,24 +175,33 @@ def refresh_token(body: RefreshToken, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=Message)
+# @limiter.limit("3/minute")
 def register(
+    request: Request,
     user_in: UserCreate,
     background_tasks: BackgroundTasks,
     auth_service: AuthService = Depends(get_auth_service),
     admin_service: AdminService = Depends(get_admin_service),
-    room_service: RoomService = Depends(get_room_service)
+    room_service: RoomService = Depends(get_room_service),
+    db: Session = Depends(get_db)
 ):
 
-    # if auth_service.check_duplicated_email(user_in.email):
-    #     raise HTTPException(400, "Email already registered")
+    if auth_service.check_duplicated_email(user_in.email):
+        raise HTTPException(400, "Email already registered")
     
-    if auth_service.check_duplicated_profil_name(user_in.profil_name):
-        raise HTTPException(400, "User with this profil name already exists")
+    if user_in.profil_name:
+        if auth_service.check_duplicated_profil_name(user_in.profil_name):
+            raise HTTPException(400, "User with this profil name already exists")
     
     # création de l'utilisateur
-    username = auth_service.get_username(user_in.profil_name, user_in.school_name)
+    username = ""
+    if user_in.role == UserRole.TEACHER:
+        username = auth_service.get_username(user_in.full_name.split(' ')[0], 'teacher')
+    if user_in.role == UserRole.STUDENT:
+        username = auth_service.get_username(user_in.profil_name, user_in.school_name)
+
     user_room_id = room_service.get_user_room_id(user_in.level, user_in.year)
-    print(user_room_id)
+    # print(user_room_id)
     user_data = UserInDatabase(
         first_name=user_in.first_name,
         last_name=user_in.last_name,
@@ -182,75 +215,44 @@ def register(
         major=user_in.major,
         year=user_in.year,
         user_room_id=user_room_id,
-        hashed_password=hash_password(user_in.password)
+        hashed_password=hash_password(user_in.password),
+        full_name=user_in.full_name,
+        subject=user_in.subject
     )
+    
     user = auth_service.create_user(user_data=user_data)
-    admin = auth_service.get_admin()
+    # admin = auth_service.get_admin()
+    # admin = db.query(User).filter(User.username == settings.SUPER_ADMIN_USERNAME).first()
 
-    # Envoyer une notification à l'admin en arrière-plan pour la confirmation
-    notification = NotificationResponse(
-        type="STATUS_UPDATE",
-        content=f"Une confirmation de compte en attente",
-        is_read=False,
-        sender=admin_service.users.create_user_response(user),
-        recipient=admin_service.users.create_user_response(admin),
-    )
-    
-    background_tasks.add_task(send_notification_task, notification)
-        
-    
-    # # création de l'email de vérification
-    # token = email_service.create_verification_email(user_id=user.id)
-    
-    # # Envoie d'email à l'utilisateur
-    # background_tasks.add_task(
-    #     send_verification_task,
-    #     user,
-    #     token
+    # admin = UserResponse(
+    #         first_name=admin.first_name,
+    #         last_name=admin.last_name,
+    #         profil_name=admin.profil_name,
+    #         school_name=admin.school_name.value if admin.school_name else None,
+    #         domain=admin.domain.value if admin.domain else None,
+    #         level=admin.level.value if admin.level else None,
+    #         year=admin.year.value if admin.year else None,
+    #         email=admin.email,
+    #         id=admin.id,
+    #         is_verified=admin.is_verified,
+    #         username=admin.adminname,
+    #         user_room_id=admin.user_room_id,
+    #         avatar_path=admin.avatar_path
+    #     )
+
+    # # Envoyer une notification à l'admin en arrière-plan pour la confirmation
+    # notification = NotificationResponse(
+    #     type="STATUS_UPDATE",
+    #     content=f"Une confirmation de compte en attente",
+    #     is_read=False,
+    #     sender=admin_service.users.create_user_response(user),
+    #     # recipient=admin_service.users.create_user_response(admin),
+    #     recipient=admin
     # )
     
+    # background_tasks.add_task(send_notification_task, notification)
+    
     return Message(message="Registration successful.")
-
-@router.get("/confirm-email")
-def confirm_email(
-    token: str, 
-    auth_service: AuthService = Depends(get_auth_service),
-    email_service: EmailService = Depends(get_email_service),
-    ):
-    
-    record = email_service.check_verification_token(token)
-
-    if not record:
-        raise HTTPException(400, "Invalid token")
-
-    expires_at = record.expires_at
-    if expires_at.tzinfo is None:
-        expires_at = expires_at.replace(tzinfo=datetime.UTC)
-
-    if expires_at < datetime.datetime.now(datetime.UTC):
-        raise HTTPException(400, "Token expired")
-    
-    user = email_service.validate_user(record)
-
-    if not user:
-        raise HTTPException(404, "Utilisateur non trouvé")
-    
-    auth_service.confirm_user(user, record)
-
-    return Message(message="Email vérifié avec success. Votre compte est activé")
-
-@router.post("/resend-email", response_model=Message)
-@limiter.limit("2/minute")
-def resend_verification_email(
-    request: Request,
-    email_in: EmailModel,
-    background_tasks: BackgroundTasks,
-    email_service: EmailService = Depends(get_email_service)
-):
-    background_tasks.add_task(resend_verification_task, email_in.email_in)
-    
-    return Message(message="Si cet email est dans le système, un nouveau lien de vérification a été envoyé")
-
 
 @router.get("/check-profil-name/{profil_name}")
 def check_profil_name_availability(
@@ -261,4 +263,3 @@ def check_profil_name_availability(
     if is_taken:
         return {"available": False, "message": "Ce nom de profil est déjà utilisé"}
     return {"available": True, "message": "Nom de profil disponible"}
-

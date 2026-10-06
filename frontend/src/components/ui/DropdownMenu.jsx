@@ -2,18 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import "../../styles/DropdownMenu.css";
 
-/**
- * DropdownMenu
- * - Desktop : petit menu flottant sous le trigger
- * - Mobile  : panneau plein-écran avec header et bouton fermer
- *
- * Props :
- *   trigger   – élément React affiché comme bouton d'ouverture
- *   children  – contenu du menu
- *   align     – "left" | "right" (position desktop, défaut "left")
- *   title     – titre affiché sur mobile (défaut "Menu")
- *   className – classe CSS supplémentaire sur le wrapper
- */
 const DropdownMenu = ({
   trigger,
   children,

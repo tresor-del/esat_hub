@@ -3,19 +3,31 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  base: './',
+  base: '/',
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/setupTests.js',
+    css: true,
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{js,jsx}'],
+      exclude: ['src/**/*.test.{js,jsx}', 'src/setupTests.js'],
+      reporter: ['text', 'html'],
+    },
+  },
   plugins: [
     react(),
     VitePWA({
       // 1. Basculer sur l'injection de manifeste personnalisé
       strategies: 'injectManifest',
       srcDir: 'public',       // Indique où chercher votre fichier de base
-      filename: 'sw.js',      // Nom de votre fichier Service Worker personnalisé
+      filename: 'firebase-messaging-sw.js',      
       registerType: 'autoUpdate',
       
       devOptions: {
         enabled: true,        // Conserve le fonctionnement du Service Worker en dév
-        type: 'module'        // Requis pour compiler correctement dev-sw.js
+        type: 'classic'        // Requis pour compiler correctement dev-sw.js
       },
       manifest: {
         name: 'EsatHub',

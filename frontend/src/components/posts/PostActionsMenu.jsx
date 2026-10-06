@@ -1,101 +1,87 @@
 import React from "react";
-import { FiEdit, FiTrash2, FiMoreHorizontal, FiToggleLeft, FiToggleRight, FiEye, FiEyeOff } from "react-icons/fi";
+import {
+  FiEdit2,
+  FiTrash2,
+  FiToggleLeft,
+  FiToggleRight,
+} from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
-import DropdownMenu from "../ui/DropdownMenu";
+import "../../styles/Posts/PostActionsMenu.css";
 
-const PostActionsMenu = ({ post, onEdit, onDelete, onToggleStatus }) => {
+const PostActionsMenu = ({ post, onEdit, onDelete, onToggleStatus, onClose }) => {
   const { user } = useAuth();
   const isAuthor = user?.id && post.user?.id && user.id === post.user.id;
   const isAdmin = user?.role === "ADMIN";
 
-  // Debug logs
-  // console.log("User:", user);
-  // console.log("Post:", post);
-  // console.log("isAdmin:", isAdmin);
-
-  // Si l'utilisateur n'est pas l'auteur et pas admin, ne rien afficher
   if (!isAuthor && !isAdmin) return null;
 
-  const TriggerIcon = FiMoreHorizontal;
+  const handleEdit = (e) => {
+    e.stopPropagation();
+    onEdit?.(post);
+    onClose?.();
+  };
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    onDelete?.(post);
+    onClose?.();
+  };
 
   const handleToggleStatus = (e) => {
     e.stopPropagation();
-    if (onToggleStatus) {
-      onToggleStatus(post);
-    }
+    onToggleStatus?.(post);
+    onClose?.();
   };
 
+  const isActive = post.status === "ACTIVE";
+
   return (
-    <DropdownMenu trigger={<TriggerIcon />} align="right">
-      {(isAdmin || isAuthor) && onEdit && (
-        <button
-          className="post-action-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(post);
-          }}
-          style={{
-            color: "var(--reddit-blue)",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-          }}
-        >
-          <FiEdit />
-          <span>Modifier</span>
-        </button>
-      )}
+    <div className="pam-overlay" onClick={onClose}>
+      <div className="pam-sheet" onClick={(e) => e.stopPropagation()}>
 
-      { (isAdmin || isAuthor) && onDelete && (
-        <button
-          className="post-action-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(post);
-          }}
-          style={{
-            color: "#d32f2f",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            marginTop: 6,
-          }}
-        >
-          <FiTrash2 />
-          <span>Supprimer</span>
-        </button>
-      )}
+        {/* Handle bar mobile */}
+        <div className="pam-handle" />
 
-      {isAdmin && (
-        <>
-          {(isAuthor || true) && (
-            <button
-              className="post-action-btn"
-              onClick={handleToggleStatus}
-              style={{
-                color: post.status === "ACTIVE" ? "#f59e0b" : "#10b981",
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                marginTop: isAuthor ? 12 : 0,
-              }}
-            >
-              {post.status === "ACTIVE" ? (
-                <>
-                  <FiToggleRight />
-                  <span>Desactiver</span>
-                </>
-              ) : (
-                <>
-                  <FiToggleLeft />
-                  <span>Activer</span>
-                </>
-              )}
+        <div className="pam-header">
+          <span className="pam-title">Actions</span>
+          <button className="pam-close-btn" onClick={onClose} aria-label="Fermer">✕</button>
+        </div>
+
+        <div className="pam-actions">
+          {(isAdmin || isAuthor) && onEdit && (
+            <button className="pam-action pam-action--edit" onClick={handleEdit}>
+              <span className="pam-action-icon"><FiEdit2 /></span>
+              <span className="pam-action-label">Modifier le post</span>
             </button>
           )}
-        </>
-      )}
-    </DropdownMenu>
+
+          {isAdmin && (
+            <button
+              className={`pam-action ${isActive ? "pam-action--deactivate" : "pam-action--activate"}`}
+              onClick={handleToggleStatus}
+            >
+              <span className="pam-action-icon">
+                {isActive ? <FiToggleRight /> : <FiToggleLeft />}
+              </span>
+              <span className="pam-action-label">
+                {isActive ? "Désactiver le post" : "Activer le post"}
+              </span>
+            </button>
+          )}
+
+          {(isAdmin || isAuthor) && onDelete && (
+            <>
+              <div className="pam-divider" />
+              <button className="pam-action pam-action--delete" onClick={handleDelete}>
+                <span className="pam-action-icon"><FiTrash2 /></span>
+                <span className="pam-action-label">Supprimer le post</span>
+              </button>
+            </>
+          )}
+        </div>
+
+      </div>
+    </div>
   );
 };
 
